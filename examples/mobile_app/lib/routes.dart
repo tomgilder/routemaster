@@ -13,9 +13,7 @@ final loggedOutRouteMap = [
 final routeMap = [
   TabRoute(
     '/',
-    (_, tabRoute) {
-      return HomePage(tabRoute: tabRoute);
-    },
+    (_, tabRoute) => HomePage(tabRoute: tabRoute),
     paths: [
       '/feed',
       '/search',

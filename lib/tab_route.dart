@@ -7,7 +7,7 @@ import 'routemaster.dart';
 
 class TabRoute extends RoutemasterRoute {
   final String pathTemplate;
-  final Widget Function(Map<String, String>, TabRouteElement) builder;
+  final Widget Function(RouteInfo info, TabRouteElement tabRoute) builder;
   final List<String> paths;
 
   TabRoute(
@@ -85,7 +85,7 @@ class TabRouteElement extends SinglePageRouteElement {
   @override
   Page createPage() {
     return MaterialPage(
-      child: tabRoute.builder(routeInfo.pathParameters, this),
+      child: tabRoute.builder(routeInfo, this),
       key: ValueKey(routeInfo.path),
     );
   }
