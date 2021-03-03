@@ -25,8 +25,7 @@ abstract class RoutemasterRoute {
   final bool Function(RouteInfo info) validate = (_) => true;
   final void Function(RoutemasterDelegate routemaster, RouteInfo info)
       onValidationFailed = (routemaster, _) {
-    // TODO: Go to default path, not hard-coded '/'
-    routemaster.replaceNamed('/');
+    routemaster.replaceNamed(routemaster.defaultPath);
   };
 }
 
@@ -85,7 +84,7 @@ class WidgetRouteElement extends SinglePageRouteElement {
         assert(routeInfo != null);
 
   Page createPage() {
-    return MaterialPage(
+    return MaterialPage<dynamic>(
       child: widgetRoute.builder(routeInfo),
       key: ValueKey(routeInfo),
     );

@@ -35,7 +35,7 @@ class TabRouteElement extends SinglePageRouteElement {
     this.routeInfo,
   ) {
     routes = tabRoute.paths.map((path) {
-      final elements = delegate.getAllRoutes(path, skip: 1);
+      final elements = delegate.getAllRoutes(path).skip(1).toList();
       return StackRouteElement(delegate: delegate, routes: elements);
     }).toList();
   }
@@ -84,7 +84,7 @@ class TabRouteElement extends SinglePageRouteElement {
 
   @override
   Page createPage() {
-    return MaterialPage(
+    return MaterialPage<dynamic>(
       child: tabRoute.builder(routeInfo, this),
       key: ValueKey(routeInfo.path),
     );
@@ -92,8 +92,6 @@ class TabRouteElement extends SinglePageRouteElement {
 
   @override
   bool maybeSetRoutes(Iterable<RoutemasterElement> routes) {
-    // TODO not handling correctly
-    // might need a maybePush?
     final index = getIndexForPath(routes.toList()[0].routeInfo.path);
     if (index == null) {
       return false;

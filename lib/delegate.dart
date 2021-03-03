@@ -23,14 +23,9 @@ class Routemaster extends InheritedWidget {
 
   void replaceNamed(String name) => delegate.replaceNamed(name);
 
-  List<Page> getPages() => delegate.getPages();
-
-  bool onPopPage(Route<dynamic> route, dynamic result) =>
-      delegate.onPopPage(route, result);
-
   @override
-  bool updateShouldNotify(covariant InheritedWidget oldWidget) {
-    return true;
+  bool updateShouldNotify(covariant Routemaster oldWidget) {
+    return delegate != oldWidget.delegate;
   }
 }
 
@@ -75,30 +70,29 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     }
 
     final elements = getAllRoutes('/');
-    _topLevelStack = StackRouteElement(delegate: this, routes: elements);
+    _topLevelStack = StackRouteElement(
+      delegate: this,
+      routes: elements.toList(),
+    );
   }
 
   void markNeedsUpdate() {
     notifyListeners();
   }
 
-  // TODO: skip param is weird, needs removing
-  List<RoutemasterElement> getAllRoutes(String path, {int skip = 0}) {
+  Iterable<RoutemasterElement> getAllRoutes(String path) {
     final result = _trieRouter.getAll(path);
 
     if (result == null) {
       print(
           "Router couldn't find a match for path '$path', returning default of '$defaultPath'");
-      return [getRoute(defaultPath)];
+      return [_getRoute(defaultPath)];
     }
 
-    return result
-        .skip(skip)
-        .map((result) => _createElement(path, result))
-        .toList();
+    return result.map((result) => _createElement(path, result));
   }
 
-  RoutemasterElement getRoute(String path) {
+  RoutemasterElement _getRoute(String path) {
     assert(path != null);
 
     final result = _trieRouter.get(path);
@@ -106,7 +100,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       print(
         "Router couldn't find a match for path '$path', returning default of '$defaultPath'",
       );
-      return getRoute(defaultPath);
+      return _getRoute(defaultPath);
     }
 
     return _createElement(path, result);

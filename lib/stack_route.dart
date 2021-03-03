@@ -88,7 +88,7 @@ class StackRouteElement extends MultiPageRouteElement {
     assert(pages.isNotEmpty, "Returned pages list must not be empty");
 
     return [
-      MaterialPage(
+      MaterialPage<dynamic>(
         name: "Wrapper for '${this.routeInfo.path}'",
         child: Builder(
           builder: (context) {
@@ -109,7 +109,7 @@ class StackRouteElement extends MultiPageRouteElement {
   RoutemasterElement get currentRoute => routes.last.currentRoute;
 
   @override
-  void setRoutes(List<RoutemasterElement> newRoutes) {
+  void setRoutes(Iterable<RoutemasterElement> newRoutes) {
     assert(newRoutes != null);
 
     int i = 0;
@@ -137,7 +137,7 @@ class StackRouteElement extends MultiPageRouteElement {
   }
 
   bool maybeSetRoutes(Iterable<RoutemasterElement> routes) {
-    this.routes = routes;
+    this.routes = routes.toList();
     delegate.markNeedsUpdate();
     return true;
   }
