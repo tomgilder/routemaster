@@ -1,7 +1,6 @@
 name: routemaster
 description: Experimental Flutter router
 version: 0.0.1
-author: Tom Gilder
 homepage: https://github.com/tomgilder/routemaster
 
 environment:
@@ -12,6 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
   quiver: ^2.1.5
+  path: ^1.7.0
+  collection: ^1.14.0
 
 dev_dependencies:
   flutter_test:
