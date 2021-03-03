@@ -104,3 +104,56 @@ class WidgetRouteElement extends SinglePageRouteElement {
     return false;
   }
 }
+
+/// TODO: This has a stupid name to avoid conflicts with PageRoute.
+/// Needs a better one.
+class RMPageRoute extends RoutemasterRoute {
+  final String pathTemplate;
+  final Page Function(RouteInfo info) builder;
+  final bool Function(RouteInfo info) validate;
+  final void Function(RoutemasterDelegate routemaster, RouteInfo info)
+      onValidationFailed;
+
+  RMPageRoute(
+    this.pathTemplate,
+    this.builder, {
+    this.validate,
+    this.onValidationFailed,
+  })  : assert(pathTemplate != null),
+        assert(builder != null);
+
+  @override
+  RoutemasterElement createElement(
+      RoutemasterDelegate delegate, RouteInfo routeInfo) {
+    return RMPageRouteElement(this, routeInfo);
+  }
+}
+
+class RMPageRouteElement extends SinglePageRouteElement {
+  final RMPageRoute pageRoute;
+  final RouteInfo routeInfo;
+
+  RoutemasterElement get currentRoute => this;
+
+  RMPageRouteElement(this.pageRoute, this.routeInfo)
+      : assert(pageRoute != null),
+        assert(routeInfo != null);
+
+  Page createPage() {
+    return pageRoute.builder(routeInfo);
+  }
+
+  bool maybeSetRoutes(Iterable<RoutemasterElement> routes) {
+    return false;
+  }
+
+  @override
+  bool maybePush(RoutemasterElement route) {
+    return false;
+  }
+
+  @override
+  bool maybePop() {
+    return false;
+  }
+}

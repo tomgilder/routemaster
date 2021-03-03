@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:mobile_app/pages/login_page.dart';
 import 'package:routemaster/routemaster.dart';
 import 'pages/home_page.dart';
@@ -36,11 +37,34 @@ final routeMap = [
       rm.replaceNamed('/feed');
     },
   ),
-  WidgetRoute(
+  RMPageRoute(
     '/feed/profile/:id/photo',
-    (info) => PhotoPage(id: info.pathParameters['id']),
+    (info) => FancyAnimationPage(
+      child: PhotoPage(id: info.pathParameters['id']),
+    ),
   ),
   WidgetRoute('/search', (_) => SearchPage()),
   WidgetRoute('/notifications', (_) => NotificationsPage()),
   WidgetRoute('/settings', (_) => SettingsPage()),
 ];
+
+class FancyAnimationPage extends Page<void> {
+  final Widget child;
+
+  FancyAnimationPage({@required this.child});
+
+  Route createRoute(BuildContext context) {
+    return PageRouteBuilder<void>(
+      settings: this,
+      pageBuilder: (context, animation, animation2) {
+        final tween = Tween(begin: 0.0, end: 1.0);
+        final curveTween = CurveTween(curve: Curves.easeInOut);
+
+        return FadeTransition(
+          opacity: animation.drive(curveTween).drive(tween),
+          child: child,
+        );
+      },
+    );
+  }
+}

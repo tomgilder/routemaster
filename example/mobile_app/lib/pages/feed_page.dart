@@ -55,7 +55,7 @@ class ProfilePage extends StatelessWidget {
             Text('Profile page, ID = $id, message = $message'),
             ElevatedButton(
               onPressed: () => Routemaster.of(context).pushNamed('photo'),
-              child: Text('Photo page'),
+              child: Text('Photo page (custom animation)'),
             ),
             ElevatedButton(
               onPressed: () => Routemaster.of(context).pop(),
