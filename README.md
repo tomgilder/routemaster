@@ -8,6 +8,8 @@ I would love any feedback you have! Please create an issue for API feedback.
 
 Please don't report bugs yet; it's way too early. There are almost no tests, so there will be bugs 😁 
 
+There's currently no performance optimisation. Widgets are rebuilt way too much on navigation.
+
 # Design goals
 
 * Work with the Flutter Navigator 2.0 API, don't try to replace it.
