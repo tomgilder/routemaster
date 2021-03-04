@@ -26,6 +26,15 @@ class RouteInfo {
     required this.pathParameters,
     required this.queryParameters,
   });
+
+  @override
+  bool operator ==(Object other) => other is RouteInfo && path == other.path;
+
+  @override
+  int get hashCode => path.hashCode;
+
+  @override
+  String toString() => "RouteInfo: '$path'";
 }
 
 // TODO: Do we need this? Can we just use a string?
@@ -296,7 +305,7 @@ class WidgetRouteElement extends SinglePageRouteState {
   Page<void> createPage() {
     return MaterialPage<void>(
       child: widgetRoute.builder(routeInfo),
-      key: ValueKey(routeInfo),
+      key: ValueKey(routeInfo.path),
     );
   }
 
