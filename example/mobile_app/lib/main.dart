@@ -54,7 +54,9 @@ final loggedOutRouteMap = [
 final routeMap = [
   TabPlan(
     '/',
-    (_, tabRoute) => HomePage(tabRoute: tabRoute),
+    (_, tabRoute) {
+      return HomePage(tabRoute: tabRoute);
+    },
     paths: [
       '/feed',
       '/search',
@@ -84,6 +86,7 @@ final routeMap = [
     ),
   ),
   WidgetPlan('/search', (_) => SearchPage()),
+  WidgetPlan('/search/hero', (_) => HeroPage()),
   WidgetPlan('/notifications', (_) => NotificationsPage()),
   WidgetPlan('/settings', (_) => SettingsPage()),
 ];

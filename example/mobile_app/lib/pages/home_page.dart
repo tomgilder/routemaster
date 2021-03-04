@@ -20,8 +20,15 @@ class _HomePageState extends State<HomePage> {
     super.initState();
 
     _tabController.addListener(() {
-      widget.tabRoute.didSwitchTab(_tabController.index);
+      widget.tabRoute.index = _tabController.index;
     });
+  }
+
+  @override
+  void didUpdateWidget(HomePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    _tabController.index = widget.tabRoute.index;
   }
 
   @override
@@ -61,6 +68,7 @@ class _HomePageState extends State<HomePage> {
         assert(pages.isNotEmpty, "Pages must not be empty");
 
         return Navigator(
+          // observers: [HeroController()],
           onPopPage: stackRoute.onPopPage,
           pages: pages,
         );

@@ -1,8 +1,7 @@
 part of '../routemaster.dart';
 
-// TODO: This might be better called 'IndexedRoute' as it could be used for
-// something other than tab bars
-
+// TODO: This might be better called something else as it could be used for something other than tab bars
+// Suggestions: IndexPlan, IndexedPlan, NestedPlan
 class TabPlan extends RoutePlan {
   final String pathTemplate;
   final Widget Function(RouteInfo info, TabRouteState routeState) builder;
@@ -32,13 +31,20 @@ class TabRouteState extends SinglePageRouteState {
   ) {
     routes = plan.paths.map((path) {
       final elements = delegate._getAllRoutes(path).skip(1).toList();
-      return StackRouteState(delegate: delegate, routes: elements);
+      return _StackRouteState(delegate: delegate, routes: elements);
     }).toList();
   }
 
-  int index = 0;
+  int _index = 0;
+  int get index => _index;
+  set index(int value) {
+    if (value != _index) {
+      _index = value;
+      delegate._markNeedsUpdate();
+    }
+  }
 
-  late List<StackRouteState> routes;
+  late List<_StackRouteState> routes;
 
   int? getIndexForPath(String path) {
     int i = 0;
@@ -54,18 +60,14 @@ class TabRouteState extends SinglePageRouteState {
 
   void setNewPath(List<RouteState> newRoutes) {
     final tabIndex = getIndexForPath(newRoutes[0].routeInfo.path)!;
-    print('setNewRoutePath: setting tabIndex = $tabIndex');
-    index = tabIndex;
-    routes[tabIndex].setRoutes(newRoutes);
-    delegate._markNeedsUpdate();
+    this.index = tabIndex;
+    this.routes[tabIndex]._setRoutes(newRoutes);
+    this.delegate._markNeedsUpdate();
   }
 
   @override
-  RouteState get currentRoute => routes[index].currentRoute;
-
-  void didSwitchTab(int index) {
-    this.index = index;
-    delegate._markNeedsUpdate();
+  RouteState get currentRoute {
+    return routes[index].currentRoute;
   }
 
   @override
@@ -78,12 +80,13 @@ class TabRouteState extends SinglePageRouteState {
 
   @override
   bool maybeSetRoutes(Iterable<RouteState?> routes) {
-    final index = getIndexForPath(routes.toList()[0]!.routeInfo.path);
-    if (index == null) {
+    final newIndex = getIndexForPath(routes.toList()[0]!.routeInfo.path);
+    if (newIndex == null) {
       return false;
     }
 
-    this.routes[index].setRoutes(routes.toList());
+    this.index = index;
+    this.routes[index]._setRoutes(routes.toList());
     return true;
   }
 

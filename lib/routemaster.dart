@@ -59,7 +59,7 @@ class Routemaster extends RouterDelegate<RouteData>
   final List<RoutePlan> plans;
   final String defaultPath;
 
-  StackRouteState? _stack;
+  _StackRouteState? _stack;
 
   Routemaster({
     required this.plans,
@@ -111,7 +111,7 @@ class Routemaster extends RouterDelegate<RouteData>
     print("New route set: '${routeData.routeString}'");
 
     if (currentConfiguration != routeData) {
-      _stack!.setRoutes(_getAllRoutes(routeData.routeString));
+      _stack!._setRoutes(_getAllRoutes(routeData.routeString));
     }
 
     return SynchronousFuture(null);
@@ -126,16 +126,13 @@ class Routemaster extends RouterDelegate<RouteData>
 
   /// Add [path] to the end of the current path.
   void pushNamed(String path) {
-    final newPath = join(this.currentConfiguration!.routeString, path);
-    final routes = _getAllRoutes(newPath);
-    _stack!.setRoutes(routes);
-    _markNeedsUpdate();
+    replaceNamed(join(currentConfiguration!.routeString, path));
   }
 
   /// Replace the entire route with the path from [path].
   void replaceNamed(String path) {
     final routes = _getAllRoutes(path);
-    _stack!.setRoutes(routes);
+    _stack!._setRoutes(routes);
     _markNeedsUpdate();
   }
 
@@ -159,7 +156,7 @@ class Routemaster extends RouterDelegate<RouteData>
 
     final elements = _getAllRoutes('/');
     // TODO: Should we just update the stack rather than creating a new one?
-    _stack = StackRouteState(
+    _stack = _StackRouteState(
       delegate: this,
       routes: elements.toList(),
     );
@@ -260,7 +257,7 @@ abstract class MultiPageRouteState extends RouteState {
 
   void pop();
   void push(RouteState routerData);
-  void setRoutes(List<RouteState> newRoutes);
+  void _setRoutes(List<RouteState> newRoutes);
 }
 
 // TODO: Is this abstract class helpful to anyone?

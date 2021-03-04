@@ -26,6 +26,11 @@ class FeedPage extends StatelessWidget {
                   Routemaster.of(context).pushNamed('profile/1/photo'),
               child: Text("Go to user 1's photo page (skipping stacks)"),
             ),
+            ElevatedButton(
+              onPressed: () =>
+                  Routemaster.of(context).replaceNamed('/settings'),
+              child: Text('Jump to settings tab'),
+            ),
           ],
         ),
       ),
