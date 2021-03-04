@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:routemaster/routemaster.dart';
 
 class HomePage extends StatefulWidget {
-  final TabRouteElement tabRoute;
+  final TabRouteState tabRoute;
 
   const HomePage({@required this.tabRoute});
 

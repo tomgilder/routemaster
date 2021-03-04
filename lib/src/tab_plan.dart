@@ -1,51 +1,48 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'routemaster.dart';
+part of '../routemaster.dart';
 
 // TODO: This might be better called 'IndexedRoute' as it could be used for
 // something other than tab bars
 
-class TabRoute extends RoutemasterRoute {
+class TabPlan extends RoutePlan {
   final String pathTemplate;
-  final Widget Function(RouteInfo info, TabRouteElement tabRoute) builder;
+  final Widget Function(RouteInfo info, TabRouteState routeState) builder;
   final List<String> paths;
 
-  TabRoute(
+  TabPlan(
     this.pathTemplate,
     this.builder, {
     required this.paths,
   });
 
   @override
-  RoutemasterElement createElement(
-      RoutemasterDelegate delegate, RouteInfo routeInfo) {
-    return TabRouteElement(this, delegate, routeInfo);
+  RouteState createState(Routemaster delegate, RouteInfo routeInfo) {
+    return TabRouteState(this, delegate, routeInfo);
   }
 }
 
-class TabRouteElement extends SinglePageRouteElement {
-  final TabRoute tabRoute;
-  final RoutemasterDelegate delegate;
+class TabRouteState extends SinglePageRouteState {
+  final TabPlan plan;
+  final Routemaster delegate;
   final RouteInfo routeInfo;
 
-  TabRouteElement(
-    this.tabRoute,
+  TabRouteState(
+    this.plan,
     this.delegate,
     this.routeInfo,
   ) {
-    routes = tabRoute.paths.map((path) {
-      final elements = delegate.getAllRoutes(path).skip(1).toList();
-      return StackRouteElement(delegate: delegate, routes: elements);
+    routes = plan.paths.map((path) {
+      final elements = delegate._getAllRoutes(path).skip(1).toList();
+      return StackRouteState(delegate: delegate, routes: elements);
     }).toList();
   }
 
   int index = 0;
 
-  late List<StackRouteElement> routes;
+  late List<StackRouteState> routes;
 
   int? getIndexForPath(String path) {
     int i = 0;
-    for (String initialPath in tabRoute.paths) {
+    for (String initialPath in plan.paths) {
       if (path.startsWith(initialPath)) {
         return i;
       }
@@ -55,32 +52,32 @@ class TabRouteElement extends SinglePageRouteElement {
     return null;
   }
 
-  void setNewPath(List<RoutemasterElement> newRoutes) {
+  void setNewPath(List<RouteState> newRoutes) {
     final tabIndex = getIndexForPath(newRoutes[0].routeInfo.path)!;
     print('setNewRoutePath: setting tabIndex = $tabIndex');
     index = tabIndex;
     routes[tabIndex].setRoutes(newRoutes);
-    delegate.markNeedsUpdate();
+    delegate._markNeedsUpdate();
   }
 
   @override
-  RoutemasterElement get currentRoute => routes[index].currentRoute;
+  RouteState get currentRoute => routes[index].currentRoute;
 
   void didSwitchTab(int index) {
     this.index = index;
-    delegate.markNeedsUpdate();
+    delegate._markNeedsUpdate();
   }
 
   @override
   Page createPage() {
-    return MaterialPage<dynamic>(
-      child: tabRoute.builder(routeInfo, this),
+    return MaterialPage<void>(
+      child: plan.builder(routeInfo, this),
       key: ValueKey(routeInfo.path),
     );
   }
 
   @override
-  bool maybeSetRoutes(Iterable<RoutemasterElement?> routes) {
+  bool maybeSetRoutes(Iterable<RouteState?> routes) {
     final index = getIndexForPath(routes.toList()[0]!.routeInfo.path);
     if (index == null) {
       return false;
@@ -91,7 +88,7 @@ class TabRouteElement extends SinglePageRouteElement {
   }
 
   @override
-  bool maybePush(RoutemasterElement route) {
+  bool maybePush(RouteState route) {
     final index = getIndexForPath(route.routeInfo.path);
     if (index == null) {
       return false;

@@ -8,11 +8,11 @@ import 'pages/feed_page.dart';
 import 'pages/notifications_page.dart';
 
 final loggedOutRouteMap = [
-  WidgetRoute('/', (_) => LoginPage()),
+  WidgetPlan('/', (_) => LoginPage()),
 ];
 
 final routeMap = [
-  TabRoute(
+  TabPlan(
     '/',
     (_, tabRoute) => HomePage(tabRoute: tabRoute),
     paths: [
@@ -22,8 +22,8 @@ final routeMap = [
       '/settings',
     ],
   ),
-  WidgetRoute('/feed', (_) => FeedPage()),
-  WidgetRoute(
+  WidgetPlan('/feed', (_) => FeedPage()),
+  WidgetPlan(
     '/feed/profile/:id',
     (info) => ProfilePage(
       id: info.pathParameters['id'],
@@ -37,15 +37,15 @@ final routeMap = [
       rm.replaceNamed('/feed');
     },
   ),
-  RMPageRoute(
+  PagePlan(
     '/feed/profile/:id/photo',
     (info) => FancyAnimationPage(
       child: PhotoPage(id: info.pathParameters['id']),
     ),
   ),
-  WidgetRoute('/search', (_) => SearchPage()),
-  WidgetRoute('/notifications', (_) => NotificationsPage()),
-  WidgetRoute('/settings', (_) => SettingsPage()),
+  WidgetPlan('/search', (_) => SearchPage()),
+  WidgetPlan('/notifications', (_) => NotificationsPage()),
+  WidgetPlan('/settings', (_) => SettingsPage()),
 ];
 
 class FancyAnimationPage extends Page<void> {

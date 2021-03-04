@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:routemaster/trie_router/trie_router.dart';
+import 'package:routemaster/src/trie_router/trie_router.dart';
 
 class TestRoute {
   final String id;

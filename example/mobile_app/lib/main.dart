@@ -18,13 +18,9 @@ class MyApp extends StatelessWidget {
 
           return MaterialApp.router(
             title: 'Routemaster Demo',
-            theme: ThemeData(
-              primarySwatch: Colors.blue,
-              visualDensity: VisualDensity.adaptivePlatformDensity,
-            ),
             routeInformationParser: RoutemasterParser(),
-            routerDelegate: RoutemasterDelegate(
-              routes: isLoggedIn ? routeMap : loggedOutRouteMap,
+            routerDelegate: Routemaster(
+              plans: isLoggedIn ? routeMap : loggedOutRouteMap,
             ),
           );
         },

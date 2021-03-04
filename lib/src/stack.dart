@@ -1,40 +1,25 @@
-import 'package:flutter/material.dart';
-import 'package:routemaster/routemaster.dart';
+part of '../routemaster.dart';
 
-class _RouteWidget<T> extends InheritedWidget {
-  final T route;
-
-  _RouteWidget({
-    required this.route,
-    required Widget child,
-  })   : assert(route != null),
-        super(child: child);
-
-  @override
-  bool updateShouldNotify(covariant InheritedWidget oldWidget) {
-    return false;
-  }
-}
-
-class StackRouteElement extends MultiPageRouteElement {
-  final RoutemasterDelegate delegate;
-  late List<RoutemasterElement?> routes;
+/// The state of a stack of routes.
+class StackRouteState extends MultiPageRouteState {
+  final Routemaster delegate;
+  late List<RouteState?> routes;
   List<Page>? pages;
 
-  StackRouteElement({
+  StackRouteState({
     required this.delegate,
-    List<RoutemasterElement?>? routes,
+    List<RouteState?>? routes,
   }) {
     if (routes != null) {
       setRoutes(routes);
     }
   }
 
-  static StackRouteElement of(BuildContext context) {
-    return context
-        .dependOnInheritedWidgetOfExactType<_RouteWidget<StackRouteElement>>()!
-        .route;
-  }
+  // static StackPlanElement of(BuildContext context) {
+  //   return context
+  //       .dependOnInheritedWidgetOfExactType<_RouteWidget<StackPlanElement>>()!
+  //       .route;
+  // }
 
   bool onPopPage(Route<dynamic> route, dynamic result) {
     if (route.didPop(result)) {
@@ -56,17 +41,17 @@ class StackRouteElement extends MultiPageRouteElement {
       routes.removeLast();
     }
 
-    delegate.markNeedsUpdate();
+    delegate._markNeedsUpdate();
   }
 
   @override
-  void push(RoutemasterElement route) {
+  void push(RouteState route) {
     if (routes.last!.maybePush(route)) {
       return;
     }
 
     routes.add(route);
-    delegate.markNeedsUpdate();
+    delegate._markNeedsUpdate();
   }
 
   @override
@@ -75,7 +60,7 @@ class StackRouteElement extends MultiPageRouteElement {
 
     final pages = routes.map(
       (data) {
-        if (data is SinglePageRouteElement) {
+        if (data is SinglePageRouteState) {
           return data.createPage();
         }
 
@@ -85,32 +70,33 @@ class StackRouteElement extends MultiPageRouteElement {
 
     assert(pages.isNotEmpty, "Returned pages list must not be empty");
 
-    return [
-      MaterialPage<dynamic>(
-        name: "Wrapper for '${this.routeInfo.path}'",
-        child: Builder(
-          builder: (context) {
-            return _RouteWidget<StackRouteElement>(
-              route: this,
-              child: Navigator(
-                pages: pages,
-                onPopPage: this.onPopPage,
-              ),
-            );
-          },
-        ),
-      )
-    ];
+    return pages;
+    // return [
+    //   MaterialPage<dynamic>(
+    //     name: "Wrapper for '${this.routeInfo.path}'",
+    //     child: Builder(
+    //       builder: (context) {
+    //         return _RouteWidget<StackPlanElement>(
+    //           route: this,
+    //           child: Navigator(
+    //             pages: pages,
+    //             onPopPage: this.onPopPage,
+    //           ),
+    //         );
+    //       },
+    //     ),
+    //   )
+    // ];
   }
 
   @override
-  RoutemasterElement get currentRoute => routes.last!.currentRoute;
+  RouteState get currentRoute => routes.last!.currentRoute;
 
   @override
-  void setRoutes(Iterable<RoutemasterElement?> newRoutes) {
+  void setRoutes(Iterable<RouteState?> newRoutes) {
     int i = 0;
 
-    final elements = <RoutemasterElement?>[];
+    final elements = <RouteState?>[];
 
     for (final element in newRoutes) {
       final bool hasMoreRoutes = i < newRoutes.length - 1;
@@ -119,7 +105,6 @@ class StackRouteElement extends MultiPageRouteElement {
       if (hasMoreRoutes && element!.maybeSetRoutes(newRoutes.skip(i + 1))) {
         // Route has handled all of the rest of routes
         // Our job here is done
-        // final newRouteList = newRoutes.take(i + 1).toList();
         assert(elements.isNotEmpty, "New route list cannot be empty");
         print("StackRoute.setRoutes: adding $i routes");
         this.routes = elements;
@@ -132,9 +117,9 @@ class StackRouteElement extends MultiPageRouteElement {
     this.routes = elements;
   }
 
-  bool maybeSetRoutes(Iterable<RoutemasterElement?> routes) {
+  bool maybeSetRoutes(Iterable<RouteState?> routes) {
     this.routes = routes.toList();
-    delegate.markNeedsUpdate();
+    delegate._markNeedsUpdate();
     return true;
   }
 
@@ -142,7 +127,7 @@ class StackRouteElement extends MultiPageRouteElement {
   RouteInfo get routeInfo => this.routes.last!.routeInfo;
 
   @override
-  bool maybePush(RoutemasterElement route) {
+  bool maybePush(RouteState route) {
     push(route);
     return true;
   }

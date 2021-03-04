@@ -94,8 +94,6 @@ class TrieRouter<T> {
   }
 
   RouterData<T?>? get(String route) {
-    assert(route != null);
-
     var pathSegments = path.split(_stripQueryString(route));
     var parameters = <String, String>{};
     TrieNode<String?, T?>? current = _trie.root;
@@ -119,8 +117,6 @@ class TrieRouter<T> {
   }
 
   List<RouterData<T?>>? getAll(String route) {
-    assert(route != null);
-
     var pathSegments = path.split(_stripQueryString(route));
     var parameters = <String, String>{};
     TrieNode<String?, T?>? current = _trie.root;
@@ -170,9 +166,7 @@ class RouterData<T> {
   final String path;
 
   const RouterData(this.value, this.parameters, this.path)
-      : assert(value != null),
-        assert(parameters != null),
-        assert(path != null);
+      : assert(value != null);
 
   @override
   int get hashCode =>

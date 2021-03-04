@@ -14,7 +14,22 @@ Please don't report bugs yet; it's way too early. There are almost no tests, so 
 * Design around user scenarios/stories, such as the ones in [the Flutter storyboard](https://github.com/flutter/uxr/files/5953028/PUBLIC.Flutter.Navigator.API.Scenarios.-.Storyboards.pdf) - [see here for examples](https://github.com/tomgilder/routemaster/wiki/Routermaster-Flutter-scenarios).
 * Be opinionated: try not to provide 10 options to achieve a goal, but be flexible for all scenarios.
 
-***
+
+# Architecture 
+
+The architecture mirrors Flutter's fairly closely.
+
+You create immutable `RoutePlan` objects as mapping between paths and widgets:
+
+`WidgetPlan('/search', (_) => SearchPage())`
+
+These `RoutePlan` objects have a `createState()` object which creates a mutable `RouteState` object to manage the in-memory state.
+
+So for instance `TabPlan` creates a `TabRouteState`, which has a `index` property for which the current tab is.
+
+# Name
+
+Named after the original Routemaster:
 
 ![A photo of a Routemaster bus](https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Routemaster_RML2375_%28JJD_375D%29%2C_6_March_2004.jpg/320px-Routemaster_RML2375_%28JJD_375D%29%2C_6_March_2004.jpg)
 

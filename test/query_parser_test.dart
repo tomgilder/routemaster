@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:routemaster/query_parser.dart';
+import 'package:routemaster/src/query_parser.dart';
 
 void main() {
   test('Parses query string', () {
