@@ -3,7 +3,7 @@ class RouteConfigurationError extends Error {}
 
 class ConflictingPathError extends RouteConfigurationError {
   final Iterable<String> segmentsToAdd;
-  final Iterable<String> segmentsAlreadyAdded;
+  final Iterable<String?> segmentsAlreadyAdded;
 
   ConflictingPathError(this.segmentsToAdd, this.segmentsAlreadyAdded);
 

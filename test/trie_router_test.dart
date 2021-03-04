@@ -31,17 +31,17 @@ void main() {
     router.add('/one', route1);
     router.add('/one/two', route2);
 
-    final dataRoot = router.get('/');
+    final dataRoot = router.get('/')!;
     expect(dataRoot.path, '/');
     expect(dataRoot.value, rootRoute);
     expect(dataRoot.parameters.isEmpty, isTrue);
 
-    final data1 = router.get('/one');
+    final data1 = router.get('/one')!;
     expect(data1.path, '/one');
     expect(data1.value, route1);
     expect(data1.parameters.isEmpty, isTrue);
 
-    final data2 = router.get('/one/two');
+    final data2 = router.get('/one/two')!;
     expect(data2.path, '/one/two');
     expect(data2.value, route2);
     expect(data2.parameters.isEmpty, isTrue);
@@ -57,7 +57,7 @@ void main() {
     router.add('/one', route1);
     router.add('/one/two', route2);
 
-    final routes = router.getAll('/one/two');
+    final routes = router.getAll('/one/two')!;
     expect(routes[0].path, '/');
     expect(routes[0].value, rootRoute);
     expect(routes[0].parameters.isEmpty, isTrue);

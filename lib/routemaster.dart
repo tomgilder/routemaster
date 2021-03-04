@@ -7,7 +7,7 @@ export 'stack_route.dart';
 export 'routes.dart';
 
 class RouteData {
-  const RouteData(this.routeString) : assert(routeString != null);
+  const RouteData(this.routeString);
 
   /// The pattern used to parse the route string. e.g. "/users/:id"
   final String routeString;

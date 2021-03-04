@@ -7,9 +7,9 @@ class RouteInfo {
   final Map<String, String> queryParameters;
 
   const RouteInfo({
-    @required this.path,
-    @required this.pathParameters,
-    @required this.queryParameters,
+    required this.path,
+    required this.pathParameters,
+    required this.queryParameters,
   });
 }
 
@@ -22,15 +22,15 @@ abstract class RoutemasterRoute {
   RoutemasterElement createElement(
       RoutemasterDelegate delegate, RouteInfo path);
 
-  final bool Function(RouteInfo info) validate = (_) => true;
-  final void Function(RoutemasterDelegate routemaster, RouteInfo info)
+  final bool Function(RouteInfo info)? validate = (_) => true;
+  final void Function(RoutemasterDelegate routemaster, RouteInfo info)?
       onValidationFailed = (routemaster, _) {
     routemaster.replaceNamed(routemaster.defaultPath);
   };
 }
 
 abstract class RoutemasterElement {
-  bool maybeSetRoutes(Iterable<RoutemasterElement> routes);
+  bool maybeSetRoutes(Iterable<RoutemasterElement?> routes);
   bool maybePush(RoutemasterElement route);
   bool maybePop();
 
@@ -54,8 +54,8 @@ abstract class SinglePageRouteElement extends RoutemasterElement {
 class WidgetRoute extends RoutemasterRoute {
   final String pathTemplate;
   final Widget Function(RouteInfo info) builder;
-  final bool Function(RouteInfo info) validate;
-  final void Function(RoutemasterDelegate routemaster, RouteInfo info)
+  final bool Function(RouteInfo info)? validate;
+  final void Function(RoutemasterDelegate routemaster, RouteInfo info)?
       onValidationFailed;
 
   WidgetRoute(
@@ -90,7 +90,7 @@ class WidgetRouteElement extends SinglePageRouteElement {
     );
   }
 
-  bool maybeSetRoutes(Iterable<RoutemasterElement> routes) {
+  bool maybeSetRoutes(Iterable<RoutemasterElement?> routes) {
     return false;
   }
 
@@ -110,8 +110,8 @@ class WidgetRouteElement extends SinglePageRouteElement {
 class RMPageRoute extends RoutemasterRoute {
   final String pathTemplate;
   final Page Function(RouteInfo info) builder;
-  final bool Function(RouteInfo info) validate;
-  final void Function(RoutemasterDelegate routemaster, RouteInfo info)
+  final bool Function(RouteInfo info)? validate;
+  final void Function(RoutemasterDelegate routemaster, RouteInfo info)?
       onValidationFailed;
 
   RMPageRoute(
@@ -143,7 +143,7 @@ class RMPageRouteElement extends SinglePageRouteElement {
     return pageRoute.builder(routeInfo);
   }
 
-  bool maybeSetRoutes(Iterable<RoutemasterElement> routes) {
+  bool maybeSetRoutes(Iterable<RoutemasterElement?> routes) {
     return false;
   }
 

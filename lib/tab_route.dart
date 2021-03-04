@@ -13,9 +13,8 @@ class TabRoute extends RoutemasterRoute {
   TabRoute(
     this.pathTemplate,
     this.builder, {
-    @required this.paths,
-  })  : assert(pathTemplate != null),
-        assert(builder != null);
+    required this.paths,
+  });
 
   @override
   RoutemasterElement createElement(
@@ -42,11 +41,9 @@ class TabRouteElement extends SinglePageRouteElement {
 
   int index = 0;
 
-  List<StackRouteElement> routes;
+  late List<StackRouteElement> routes;
 
-  int getIndexForPath(String path) {
-    assert(path != null);
-
+  int? getIndexForPath(String path) {
     int i = 0;
     for (String initialPath in tabRoute.paths) {
       if (path.startsWith(initialPath)) {
@@ -58,14 +55,8 @@ class TabRouteElement extends SinglePageRouteElement {
     return null;
   }
 
-  static TabRoute of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<_TabRouteWidget>().route;
-  }
-
   void setNewPath(List<RoutemasterElement> newRoutes) {
-    assert(newRoutes != null);
-
-    final tabIndex = getIndexForPath(newRoutes[0].routeInfo.path);
+    final tabIndex = getIndexForPath(newRoutes[0].routeInfo.path)!;
     print('setNewRoutePath: setting tabIndex = $tabIndex');
     index = tabIndex;
     routes[tabIndex].setRoutes(newRoutes);
@@ -76,8 +67,6 @@ class TabRouteElement extends SinglePageRouteElement {
   RoutemasterElement get currentRoute => routes[index].currentRoute;
 
   void didSwitchTab(int index) {
-    assert(index != null);
-
     this.index = index;
     delegate.markNeedsUpdate();
   }
@@ -91,8 +80,8 @@ class TabRouteElement extends SinglePageRouteElement {
   }
 
   @override
-  bool maybeSetRoutes(Iterable<RoutemasterElement> routes) {
-    final index = getIndexForPath(routes.toList()[0].routeInfo.path);
+  bool maybeSetRoutes(Iterable<RoutemasterElement?> routes) {
+    final index = getIndexForPath(routes.toList()[0]!.routeInfo.path);
     if (index == null) {
       return false;
     }
@@ -116,15 +105,20 @@ class TabRouteElement extends SinglePageRouteElement {
   bool maybePop() {
     return routes[index].maybePop();
   }
+
+  // Removed for now, might come back later
+  // static TabRoute of(BuildContext context) {
+  //   return context.dependOnInheritedWidgetOfExactType<_TabRouteWidget>()!.route;
+  // }
 }
 
-class _TabRouteWidget extends InheritedWidget {
-  final TabRoute route;
+// class _TabRouteWidget extends InheritedWidget {
+//   final TabRoute route;
 
-  _TabRouteWidget({@required this.route}) : assert(route != null);
+//   _TabRouteWidget({required this.route}) : assert(route != null), super(child: child);
 
-  @override
-  bool updateShouldNotify(covariant InheritedWidget oldWidget) {
-    return false;
-  }
-}
+//   @override
+//   bool updateShouldNotify(covariant InheritedWidget oldWidget) {
+//     return false;
+//   }
+// }

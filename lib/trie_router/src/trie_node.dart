@@ -17,7 +17,7 @@ class TrieNode<K, V> {
     _children[key] = TrieNode<K, V>(key, value);
   }
 
-  TrieNode<K, V> get(K key) {
+  TrieNode<K, V>? get(K key) {
     return _children.containsKey(key) ? _children[key] : null;
   }
 
@@ -31,7 +31,7 @@ class TrieNode<K, V> {
     return false;
   }
 
-  TrieNode<K, V> getWhere(bool Function(K k) test) {
+  TrieNode<K, V>? getWhere(bool Function(K k) test) {
     for (var childKey in _children.keys) {
       if (test(childKey)) {
         return _children[childKey];

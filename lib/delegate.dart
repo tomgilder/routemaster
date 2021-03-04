@@ -4,17 +4,19 @@ import 'routemaster.dart';
 import 'trie_router/trie_router.dart';
 import 'package:path/path.dart' as path;
 
+typedef Widget RoutemasterBuilder(
+    BuildContext context, RoutemasterDelegate routemaster);
+
 class Routemaster extends InheritedWidget {
   final RoutemasterDelegate delegate;
 
   Routemaster({
-    @required Widget child,
-    @required this.delegate,
-  })  : assert(child != null),
-        super(child: child);
+    required Widget child,
+    required this.delegate,
+  }) : super(child: child);
 
   static Routemaster of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<Routemaster>();
+    return context.dependOnInheritedWidgetOfExactType<Routemaster>()!;
   }
 
   void pop() => delegate.pop();
@@ -31,19 +33,20 @@ class Routemaster extends InheritedWidget {
 
 class RoutemasterDelegate extends RouterDelegate<RouteData>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouteData> {
-  TrieRouter<RoutemasterRoute> _trieRouter;
+  late TrieRouter<RoutemasterRoute> _trieRouter;
 
   @override
+  // TODO: Allow providing this key?
   final GlobalKey<NavigatorState> navigatorKey;
 
-  StackRouteElement _topLevelStack;
-
-  final Widget Function(BuildContext, RoutemasterDelegate) builder;
+  final RoutemasterBuilder? builder;
   final List<RoutemasterRoute> routes;
   final String defaultPath;
 
+  StackRouteElement? _stack;
+
   RoutemasterDelegate({
-    @required this.routes,
+    required this.routes,
     this.builder,
     this.defaultPath = '/',
   }) : navigatorKey = GlobalKey<NavigatorState>() {
@@ -54,10 +57,11 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   Widget build(BuildContext context) {
     return Routemaster(
       child: builder != null
-          ? builder(context, this)
+          ? builder!(context, this)
           : Navigator(
               pages: getPages(),
               onPopPage: onPopPage,
+              key: navigatorKey,
             ),
       delegate: this,
     );
@@ -70,7 +74,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     }
 
     final elements = getAllRoutes('/');
-    _topLevelStack = StackRouteElement(
+    // TODO: Should we just update the stack rather than creating a new one?
+    _stack = StackRouteElement(
       delegate: this,
       routes: elements.toList(),
     );
@@ -80,7 +85,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     notifyListeners();
   }
 
-  Iterable<RoutemasterElement> getAllRoutes(String path) {
+  Iterable<RoutemasterElement?> getAllRoutes(String path) {
     final result = _trieRouter.getAll(path);
 
     if (result == null) {
@@ -92,9 +97,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return result.map((result) => _createElement(path, result));
   }
 
-  RoutemasterElement _getRoute(String path) {
-    assert(path != null);
-
+  /// Try to get the route for [path]. If no match, returns default path.
+  /// Returns null if validation fails.
+  RoutemasterElement? _getRoute(String path) {
     final result = _trieRouter.get(path);
     if (result == null) {
       print(
@@ -106,9 +111,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return _createElement(path, result);
   }
 
-  RoutemasterElement _createElement(
+  RoutemasterElement? _createElement(
     String path,
-    RouterData<RoutemasterRoute> result,
+    RouterData<RoutemasterRoute?> result,
   ) {
     final routeInfo = RouteInfo(
       path: result.path,
@@ -116,25 +121,24 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       queryParameters: QueryParser.parseQueryParameters(path),
     );
 
-    if (result.value.validate != null && !result.value.validate(routeInfo)) {
+    if (result.value!.validate != null && !result.value!.validate!(routeInfo)) {
       print("Validation failed for '$path'");
-      result.value.onValidationFailed(this, routeInfo);
+      result.value!.onValidationFailed!(this, routeInfo);
       return null;
     }
 
-    return result.value.createElement(this, routeInfo);
+    return result.value!.createElement(this, routeInfo);
   }
 
   @override
-  RouteData get currentConfiguration {
+  RouteData? get currentConfiguration {
     // Look at the current app state and return a route path that matches it
-    if (_topLevelStack == null) {
+    if (_stack == null) {
       return null;
     }
 
-    final path = _topLevelStack.currentRoute.routeInfo.path;
+    final path = _stack!.currentRoute.routeInfo.path;
 
-    assert(path != null);
     print("Current configuration is '$path'");
     return RouteData(path);
   }
@@ -148,37 +152,37 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     print("New route set: '${routeData.routeString}'");
 
     if (currentConfiguration != routeData) {
-      _topLevelStack.setRoutes(getAllRoutes(routeData.routeString));
+      _stack!.setRoutes(getAllRoutes(routeData.routeString));
     }
 
     return Future.value();
   }
 
   List<Page> getPages() {
-    final pages = _topLevelStack.createPages();
+    final pages = _stack!.createPages();
     assert(pages.isNotEmpty, "Returned pages list must not be empty");
     return pages;
   }
 
   void pop() {
-    _topLevelStack.pop();
+    _stack!.pop();
     markNeedsUpdate();
   }
 
   void pushNamed(String name) {
-    final newPath = path.join(this.currentConfiguration.routeString, name);
+    final newPath = path.join(this.currentConfiguration!.routeString, name);
     final routes = getAllRoutes(newPath);
-    _topLevelStack.setRoutes(routes);
+    _stack!.setRoutes(routes);
     markNeedsUpdate();
   }
 
   void replaceNamed(String name) {
     final routes = getAllRoutes(name);
-    _topLevelStack.setRoutes(routes);
+    _stack!.setRoutes(routes);
     markNeedsUpdate();
   }
 
   bool onPopPage(Route<dynamic> route, dynamic result) {
-    return _topLevelStack.onPopPage(route, result);
+    return _stack!.onPopPage(route, result);
   }
 }

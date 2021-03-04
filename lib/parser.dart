@@ -11,7 +11,7 @@ class RoutemasterParser extends RouteInformationParser<RouteData> {
   @override
   Future<RouteData> parseRouteInformation(
       RouteInformation routeInformation) async {
-    return RouteData(routeInformation.location);
+    return RouteData(routeInformation.location!);
   }
 
   // / Route object -> RouteInformation (URL)

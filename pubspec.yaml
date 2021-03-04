@@ -4,15 +4,15 @@ version: 0.0.1
 homepage: https://github.com/tomgilder/routemaster
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
   flutter: ">=1.17.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  quiver: ^2.1.5
-  path: ^1.7.0
-  collection: ^1.14.0
+  quiver: ^3.0.0
+  path: ^1.8.0
+  collection: ^1.15.0
 
 dev_dependencies:
   flutter_test:
