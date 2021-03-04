@@ -85,7 +85,7 @@ class TabRouteState extends SinglePageRouteState {
       return false;
     }
 
-    this.index = index;
+    this.index = newIndex;
     this.routes[index]._setRoutes(routes.toList());
     return true;
   }
