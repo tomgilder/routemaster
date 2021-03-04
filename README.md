@@ -2,7 +2,7 @@
 
 Hello! This is an experimental Flutter router, building on [page_router](https://github.com/johnpryan/page_router).
 
-To see how it works, start at the [example app](https://github.com/tomgilder/routemaster/blob/main/examples/mobile_app/lib/main.dart).
+To see how it works, start at the [example app](https://github.com/tomgilder/routemaster/blob/main/example/mobile_app/lib/main.dart).
 
 I would love any feedback you have! Please create an issue for API feedback.
 
