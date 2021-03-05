@@ -8,31 +8,41 @@ class FeedPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('Feed'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: () => Routemaster.of(context).pushNamed('profile/1'),
-              child: Text('Push profile page with ID 1'),
-            ),
-            ElevatedButton(
-              onPressed: () =>
-                  Routemaster.of(context).pushNamed('profile/2?message=hello'),
-              child: Text('Push profile page with ID 2 and query string'),
-            ),
-            ElevatedButton(
-              onPressed: () =>
-                  Routemaster.of(context).pushNamed('profile/1/photo'),
-              child: Text("Go to user 1's photo page (skipping stacks)"),
-            ),
-            ElevatedButton(
-              onPressed: () =>
-                  Routemaster.of(context).replaceNamed('/settings'),
-              child: Text('Jump to settings tab'),
-            ),
-          ],
-        ),
+      body: ListView(
+        padding: EdgeInsets.all(16),
+        children: [
+          Column(
+            children: [
+              ElevatedButton(
+                onPressed: () => Routemaster.of(context).pushNamed('profile/1'),
+                child: Text('Push profile page with ID 1'),
+              ),
+              ElevatedButton(
+                onPressed: () => Routemaster.of(context)
+                    .pushNamed('profile/2?message=hello'),
+                child: Text('Push profile page with ID 2 and query string'),
+              ),
+              ElevatedButton(
+                onPressed: () =>
+                    Routemaster.of(context).pushNamed('profile/1/photo'),
+                child: Text("Go to user 1's photo page (skipping stacks)"),
+              ),
+              ElevatedButton(
+                onPressed: () => Routemaster.of(context).pushNamed('profile/3'),
+                child: Text("Go to user 3 (validation fail)"),
+              ),
+              ElevatedButton(
+                onPressed: () => Routemaster.of(context).replaceNamed('/404'),
+                child: Text("Go to /404"),
+              ),
+              ElevatedButton(
+                onPressed: () =>
+                    Routemaster.of(context).replaceNamed('/settings'),
+                child: Text('Jump to settings tab'),
+              ),
+            ],
+          )
+        ],
       ),
     );
   }

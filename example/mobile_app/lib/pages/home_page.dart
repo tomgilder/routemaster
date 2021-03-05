@@ -62,14 +62,14 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       tabBuilder: (BuildContext context, int index) {
-        final stackRoute = widget.tabRoute.routes[index];
-        final pages = stackRoute.createPages();
+        final stack = widget.tabRoute.getStackForIndex(index);
+        final pages = stack.createPages();
 
         assert(pages.isNotEmpty, "Pages must not be empty");
 
         return Navigator(
           // observers: [HeroController()],
-          onPopPage: stackRoute.onPopPage,
+          onPopPage: stack.onPopPage,
           pages: pages,
         );
       },

@@ -2,10 +2,12 @@ part of '../routemaster.dart';
 
 // TODO: This might be better called something else as it could be used for something other than tab bars
 // Suggestions: IndexPlan, IndexedPlan, NestedPlan
-class TabPlan extends RoutePlan {
+class TabPlan extends RoutePlan with RedirectPlan {
   final String pathTemplate;
   final Widget Function(RouteInfo info, TabRouteState routeState) builder;
   final List<String> paths;
+
+  String get redirectPath => paths[0];
 
   TabPlan(
     this.pathTemplate,
@@ -19,6 +21,10 @@ class TabPlan extends RoutePlan {
   }
 }
 
+mixin RedirectPlan {
+  String get redirectPath;
+}
+
 class TabRouteState extends SinglePageRouteState {
   final TabPlan plan;
   final Routemaster delegate;
@@ -29,10 +35,7 @@ class TabRouteState extends SinglePageRouteState {
     this.delegate,
     this.routeInfo,
   ) {
-    routes = plan.paths.map((path) {
-      final elements = delegate._getAllRoutes(path).skip(1).toList();
-      return _StackRouteState(delegate: delegate, routes: elements);
-    }).toList();
+    _routes = List.filled(plan.paths.length, null);
   }
 
   int _index = 0;
@@ -44,7 +47,28 @@ class TabRouteState extends SinglePageRouteState {
     }
   }
 
-  late List<_StackRouteState> routes;
+  late List<_StackRouteState?> _routes;
+
+  _StackRouteState getStackForIndex(int index) {
+    if (_routes[index] == null) {
+      _routes[index] = _StackRouteState(
+        delegate: delegate,
+        routes: [
+          delegate._getRoute(join(
+            routeInfo.path,
+            plan.paths[index],
+          ))!,
+        ],
+      );
+    }
+
+    return _routes[index]!;
+  }
+
+  List<Page> buildPagesForIndex(int index) {
+    final stack = getStackForIndex(index);
+    return stack.createPages();
+  }
 
   int? getIndexForPath(String path) {
     int i = 0;
@@ -61,13 +85,15 @@ class TabRouteState extends SinglePageRouteState {
   void setNewPath(List<RouteState> newRoutes) {
     final tabIndex = getIndexForPath(newRoutes[0].routeInfo.path)!;
     this.index = tabIndex;
-    this.routes[tabIndex]._setRoutes(newRoutes);
+    final stack = getStackForIndex(tabIndex);
+    stack._setRouteStates(newRoutes);
     this.delegate._markNeedsUpdate();
   }
 
   @override
   RouteState get currentRoute {
-    return routes[index].currentRoute;
+    assert(_routes[index] != null);
+    return _routes[index]!.currentRoute;
   }
 
   @override
@@ -79,14 +105,17 @@ class TabRouteState extends SinglePageRouteState {
   }
 
   @override
-  bool maybeSetRoutes(Iterable<RouteState?> routes) {
-    final newIndex = getIndexForPath(routes.toList()[0]!.routeInfo.path);
+  bool maybeSetRouteStates(Iterable<RouteState> routes) {
+    assert(
+        routes.isNotEmpty, "Don't call maybeSetRouteStates with an empty list");
+
+    final newIndex = getIndexForPath(routes.toList()[0].routeInfo.path);
     if (newIndex == null) {
       return false;
     }
 
     this.index = newIndex;
-    this.routes[index]._setRoutes(routes.toList());
+    getStackForIndex(index)._setRouteStates(routes.toList());
     return true;
   }
 
@@ -97,13 +126,13 @@ class TabRouteState extends SinglePageRouteState {
       return false;
     }
 
-    this.routes[index].push(route);
+    getStackForIndex(index).push(route);
     return true;
   }
 
   @override
   bool maybePop() {
-    return routes[index].maybePop();
+    return getStackForIndex(index).maybePop();
   }
 
   // Removed for now, might come back later

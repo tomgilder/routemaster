@@ -120,7 +120,10 @@ class Routemaster extends RouterDelegate<RouteData>
     print("New route set: '${routeData.routeString}'");
 
     if (currentConfiguration != routeData) {
-      _stack!._setRoutes(_getAllRoutes(routeData.routeString));
+      final states = _createAllStates(routeData.routeString);
+      if (states != null) {
+        _stack!._setRouteStates(states);
+      }
     }
 
     return SynchronousFuture(null);
@@ -135,13 +138,19 @@ class Routemaster extends RouterDelegate<RouteData>
 
   /// Add [path] to the end of the current path.
   void pushNamed(String path) {
-    replaceNamed(join(currentConfiguration!.routeString, path));
+    final newPath = join(currentConfiguration!.routeString, path);
+    print("pushNamed: navigating to '$newPath'");
+    replaceNamed(newPath);
   }
 
   /// Replace the entire route with the path from [path].
   void replaceNamed(String path) {
-    final routes = _getAllRoutes(path);
-    _stack!._setRoutes(routes);
+    final states = _createAllStates(path);
+    if (states == null) {
+      return;
+    }
+
+    _stack!._setRouteStates(states);
     _markNeedsUpdate();
   }
 
@@ -163,28 +172,69 @@ class Routemaster extends RouterDelegate<RouteData>
       _trieRouter.add(route.pathTemplate, route);
     }
 
-    final elements = _getAllRoutes('/');
-    // TODO: Should we just update the stack rather than creating a new one?
-    _stack = _StackRouteState(
-      delegate: this,
-      routes: elements.toList(),
-    );
+    final routeStates = _createAllStates('/');
+    if (routeStates == null) {
+      // TODO: Should this throw?
+      throw "Failed to create initital state";
+    } else {
+      // TODO: Should we just update the stack rather than creating a new one?
+      _stack = _StackRouteState(
+        delegate: this,
+        routes: routeStates.toList(),
+      );
+    }
   }
 
   void _markNeedsUpdate() {
     notifyListeners();
   }
 
-  Iterable<RouteState?> _getAllRoutes(String path) {
-    final result = _trieRouter.getAll(path);
+  List<RouteState>? _createAllStates(String path) {
+    final routerResult = _trieRouter.getAll(path);
 
-    if (result == null) {
+    if (routerResult == null) {
       print(
           "Router couldn't find a match for path '$path', returning default of '$defaultPath'");
-      return [_getRoute(defaultPath)];
+      return [_getRoute(defaultPath)!];
     }
 
-    return result.map((result) => _createElement(path, result));
+    // TODO: We're only looking to see if the LAST plan is a redirect
+    // ...what if others are also a redirect?
+    final lastPlan = routerResult.last.value;
+    if (lastPlan is RedirectPlan) {
+      final redirectPath = (lastPlan as RedirectPlan).redirectPath;
+      print("Redirecting from '$path' to '$redirectPath'");
+      return _createAllStates(redirectPath);
+    }
+
+    final currentRoute = _stack?.currentRoute.routeInfo;
+
+    var list = <RouteState>[];
+
+    for (final rr in routerResult.reversed) {
+      print(
+        "Trying to create state for '${rr.path}' with plan type '${rr.value.runtimeType}', current route is '${currentRoute?.path}'...",
+      );
+
+      final state = _createState(path, rr);
+      if (state == null) {
+        print(" - ABORTING: createState returned null");
+        return null;
+      }
+      print(' - Created a ${state.runtimeType} for it');
+      print(' - Current state list has ${list.length} items');
+
+      if (list.isNotEmpty && state.maybeSetRouteStates(list)) {
+        print(' - maybeSetRouteStates returned true');
+        list = [state];
+      } else {
+        print(' - maybeSetRouteStates returned false');
+        list.insert(0, state);
+      }
+    }
+
+    assert(list.isNotEmpty, "_createAllStates can't return empty list");
+    return list;
   }
 
   /// Try to get the route for [path]. If no match, returns default path.
@@ -198,26 +248,27 @@ class Routemaster extends RouterDelegate<RouteData>
       return _getRoute(defaultPath);
     }
 
-    return _createElement(path, result);
+    return _createState(path, result);
   }
 
-  RouteState? _createElement(
+  RouteState? _createState(
     String path,
-    RouterData<RoutePlan?> result,
+    RouterData<RoutePlan?> routerData,
   ) {
     final routeInfo = RouteInfo(
-      path: result.path,
-      pathParameters: result.parameters,
+      path: routerData.path,
+      pathParameters: routerData.parameters,
       queryParameters: QueryParser.parseQueryParameters(path),
     );
 
-    if (result.value!.validate != null && !result.value!.validate!(routeInfo)) {
+    if (routerData.value!.validate != null &&
+        !routerData.value!.validate!(routeInfo)) {
       print("Validation failed for '$path'");
-      result.value!.onValidationFailed!(this, routeInfo);
+      routerData.value!.onValidationFailed!(this, routeInfo);
       return null;
     }
 
-    return result.value!.createState(this, routeInfo);
+    return routerData.value!.createState(this, routeInfo);
   }
 }
 
@@ -252,7 +303,7 @@ abstract class RoutePlan {
 }
 
 abstract class RouteState {
-  bool maybeSetRoutes(Iterable<RouteState?> routes);
+  bool maybeSetRouteStates(Iterable<RouteState> routes);
   bool maybePush(RouteState route);
   bool maybePop();
 
@@ -266,7 +317,7 @@ abstract class MultiPageRouteState extends RouteState {
 
   void pop();
   void push(RouteState routerData);
-  void _setRoutes(List<RouteState> newRoutes);
+  void _setRouteStates(List<RouteState> newRoutes);
 }
 
 // TODO: Is this abstract class helpful to anyone?
@@ -290,17 +341,17 @@ class WidgetPlan extends RoutePlan {
 
   @override
   RouteState createState(Routemaster delegate, RouteInfo routeInfo) {
-    return WidgetRouteElement(this, routeInfo);
+    return WidgetRouteState(this, routeInfo);
   }
 }
 
-class WidgetRouteElement extends SinglePageRouteState {
+class WidgetRouteState extends SinglePageRouteState {
   final WidgetPlan widgetRoute;
   final RouteInfo routeInfo;
 
   RouteState get currentRoute => this;
 
-  WidgetRouteElement(this.widgetRoute, this.routeInfo);
+  WidgetRouteState(this.widgetRoute, this.routeInfo);
 
   Page<void> createPage() {
     return MaterialPage<void>(
@@ -309,7 +360,7 @@ class WidgetRouteElement extends SinglePageRouteState {
     );
   }
 
-  bool maybeSetRoutes(Iterable<RouteState?> routes) {
+  bool maybeSetRouteStates(Iterable<RouteState> routes) {
     return false;
   }
 
@@ -340,23 +391,23 @@ class PagePlan extends RoutePlan {
 
   @override
   RouteState createState(Routemaster delegate, RouteInfo routeInfo) {
-    return PagePlanElement(this, routeInfo);
+    return PageRouteState(this, routeInfo);
   }
 }
 
-class PagePlanElement extends SinglePageRouteState {
+class PageRouteState extends SinglePageRouteState {
   final PagePlan pageRoute;
   final RouteInfo routeInfo;
 
   RouteState get currentRoute => this;
 
-  PagePlanElement(this.pageRoute, this.routeInfo);
+  PageRouteState(this.pageRoute, this.routeInfo);
 
   Page createPage() {
     return pageRoute.builder(routeInfo);
   }
 
-  bool maybeSetRoutes(Iterable<RouteState?> routes) {
+  bool maybeSetRouteStates(Iterable<RouteState> routes) {
     return false;
   }
 

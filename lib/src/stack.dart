@@ -6,14 +6,15 @@ part of '../routemaster.dart';
 class _StackRouteState extends MultiPageRouteState {
   final Routemaster delegate;
 
-  // TODO: This should probably be non-nullable
-  late List<RouteState?> _routes;
+  late List<RouteState> _routes;
 
   _StackRouteState({
     required this.delegate,
-    required List<RouteState?> routes,
+    List<RouteState>? routes,
   }) {
-    _setRoutes(routes);
+    if (routes != null) {
+      _setRouteStates(routes);
+    }
   }
 
   bool onPopPage(Route<dynamic> route, dynamic result) {
@@ -28,7 +29,7 @@ class _StackRouteState extends MultiPageRouteState {
 
   @override
   void pop() {
-    if (_routes.last!.maybePop()) {
+    if (_routes.last.maybePop()) {
       return;
     }
 
@@ -41,7 +42,7 @@ class _StackRouteState extends MultiPageRouteState {
 
   @override
   void push(RouteState route) {
-    if (_routes.last!.maybePush(route)) {
+    if (_routes.last.maybePush(route)) {
       return;
     }
 
@@ -54,9 +55,9 @@ class _StackRouteState extends MultiPageRouteState {
     assert(_routes.isNotEmpty, "Can't generate pages with no routes");
 
     final pages = _routes.map(
-      (data) {
-        if (data is SinglePageRouteState) {
-          return data.createPage();
+      (routeState) {
+        if (routeState is SinglePageRouteState) {
+          return routeState.createPage();
         }
 
         throw "Not a SinglePageRoute";
@@ -95,41 +96,43 @@ class _StackRouteState extends MultiPageRouteState {
   }
 
   @override
-  RouteState get currentRoute => _routes.last!.currentRoute;
+  RouteState get currentRoute => _routes.last.currentRoute;
 
   @override
-  void _setRoutes(Iterable<RouteState?> newRoutes) {
+  void _setRouteStates(Iterable<RouteState> newRouteStates) {
+    // TODO: This could use .take() instead of using another list
     int i = 0;
 
-    final elements = <RouteState?>[];
+    final states = <RouteState>[];
 
-    for (final element in newRoutes) {
-      final bool hasMoreRoutes = i < newRoutes.length - 1;
-      elements.add(element);
+    for (final routeState in newRouteStates) {
+      final bool hasMoreRoutes = i < newRouteStates.length - 1;
+      states.add(routeState);
 
-      if (hasMoreRoutes && element!.maybeSetRoutes(newRoutes.skip(i + 1))) {
+      if (hasMoreRoutes &&
+          routeState.maybeSetRouteStates(newRouteStates.skip(i + 1))) {
         // Route has handled all of the rest of routes
         // Our job here is done
-        assert(elements.isNotEmpty, "New route list cannot be empty");
+        assert(states.isNotEmpty, "New route list cannot be empty");
         print("StackRoute.setRoutes: adding $i routes");
-        this._routes = elements;
+        this._routes = states;
         return;
       }
 
       i++;
     }
 
-    this._routes = elements;
+    this._routes = states;
   }
 
-  bool maybeSetRoutes(Iterable<RouteState?> routes) {
+  bool maybeSetRouteStates(Iterable<RouteState> routes) {
     this._routes = routes.toList();
     delegate._markNeedsUpdate();
     return true;
   }
 
   @override
-  RouteInfo get routeInfo => this._routes.last!.routeInfo;
+  RouteInfo get routeInfo => this._routes.last.routeInfo;
 
   @override
   bool maybePush(RouteState route) {
@@ -139,7 +142,7 @@ class _StackRouteState extends MultiPageRouteState {
 
   @override
   bool maybePop() {
-    if (_routes.last!.maybePop()) {
+    if (_routes.last.maybePop()) {
       return true;
     }
 

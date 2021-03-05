@@ -87,8 +87,31 @@ final routeMap = [
   ),
   WidgetPlan('/search', (_) => SearchPage()),
   WidgetPlan('/search/hero', (_) => HeroPage()),
-  WidgetPlan('/notifications', (_) => NotificationsPage()),
   WidgetPlan('/settings', (_) => SettingsPage()),
+
+  // This gets really complicated to test out tested scenarios!
+  TabPlan(
+    '/notifications',
+    (_, tabRoute) => NotificationsPage(tabRoute: tabRoute),
+    paths: [
+      '/notifications/one',
+      '/notifications/two',
+    ],
+  ),
+  WidgetPlan(
+    '/notifications/one',
+    (_) => NotificationsContentPage(
+      message: 'Page one',
+    ),
+  ),
+  WidgetPlan(
+    '/notifications/two',
+    (_) => NotificationsContentPage(message: 'Page two'),
+  ),
+  WidgetPlan(
+    '/notifications/pushed',
+    (_) => MessagePage(message: 'Pushed notifications'),
+  ),
 ];
 
 // For custom animations, just use the existing Flutter [Page] and [Route] objects
