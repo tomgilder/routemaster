@@ -96,9 +96,6 @@ class _StackRouteState extends MultiPageRouteState {
   }
 
   @override
-  RouteState get currentRoute => _routes.last.currentRoute;
-
-  @override
   void _setRouteStates(Iterable<RouteState> newRouteStates) {
     int i = 0;
 
@@ -147,5 +144,10 @@ class _StackRouteState extends MultiPageRouteState {
     }
 
     return false;
+  }
+
+  @override
+  Iterable<RouteState> getCurrentRouteStates() sync* {
+    yield* _routes.last.getCurrentRouteStates();
   }
 }

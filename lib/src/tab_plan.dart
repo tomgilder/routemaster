@@ -91,12 +91,6 @@ class TabRouteState extends SinglePageRouteState {
   }
 
   @override
-  RouteState get currentRoute {
-    assert(_routes[index] != null);
-    return _routes[index]!.currentRoute;
-  }
-
-  @override
   Page createPage() {
     return MaterialPage<void>(
       child: plan.builder(routeInfo, this),
@@ -133,6 +127,12 @@ class TabRouteState extends SinglePageRouteState {
   @override
   bool maybePop() {
     return getStackForIndex(index).maybePop();
+  }
+
+  @override
+  Iterable<RouteState> getCurrentRouteStates() sync* {
+    yield this;
+    yield* _routes[index]!.getCurrentRouteStates();
   }
 
   // Removed for now, might come back later

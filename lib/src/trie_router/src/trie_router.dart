@@ -15,7 +15,6 @@ class TrieRouter<T> {
   /// It is an error to add two segments prefixed with ':' at the same index.
   bool add(String route, T value) {
     var pathSegments = path.split(route);
-    print(pathSegments);
     return addPathComponents(pathSegments, value);
   }
 

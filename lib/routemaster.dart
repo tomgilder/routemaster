@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path/path.dart';
+import 'package:collection/collection.dart';
 import 'src/trie_router/trie_router.dart';
 import 'src/query_parser.dart';
 
@@ -72,6 +73,7 @@ class Routemaster extends RouterDelegate<RouteData>
   set plans(List<RoutePlan>? newPlans) {
     if (_plans != newPlans) {
       _plans = newPlans;
+      _stack = null;
       _initRoutes();
     }
   }
@@ -116,7 +118,7 @@ class Routemaster extends RouterDelegate<RouteData>
       return null;
     }
 
-    final path = _stack!.currentRoute.routeInfo.path;
+    final path = _stack!.getCurrentRouteStates().last.routeInfo.path;
 
     print("Current configuration is '$path'");
     return RouteData(path);
@@ -156,6 +158,7 @@ class Routemaster extends RouterDelegate<RouteData>
 
   /// Replace the entire route with the path from [path].
   void replaceNamed(String path) {
+    print('********** replaceNamed: $path');
     final states = _createAllStates(path);
     if (states == null) {
       return;
@@ -222,16 +225,34 @@ class Routemaster extends RouterDelegate<RouteData>
       return _createAllStates(redirectPath);
     }
 
-    final currentRoute = _stack?.currentRoute.routeInfo;
+    final currentRoutes = _stack?.getCurrentRouteStates().toList();
+
+    if (currentRoutes != null) {
+      print('*** currentRoutes: ' +
+          currentRoutes.map((e) => e.routeInfo.path).join(' : '));
+    }
 
     var list = <RouteState>[];
 
     for (final rr in routerResult.reversed) {
       print(
-        "Trying to create state for '${rr.path}' with plan type '${rr.value.runtimeType}', current route is '${currentRoute?.path}'...",
+        "Trying to create state for '${rr.path}' with plan type '${rr.value.runtimeType}', current route is '${currentRoutes?.last.routeInfo.path}'...",
       );
 
-      final state = _createState(path, rr);
+      final routeInfo = RouteInfo(
+        path: rr.path,
+        pathParameters: rr.parameters,
+        queryParameters: QueryParser.parseQueryParameters(path),
+      );
+
+      final currentState = currentRoutes?.firstWhereOrNull(
+        ((element) => element.routeInfo == routeInfo),
+      );
+
+      if (currentState != null)
+        print(' - currentState match for ${routeInfo.path}');
+
+      final state = currentState ?? _createState(path, rr);
       if (state == null) {
         print(" - ABORTING: createState returned null");
         return null;
@@ -322,8 +343,8 @@ abstract class RouteState {
   bool maybePush(RouteState route);
   bool maybePop();
 
-  RouteState get currentRoute;
   RouteInfo get routeInfo;
+  Iterable<RouteState> getCurrentRouteStates();
 }
 
 // TODO: Is this abstract class helpful to anyone?
@@ -332,7 +353,6 @@ abstract class MultiPageRouteState extends RouteState {
 
   void pop();
   void push(RouteState routerData);
-  void _setRouteStates(List<RouteState> newRoutes);
 }
 
 // TODO: Is this abstract class helpful to anyone?
@@ -388,6 +408,11 @@ class WidgetRouteState extends SinglePageRouteState {
   bool maybePop() {
     return false;
   }
+
+  @override
+  Iterable<RouteState> getCurrentRouteStates() sync* {
+    yield this;
+  }
 }
 
 class PagePlan extends RoutePlan {
@@ -414,8 +439,6 @@ class PageRouteState extends SinglePageRouteState {
   final PagePlan pageRoute;
   final RouteInfo routeInfo;
 
-  RouteState get currentRoute => this;
-
   PageRouteState(this.pageRoute, this.routeInfo);
 
   Page createPage() {
@@ -434,6 +457,11 @@ class PageRouteState extends SinglePageRouteState {
   @override
   bool maybePop() {
     return false;
+  }
+
+  @override
+  Iterable<RouteState> getCurrentRouteStates() sync* {
+    yield this;
   }
 }
 
