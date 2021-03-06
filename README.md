@@ -2,13 +2,38 @@
 
 Hello! This is an in-development Flutter router, building on [page_router](https://github.com/johnpryan/page_router).
 
-To see how it works, start at the [example app](https://github.com/tomgilder/routemaster/blob/main/example/mobile_app/lib/main.dart).
+Here's the entire routing setup needed for an app featuring tabs and pushed routes:
+
+```dart
+final plans = [
+  CupertinoTabPlan(
+    '/',
+    (info, routeState) => HomePage(routeState: routeState),
+    paths: ['/feed', '/settings'],
+  ),
+  WidgetPlan('/feed', (info) => FeedPage()),
+  WidgetPlan('/feed/profile/:id', (info) => ProfilePage(id: info['id'])),
+  WidgetPlan('/settings', (info) => SettingsPage()),
+];
+
+void main() {
+  runApp(
+      MaterialApp.router(
+        routerDelegate: Routemaster(plans: plans),
+        routeInformationParser: RoutemasterParser(),
+      ),
+    );
+}
+```
+
+...you can see this in action in [this simple app example](https://github.com/tomgilder/routemaster/blob/main/example/simple_example/lib/main.dart).
+
+There's also a [more advanced example](https://github.com/tomgilder/routemaster/blob/main/example/mobile_app/lib/main.dart).
 
 I would love any feedback you have! Please create an issue for API feedback.
 
 Please don't report bugs yet; it's way too early. There are almost no tests, so there will be bugs 😁 
 
-There's currently no performance optimisation. Widgets are rebuilt way too much on navigation.
 
 # Design goals
 
