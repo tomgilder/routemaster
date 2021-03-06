@@ -137,7 +137,7 @@ final routeMap = [
   ),
   WidgetPlan(
     '/bottom-navigation-bar/one',
-    (_) => MessagePage(message: 'Page one'),
+    (_) => BottomContentPage(),
   ),
   WidgetPlan(
     '/bottom-navigation-bar/two',
@@ -146,6 +146,10 @@ final routeMap = [
   WidgetPlan(
     '/bottom-navigation-bar/three',
     (_) => MessagePage(message: 'Page three'),
+  ),
+  WidgetPlan(
+    '/bottom-navigation-bar/sub-page',
+    (_) => MessagePage(message: 'Sub-page'),
   ),
 ];
 

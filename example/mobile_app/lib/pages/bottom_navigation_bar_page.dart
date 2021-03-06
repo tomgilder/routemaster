@@ -51,3 +51,27 @@ class _BottomNavigationBarPageState extends State<BottomNavigationBarPage> {
     );
   }
 }
+
+class BottomContentPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              // TODO: Is this confusing?
+              // It feels like we should be able to use .pushNamed for
+              // Android-style navigation where we don't push into the tab
+              // navigator. Not sure there's a good solution to this.
+              onPressed: () => Routemaster.of(context)
+                  .replaceNamed('/bottom-navigation-bar/sub-page'),
+              child: Text("Push page Android-style"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

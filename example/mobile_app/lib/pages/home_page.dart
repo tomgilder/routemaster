@@ -46,19 +46,3 @@ class HomePage extends StatelessWidget {
     );
   }
 }
-
-class RoutemasterCupertinoTabController extends CupertinoTabController {
-  final IndexedRouteState state;
-
-  RoutemasterCupertinoTabController(this.state) {
-    state.addListener(() {
-      if (state.index != this.index) {
-        this.index = state.index;
-      }
-    });
-
-    this.addListener(() {
-      state.index = this.index;
-    });
-  }
-}
