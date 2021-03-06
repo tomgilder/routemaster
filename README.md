@@ -1,6 +1,6 @@
 # Routemaster
 
-Hello! This is an experimental Flutter router, building on [page_router](https://github.com/johnpryan/page_router).
+Hello! This is an in-development Flutter router, building on [page_router](https://github.com/johnpryan/page_router).
 
 To see how it works, start at the [example app](https://github.com/tomgilder/routemaster/blob/main/example/mobile_app/lib/main.dart).
 
