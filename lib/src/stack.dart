@@ -100,29 +100,24 @@ class _StackRouteState extends MultiPageRouteState {
 
   @override
   void _setRouteStates(Iterable<RouteState> newRouteStates) {
-    // TODO: This could use .take() instead of using another list
     int i = 0;
-
-    final states = <RouteState>[];
 
     for (final routeState in newRouteStates) {
       final bool hasMoreRoutes = i < newRouteStates.length - 1;
-      states.add(routeState);
 
       if (hasMoreRoutes &&
           routeState.maybeSetRouteStates(newRouteStates.skip(i + 1))) {
         // Route has handled all of the rest of routes
         // Our job here is done
-        assert(states.isNotEmpty, "New route list cannot be empty");
         print("StackRoute.setRoutes: adding $i routes");
-        this._routes = states;
+        this._routes = newRouteStates.take(i).toList();
         return;
       }
 
       i++;
     }
 
-    this._routes = states;
+    this._routes = newRouteStates.toList();
   }
 
   bool maybeSetRouteStates(Iterable<RouteState> routes) {
