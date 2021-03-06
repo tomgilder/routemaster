@@ -176,6 +176,18 @@ class CupertinoTabRouteState extends SinglePageRouteState
       key: ValueKey(routeInfo.path),
     );
   }
+
+  Widget tabBuilder(BuildContext context, int index) {
+    final stack = getStackForIndex(index);
+    final pages = stack.createPages();
+
+    assert(pages.isNotEmpty, "Pages must not be empty");
+
+    return Navigator(
+      onPopPage: stack.onPopPage,
+      pages: pages,
+    );
+  }
 }
 
 mixin IndexedRoutePlanMixIn on RoutePlan {
