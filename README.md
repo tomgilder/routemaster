@@ -1,6 +1,6 @@
 # Routemaster
 
-Hello! This is an in-development Flutter router.
+Hello! This is an in-development router for Flutter. It's an easy-to-use wrapper over Navigator 2.0.
 
 Here's the entire routing setup needed for an app featuring tabs and pushed routes:
 
