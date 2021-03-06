@@ -187,7 +187,9 @@ class Routemaster extends RouterDelegate<RouteData>
 
     _trieRouter = TrieRouter<RoutePlan>();
     for (final route in plans!) {
-      _trieRouter.add(route.pathTemplate, route);
+      for (final path in route.pathTemplates) {
+        _trieRouter.add(path, route);
+      }
     }
 
     final routeStates = _createAllStates('/');
@@ -327,7 +329,7 @@ class _RoutemasterWidget extends InheritedWidget {
 abstract class RoutePlan {
   RoutePlan();
 
-  String get pathTemplate;
+  List<String> get pathTemplates;
 
   RouteState createState(Routemaster delegate, RouteInfo path);
 
@@ -361,14 +363,21 @@ abstract class SinglePageRouteState extends RouteState {
 }
 
 class WidgetPlan extends RoutePlan {
-  final String pathTemplate;
+  final List<String> pathTemplates;
   final Widget Function(RouteInfo info) builder;
   final bool Function(RouteInfo info)? validate;
   final void Function(Routemaster routemaster, RouteInfo info)?
       onValidationFailed;
 
   WidgetPlan(
-    this.pathTemplate,
+    String pathTemplate,
+    this.builder, {
+    this.validate,
+    this.onValidationFailed,
+  }) : pathTemplates = [pathTemplate];
+
+  WidgetPlan.routes(
+    this.pathTemplates,
     this.builder, {
     this.validate,
     this.onValidationFailed,
@@ -416,14 +425,21 @@ class WidgetRouteState extends SinglePageRouteState {
 }
 
 class PagePlan extends RoutePlan {
-  final String pathTemplate;
+  final List<String> pathTemplates;
   final Page Function(RouteInfo info) builder;
   final bool Function(RouteInfo info)? validate;
   final void Function(Routemaster routemaster, RouteInfo info)?
       onValidationFailed;
 
   PagePlan(
-    this.pathTemplate,
+    String pathTemplate,
+    this.builder, {
+    this.validate,
+    this.onValidationFailed,
+  }) : this.pathTemplates = [pathTemplate];
+
+  PagePlan.routes(
+    this.pathTemplates,
     this.builder, {
     this.validate,
     this.onValidationFailed,

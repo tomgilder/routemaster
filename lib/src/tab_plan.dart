@@ -3,14 +3,20 @@ part of '../routemaster.dart';
 // TODO: This might be better called something else as it could be used for something other than tab bars
 // Suggestions: IndexPlan, IndexedPlan, NestedPlan
 class TabPlan extends RoutePlan with RedirectPlan {
-  final String pathTemplate;
+  final List<String> pathTemplates;
   final Widget Function(RouteInfo info, TabRouteState routeState) builder;
   final List<String> paths;
 
   String get redirectPath => paths[0];
 
   TabPlan(
-    this.pathTemplate,
+    String pathTemplate,
+    this.builder, {
+    required this.paths,
+  }) : this.pathTemplates = [pathTemplate];
+
+  TabPlan.routes(
+    this.pathTemplates,
     this.builder, {
     required this.paths,
   });

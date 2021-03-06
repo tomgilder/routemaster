@@ -92,8 +92,15 @@ final routeMap = [
     ),
   ),
   WidgetPlan('/search', (_) => SearchPage()),
-  WidgetPlan('/search/hero', (_) => HeroPage()),
   WidgetPlan('/settings', (_) => SettingsPage()),
+
+  // Most pages tend to appear only in one place in the app
+  // However sometimes you can push them into multiple places, such as different
+  // tabs. Use `Plan.routes` for this.
+  WidgetPlan.routes(
+    ['/search/hero', '/settings/hero'],
+    (_) => HeroPage(),
+  ),
 
   // This gets really complicated to test out tested scenarios!
   TabPlan(
@@ -115,7 +122,7 @@ final routeMap = [
     (_) => NotificationsContentPage(message: 'Page two'),
   ),
   WidgetPlan(
-    '/notifications/pushed',
+    'notifications/pushed',
     (_) => MessagePage(message: 'Pushed notifications'),
   ),
 ];
