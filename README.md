@@ -12,10 +12,10 @@ There's currently no performance optimisation. Widgets are rebuilt way too much 
 
 # Design goals
 
-* Work with the Flutter Navigator 2.0 API, don't try to replace it.
-* Design around user scenarios/stories, such as the ones in [the Flutter storyboard](https://github.com/flutter/uxr/files/5953028/PUBLIC.Flutter.Navigator.API.Scenarios.-.Storyboards.pdf) - [see here for examples](https://github.com/tomgilder/routemaster/wiki/Routermaster-Flutter-scenarios).
-* Be opinionated: try not to provide 10 options to achieve a goal, but be flexible for all scenarios.
-
+* Integrated: work with the Flutter Navigator 2.0 API, don't try to replace it. Try to have a very Flutter-like API.
+* Usable: design around user scenarios/stories, such as the ones in [the Flutter storyboard](https://github.com/flutter/uxr/files/5953028/PUBLIC.Flutter.Navigator.API.Scenarios.-.Storyboards.pdf) - [see here for examples](https://github.com/tomgilder/routemaster/wiki/Routermaster-Flutter-scenarios).
+* Opinionated: don't provide 10 options to achieve a goal, but be flexible for all scenarios.
+* Focused: just navigation, nothing else. For example, no dependency injection.
 
 # Architecture 
 
