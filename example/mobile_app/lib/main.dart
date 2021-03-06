@@ -12,7 +12,14 @@ void main() {
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final Routemaster _routemaster = Routemaster();
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -24,10 +31,9 @@ class MyApp extends StatelessWidget {
           return MaterialApp.router(
             title: 'Routemaster Demo',
             routeInformationParser: RoutemasterParser(),
-            routerDelegate: Routemaster(
-              // We swap out the routing plan at runtime based on app state
-              plans: isLoggedIn ? routeMap : loggedOutRouteMap,
-            ),
+            // We swap out the routing plan at runtime based on app state
+            routerDelegate: _routemaster
+              ..plans = isLoggedIn ? routeMap : loggedOutRouteMap,
           );
         },
       ),

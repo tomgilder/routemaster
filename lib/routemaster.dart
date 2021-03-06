@@ -65,17 +65,28 @@ class Routemaster extends RouterDelegate<RouteData>
   final GlobalKey<NavigatorState> navigatorKey;
 
   final RoutemasterBuilder? builder;
-  final List<RoutePlan> plans;
   final String defaultPath;
+
+  List<RoutePlan>? _plans;
+  List<RoutePlan>? get plans => _plans;
+  set plans(List<RoutePlan>? newPlans) {
+    if (_plans != newPlans) {
+      _plans = newPlans;
+      _initRoutes();
+    }
+  }
 
   _StackRouteState? _stack;
 
   Routemaster({
-    required this.plans,
+    List<RoutePlan>? plans,
     this.builder,
     this.defaultPath = '/',
-  }) : navigatorKey = GlobalKey<NavigatorState>() {
-    _initRoutes();
+  })  : _plans = plans,
+        navigatorKey = GlobalKey<NavigatorState>() {
+    if (_plans != null) {
+      _initRoutes();
+    }
   }
 
   static Routemaster of(BuildContext context) {
@@ -167,8 +178,12 @@ class Routemaster extends RouterDelegate<RouteData>
   }
 
   void _initRoutes() {
+    if (plans == null) {
+      return;
+    }
+
     _trieRouter = TrieRouter<RoutePlan>();
-    for (final route in plans) {
+    for (final route in plans!) {
       _trieRouter.add(route.pathTemplate, route);
     }
 
