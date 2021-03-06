@@ -122,7 +122,7 @@ final routeMap = [
     (_) => NotificationsContentPage(message: 'Page two'),
   ),
   WidgetPlan(
-    'notifications/pushed',
+    '/notifications/pushed',
     (_) => MessagePage(message: 'Pushed notifications'),
   ),
 ];
