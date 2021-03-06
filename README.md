@@ -1,6 +1,6 @@
 # Routemaster
 
-Hello! This is an in-development Flutter router, building on [page_router](https://github.com/johnpryan/page_router).
+Hello! This is an in-development Flutter router.
 
 Here's the entire routing setup needed for an app featuring tabs and pushed routes:
 
@@ -26,6 +26,12 @@ void main() {
 }
 ```
 
+And then to navigate:
+
+```dart
+Routemaster.of(context).replaceNamed('/feed/profile/1');
+```
+
 ...you can see this in action in [this simple app example](https://github.com/tomgilder/routemaster/blob/main/example/simple_example/lib/main.dart).
 
 There's also a [more advanced example](https://github.com/tomgilder/routemaster/blob/main/example/mobile_app/lib/main.dart).
@@ -33,7 +39,6 @@ There's also a [more advanced example](https://github.com/tomgilder/routemaster/
 I would love any feedback you have! Please create an issue for API feedback.
 
 Please don't report bugs yet; it's way too early. There are almost no tests, so there will be bugs 😁 
-
 
 # Design goals
 
@@ -53,6 +58,8 @@ You create immutable `RoutePlan` objects as mapping between paths and widgets:
 These `RoutePlan` objects have a `createState()` object which creates a mutable `RouteState` object to manage the in-memory state.
 
 So for instance `TabPlan` creates a `TabRouteState`, which has a `index` property for which the current tab is.
+
+This project builds on [page_router](https://github.com/johnpryan/page_router).
 
 # Name
 
