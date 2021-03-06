@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app/pages/login_page.dart';
+import 'pages/bottom_navigation_bar_page.dart';
 import 'pages/home_page.dart';
 import 'pages/settings_page.dart';
 import 'pages/search_page.dart';
@@ -58,7 +59,7 @@ final loggedOutRouteMap = [
 
 // This is the real route map - used if the user is logged in.
 final routeMap = [
-  TabPlan(
+  CupertinoTabPlan(
     '/',
     (_, tabRoute) {
       return HomePage(tabRoute: tabRoute);
@@ -103,7 +104,7 @@ final routeMap = [
   ),
 
   // This gets really complicated to test out tested scenarios!
-  TabPlan(
+  IndexedPlan(
     '/notifications',
     (_, tabRoute) => NotificationsPage(tabRoute: tabRoute),
     paths: [
@@ -124,6 +125,27 @@ final routeMap = [
   WidgetPlan(
     '/notifications/pushed',
     (_) => MessagePage(message: 'Pushed notifications'),
+  ),
+  IndexedPlan(
+    '/bottom-navigation-bar',
+    (_, routeState) => BottomNavigationBarPage(routeState: routeState),
+    paths: [
+      '/bottom-navigation-bar/one',
+      '/bottom-navigation-bar/two',
+      '/bottom-navigation-bar/three',
+    ],
+  ),
+  WidgetPlan(
+    '/bottom-navigation-bar/one',
+    (_) => MessagePage(message: 'Page one'),
+  ),
+  WidgetPlan(
+    '/bottom-navigation-bar/two',
+    (_) => MessagePage(message: 'Page two'),
+  ),
+  WidgetPlan(
+    '/bottom-navigation-bar/three',
+    (_) => MessagePage(message: 'Page three'),
   ),
 ];
 

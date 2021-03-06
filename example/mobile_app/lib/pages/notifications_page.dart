@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class NotificationsPage extends StatefulWidget {
-  final TabRouteState tabRoute;
+  final IndexedRouteState tabRoute;
 
   const NotificationsPage({@required this.tabRoute});
 

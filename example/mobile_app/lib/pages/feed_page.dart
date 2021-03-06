@@ -36,6 +36,11 @@ class FeedPage extends StatelessWidget {
                 child: Text("Go to /404"),
               ),
               ElevatedButton(
+                onPressed: () => Routemaster.of(context)
+                    .replaceNamed('/bottom-navigation-bar'),
+                child: Text("Bottom Navigation Bar page"),
+              ),
+              ElevatedButton(
                 onPressed: () =>
                     Routemaster.of(context).replaceNamed('/settings'),
                 child: Text('Jump to settings tab'),
