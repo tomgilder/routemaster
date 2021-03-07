@@ -1,4 +1,4 @@
-part of '../routemaster.dart';
+part of '../../routemaster.dart';
 
 class IndexedPlan extends RoutePlan with RedirectPlan, IndexedRoutePlanMixIn {
   final List<String> pathTemplates;

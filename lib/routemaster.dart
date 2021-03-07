@@ -1,73 +1,38 @@
 library routemaster;
 
+export 'src/parser.dart';
+export 'src/route_info.dart';
+export 'src/plans/standard.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path/path.dart';
 import 'package:collection/collection.dart';
+import 'src/plans/standard.dart';
+import 'src/route_dart.dart';
 import 'src/trie_router/trie_router.dart';
 import 'src/query_parser.dart';
+import 'src/route_info.dart';
 
-part 'src/stack.dart';
-part 'src/tab_plan.dart';
+part 'src/plans/stack.dart';
+part 'src/plans/tab_plan.dart';
 
 typedef Widget RoutemasterBuilder(
   BuildContext context,
   Routemaster routemaster,
 );
 
-/// Information generated from a specific path (URL).
-class RouteInfo {
-  final String path;
-  final Map<String, String> pathParameters;
-  final Map<String, String> queryParameters;
-
-  const RouteInfo({
-    required this.path,
-    required this.pathParameters,
-    required this.queryParameters,
-  });
-
-  @override
-  bool operator ==(Object other) => other is RouteInfo && path == other.path;
-
-  @override
-  int get hashCode => path.hashCode;
-
-  @override
-  String toString() => "RouteInfo: '$path'";
-}
-
-// TODO: Do we need this? Can we just use a string?
-// Will this play a part in state restoration?
-class RouteData {
-  const RouteData(this.routeString);
-
-  /// The pattern used to parse the route string. e.g. "/users/:id"
-  final String routeString;
-
-  @override
-  bool operator ==(Object other) =>
-      other is RouteData && routeString == other.routeString;
-
-  @override
-  int get hashCode => routeString.hashCode;
-
-  @override
-  String toString() => 'Route: $routeString';
-}
-
 class Routemaster extends RouterDelegate<RouteData>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouteData> {
-  late TrieRouter<RoutePlan> _trieRouter;
-
-  @override
-  // TODO: Allow providing this key?
-  final GlobalKey<NavigatorState> navigatorKey;
-
   final RoutemasterBuilder? builder;
   final String defaultPath;
+  late TrieRouter _router;
+  _StackRouteState? _stack;
+
+  @override
+  final GlobalKey<NavigatorState> navigatorKey;
 
   List<RoutePlan>? _plans;
   List<RoutePlan>? get plans => _plans;
@@ -79,14 +44,13 @@ class Routemaster extends RouterDelegate<RouteData>
     }
   }
 
-  _StackRouteState? _stack;
-
   Routemaster({
     List<RoutePlan>? plans,
     this.builder,
     this.defaultPath = '/',
+    GlobalKey<NavigatorState>? navigatorKey,
   })  : _plans = plans,
-        navigatorKey = GlobalKey<NavigatorState>() {
+        this.navigatorKey = navigatorKey ?? GlobalKey<NavigatorState>() {
     if (_plans != null) {
       _initRoutes();
     }
@@ -113,16 +77,16 @@ class Routemaster extends RouterDelegate<RouteData>
   }
 
   // Returns a [RouteData] that matches the current route state.
+  // This is used to update a browser's current URL.
   @override
   RouteData? get currentConfiguration {
     if (_stack == null) {
       return null;
     }
 
-    final path = _stack!.getCurrentRouteStates().last.routeInfo.path;
-
-    print("Current configuration is '$path'");
-    return RouteData(path);
+    return RouteData(
+      _stack!.getCurrentRouteStates().last.routeInfo.path,
+    );
   }
 
   // Called when a new URL is set. The RouteInformationParser will parse the
@@ -131,8 +95,6 @@ class Routemaster extends RouterDelegate<RouteData>
   // This method then modifies the state based on that information.
   @override
   Future<void> setNewRoutePath(RouteData routeData) {
-    print("New route set: '${routeData.routeString}'");
-
     if (currentConfiguration != routeData) {
       final states = _createAllStates(routeData.routeString);
       if (states != null) {
@@ -145,6 +107,8 @@ class Routemaster extends RouterDelegate<RouteData>
 
   /// Generates all pages and sub-pages.
   List<Page> buildPages() {
+    assert(_stack != null,
+        "Stack must have been created when buildPages() is called");
     final pages = _stack!.createPages();
     assert(pages.isNotEmpty, "Returned pages list must not be empty");
     return pages;
@@ -152,14 +116,13 @@ class Routemaster extends RouterDelegate<RouteData>
 
   /// Add [path] to the end of the current path.
   void pushNamed(String path) {
-    final newPath = join(currentConfiguration!.routeString, path);
-    print("pushNamed: navigating to '$newPath'");
-    replaceNamed(newPath);
+    replaceNamed(
+      join(currentConfiguration!.routeString, path),
+    );
   }
 
   /// Replace the entire route with the path from [path].
   void replaceNamed(String path) {
-    print('********** replaceNamed: $path');
     final states = _createAllStates(path);
     if (states == null) {
       return;
@@ -186,128 +149,115 @@ class Routemaster extends RouterDelegate<RouteData>
       return;
     }
 
-    _trieRouter = TrieRouter<RoutePlan>();
-    for (final route in plans!) {
-      for (final path in route.pathTemplates) {
-        _trieRouter.add(path, route);
-      }
-    }
+    _router = TrieRouter()..addAll(plans!);
 
     final routeStates = _createAllStates('/');
     if (routeStates == null) {
-      // TODO: Should this throw?
-      throw "Failed to create initital state";
-    } else {
-      // TODO: Should we just update the stack rather than creating a new one?
-      _stack = _StackRouteState(
-        delegate: this,
-        routes: routeStates.toList(),
-      );
+      throw "Failed to create initial state";
     }
+
+    _stack = _StackRouteState(delegate: this, routes: routeStates.toList());
   }
 
   void _markNeedsUpdate() {
     notifyListeners();
   }
 
-  List<RouteState>? _createAllStates(String path) {
-    final routerResult = _trieRouter.getAll(path);
-
+  List<RouteState>? _createAllStates(String requestedPath) {
+    final routerResult = _router.getAll(requestedPath);
     if (routerResult == null) {
       print(
-          "Router couldn't find a match for path '$path', returning default of '$defaultPath'");
+        "Router couldn't find a match for path '$requestedPath', returning default of '$defaultPath'",
+      );
       return [_getRoute(defaultPath)!];
     }
 
-    // TODO: We're only looking to see if the LAST plan is a redirect
-    // ...what if others are also a redirect?
     final lastPlan = routerResult.last.value;
     if (lastPlan is RedirectPlan) {
+      // TODO: We're only looking to see if the LAST plan is a redirect
+      // ...what if others are also a redirect?
       final redirectPath = (lastPlan as RedirectPlan).redirectPath;
-      print("Redirecting from '$path' to '$redirectPath'");
+      print("Redirecting from '$requestedPath' to '$redirectPath'");
       return _createAllStates(redirectPath);
     }
 
+    final queryParameters = QueryParser.parseQueryParameters(requestedPath);
     final currentRoutes = _stack?.getCurrentRouteStates().toList();
 
-    if (currentRoutes != null) {
-      print('*** currentRoutes: ' +
-          currentRoutes.map((e) => e.routeInfo.path).join(' : '));
+    var result = <RouteState>[];
+
+    for (final routerData in routerResult.reversed) {
+      final state = _getOrCreateRouteState(
+        currentRoutes,
+        routerData,
+        queryParameters,
+      );
+
+      if (state == null) {
+        return null;
+      }
+
+      if (result.isNotEmpty && state.maybeSetRouteStates(result)) {
+        result = [state];
+      } else {
+        result.insert(0, state);
+      }
     }
 
-    var list = <RouteState>[];
+    assert(result.isNotEmpty, "_createAllStates can't return empty list");
+    return result;
+  }
 
-    for (final rr in routerResult.reversed) {
-      print(
-        "Trying to create state for '${rr.path}' with plan type '${rr.value.runtimeType}', current route is '${currentRoutes?.last.routeInfo.path}'...",
-      );
+  /// If there's a current route matching the path in the tree, return it.
+  /// Otherwise create a new one. This could possibly be made more efficient
+  /// By using a map rather than iterating over all currentRoutes.
+  RouteState? _getOrCreateRouteState(
+    List<RouteState>? currentRoutes,
+    RouterResult routerResult,
+    Map<String, String> queryParameters,
+  ) {
+    final routeInfo = RouteInfo(routerResult, queryParameters);
 
-      final routeInfo = RouteInfo(
-        path: rr.path,
-        pathParameters: rr.parameters,
-        queryParameters: QueryParser.parseQueryParameters(path),
-      );
-
-      final currentState = currentRoutes?.firstWhereOrNull(
+    if (currentRoutes != null) {
+      final currentState = currentRoutes.firstWhereOrNull(
         ((element) => element.routeInfo == routeInfo),
       );
 
-      if (currentState != null)
-        print(' - currentState match for ${routeInfo.path}');
-
-      final state = currentState ?? _createState(path, rr);
-      if (state == null) {
-        print(" - ABORTING: createState returned null");
-        return null;
-      }
-      print(' - Created a ${state.runtimeType} for it');
-      print(' - Current state list has ${list.length} items');
-
-      if (list.isNotEmpty && state.maybeSetRouteStates(list)) {
-        print(' - maybeSetRouteStates returned true');
-        list = [state];
-      } else {
-        print(' - maybeSetRouteStates returned false');
-        list.insert(0, state);
+      if (currentState != null) {
+        return currentState;
       }
     }
 
-    assert(list.isNotEmpty, "_createAllStates can't return empty list");
-    return list;
+    return _createState(routerResult, routeInfo);
   }
 
-  /// Try to get the route for [path]. If no match, returns default path.
+  /// Try to get the route for [requestedPath]. If no match, returns default path.
   /// Returns null if validation fails.
-  RouteState? _getRoute(String path) {
-    final result = _trieRouter.get(path);
-    if (result == null) {
+  RouteState? _getRoute(String requestedPath) {
+    final routerResult = _router.get(requestedPath);
+    if (routerResult == null) {
       print(
-        "Router couldn't find a match for path '$path', returning default of '$defaultPath'",
+        "Router couldn't find a match for path '$requestedPath', returning default of '$defaultPath'",
       );
       return _getRoute(defaultPath);
     }
 
-    return _createState(path, result);
+    final queryParameters = QueryParser.parseQueryParameters(requestedPath);
+    return _createState(
+      routerResult,
+      RouteInfo(routerResult, queryParameters),
+    );
   }
 
-  RouteState? _createState(
-    String path,
-    RouterData<RoutePlan?> routerData,
-  ) {
-    final routeInfo = RouteInfo(
-      path: routerData.path,
-      pathParameters: routerData.parameters,
-      queryParameters: QueryParser.parseQueryParameters(path),
-    );
-
-    if (routerData.value!.validate != null &&
-        !routerData.value!.validate!(routeInfo)) {
-      print("Validation failed for '$path'");
-      routerData.value!.onValidationFailed!(this, routeInfo);
+  RouteState? _createState(RouterResult routerResult, RouteInfo routeInfo) {
+    if (routerResult.value.validate != null &&
+        !routerResult.value.validate!(routeInfo)) {
+      print("Validation failed for '${routeInfo.path}'");
+      routerResult.value.onValidationFailed!(this, routeInfo);
       return null;
     }
 
-    return routerData.value!.createState(this, routeInfo);
+    return routerResult.value.createState(this, routeInfo);
   }
 }
 
@@ -323,185 +273,5 @@ class _RoutemasterWidget extends InheritedWidget {
   @override
   bool updateShouldNotify(covariant _RoutemasterWidget oldWidget) {
     return delegate != oldWidget.delegate;
-  }
-}
-
-@immutable
-abstract class RoutePlan {
-  RoutePlan();
-
-  List<String> get pathTemplates;
-
-  RouteState createState(Routemaster delegate, RouteInfo path);
-
-  final bool Function(RouteInfo info)? validate = (_) => true;
-  final void Function(Routemaster routemaster, RouteInfo info)?
-      onValidationFailed = (routemaster, _) {
-    routemaster.replaceNamed(routemaster.defaultPath);
-  };
-}
-
-abstract class RouteState {
-  bool maybeSetRouteStates(Iterable<RouteState> routes);
-  bool maybePush(RouteState route);
-  bool maybePop();
-
-  RouteInfo get routeInfo;
-  Iterable<RouteState> getCurrentRouteStates();
-}
-
-// TODO: Is this abstract class helpful to anyone?
-abstract class MultiPageRouteState extends RouteState {
-  List<Page> createPages();
-
-  void pop();
-  void push(RouteState routerData);
-}
-
-// TODO: Is this abstract class helpful to anyone?
-abstract class SinglePageRouteState extends RouteState {
-  Page createPage();
-}
-
-class WidgetPlan extends RoutePlan {
-  final List<String> pathTemplates;
-  final Widget Function(RouteInfo info) builder;
-  final bool Function(RouteInfo info)? validate;
-  final void Function(Routemaster routemaster, RouteInfo info)?
-      onValidationFailed;
-
-  WidgetPlan(
-    String pathTemplate,
-    this.builder, {
-    this.validate,
-    this.onValidationFailed,
-  }) : pathTemplates = [pathTemplate];
-
-  WidgetPlan.routes(
-    this.pathTemplates,
-    this.builder, {
-    this.validate,
-    this.onValidationFailed,
-  });
-
-  @override
-  RouteState createState(Routemaster delegate, RouteInfo routeInfo) {
-    return WidgetRouteState(this, routeInfo);
-  }
-}
-
-class WidgetRouteState extends SinglePageRouteState {
-  final WidgetPlan widgetRoute;
-  final RouteInfo routeInfo;
-
-  RouteState get currentRoute => this;
-
-  WidgetRouteState(this.widgetRoute, this.routeInfo);
-
-  Page<void> createPage() {
-    return MaterialPage<void>(
-      child: widgetRoute.builder(routeInfo),
-      key: ValueKey(routeInfo.path),
-    );
-  }
-
-  bool maybeSetRouteStates(Iterable<RouteState> routes) {
-    return false;
-  }
-
-  @override
-  bool maybePush(RouteState route) {
-    return false;
-  }
-
-  @override
-  bool maybePop() {
-    return false;
-  }
-
-  @override
-  Iterable<RouteState> getCurrentRouteStates() sync* {
-    yield this;
-  }
-}
-
-mixin RedirectPlan {
-  String get redirectPath;
-}
-
-class PagePlan extends RoutePlan {
-  final List<String> pathTemplates;
-  final Page Function(RouteInfo info) builder;
-  final bool Function(RouteInfo info)? validate;
-  final void Function(Routemaster routemaster, RouteInfo info)?
-      onValidationFailed;
-
-  PagePlan(
-    String pathTemplate,
-    this.builder, {
-    this.validate,
-    this.onValidationFailed,
-  }) : this.pathTemplates = [pathTemplate];
-
-  PagePlan.routes(
-    this.pathTemplates,
-    this.builder, {
-    this.validate,
-    this.onValidationFailed,
-  });
-
-  @override
-  RouteState createState(Routemaster delegate, RouteInfo routeInfo) {
-    return PageRouteState(this, routeInfo);
-  }
-}
-
-class PageRouteState extends SinglePageRouteState {
-  final PagePlan pageRoute;
-  final RouteInfo routeInfo;
-
-  PageRouteState(this.pageRoute, this.routeInfo);
-
-  Page createPage() {
-    return pageRoute.builder(routeInfo);
-  }
-
-  bool maybeSetRouteStates(Iterable<RouteState> routes) {
-    return false;
-  }
-
-  @override
-  bool maybePush(RouteState route) {
-    return false;
-  }
-
-  @override
-  bool maybePop() {
-    return false;
-  }
-
-  @override
-  Iterable<RouteState> getCurrentRouteStates() sync* {
-    yield this;
-  }
-}
-
-class RoutemasterParser extends RouteInformationParser<RouteData> {
-  /// RouteInformation (URL) -> Route object
-  ///
-  /// Takes a URL and turns it into some kind of route
-  /// In this case a [RouteData], but it can be anything
-  ///
-  /// This should probably be automatic, matching to a list of URLs
-  @override
-  Future<RouteData> parseRouteInformation(
-      RouteInformation routeInformation) async {
-    return RouteData(routeInformation.location!);
-  }
-
-  // / Route object -> RouteInformation (URL)
-  @override
-  RouteInformation restoreRouteInformation(RouteData routeData) {
-    return RouteInformation(location: routeData.routeString);
   }
 }

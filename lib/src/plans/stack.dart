@@ -1,4 +1,4 @@
-part of '../routemaster.dart';
+part of '../../routemaster.dart';
 
 /// The state of a stack of routes.
 ///

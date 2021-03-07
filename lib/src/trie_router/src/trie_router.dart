@@ -1,19 +1,28 @@
-import 'package:collection/collection.dart';
 import 'package:path/path.dart' as path;
-import 'package:quiver/core.dart';
+import 'package:routemaster/src/plans/standard.dart';
+import '../../query_parser.dart';
 import 'errors.dart';
+import 'router_result.dart';
 import 'trie.dart';
 import 'trie_node.dart';
 
-class TrieRouter<T> {
-  final Trie<String, T> _trie;
+class TrieRouter {
+  final Trie<String, RoutePlan> _trie;
 
   TrieRouter() : _trie = Trie();
+
+  void addAll(List<RoutePlan> routePlans) {
+    for (final route in routePlans) {
+      for (final path in route.pathTemplates) {
+        add(path, route);
+      }
+    }
+  }
 
   /// Throws a [ConflictingPathError] if there is a conflict.
   ///
   /// It is an error to add two segments prefixed with ':' at the same index.
-  bool add(String route, T value) {
+  bool add(String route, RoutePlan value) {
     var pathSegments = path.split(route);
     return addPathComponents(pathSegments, value);
   }
@@ -21,9 +30,9 @@ class TrieRouter<T> {
   /// Throws a [ConflictingPathError] if there is a conflict.
   ///
   /// It is an error to add two segments prefixed with ':' at the same index.
-  bool addPathComponents(Iterable<String> pathSegments, T value) {
+  bool addPathComponents(Iterable<String> pathSegments, RoutePlan value) {
     var list = List<String>.from(pathSegments);
-    TrieNode<String?, T?>? current = _trie.root;
+    TrieNode<String?, RoutePlan?>? current = _trie.root;
     var isNew = false;
 
     // Allow an empty list of path segments to associate a value at the root
@@ -65,7 +74,7 @@ class TrieRouter<T> {
   }
 
   bool contains(Iterable<String> pathSegments) {
-    TrieNode<String?, T?>? current = _trie.root;
+    TrieNode<String?, RoutePlan?>? current = _trie.root;
 
     for (var segment in pathSegments) {
       if (current!.contains(segment)) {
@@ -82,20 +91,10 @@ class TrieRouter<T> {
     return current!.contains(null);
   }
 
-  String _stripQueryString(String path) {
-    final indexOfQuery = path.indexOf('?');
-
-    if (indexOfQuery == -1) {
-      return path;
-    }
-
-    return path.substring(0, indexOfQuery);
-  }
-
-  RouterData<T?>? get(String route) {
-    var pathSegments = path.split(_stripQueryString(route));
+  RouterResult? get(String route) {
+    var pathSegments = path.split(QueryParser.stripQueryString(route));
     var parameters = <String, String>{};
-    TrieNode<String?, T?>? current = _trie.root;
+    TrieNode<String?, RoutePlan?>? current = _trie.root;
 
     for (var segment in pathSegments) {
       if (current!.contains(segment)) {
@@ -112,20 +111,20 @@ class TrieRouter<T> {
       }
     }
 
-    return RouterData(current!.value, parameters, route);
+    return RouterResult(current!.value!, parameters, route);
   }
 
-  List<RouterData<T?>>? getAll(String route) {
-    var pathSegments = path.split(_stripQueryString(route));
+  List<RouterResult>? getAll(String route) {
+    var pathSegments = path.split(QueryParser.stripQueryString(route));
     var parameters = <String, String>{};
-    TrieNode<String?, T?>? current = _trie.root;
+    TrieNode<String?, RoutePlan?>? current = _trie.root;
 
-    final List<RouterData<T?>> result = <RouterData<T>>[];
+    final List<RouterResult> result = <RouterResult>[];
     int i = 0;
 
     void addCurrentToResult() => result.add(
-          RouterData(
-            current!.value,
+          RouterResult(
+            current!.value!,
             Map.unmodifiable(parameters),
             path.joinAll(pathSegments.take(i)),
           ),
@@ -156,31 +155,5 @@ class TrieRouter<T> {
     // Flush final value to results
     addCurrentToResult();
     return result;
-  }
-}
-
-class RouterData<T> {
-  final T value;
-  final Map<String, String> parameters;
-  final String path;
-
-  const RouterData(this.value, this.parameters, this.path)
-      : assert(value != null);
-
-  @override
-  int get hashCode =>
-      hash3(value, DeepCollectionEquality().hash(parameters), path);
-
-  @override
-  bool operator ==(Object other) {
-    return other is RouterData<T> &&
-        value == other.value &&
-        path == path &&
-        DeepCollectionEquality().equals(parameters, other.parameters);
-  }
-
-  @override
-  String toString() {
-    return "RouterData - path: '$path', value: '$value', params: '$parameters'";
   }
 }

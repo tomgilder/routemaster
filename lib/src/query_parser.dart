@@ -9,4 +9,14 @@ class QueryParser {
 
     return Uri.splitQueryString(queryString);
   }
+
+  static String stripQueryString(String path) {
+    final indexOfQuery = path.indexOf('?');
+
+    if (indexOfQuery == -1) {
+      return path;
+    }
+
+    return path.substring(0, indexOfQuery);
+  }
 }
