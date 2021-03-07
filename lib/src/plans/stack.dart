@@ -27,7 +27,6 @@ class _StackRouteState extends MultiPageRouteState {
     return false;
   }
 
-  @override
   void pop() {
     if (_routes.last.maybePop()) {
       return;
@@ -40,7 +39,6 @@ class _StackRouteState extends MultiPageRouteState {
     delegate._markNeedsUpdate();
   }
 
-  @override
   void push(RouteState route) {
     if (_routes.last.maybePush(route)) {
       return;
@@ -95,7 +93,6 @@ class _StackRouteState extends MultiPageRouteState {
     // ];
   }
 
-  @override
   void _setRouteStates(Iterable<RouteState> newRouteStates) {
     int i = 0;
 

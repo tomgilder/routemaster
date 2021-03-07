@@ -2,15 +2,28 @@ import 'package:flutter/material.dart';
 import '../../routemaster.dart';
 import '../route_info.dart';
 
+/// A mapping from path templates (e.g. URL segments), which can create a
+/// [RouteState] object.
+///
+/// The [RouteState] is created when this plan matches a path, and the
+/// state can then create either one page or multiple pages.
 @immutable
 abstract class RoutePlan {
-  RoutePlan();
-
+  /// List of path templates that this plan could match.
+  ///   e.g. `['/search/product/:id', '/categories/thing/:id']`
   List<String> get pathTemplates;
 
   RouteState createState(Routemaster delegate, RouteInfo path);
 
+  /// Callback to check if the route is valid. If this returns false,
+  /// [onValidationFailed] is called.
+  ///
+  /// By default this redirects to the default path.
   final bool Function(RouteInfo info)? validate = (_) => true;
+
+  /// Callback, called when the [validate] returns false.
+  ///
+  /// By default this redirects to the default path.
   final void Function(Routemaster routemaster, RouteInfo info)?
       onValidationFailed = (routemaster, _) {
     routemaster.replaceNamed(routemaster.defaultPath);
@@ -26,15 +39,10 @@ abstract class RouteState {
   Iterable<RouteState> getCurrentRouteStates();
 }
 
-// TODO: Is this abstract class helpful to anyone?
 abstract class MultiPageRouteState extends RouteState {
   List<Page> createPages();
-
-  void pop();
-  void push(RouteState routerData);
 }
 
-// TODO: Is this abstract class helpful to anyone?
 abstract class SinglePageRouteState extends RouteState {
   Page createPage();
 }
@@ -70,14 +78,12 @@ class WidgetRouteState extends SinglePageRouteState {
   final MaterialPagePlan widgetRoute;
   final RouteInfo routeInfo;
 
-  RouteState get currentRoute => this;
-
   WidgetRouteState(this.widgetRoute, this.routeInfo);
 
   Page<void> createPage() {
     return MaterialPage<void>(
-      child: widgetRoute.builder(routeInfo),
       key: ValueKey(routeInfo.path),
+      child: widgetRoute.builder(routeInfo),
     );
   }
 
