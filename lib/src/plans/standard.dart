@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import '../../routemaster.dart';
 import '../route_info.dart';
 
+typedef bool ValidateCallback(RouteInfo info);
+
+typedef void ValidationFailedCallback(Routemaster delegate, RouteInfo info);
+
 /// A mapping from path templates (e.g. URL segments), which can create a
 /// [RouteState] object.
 ///
@@ -19,14 +23,13 @@ abstract class RoutePlan {
   /// [onValidationFailed] is called.
   ///
   /// By default this redirects to the default path.
-  final bool Function(RouteInfo info)? validate = (_) => true;
+  ValidateCallback? get validate;
 
   /// Callback, called when the [validate] returns false.
   ///
   /// By default this redirects to the default path.
-  final void Function(Routemaster routemaster, RouteInfo info)?
-      onValidationFailed = (routemaster, _) {
-    routemaster.replaceNamed(routemaster.defaultPath);
+  final ValidationFailedCallback? onValidationFailed = (delegate, routeInfo) {
+    delegate.replaceNamed(delegate.defaultPath);
   };
 }
 
