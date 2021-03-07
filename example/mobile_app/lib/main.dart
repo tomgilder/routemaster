@@ -54,7 +54,7 @@ class AppState extends ChangeNotifier {
 // This is the logged out route map.
 // This only allows the user to navigate to the root path.
 final loggedOutRouteMap = [
-  WidgetPlan('/', (_) => LoginPage()),
+  MaterialPagePlan('/', (_) => LoginPage()),
 ];
 
 // This is the real route map - used if the user is logged in.
@@ -71,8 +71,8 @@ final routeMap = [
       '/settings',
     ],
   ),
-  WidgetPlan('/feed', (_) => FeedPage()),
-  WidgetPlan(
+  MaterialPagePlan('/feed', (_) => FeedPage()),
+  MaterialPagePlan(
     '/feed/profile/:id',
     (info) => ProfilePage(
       id: info.pathParameters['id'],
@@ -92,13 +92,13 @@ final routeMap = [
       child: PhotoPage(id: info.pathParameters['id']),
     ),
   ),
-  WidgetPlan('/search', (_) => SearchPage()),
-  WidgetPlan('/settings', (_) => SettingsPage()),
+  MaterialPagePlan('/search', (_) => SearchPage()),
+  MaterialPagePlan('/settings', (_) => SettingsPage()),
 
   // Most pages tend to appear only in one place in the app
   // However sometimes you can push them into multiple places, such as different
   // tabs. Use `Plan.routes` for this.
-  WidgetPlan.routes(
+  MaterialPagePlan.routes(
     ['/search/hero', '/settings/hero'],
     (_) => HeroPage(),
   ),
@@ -112,17 +112,17 @@ final routeMap = [
       '/notifications/two',
     ],
   ),
-  WidgetPlan(
+  MaterialPagePlan(
     '/notifications/one',
     (_) => NotificationsContentPage(
       message: 'Page one',
     ),
   ),
-  WidgetPlan(
+  MaterialPagePlan(
     '/notifications/two',
     (_) => NotificationsContentPage(message: 'Page two'),
   ),
-  WidgetPlan(
+  MaterialPagePlan(
     '/notifications/pushed',
     (_) => MessagePage(message: 'Pushed notifications'),
   ),
@@ -135,19 +135,19 @@ final routeMap = [
       '/bottom-navigation-bar/three',
     ],
   ),
-  WidgetPlan(
+  MaterialPagePlan(
     '/bottom-navigation-bar/one',
     (_) => BottomContentPage(),
   ),
-  WidgetPlan(
+  MaterialPagePlan(
     '/bottom-navigation-bar/two',
     (_) => MessagePage(message: 'Page two'),
   ),
-  WidgetPlan(
+  MaterialPagePlan(
     '/bottom-navigation-bar/three',
     (_) => MessagePage(message: 'Page three'),
   ),
-  WidgetPlan(
+  MaterialPagePlan(
     '/bottom-navigation-bar/sub-page',
     (_) => MessagePage(message: 'Sub-page'),
   ),

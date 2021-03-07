@@ -39,21 +39,21 @@ abstract class SinglePageRouteState extends RouteState {
   Page createPage();
 }
 
-class WidgetPlan extends RoutePlan {
+class MaterialPagePlan extends RoutePlan {
   final List<String> pathTemplates;
   final Widget Function(RouteInfo info) builder;
   final bool Function(RouteInfo info)? validate;
   final void Function(Routemaster routemaster, RouteInfo info)?
       onValidationFailed;
 
-  WidgetPlan(
+  MaterialPagePlan(
     String pathTemplate,
     this.builder, {
     this.validate,
     this.onValidationFailed,
   }) : pathTemplates = [pathTemplate];
 
-  WidgetPlan.routes(
+  MaterialPagePlan.routes(
     this.pathTemplates,
     this.builder, {
     this.validate,
@@ -67,7 +67,7 @@ class WidgetPlan extends RoutePlan {
 }
 
 class WidgetRouteState extends SinglePageRouteState {
-  final WidgetPlan widgetRoute;
+  final MaterialPagePlan widgetRoute;
   final RouteInfo routeInfo;
 
   RouteState get currentRoute => this;

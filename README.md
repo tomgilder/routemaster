@@ -11,9 +11,9 @@ final plans = [
     (info, routeState) => HomePage(routeState: routeState),
     paths: ['/feed', '/settings'],
   ),
-  WidgetPlan('/feed', (info) => FeedPage()),
-  WidgetPlan('/feed/profile/:id', (info) => ProfilePage(id: info['id'])),
-  WidgetPlan('/settings', (info) => SettingsPage()),
+  MaterialPagePlan('/feed', (info) => FeedPage()),
+  MaterialPagePlan('/feed/profile/:id', (info) => ProfilePage(id: info['id'])),
+  MaterialPagePlan('/settings', (info) => SettingsPage()),
 ];
 
 void main() {
@@ -53,7 +53,7 @@ The architecture mirrors Flutter's fairly closely.
 
 You create immutable `RoutePlan` objects as mapping between paths and widgets:
 
-`WidgetPlan('/search', (_) => SearchPage())`
+`MaterialPagePlan('/search', (_) => SearchPage())`
 
 These `RoutePlan` objects have a `createState()` object which creates a mutable `RouteState` object to manage the in-memory state.
 

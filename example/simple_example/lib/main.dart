@@ -10,9 +10,9 @@ final plans = [
     (info, routeState) => HomePage(routeState: routeState),
     paths: ['/feed', '/settings'],
   ),
-  WidgetPlan('/feed', (info) => FeedPage()),
-  WidgetPlan('/feed/profile/:id', (info) => ProfilePage()),
-  WidgetPlan('/settings', (info) => SettingsPage()),
+  MaterialPagePlan('/feed', (info) => FeedPage()),
+  MaterialPagePlan('/feed/profile/:id', (info) => ProfilePage()),
+  MaterialPagePlan('/settings', (info) => SettingsPage()),
 ];
 
 class MyApp extends StatefulWidget {
