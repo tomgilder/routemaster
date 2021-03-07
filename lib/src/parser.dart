@@ -2,6 +2,8 @@ import 'package:flutter/widgets.dart';
 import 'route_dart.dart';
 
 class RoutemasterParser extends RouteInformationParser<RouteData> {
+  const RoutemasterParser();
+
   /// RouteInformation (URL) -> Route object
   ///
   /// Takes a URL and turns it into some kind of route

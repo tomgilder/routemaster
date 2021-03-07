@@ -11,7 +11,7 @@ class TrieRouter {
 
   TrieRouter() : _trie = Trie();
 
-  void addAll(List<RoutePlan> routePlans) {
+  void addAll(Iterable<RoutePlan> routePlans) {
     for (final route in routePlans) {
       for (final path in route.pathTemplates) {
         add(path, route);

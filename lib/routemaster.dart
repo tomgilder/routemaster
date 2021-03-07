@@ -34,22 +34,21 @@ class Routemaster extends RouterDelegate<RouteData>
   @override
   final GlobalKey<NavigatorState> navigatorKey;
 
-  List<RoutePlan>? _plans;
-  List<RoutePlan>? get plans => _plans;
-  set plans(List<RoutePlan>? newPlans) {
-    if (_plans != newPlans) {
-      _plans = newPlans;
-      _stack = null;
-      _initRoutes();
-    }
+  Iterable<RoutePlan>? _plans;
+  Iterable<RoutePlan>? get plans => _plans;
+  set plans(Iterable<RoutePlan>? newPlans) {
+    _plans = List<RoutePlan>.unmodifiable(newPlans!);
+    _stack = null;
+    _initRoutes();
+    _markNeedsUpdate();
   }
 
   Routemaster({
-    List<RoutePlan>? plans,
+    Iterable<RoutePlan>? plans,
     this.builder,
     this.defaultPath = '/',
     GlobalKey<NavigatorState>? navigatorKey,
-  })  : _plans = plans,
+  })  : _plans = plans == null ? null : List<RoutePlan>.unmodifiable(plans),
         this.navigatorKey = navigatorKey ?? GlobalKey<NavigatorState>() {
     if (_plans != null) {
       _initRoutes();

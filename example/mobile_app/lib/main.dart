@@ -34,7 +34,7 @@ class _MyAppState extends State<MyApp> {
             routeInformationParser: RoutemasterParser(),
             // We swap out the routing plan at runtime based on app state
             routerDelegate: _routemaster
-              ..plans = isLoggedIn ? routeMap : loggedOutRouteMap,
+              ..plans = isLoggedIn ? buildRouteMap() : buildLoggedOutRouteMap(),
           );
         },
       ),
@@ -53,105 +53,106 @@ class AppState extends ChangeNotifier {
 
 // This is the logged out route map.
 // This only allows the user to navigate to the root path.
-final loggedOutRouteMap = [
-  MaterialPagePlan('/', (_) => LoginPage()),
-];
+// Note: building the route map from methods allows hot reload to work
+List<RoutePlan> buildLoggedOutRouteMap() {
+  return [MaterialPagePlan('/', (_) => LoginPage())];
+}
 
 // This is the real route map - used if the user is logged in.
-final routeMap = [
-  CupertinoTabPlan(
-    '/',
-    (_, tabRoute) {
-      return HomePage(tabRoute: tabRoute);
-    },
-    paths: [
-      '/feed',
-      '/search',
+List<RoutePlan> buildRouteMap() {
+  return [
+    CupertinoTabPlan(
+      '/',
+      (_, tabRoute) => HomePage(tabRoute: tabRoute),
+      paths: [
+        '/feed',
+        '/search',
+        '/notifications',
+        '/settings',
+      ],
+    ),
+    MaterialPagePlan('/feed', (_) => FeedPage()),
+    MaterialPagePlan(
+      '/feed/profile/:id',
+      (info) => ProfilePage(
+        id: info.pathParameters['id'],
+        message: info.queryParameters['message'],
+      ),
+      validate: (info) {
+        return info.pathParameters['id'] == '1' ||
+            info.pathParameters['id'] == '2';
+      },
+      onValidationFailed: (rm, info) {
+        rm.replaceNamed('/feed');
+      },
+    ),
+    PagePlan(
+      '/feed/profile/:id/photo',
+      (info) => FancyAnimationPage(
+        child: PhotoPage(id: info.pathParameters['id']),
+      ),
+    ),
+    MaterialPagePlan('/search', (_) => SearchPage()),
+    MaterialPagePlan('/settings', (_) => SettingsPage()),
+
+    // Most pages tend to appear only in one place in the app
+    // However sometimes you can push them into multiple places, such as different
+    // tabs. Use `Plan.routes` for this.
+    MaterialPagePlan.routes(
+      ['/search/hero', '/settings/hero'],
+      (_) => HeroPage(),
+    ),
+
+    // This gets really complicated to test out tested scenarios!
+    IndexedPlan(
       '/notifications',
-      '/settings',
-    ],
-  ),
-  MaterialPagePlan('/feed', (_) => FeedPage()),
-  MaterialPagePlan(
-    '/feed/profile/:id',
-    (info) => ProfilePage(
-      id: info.pathParameters['id'],
-      message: info.queryParameters['message'],
+      (_, tabRoute) => NotificationsPage(tabRoute: tabRoute),
+      paths: [
+        '/notifications/one',
+        '/notifications/two',
+      ],
     ),
-    validate: (info) {
-      return info.pathParameters['id'] == '1' ||
-          info.pathParameters['id'] == '2';
-    },
-    onValidationFailed: (rm, info) {
-      rm.replaceNamed('/feed');
-    },
-  ),
-  PagePlan(
-    '/feed/profile/:id/photo',
-    (info) => FancyAnimationPage(
-      child: PhotoPage(id: info.pathParameters['id']),
-    ),
-  ),
-  MaterialPagePlan('/search', (_) => SearchPage()),
-  MaterialPagePlan('/settings', (_) => SettingsPage()),
-
-  // Most pages tend to appear only in one place in the app
-  // However sometimes you can push them into multiple places, such as different
-  // tabs. Use `Plan.routes` for this.
-  MaterialPagePlan.routes(
-    ['/search/hero', '/settings/hero'],
-    (_) => HeroPage(),
-  ),
-
-  // This gets really complicated to test out tested scenarios!
-  IndexedPlan(
-    '/notifications',
-    (_, tabRoute) => NotificationsPage(tabRoute: tabRoute),
-    paths: [
+    MaterialPagePlan(
       '/notifications/one',
-      '/notifications/two',
-    ],
-  ),
-  MaterialPagePlan(
-    '/notifications/one',
-    (_) => NotificationsContentPage(
-      message: 'Page one',
+      (_) => NotificationsContentPage(
+        message: 'Page one',
+      ),
     ),
-  ),
-  MaterialPagePlan(
-    '/notifications/two',
-    (_) => NotificationsContentPage(message: 'Page two'),
-  ),
-  MaterialPagePlan(
-    '/notifications/pushed',
-    (_) => MessagePage(message: 'Pushed notifications'),
-  ),
-  IndexedPlan(
-    '/bottom-navigation-bar',
-    (_, routeState) => BottomNavigationBarPage(routeState: routeState),
-    paths: [
+    MaterialPagePlan(
+      '/notifications/two',
+      (_) => NotificationsContentPage(message: 'Page two'),
+    ),
+    MaterialPagePlan(
+      '/notifications/pushed',
+      (_) => MessagePage(message: 'Pushed notifications'),
+    ),
+    IndexedPlan(
+      '/bottom-navigation-bar',
+      (_, routeState) => BottomNavigationBarPage(routeState: routeState),
+      paths: [
+        '/bottom-navigation-bar/one',
+        '/bottom-navigation-bar/two',
+        '/bottom-navigation-bar/three',
+      ],
+    ),
+    MaterialPagePlan(
       '/bottom-navigation-bar/one',
+      (_) => BottomContentPage(),
+    ),
+    MaterialPagePlan(
       '/bottom-navigation-bar/two',
+      (_) => MessagePage(message: 'Page two'),
+    ),
+    MaterialPagePlan(
       '/bottom-navigation-bar/three',
-    ],
-  ),
-  MaterialPagePlan(
-    '/bottom-navigation-bar/one',
-    (_) => BottomContentPage(),
-  ),
-  MaterialPagePlan(
-    '/bottom-navigation-bar/two',
-    (_) => MessagePage(message: 'Page two'),
-  ),
-  MaterialPagePlan(
-    '/bottom-navigation-bar/three',
-    (_) => MessagePage(message: 'Page three'),
-  ),
-  MaterialPagePlan(
-    '/bottom-navigation-bar/sub-page',
-    (_) => MessagePage(message: 'Sub-page'),
-  ),
-];
+      (_) => MessagePage(message: 'Page three'),
+    ),
+    MaterialPagePlan(
+      '/bottom-navigation-bar/sub-page',
+      (_) => MessagePage(message: 'Sub-page'),
+    ),
+  ];
+}
 
 // For custom animations, just use the existing Flutter [Page] and [Route] objects
 class FancyAnimationPage extends Page<void> {
