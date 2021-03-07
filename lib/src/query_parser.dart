@@ -2,12 +2,12 @@ class QueryParser {
   static Map<String, String> parseQueryParameters(String path) {
     final queryStringStart = path.indexOf('?');
     if (queryStringStart == -1 || path.length < queryStringStart) {
-      return const <String, String>{};
+      return Map.unmodifiable(const <String, String>{});
     }
 
     final queryString = path.substring(path.indexOf('?') + 1);
 
-    return Uri.splitQueryString(queryString);
+    return Map.unmodifiable(Uri.splitQueryString(queryString));
   }
 
   static String stripQueryString(String path) {

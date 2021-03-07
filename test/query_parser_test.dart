@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:routemaster/src/query_parser.dart';
 
@@ -20,5 +21,15 @@ void main() {
     expect(QueryParser.parseQueryParameters('/?').isEmpty, isTrue);
     expect(QueryParser.parseQueryParameters('/test').isEmpty, isTrue);
     expect(QueryParser.parseQueryParameters('/test?').isEmpty, isTrue);
+  });
+
+  test('Returns unmodifiable map', () {
+    final result = QueryParser.parseQueryParameters('/test?one=A&two=B');
+    expect(() => result['thing'] = 'blah', throwsA(isA<UnsupportedError>()));
+  });
+
+  test('Returns unmodifiable map for empty string', () {
+    final result = QueryParser.parseQueryParameters('');
+    expect(() => result['thing'] = 'blah', throwsA(isA<UnsupportedError>()));
   });
 }

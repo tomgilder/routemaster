@@ -82,7 +82,7 @@ class WidgetRouteState extends SinglePageRouteState {
 
   Page<void> createPage() {
     return MaterialPage<void>(
-      key: ValueKey(routeInfo.path),
+      key: ValueKey(routeInfo),
       child: widgetRoute.builder(routeInfo),
     );
   }
