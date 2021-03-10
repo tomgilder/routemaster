@@ -4,14 +4,12 @@ import 'package:flutter/widgets.dart';
 import 'package:routemaster/routemaster.dart';
 
 class HomePage extends StatelessWidget {
-  final CupertinoTabRouteState tabRoute;
-
-  const HomePage({@required this.tabRoute});
-
   @override
   Widget build(BuildContext context) {
+    final tabState = CupertinoTabRouteState.of(context);
+
     return CupertinoTabScaffold(
-      controller: tabRoute.tabController,
+      controller: tabState.tabController,
       tabBar: CupertinoTabBar(
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -33,14 +31,10 @@ class HomePage extends StatelessWidget {
         ],
       ),
       tabBuilder: (BuildContext context, int index) {
-        final stack = tabRoute.getStackForIndex(index);
-        final pages = stack.createPages();
-
-        assert(pages.isNotEmpty, "Pages must not be empty");
-
+        final stack = tabState.getStackForIndex(index);
         return Navigator(
           onPopPage: stack.onPopPage,
-          pages: pages,
+          pages: stack.createPages(),
         );
       },
     );

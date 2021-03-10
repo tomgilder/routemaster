@@ -7,7 +7,7 @@ void main() => runApp(MyApp());
 final plans = [
   CupertinoTabPlan(
     '/',
-    (info, routeState) => HomePage(routeState: routeState),
+    (routeInfo) => HomePage(),
     paths: ['/feed', '/settings'],
   ),
   MaterialPagePlan('/feed', (info) => FeedPage()),
@@ -33,15 +33,13 @@ class _MyAppState extends State<MyApp> {
 }
 
 class HomePage extends StatelessWidget {
-  final CupertinoTabRouteState routeState;
-
-  const HomePage({@required this.routeState});
-
   @override
   Widget build(BuildContext context) {
+    final tabState = CupertinoTabRouteState.of(context);
+
     return CupertinoTabScaffold(
-      controller: routeState.tabController,
-      tabBuilder: routeState.tabBuilder,
+      controller: tabState.tabController,
+      tabBuilder: tabState.tabBuilder,
       tabBar: CupertinoTabBar(
         items: [
           BottomNavigationBarItem(

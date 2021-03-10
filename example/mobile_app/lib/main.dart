@@ -63,7 +63,7 @@ List<RoutePlan> buildRouteMap() {
   return [
     CupertinoTabPlan(
       '/',
-      (_, tabRoute) => HomePage(tabRoute: tabRoute),
+      (routeInfo) => HomePage(),
       paths: [
         '/feed',
         '/search',

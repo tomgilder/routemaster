@@ -8,7 +8,7 @@ Here's the entire routing setup needed for an app featuring tabs and pushed rout
 final plans = [
   CupertinoTabPlan(
     '/',
-    (info, routeState) => HomePage(routeState: routeState),
+    (info) => HomePage(),
     paths: ['/feed', '/settings'],
   ),
   MaterialPagePlan('/feed', (info) => FeedPage()),

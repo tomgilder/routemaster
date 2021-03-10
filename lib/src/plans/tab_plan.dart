@@ -2,7 +2,7 @@ part of '../../routemaster.dart';
 
 class IndexedPlan extends RoutePlan with RedirectPlan, IndexedRoutePlanMixIn {
   final List<String> pathTemplates;
-  final Widget Function(RouteInfo info, IndexedRouteState routeState) builder;
+  final Widget Function(RouteInfo info) builder;
   final List<String> paths;
 
   String get redirectPath => paths[0];
@@ -25,6 +25,23 @@ class IndexedPlan extends RoutePlan with RedirectPlan, IndexedRoutePlanMixIn {
   }
 }
 
+class _IndexedRouteStateProvider extends InheritedNotifier {
+  final IndexedRouteState routeState;
+
+  _IndexedRouteStateProvider({
+    required Widget child,
+    required this.routeState,
+  }) : super(
+          child: child,
+          notifier: routeState.delegate,
+        );
+
+  @override
+  bool updateShouldNotify(covariant _IndexedRouteStateProvider oldWidget) {
+    return true;
+  }
+}
+
 class IndexedRouteState extends SinglePageRouteState
     with ChangeNotifier, IndexedRouteStateMixIn {
   final IndexedPlan plan;
@@ -39,10 +56,19 @@ class IndexedRouteState extends SinglePageRouteState
     _routes = List.filled(plan.paths.length, null);
   }
 
+  static IndexedRouteState of(BuildContext context) {
+    return context
+        .dependOnInheritedWidgetOfExactType<_IndexedRouteStateProvider>()!
+        .routeState;
+  }
+
   @override
   Page createPage() {
     return MaterialPage<void>(
-      child: plan.builder(routeInfo, this),
+      child: _IndexedRouteStateProvider(
+        routeState: this,
+        child: plan.builder(routeInfo),
+      ),
       key: ValueKey(routeInfo.path),
     );
   }
@@ -50,7 +76,7 @@ class IndexedRouteState extends SinglePageRouteState
 
 class TabPlan extends RoutePlan with RedirectPlan, IndexedRoutePlanMixIn {
   final List<String> pathTemplates;
-  final Widget Function(RouteInfo info, TabRouteState routeState) builder;
+  final Widget Function(RouteInfo info) builder;
   final List<String> paths;
 
   String get redirectPath => paths[0];
@@ -73,24 +99,46 @@ class TabPlan extends RoutePlan with RedirectPlan, IndexedRoutePlanMixIn {
   }
 }
 
+class _TabRouteStateProvider extends InheritedNotifier {
+  final TabRouteState routeState;
+
+  _TabRouteStateProvider({
+    required Widget child,
+    required this.routeState,
+  }) : super(
+          child: child,
+          notifier: routeState.delegate,
+        );
+
+  @override
+  bool updateShouldNotify(covariant _TabRouteStateProvider oldWidget) {
+    return true;
+  }
+}
+
 class TabRouteState extends SinglePageRouteState
     with ChangeNotifier, IndexedRouteStateMixIn {
   final TabPlan plan;
   final Routemaster delegate;
   final RouteInfo routeInfo;
 
-  TabRouteState(
-    this.plan,
-    this.delegate,
-    this.routeInfo,
-  ) {
+  TabRouteState(this.plan, this.delegate, this.routeInfo) {
     _routes = List.filled(plan.paths.length, null);
+  }
+
+  static TabRouteState of(BuildContext context) {
+    return context
+        .dependOnInheritedWidgetOfExactType<_TabRouteStateProvider>()!
+        .routeState;
   }
 
   @override
   Page createPage() {
     return MaterialPage<void>(
-      child: plan.builder(routeInfo, this),
+      child: _TabRouteStateProvider(
+        routeState: this,
+        child: plan.builder(routeInfo),
+      ),
       key: ValueKey(routeInfo.path),
     );
   }
@@ -120,8 +168,7 @@ class TabRouteState extends SinglePageRouteState
 class CupertinoTabPlan extends RoutePlan
     with RedirectPlan, IndexedRoutePlanMixIn {
   final List<String> pathTemplates;
-  final Widget Function(RouteInfo info, CupertinoTabRouteState routeState)
-      builder;
+  final Widget Function(RouteInfo info) builder;
   final List<String> paths;
 
   String get redirectPath => paths[0];
@@ -141,6 +188,23 @@ class CupertinoTabPlan extends RoutePlan
   @override
   RouteState createState(Routemaster delegate, RouteInfo routeInfo) {
     return CupertinoTabRouteState(this, delegate, routeInfo);
+  }
+}
+
+class _CupertinoTabRouteStateProvider extends InheritedNotifier {
+  final CupertinoTabRouteState routeState;
+
+  _CupertinoTabRouteStateProvider({
+    required Widget child,
+    required this.routeState,
+  }) : super(
+          child: child,
+          notifier: routeState.delegate,
+        );
+
+  @override
+  bool updateShouldNotify(covariant _CupertinoTabRouteStateProvider oldWidget) {
+    return true;
   }
 }
 
@@ -169,10 +233,19 @@ class CupertinoTabRouteState extends SinglePageRouteState
     });
   }
 
+  static CupertinoTabRouteState of(BuildContext context) {
+    return context
+        .dependOnInheritedWidgetOfExactType<_CupertinoTabRouteStateProvider>()!
+        .routeState;
+  }
+
   @override
   Page createPage() {
     return MaterialPage<void>(
-      child: plan.builder(routeInfo, this),
+      child: _CupertinoTabRouteStateProvider(
+        routeState: this,
+        child: plan.builder(routeInfo),
+      ),
       key: ValueKey(routeInfo.path),
     );
   }
@@ -215,20 +288,14 @@ mixin IndexedRouteStateMixIn on SinglePageRouteState, ChangeNotifier {
       _routes[index] = _StackRouteState(
         delegate: delegate,
         routes: [
-          delegate._getRoute(join(
-            routeInfo.path,
-            plan.paths[index],
-          ))!,
+          delegate._getRoute(
+            join(routeInfo.path, plan.paths[index]),
+          )!,
         ],
       );
     }
 
     return _routes[index]!;
-  }
-
-  List<Page> buildPagesForIndex(int index) {
-    final stack = getStackForIndex(index);
-    return stack.createPages();
   }
 
   int? getIndexForPath(String path) {
@@ -288,84 +355,3 @@ mixin IndexedRouteStateMixIn on SinglePageRouteState, ChangeNotifier {
     yield* _routes[index]!.getCurrentRouteStates();
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// class _TabRouteWidget extends InheritedWidget {
-//   final TabRoute route;
-
-//   _TabRouteWidget({required this.route}) : assert(route != null), super(child: child);
-
-//   @override
-//   bool updateShouldNotify(covariant InheritedWidget oldWidget) {
-//     return false;
-//   }
-// }
-
-// class CupertinoTabPlan extends TabPlan {
-//   final Widget Function(RouteInfo info, TabRouteState routeState,
-//       CupertinoTabController tabController) builder;
-
-//   CupertinoTabPlan(
-//     String pathTemplate,
-//     Widget Function(RouteInfo info, TabRouteState routeState,
-//             CupertinoTabController tabController)
-//         builder, {
-//     required List<String> paths,
-//   }) : super(
-//           pathTemplate,
-//           (info, state) {
-//             return this;
-//           },
-//           paths: paths,
-//         );
-
-//   final _tabController = CupertinoTabController();
-
-//   // CupertinoTabPlan.routes(
-//   //   this.pathTemplates,
-//   //   this.builder, {
-//   //   required this.paths,
-//   // });
-
-//   @override
-//   RouteState createState(Routemaster delegate, RouteInfo routeInfo) {
-//     return CupertinoTabRouteState(this, delegate, routeInfo);
-//   }
-// }
-
-// class CupertinoTabRouteState extends TabRouteState {
-//   final CupertinoTabPlan plan;
-
-//   CupertinoTabRouteState(
-//     CupertinoTabPlan plan,
-//     Routemaster delegate,
-//     RouteInfo routeInfo,
-//   ) : super(plan, delegate, routeInfo) {
-//     _routes = List.filled(plan.paths.length, null);
-//   }
-
-//   @override
-//   Page createPage() {
-//     return MaterialPage<void>(
-//       child: plan.builder(routeInfo, this),
-//       key: ValueKey(routeInfo.path),
-//     );
-//   }
-// }
