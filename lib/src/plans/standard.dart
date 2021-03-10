@@ -23,7 +23,7 @@ abstract class RoutePlan {
   /// [onValidationFailed] is called.
   ///
   /// By default this redirects to the default path.
-  ValidateCallback? get validate;
+  final ValidateCallback? validate = (_) => true;
 
   /// Callback, called when the [validate] returns false.
   ///
