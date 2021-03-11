@@ -19,7 +19,7 @@ final plans = [
 void main() {
   runApp(
       MaterialApp.router(
-        routerDelegate: Routemaster(plans: plans),
+        routerDelegate: Routemaster(planBuilder: (context) => plans),
         routeInformationParser: RoutemasterParser(),
       ),
     );

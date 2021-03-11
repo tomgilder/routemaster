@@ -3,23 +3,26 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class NotificationsPage extends StatefulWidget {
-  final IndexedRouteState tabRoute;
-
-  const NotificationsPage({@required this.tabRoute});
-
   @override
   State<StatefulWidget> createState() => _NotificationsPageState();
 }
 
 class _NotificationsPageState extends State<NotificationsPage> {
+  IndexedRouteState _routeState;
   final _tabController = CupertinoTabController();
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _routeState = IndexedRouteState.of(context);
+  }
 
   @override
   void initState() {
     super.initState();
 
     _tabController.addListener(() {
-      widget.tabRoute.index = _tabController.index;
+      _routeState.index = _tabController.index;
     });
   }
 
@@ -27,7 +30,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
   void didUpdateWidget(NotificationsPage oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    _tabController.index = widget.tabRoute.index;
+    _tabController.index = _routeState.index;
   }
 
   @override
@@ -53,15 +56,13 @@ class _NotificationsPageState extends State<NotificationsPage> {
         ],
       ),
       tabBuilder: (BuildContext context, int index) {
-        final stack = widget.tabRoute.getStackForIndex(index);
-        final pages = stack.createPages();
-
-        assert(pages.isNotEmpty, "Pages must not be empty");
+        final tabRouteState = IndexedRouteState.of(context);
+        final stack = tabRouteState.getStackForIndex(index);
 
         return Navigator(
           // observers: [HeroController()],
           onPopPage: stack.onPopPage,
-          pages: pages,
+          pages: stack.createPages(),
         );
       },
     );

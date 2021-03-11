@@ -21,7 +21,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final Routemaster _delegate = Routemaster(plans: plans);
+  final Routemaster _delegate = Routemaster(planBuilder: (_) => plans);
 
   @override
   Widget build(BuildContext context) {

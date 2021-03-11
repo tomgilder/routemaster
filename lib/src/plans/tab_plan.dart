@@ -69,7 +69,7 @@ class IndexedRouteState extends SinglePageRouteState
         routeState: this,
         child: plan.builder(routeInfo),
       ),
-      key: ValueKey(routeInfo.path),
+      key: ValueKey(routeInfo),
     );
   }
 }
@@ -139,7 +139,7 @@ class TabRouteState extends SinglePageRouteState
         routeState: this,
         child: plan.builder(routeInfo),
       ),
-      key: ValueKey(routeInfo.path),
+      key: ValueKey(routeInfo),
     );
   }
 
@@ -246,7 +246,7 @@ class CupertinoTabRouteState extends SinglePageRouteState
         routeState: this,
         child: plan.builder(routeInfo),
       ),
-      key: ValueKey(routeInfo.path),
+      key: ValueKey(routeInfo),
     );
   }
 
@@ -352,6 +352,6 @@ mixin IndexedRouteStateMixIn on SinglePageRouteState, ChangeNotifier {
   @override
   Iterable<RouteState> getCurrentRouteStates() sync* {
     yield this;
-    yield* _routes[index]!.getCurrentRouteStates();
+    yield* getStackForIndex(index).getCurrentRouteStates();
   }
 }

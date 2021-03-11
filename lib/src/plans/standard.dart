@@ -86,7 +86,7 @@ class WidgetRouteState extends SinglePageRouteState {
   Page<void> createPage() {
     return MaterialPage<void>(
       key: ValueKey(routeInfo),
-      child: widgetRoute.builder(routeInfo),
+      child: Material(child: widgetRoute.builder(routeInfo)), // TODO remove
     );
   }
 

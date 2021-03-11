@@ -34,26 +34,14 @@ class Routemaster extends RouterDelegate<RouteData>
   @override
   final GlobalKey<NavigatorState> navigatorKey;
 
-  Iterable<RoutePlan>? _plans;
-  Iterable<RoutePlan>? get plans => _plans;
-  set plans(Iterable<RoutePlan>? newPlans) {
-    _plans = List<RoutePlan>.unmodifiable(newPlans!);
-    _stack = null;
-    _initRoutes();
-    _markNeedsUpdate();
-  }
+  final Iterable<RoutePlan> Function(BuildContext context) planBuilder;
 
   Routemaster({
-    Iterable<RoutePlan>? plans,
+    required this.planBuilder,
     this.builder,
     this.defaultPath = '/',
     GlobalKey<NavigatorState>? navigatorKey,
-  })  : _plans = plans == null ? null : List<RoutePlan>.unmodifiable(plans),
-        this.navigatorKey = navigatorKey ?? GlobalKey<NavigatorState>() {
-    if (_plans != null) {
-      _initRoutes();
-    }
-  }
+  }) : this.navigatorKey = navigatorKey ?? GlobalKey<NavigatorState>() {}
 
   static Routemaster of(BuildContext context) {
     return context
@@ -67,7 +55,7 @@ class Routemaster extends RouterDelegate<RouteData>
       child: builder != null
           ? builder!(context, this)
           : Navigator(
-              pages: buildPages(),
+              pages: buildPages(context),
               onPopPage: onPopPage,
               key: navigatorKey,
             ),
@@ -83,9 +71,9 @@ class Routemaster extends RouterDelegate<RouteData>
       return null;
     }
 
-    return RouteData(
-      _stack!.getCurrentRouteStates().last.routeInfo.path,
-    );
+    final path = _stack!.getCurrentRouteStates().last.routeInfo.path;
+    print("Path is: '$path'");
+    return RouteData(path);
   }
 
   // Called when a new URL is set. The RouteInformationParser will parse the
@@ -104,8 +92,29 @@ class Routemaster extends RouterDelegate<RouteData>
     return SynchronousFuture(null);
   }
 
+  void _initRoutes(BuildContext context) {
+    // TODO: This is currently very inefficient; it rebuilds the entire router,
+    // gets all current plans, and rebuilds them all. There's a lot we can do
+    // to make it better.
+
+    final plans = planBuilder(context);
+    _router = TrieRouter()..addAll(plans);
+
+    final routeStates = _createAllStates(
+      currentConfiguration?.routeString ?? '/',
+    );
+
+    if (routeStates == null) {
+      throw "Failed to create initial state";
+    }
+
+    _stack = _StackRouteState(delegate: this, routes: routeStates.toList());
+  }
+
   /// Generates all pages and sub-pages.
-  List<Page> buildPages() {
+  List<Page> buildPages(BuildContext context) {
+    _initRoutes(context);
+
     assert(_stack != null,
         "Stack must have been created when buildPages() is called");
     final pages = _stack!.createPages();
@@ -143,27 +152,13 @@ class Routemaster extends RouterDelegate<RouteData>
     _markNeedsUpdate();
   }
 
-  void _initRoutes() {
-    if (plans == null) {
-      return;
-    }
-
-    _router = TrieRouter()..addAll(plans!);
-
-    final routeStates = _createAllStates('/');
-    if (routeStates == null) {
-      throw "Failed to create initial state";
-    }
-
-    _stack = _StackRouteState(delegate: this, routes: routeStates.toList());
-  }
-
   void _markNeedsUpdate() {
     notifyListeners();
   }
 
   List<RouteState>? _createAllStates(String requestedPath) {
     final routerResult = _router.getAll(requestedPath);
+    print(routerResult?[0].value.runtimeType);
     if (routerResult == null) {
       print(
         "Router couldn't find a match for path '$requestedPath', returning default of '$defaultPath'",
@@ -215,16 +210,22 @@ class Routemaster extends RouterDelegate<RouteData>
     RouterResult routerResult,
     Map<String, String> queryParameters,
   ) {
-    final routeInfo = RouteInfo(routerResult, queryParameters);
+    final routeInfo =
+        RouteInfo(routerResult, queryParameters, routerResult.value);
 
     if (currentRoutes != null) {
+      print(
+          " - Trying to find match for state matching '${routeInfo.path}'...");
       final currentState = currentRoutes.firstWhereOrNull(
         ((element) => element.routeInfo == routeInfo),
       );
 
       if (currentState != null) {
+        print(" - Found match for state");
         return currentState;
       }
+
+      print(" - No match for state");
     }
 
     return _createState(routerResult, routeInfo);
@@ -244,7 +245,7 @@ class Routemaster extends RouterDelegate<RouteData>
     final queryParameters = QueryParser.parseQueryParameters(requestedPath);
     return _createState(
       routerResult,
-      RouteInfo(routerResult, queryParameters),
+      RouteInfo(routerResult, queryParameters, routerResult.value),
     );
   }
 

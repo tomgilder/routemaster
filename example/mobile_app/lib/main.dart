@@ -19,7 +19,13 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final Routemaster _routemaster = Routemaster();
+  final Routemaster _routemaster = Routemaster(
+    planBuilder: (context) {
+      // We swap out the routing plan at runtime based on app state
+      final isLoggedIn = Provider.of<AppState>(context).isLoggedIn;
+      return isLoggedIn ? buildRouteMap() : buildLoggedOutRouteMap();
+    },
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -27,14 +33,10 @@ class _MyAppState extends State<MyApp> {
       create: (_) => AppState(),
       child: Builder(
         builder: (context) {
-          final isLoggedIn = Provider.of<AppState>(context).isLoggedIn;
-
           return MaterialApp.router(
             title: 'Routemaster Demo',
             routeInformationParser: RoutemasterParser(),
-            // We swap out the routing plan at runtime based on app state
-            routerDelegate: _routemaster
-              ..plans = isLoggedIn ? buildRouteMap() : buildLoggedOutRouteMap(),
+            routerDelegate: _routemaster,
           );
         },
       ),
@@ -106,7 +108,7 @@ List<RoutePlan> buildRouteMap() {
     // This gets really complicated to test out tested scenarios!
     IndexedPlan(
       '/notifications',
-      (_, tabRoute) => NotificationsPage(tabRoute: tabRoute),
+      (_) => NotificationsPage(),
       paths: [
         '/notifications/one',
         '/notifications/two',
@@ -128,7 +130,7 @@ List<RoutePlan> buildRouteMap() {
     ),
     IndexedPlan(
       '/bottom-navigation-bar',
-      (_, routeState) => BottomNavigationBarPage(routeState: routeState),
+      (_) => BottomNavigationBarPage(),
       paths: [
         '/bottom-navigation-bar/one',
         '/bottom-navigation-bar/two',

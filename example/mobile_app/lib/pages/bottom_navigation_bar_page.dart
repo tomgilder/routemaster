@@ -3,10 +3,6 @@ import 'package:flutter/widgets.dart';
 import 'package:routemaster/routemaster.dart';
 
 class BottomNavigationBarPage extends StatefulWidget {
-  final IndexedRouteState routeState;
-
-  BottomNavigationBarPage({@required this.routeState});
-
   @override
   _BottomNavigationBarPageState createState() =>
       _BottomNavigationBarPageState();
@@ -15,8 +11,9 @@ class BottomNavigationBarPage extends StatefulWidget {
 class _BottomNavigationBarPageState extends State<BottomNavigationBarPage> {
   @override
   Widget build(BuildContext context) {
-    final selectedIndex = widget.routeState.index;
-    final stack = widget.routeState.getStackForIndex(selectedIndex);
+    final routeState = IndexedRouteState.of(context);
+    final selectedIndex = routeState.index;
+    final stack = routeState.getStackForIndex(selectedIndex);
     final pages = stack.createPages();
 
     return Scaffold(
@@ -30,7 +27,7 @@ class _BottomNavigationBarPageState extends State<BottomNavigationBarPage> {
         currentIndex: selectedIndex,
         onTap: (index) {
           setState(() {
-            widget.routeState.index = index;
+            routeState.index = index;
           });
         },
         items: const [
