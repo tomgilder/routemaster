@@ -9,6 +9,11 @@ void main() {
     expect(result['two'], 'B');
   });
 
+  test('Parses spaces in query', () {
+    final result = QueryParser.parseQueryParameters('/test?query=hello+world');
+    expect(result['query'], 'hello world');
+  });
+
   test('Parses query string without parameter', () {
     final result = QueryParser.parseQueryParameters('/test?a');
     expect(result['a'], '');
