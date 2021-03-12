@@ -11,9 +11,9 @@ class BottomNavigationBarPage extends StatefulWidget {
 class _BottomNavigationBarPageState extends State<BottomNavigationBarPage> {
   @override
   Widget build(BuildContext context) {
-    final routeState = IndexedRouteState.of(context);
-    final selectedIndex = routeState.index;
-    final stack = routeState.getStackForIndex(selectedIndex);
+    final pageState = IndexedPageState.of(context);
+    final selectedIndex = pageState.index;
+    final stack = pageState.getStackForIndex(selectedIndex);
     final pages = stack.createPages();
 
     return Scaffold(
@@ -27,7 +27,7 @@ class _BottomNavigationBarPageState extends State<BottomNavigationBarPage> {
         currentIndex: selectedIndex,
         onTap: (index) {
           setState(() {
-            routeState.index = index;
+            pageState.index = index;
           });
         },
         items: const [

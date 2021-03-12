@@ -1,5 +1,5 @@
 import 'package:path/path.dart' as path;
-import 'package:routemaster/src/plans/standard.dart';
+import 'package:routemaster/routemaster.dart';
 import '../../query_parser.dart';
 import 'errors.dart';
 import 'router_result.dart';
@@ -7,22 +7,20 @@ import 'trie.dart';
 import 'trie_node.dart';
 
 class TrieRouter {
-  final Trie<String, RoutePlan> _trie;
+  final Trie<String, PageBuilder> _trie;
 
   TrieRouter() : _trie = Trie();
 
-  void addAll(Iterable<RoutePlan> routePlans) {
-    for (final route in routePlans) {
-      for (final path in route.pathTemplates) {
-        add(path, route);
-      }
-    }
+  void addAll(Map<String, PageBuilder> routes) {
+    routes.forEach((key, value) {
+      add(key, value);
+    });
   }
 
   /// Throws a [ConflictingPathError] if there is a conflict.
   ///
   /// It is an error to add two segments prefixed with ':' at the same index.
-  bool add(String route, RoutePlan value) {
+  bool add(String route, PageBuilder value) {
     var pathSegments = path.split(route);
     return addPathComponents(pathSegments, value);
   }
@@ -30,9 +28,9 @@ class TrieRouter {
   /// Throws a [ConflictingPathError] if there is a conflict.
   ///
   /// It is an error to add two segments prefixed with ':' at the same index.
-  bool addPathComponents(Iterable<String> pathSegments, RoutePlan value) {
+  bool addPathComponents(Iterable<String> pathSegments, PageBuilder value) {
     var list = List<String>.from(pathSegments);
-    TrieNode<String?, RoutePlan?>? current = _trie.root;
+    TrieNode<String?, PageBuilder?>? current = _trie.root;
     var isNew = false;
 
     // Allow an empty list of path segments to associate a value at the root
@@ -74,7 +72,7 @@ class TrieRouter {
   }
 
   bool contains(Iterable<String> pathSegments) {
-    TrieNode<String?, RoutePlan?>? current = _trie.root;
+    TrieNode<String?, PageBuilder?>? current = _trie.root;
 
     for (var segment in pathSegments) {
       if (current!.contains(segment)) {
@@ -94,7 +92,7 @@ class TrieRouter {
   RouterResult? get(String route) {
     var pathSegments = path.split(QueryParser.stripQueryString(route));
     var parameters = <String, String>{};
-    TrieNode<String?, RoutePlan?>? current = _trie.root;
+    TrieNode<String?, PageBuilder?>? current = _trie.root;
 
     for (var segment in pathSegments) {
       if (current!.contains(segment)) {
@@ -117,7 +115,7 @@ class TrieRouter {
   List<RouterResult>? getAll(String route) {
     var pathSegments = path.split(QueryParser.stripQueryString(route));
     var parameters = <String, String>{};
-    TrieNode<String?, RoutePlan?>? current = _trie.root;
+    TrieNode<String?, PageBuilder?>? current = _trie.root;
 
     final List<RouterResult> result = <RouterResult>[];
     int i = 0;

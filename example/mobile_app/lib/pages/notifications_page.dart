@@ -8,13 +8,13 @@ class NotificationsPage extends StatefulWidget {
 }
 
 class _NotificationsPageState extends State<NotificationsPage> {
-  IndexedRouteState _routeState;
+  IndexedPageState _pageState;
   final _tabController = CupertinoTabController();
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _routeState = IndexedRouteState.of(context);
+    _pageState = IndexedPageState.of(context);
   }
 
   @override
@@ -22,7 +22,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
     super.initState();
 
     _tabController.addListener(() {
-      _routeState.index = _tabController.index;
+      _pageState.index = _tabController.index;
     });
   }
 
@@ -30,7 +30,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
   void didUpdateWidget(NotificationsPage oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    _tabController.index = _routeState.index;
+    _tabController.index = _pageState.index;
   }
 
   @override
@@ -56,8 +56,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
         ],
       ),
       tabBuilder: (BuildContext context, int index) {
-        final tabRouteState = IndexedRouteState.of(context);
-        final stack = tabRouteState.getStackForIndex(index);
+        final tabPageState = IndexedPageState.of(context);
+        final stack = tabPageState.getStackForIndex(index);
 
         return Navigator(
           // observers: [HeroController()],

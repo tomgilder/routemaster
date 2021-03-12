@@ -4,29 +4,23 @@ import 'package:routemaster/routemaster.dart';
 
 void main() => runApp(MyApp());
 
-final plans = [
-  CupertinoTabPlan(
-    '/',
-    (routeInfo) => HomePage(),
-    paths: ['/feed', '/settings'],
-  ),
-  MaterialPagePlan('/feed', (info) => FeedPage()),
-  MaterialPagePlan('/feed/profile/:id', (info) => ProfilePage()),
-  MaterialPagePlan('/settings', (info) => SettingsPage()),
-];
+final routes = RouteMap(
+  routes: {
+    '/': (_) => CupertinoTabPage(
+          child: HomePage(),
+          paths: ['/feed', '/settings'],
+        ),
+    '/feed': (_) => MaterialPage(child: FeedPage()),
+    '/feed/profile/:id': (_) => MaterialPage(child: ProfilePage()),
+    '/settings': (_) => MaterialPage(child: SettingsPage()),
+  },
+);
 
-class MyApp extends StatefulWidget {
-  @override
-  _MyAppState createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  final Routemaster _delegate = Routemaster(planBuilder: (_) => plans);
-
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      routerDelegate: _delegate,
+      routerDelegate: Routemaster(routeBuilder: (_) => routes),
       routeInformationParser: RoutemasterParser(),
     );
   }
@@ -35,7 +29,7 @@ class _MyAppState extends State<MyApp> {
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final tabState = CupertinoTabRouteState.of(context);
+    final tabState = CupertinoTabPageState.of(context);
 
     return CupertinoTabScaffold(
       controller: tabState.tabController,

@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
-import 'plans/standard.dart';
-import 'trie_router/trie_router.dart';
 import 'package:quiver/core.dart';
+import 'trie_router/trie_router.dart';
+import '../routemaster.dart';
 
 /// Information generated from a specific path (URL).
 ///
@@ -24,13 +24,14 @@ class RouteInfo {
   ///
   final Map<String, String> queryParameters;
 
-  /// The plan used to build this route
-  final RoutePlan plan;
+  /// The builder used to build this route
+  final PageBuilder builder;
 
-  RouteInfo(RouterResult result, Map<String, String> queryParameters, this.plan)
+  RouteInfo(RouterResult result, Map<String, String> queryParameters)
       : path = result.pathSegment,
         pathParameters = result.pathParameters,
-        queryParameters = queryParameters;
+        queryParameters = queryParameters,
+        builder = result.builder;
 
   @override
   bool operator ==(Object other) =>
@@ -38,14 +39,14 @@ class RouteInfo {
       path == other.path &&
       DeepCollectionEquality().equals(pathParameters, other.pathParameters) &&
       DeepCollectionEquality().equals(queryParameters, other.queryParameters) &&
-      plan.runtimeType == other.plan.runtimeType;
+      builder.runtimeType == other.builder.runtimeType;
 
   @override
   int get hashCode => hash4(
         path,
         DeepCollectionEquality().hash(pathParameters),
         DeepCollectionEquality().hash(queryParameters),
-        plan.runtimeType,
+        builder.runtimeType,
       );
 
   @override

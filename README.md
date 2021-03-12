@@ -5,21 +5,20 @@ Hello! This is an in-development router for Flutter. It's an easy-to-use wrapper
 Here's the entire routing setup needed for an app featuring tabs and pushed routes:
 
 ```dart
-final plans = [
-  CupertinoTabPlan(
-    '/',
-    (info) => HomePage(),
-    paths: ['/feed', '/settings'],
-  ),
-  MaterialPagePlan('/feed', (info) => FeedPage()),
-  MaterialPagePlan('/feed/profile/:id', (info) => ProfilePage(id: info['id'])),
-  MaterialPagePlan('/settings', (info) => SettingsPage()),
-];
+final routes = <String, PageBuilder>{
+  '/': (_) => CupertinoTabPage(
+        child: HomePage(),
+        paths: ['/feed', '/settings'],
+      ),
+  '/feed': (_) => MaterialPage<void>(child: FeedPage()),
+  '/feed/profile/:id': (info) => MaterialPage<void>(child: ProfilePage(id: info['id'])),
+  '/settings': (_) => MaterialPage<void>(child: SettingsPage()),
+};
 
 void main() {
   runApp(
       MaterialApp.router(
-        routerDelegate: Routemaster(planBuilder: (context) => plans),
+        routerDelegate: Routemaster(routeBuilder: (context) => routes),
         routeInformationParser: RoutemasterParser(),
       ),
     );
@@ -55,9 +54,9 @@ You create immutable `RoutePlan` objects as mapping between paths and widgets:
 
 `MaterialPagePlan('/search', (_) => SearchPage())`
 
-These `RoutePlan` objects have a `createState()` object which creates a mutable `RouteState` object to manage the in-memory state.
+These `RoutePlan` objects have a `createState()` object which creates a mutable `PageState` object to manage the in-memory state.
 
-So for instance `TabPlan` creates a `TabRouteState`, which has a `index` property for which the current tab is.
+So for instance `TabPlan` creates a `TabPageState`, which has a `index` property for which the current tab is.
 
 This project builds on [page_router](https://github.com/johnpryan/page_router).
 

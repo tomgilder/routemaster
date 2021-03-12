@@ -2,7 +2,7 @@ library routemaster;
 
 export 'src/parser.dart';
 export 'src/route_info.dart';
-export 'src/plans/standard.dart';
+export 'src/pages/guard.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -10,36 +10,56 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path/path.dart';
 import 'package:collection/collection.dart';
-import 'src/plans/standard.dart';
+import 'src/pages/guard.dart';
 import 'src/route_dart.dart';
 import 'src/trie_router/trie_router.dart';
 import 'src/query_parser.dart';
 import 'src/route_info.dart';
 
-part 'src/plans/stack.dart';
-part 'src/plans/tab_plan.dart';
+part 'src/pages/stack.dart';
+part 'src/pages/tab_pages.dart';
+part 'src/pages/standard.dart';
 
 typedef Widget RoutemasterBuilder(
   BuildContext context,
   Routemaster routemaster,
 );
 
+typedef Page PageBuilder(RouteInfo info);
+
+@immutable
+class RouteMap {
+  /// A map of paths and [PageBuilder] delegates that return [Page] objects to
+  /// build.
+  final Map<String, PageBuilder> routes;
+
+  /// The default fallback path, if the user tries to go to a page that doesn't
+  /// exist. Defaults to '/'.
+  final String defaultPath;
+
+  const RouteMap({
+    required this.routes,
+    this.defaultPath = '/',
+  });
+}
+
 class Routemaster extends RouterDelegate<RouteData>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouteData> {
+  /// Used to override how the [Navigator] builds.
   final RoutemasterBuilder? builder;
-  final String defaultPath;
+
   late TrieRouter _router;
-  _StackRouteState? _stack;
+  _StackPageState? _stack;
+  RouteMap? _routeMap;
 
   @override
   final GlobalKey<NavigatorState> navigatorKey;
 
-  final Iterable<RoutePlan> Function(BuildContext context) planBuilder;
+  final RouteMap Function(BuildContext context) routeBuilder;
 
   Routemaster({
-    required this.planBuilder,
+    required this.routeBuilder,
     this.builder,
-    this.defaultPath = '/',
     GlobalKey<NavigatorState>? navigatorKey,
   }) : this.navigatorKey = navigatorKey ?? GlobalKey<NavigatorState>() {}
 
@@ -55,7 +75,7 @@ class Routemaster extends RouterDelegate<RouteData>
       child: builder != null
           ? builder!(context, this)
           : Navigator(
-              pages: buildPages(context),
+              pages: createPages(context),
               onPopPage: onPopPage,
               key: navigatorKey,
             ),
@@ -71,7 +91,7 @@ class Routemaster extends RouterDelegate<RouteData>
       return null;
     }
 
-    final path = _stack!.getCurrentRouteStates().last.routeInfo.path;
+    final path = _stack!.getCurrentPageStates().last.routeInfo.path;
     print("Path is: '$path'");
     return RouteData(path);
   }
@@ -85,7 +105,7 @@ class Routemaster extends RouterDelegate<RouteData>
     if (currentConfiguration != routeData) {
       final states = _createAllStates(routeData.routeString);
       if (states != null) {
-        _stack!._setRouteStates(states);
+        _stack!._setPageStates(states);
       }
     }
 
@@ -93,30 +113,38 @@ class Routemaster extends RouterDelegate<RouteData>
   }
 
   void _initRoutes(BuildContext context) {
-    // TODO: This is currently very inefficient; it rebuilds the entire router,
-    // gets all current plans, and rebuilds them all. There's a lot we can do
-    // to make it better.
+    final routeMap = routeBuilder(context);
 
-    final plans = planBuilder(context);
-    _router = TrieRouter()..addAll(plans);
+    if (_routeMap != routeMap) {
+      // TODO: Could this be more efficent and not rebuild the entire router
+      // and base stack when the route map changes?
+      _routeMap = routeMap;
+      final currentRouteString = currentConfiguration?.routeString;
 
-    final routeStates = _createAllStates(
-      currentConfiguration?.routeString ?? '/',
-    );
+      _router = TrieRouter()..addAll(routeMap.routes);
 
-    if (routeStates == null) {
-      throw "Failed to create initial state";
+      final pageStates = _createAllStates(currentRouteString ?? '/');
+      if (pageStates == null) {
+        throw "Failed to create initial state";
+      }
+
+      _stack = _StackPageState(delegate: this, routes: pageStates.toList());
+
+      // If URL has changed during this build, schedule a notification
+      if (currentRouteString != currentConfiguration?.routeString) {
+        WidgetsBinding.instance?.addPostFrameCallback((_) {
+          notifyListeners();
+        });
+      }
     }
-
-    _stack = _StackRouteState(delegate: this, routes: routeStates.toList());
   }
 
   /// Generates all pages and sub-pages.
-  List<Page> buildPages(BuildContext context) {
+  List<Page> createPages(BuildContext context) {
     _initRoutes(context);
 
     assert(_stack != null,
-        "Stack must have been created when buildPages() is called");
+        "Stack must have been created when createPages() is called");
     final pages = _stack!.createPages();
     assert(pages.isNotEmpty, "Returned pages list must not be empty");
     return pages;
@@ -136,7 +164,7 @@ class Routemaster extends RouterDelegate<RouteData>
       return;
     }
 
-    _stack!._setRouteStates(states);
+    _stack!._setPageStates(states);
     _markNeedsUpdate();
   }
 
@@ -156,32 +184,23 @@ class Routemaster extends RouterDelegate<RouteData>
     notifyListeners();
   }
 
-  List<RouteState>? _createAllStates(String requestedPath) {
+  List<PageState>? _createAllStates(String requestedPath) {
     final routerResult = _router.getAll(requestedPath);
-    print(routerResult?[0].value.runtimeType);
+
     if (routerResult == null) {
       print(
-        "Router couldn't find a match for path '$requestedPath', returning default of '$defaultPath'",
+        "Router couldn't find a match for path '$requestedPath', returning default of '${_routeMap!.defaultPath}'",
       );
-      return [_getRoute(defaultPath)!];
-    }
-
-    final lastPlan = routerResult.last.value;
-    if (lastPlan is RedirectPlan) {
-      // TODO: We're only looking to see if the LAST plan is a redirect
-      // ...what if others are also a redirect?
-      final redirectPath = (lastPlan as RedirectPlan).redirectPath;
-      print("Redirecting from '$requestedPath' to '$redirectPath'");
-      return _createAllStates(redirectPath);
+      return [_getRoute(_routeMap!.defaultPath)!];
     }
 
     final queryParameters = QueryParser.parseQueryParameters(requestedPath);
-    final currentRoutes = _stack?.getCurrentRouteStates().toList();
+    final currentRoutes = _stack?.getCurrentPageStates().toList();
 
-    var result = <RouteState>[];
+    var result = <PageState>[];
 
     for (final routerData in routerResult.reversed) {
-      final state = _getOrCreateRouteState(
+      final state = _getOrCreatePageState(
         currentRoutes,
         routerData,
         queryParameters,
@@ -191,7 +210,7 @@ class Routemaster extends RouterDelegate<RouteData>
         return null;
       }
 
-      if (result.isNotEmpty && state.maybeSetRouteStates(result)) {
+      if (result.isNotEmpty && state.maybeSetPageStates(result)) {
         result = [state];
       } else {
         result.insert(0, state);
@@ -205,13 +224,12 @@ class Routemaster extends RouterDelegate<RouteData>
   /// If there's a current route matching the path in the tree, return it.
   /// Otherwise create a new one. This could possibly be made more efficient
   /// By using a map rather than iterating over all currentRoutes.
-  RouteState? _getOrCreateRouteState(
-    List<RouteState>? currentRoutes,
+  PageState? _getOrCreatePageState(
+    List<PageState>? currentRoutes,
     RouterResult routerResult,
     Map<String, String> queryParameters,
   ) {
-    final routeInfo =
-        RouteInfo(routerResult, queryParameters, routerResult.value);
+    final routeInfo = RouteInfo(routerResult, queryParameters);
 
     if (currentRoutes != null) {
       print(
@@ -225,7 +243,7 @@ class Routemaster extends RouterDelegate<RouteData>
         return currentState;
       }
 
-      print(" - No match for state");
+      print(" - No match for state, will need to create it");
     }
 
     return _createState(routerResult, routeInfo);
@@ -233,31 +251,42 @@ class Routemaster extends RouterDelegate<RouteData>
 
   /// Try to get the route for [requestedPath]. If no match, returns default path.
   /// Returns null if validation fails.
-  RouteState? _getRoute(String requestedPath) {
+  PageState? _getRoute(String requestedPath) {
     final routerResult = _router.get(requestedPath);
     if (routerResult == null) {
       print(
-        "Router couldn't find a match for path '$requestedPath', returning default of '$defaultPath'",
+        "Router couldn't find a match for path '$requestedPath', returning default of '${_routeMap!.defaultPath}'",
       );
-      return _getRoute(defaultPath);
+      return _getRoute(_routeMap!.defaultPath);
     }
 
     final queryParameters = QueryParser.parseQueryParameters(requestedPath);
-    return _createState(
-      routerResult,
-      RouteInfo(routerResult, queryParameters, routerResult.value),
-    );
+    final routeInfo = RouteInfo(routerResult, queryParameters);
+
+    return _createState(routerResult, routeInfo);
   }
 
-  RouteState? _createState(RouterResult routerResult, RouteInfo routeInfo) {
-    if (routerResult.value.validate != null &&
-        !routerResult.value.validate!(routeInfo)) {
-      print("Validation failed for '${routeInfo.path}'");
-      routerResult.value.onValidationFailed!(this, routeInfo);
-      return null;
+  PageState? _createState(RouterResult routerResult, RouteInfo routeInfo) {
+    var page = routerResult.builder(routeInfo);
+
+    if (page is GuardedPage) {
+      if (page.validate != null && !page.validate!(routeInfo)) {
+        print("Validation failed for '${routeInfo.path}'");
+        page.onValidationFailed!(this, routeInfo);
+        return null;
+      }
+
+      page = page.child;
     }
 
-    return routerResult.value.createState(this, routeInfo);
+    if (page is StatefulPage) {
+      return page.createState(this, routeInfo);
+    }
+
+    assert(page is! ProxyPage, "ProxyPage has not been unwrapped");
+
+    // Page is just a standard Flutter page, create a wrapper for it
+    return _StatelessPage(routeInfo, page);
   }
 }
 

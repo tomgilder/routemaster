@@ -1,10 +1,10 @@
 import 'package:collection/collection.dart';
 import 'package:quiver/core.dart';
-import 'package:routemaster/src/plans/standard.dart';
+import '../../../routemaster.dart';
 
 class RouterResult {
-  /// The plan matching the path
-  final RoutePlan value;
+  /// The builder matching the path
+  final PageBuilder builder;
 
   /// Path parameters matched in this path section
   /// e.g. '/blah/:id' becomes `pathParameters['id']`
@@ -17,22 +17,25 @@ class RouterResult {
   ///         3. /blah/test
   final String pathSegment;
 
-  const RouterResult(this.value, this.pathParameters, this.pathSegment);
+  const RouterResult(this.builder, this.pathParameters, this.pathSegment);
 
   @override
-  int get hashCode =>
-      hash3(value, DeepCollectionEquality().hash(pathParameters), pathSegment);
+  int get hashCode => hash3(
+        builder.runtimeType,
+        DeepCollectionEquality().hash(pathParameters),
+        pathSegment,
+      );
 
   @override
   bool operator ==(Object other) {
     return other is RouterResult &&
-        value == other.value &&
+        builder.runtimeType == builder.runtimeType &&
         pathSegment == pathSegment &&
         DeepCollectionEquality().equals(pathParameters, other.pathParameters);
   }
 
   @override
   String toString() {
-    return "RouterData - path: '$pathSegment', value: '$value', params: '$pathParameters'";
+    return "RouterData - path: '$pathSegment',  params: '$pathParameters'";
   }
 }

@@ -6,7 +6,7 @@ import 'package:routemaster/routemaster.dart';
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final tabState = CupertinoTabRouteState.of(context);
+    final tabState = CupertinoTabPageState.of(context);
 
     return CupertinoTabScaffold(
       controller: tabState.tabController,
