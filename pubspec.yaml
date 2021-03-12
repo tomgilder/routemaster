@@ -1,6 +1,6 @@
 name: routemaster
-description: Experimental Flutter router
-version: 0.0.1
+description: In-development Flutter router
+version: 0.0.2
 homepage: https://github.com/tomgilder/routemaster
 
 environment:
