@@ -18,7 +18,7 @@ final routes = <String, PageBuilder>{
 void main() {
   runApp(
       MaterialApp.router(
-        routerDelegate: Routemaster(routeBuilder: (context) => routes),
+        routerDelegate: Routemaster(routesBuilder: (context) => routes),
         routeInformationParser: RoutemasterParser(),
       ),
     );

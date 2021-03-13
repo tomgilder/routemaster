@@ -55,10 +55,12 @@ class Routemaster extends RouterDelegate<RouteData>
   @override
   final GlobalKey<NavigatorState> navigatorKey;
 
-  final RouteMap Function(BuildContext context) routeBuilder;
+  // TODO: Could this have a better name?
+  // Options: mapBuilder, builder, routeMapBuilder
+  final RouteMap Function(BuildContext context) routesBuilder;
 
   Routemaster({
-    required this.routeBuilder,
+    required this.routesBuilder,
     this.builder,
     GlobalKey<NavigatorState>? navigatorKey,
   }) : this.navigatorKey = navigatorKey ?? GlobalKey<NavigatorState>() {}
@@ -113,7 +115,7 @@ class Routemaster extends RouterDelegate<RouteData>
   }
 
   void _initRoutes(BuildContext context) {
-    final routeMap = routeBuilder(context);
+    final routeMap = routesBuilder(context);
 
     if (_routeMap != routeMap) {
       // TODO: Could this be more efficent and not rebuild the entire router

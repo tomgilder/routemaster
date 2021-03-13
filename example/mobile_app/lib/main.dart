@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
             title: 'Routemaster Demo',
             routeInformationParser: RoutemasterParser(),
             routerDelegate: Routemaster(
-              routeBuilder: (context) {
+              routesBuilder: (context) {
                 // We swap out the routing map at runtime based on app state
                 final isLoggedIn = Provider.of<AppState>(context).isLoggedIn;
                 return isLoggedIn ? routeMap : loggedOutRouteMap;
