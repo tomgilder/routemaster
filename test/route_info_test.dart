@@ -4,50 +4,59 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:routemaster/src/trie_router/trie_router.dart';
 
+MaterialPage<void> builder(RouteInfo info) {
+  return MaterialPage<void>(child: Container());
+}
+
 void main() {
+  test("Provides correct path without query string", () {
+    final routeInfo = RouteInfo(RouterResult(builder, {}, '/path'), '/path');
+    expect(routeInfo.path, '/path');
+  });
+
+  test("Provides correct path with query string", () {
+    final routeInfo =
+        RouteInfo(RouterResult(builder, {}, '/path'), '/path?hello=world');
+    expect(routeInfo.path, '/path?hello=world');
+  });
+
   test("Route info with different paths are not equal", () {
-    final builder = (RouteInfo info) => MaterialPage<void>(child: Container());
-    final one = RouteInfo(RouterResult(builder, {}, '/one'), {});
-    final two = RouteInfo(RouterResult(builder, {}, '/two'), {});
+    final one = RouteInfo(RouterResult(builder, {}, '/one'), '/one/two');
+    final two = RouteInfo(RouterResult(builder, {}, '/two'), '/one');
 
     expect(one == two, isFalse);
   });
 
   test("Route info with same paths are equal", () {
-    final builder = (RouteInfo info) => MaterialPage<void>(child: Container());
-    final one = RouteInfo(RouterResult(builder, {}, '/'), {});
-    final two = RouteInfo(RouterResult(builder, {}, '/'), {});
+    final one = RouteInfo(RouterResult(builder, {}, '/'), '/');
+    final two = RouteInfo(RouterResult(builder, {}, '/'), '/');
 
     expect(one == two, isTrue);
   });
 
-  test("Route info with same different query strings are not equal", () {
-    final builder = (RouteInfo info) => MaterialPage<void>(child: Container());
-    final one = RouteInfo(RouterResult(builder, {}, '/'), {'a': 'b'});
-    final two = RouteInfo(RouterResult(builder, {}, '/'), {});
+  test("Route info with different query strings are not equal", () {
+    final one = RouteInfo(RouterResult(builder, {}, '/'), '/?a=b');
+    final two = RouteInfo(RouterResult(builder, {}, '/'), '/');
 
     expect(one == two, isFalse);
   });
 
   test("Route info with same query strings are equal", () {
-    final builder = (RouteInfo info) => MaterialPage<void>(child: Container());
-    final one = RouteInfo(RouterResult(builder, {}, '/'), {'a': 'b'});
-    final two = RouteInfo(RouterResult(builder, {}, '/'), {'a': 'b'});
+    final one = RouteInfo(RouterResult(builder, {}, '/'), '/?a=b');
+    final two = RouteInfo(RouterResult(builder, {}, '/'), '/?a=b');
 
     expect(one == two, isTrue);
   });
-  test("Route info with same different path params are not equal", () {
-    final builder = (RouteInfo info) => MaterialPage<void>(child: Container());
-    final one = RouteInfo(RouterResult(builder, {'a': 'b'}, '/'), {});
-    final two = RouteInfo(RouterResult(builder, {}, '/'), {});
+  test("Route info with  different path params are not equal", () {
+    final one = RouteInfo(RouterResult(builder, {'a': 'b'}, '/'), '/');
+    final two = RouteInfo(RouterResult(builder, {}, '/'), '/');
 
     expect(one == two, isFalse);
   });
 
   test("Route info with same path params are equal", () {
-    final builder = (RouteInfo info) => MaterialPage<void>(child: Container());
-    final one = RouteInfo(RouterResult(builder, {'a': 'b'}, '/'), {});
-    final two = RouteInfo(RouterResult(builder, {'a': 'b'}, '/'), {});
+    final one = RouteInfo(RouterResult(builder, {'a': 'b'}, '/'), '/');
+    final two = RouteInfo(RouterResult(builder, {'a': 'b'}, '/'), '/');
 
     expect(one == two, isTrue);
   });

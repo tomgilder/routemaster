@@ -16,7 +16,7 @@ class RoutemasterParser extends RouteInformationParser<RouteData> {
     return RouteData(routeInformation.location!);
   }
 
-  // / Route object -> RouteInformation (URL)
+  /// Route object -> RouteInformation (URL)
   @override
   RouteInformation restoreRouteInformation(RouteData routeData) {
     return RouteInformation(location: routeData.routeString);

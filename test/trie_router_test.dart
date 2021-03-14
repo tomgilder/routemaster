@@ -20,7 +20,7 @@ class TestRoute extends Page<void> {
 }
 
 RouteInfo getRouteInfo(RouterResult routerResult) {
-  return RouteInfo(routerResult, {});
+  return RouteInfo(routerResult, '/');
 }
 
 void main() {

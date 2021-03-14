@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:quiver/core.dart';
+import 'query_parser.dart';
 import 'trie_router/trie_router.dart';
 import '../routemaster.dart';
 
@@ -27,10 +28,9 @@ class RouteInfo {
   /// The builder used to build this route
   final PageBuilder builder;
 
-  RouteInfo(RouterResult result, Map<String, String> queryParameters)
-      : path = result.pathSegment,
-        pathParameters = result.pathParameters,
-        queryParameters = queryParameters,
+  RouteInfo(RouterResult result, this.path)
+      : pathParameters = result.pathParameters,
+        queryParameters = QueryParser.parseQueryParameters(path),
         builder = result.builder;
 
   @override
