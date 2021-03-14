@@ -86,6 +86,12 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
         .delegate;
   }
 
+  /// Pop the top-most path from the router.
+  void pop() {
+    _stack!.pop();
+    _markNeedsUpdate();
+  }
+
   @override
   Future<bool> popRoute() {
     final NavigatorState? navigator = _navigatorKey.currentState;
@@ -93,11 +99,68 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
     return navigator.maybePop();
   }
 
+  /// Passed to [Navigator] widgets, called when the navigator requests that it
+  /// wants to pop a page.
+  bool onPopPage(Route<dynamic> route, dynamic result) {
+    return _stack!.onPopPage(route, result);
+  }
+
+  /// Add [path] to the end of the current path.
+  void pushNamed(String path, {Map<String, String>? queryParameters}) {
+    replaceNamed(
+      join(currentConfiguration!.routeString, path),
+      queryParameters: queryParameters,
+    );
+  }
+
+  /// Replace the entire route with the path from [path].
+  void replaceNamed(String path, {Map<String, String>? queryParameters}) {
+    if (queryParameters != null) {
+      path = Uri(
+        path: path,
+        queryParameters: queryParameters,
+      ).toString();
+    }
+
+    if (_isBuilding) {
+      // About to build pages, process request now
+      _processNavigation(path);
+    } else {
+      // Schedule request for next build. This makes sure the routing table is
+      // updated before processing the new path.
+      _pendingNavigation = path;
+      notifyListeners();
+    }
+  }
+
+  String? _pendingNavigation;
+  bool _isBuilding = false;
+
+  void _processPendingNavigation() {
+    if (_pendingNavigation != null) {
+      _processNavigation(_pendingNavigation!);
+      _pendingNavigation = null;
+    }
+  }
+
+  void _processNavigation(String path) {
+    final states = _createAllStates(path);
+    if (states == null) {
+      return;
+    }
+
+    _stack!._setPageStates(states);
+  }
+
   @override
   Widget build(BuildContext context) {
     return _DependencyTracker(
       delegate: this,
       builder: (context) {
+        _isBuilding = true;
+        _processPendingNavigation();
+        _isBuilding = false;
+
         return _RoutemasterWidget(
           child: builder != null
               ? builder!(context, this)
@@ -194,44 +257,6 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
     final pages = _stack!.createPages();
     assert(pages.isNotEmpty, "Returned pages list must not be empty");
     return pages;
-  }
-
-  /// Add [path] to the end of the current path.
-  void pushNamed(String path, {Map<String, String>? queryParameters}) {
-    replaceNamed(
-      join(currentConfiguration!.routeString, path),
-      queryParameters: queryParameters,
-    );
-  }
-
-  /// Replace the entire route with the path from [path].
-  void replaceNamed(String path, {Map<String, String>? queryParameters}) {
-    if (queryParameters != null) {
-      path = Uri(
-        path: path,
-        queryParameters: queryParameters,
-      ).toString();
-    }
-
-    final states = _createAllStates(path);
-    if (states == null) {
-      return;
-    }
-
-    _stack!._setPageStates(states);
-    _markNeedsUpdate();
-  }
-
-  /// Passed to [Navigator] widgets, called when the navigator requests that it
-  /// wants to pop a page.
-  bool onPopPage(Route<dynamic> route, dynamic result) {
-    return _stack!.onPopPage(route, result);
-  }
-
-  /// Pop the top-most path from the router.
-  void pop() {
-    _stack!.pop();
-    _markNeedsUpdate();
   }
 
   void _markNeedsUpdate() {
