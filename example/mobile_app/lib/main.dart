@@ -74,7 +74,7 @@ final routeMap = RouteMap(
           return info.pathParameters['id'] == '1' ||
               info.pathParameters['id'] == '2';
         },
-        onValidationFailed: (rm, info) => rm.replaceNamed('/feed'),
+        onValidationFailed: (rm, info) => rm.setLocation('/feed'),
         child: MaterialPage(
           child: ProfilePage(
             id: info.pathParameters['id'],

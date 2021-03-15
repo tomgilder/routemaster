@@ -63,7 +63,7 @@ class BottomContentPage extends StatelessWidget {
               // Android-style navigation where we don't push into the tab
               // navigator. Not sure there's a good solution to this.
               onPressed: () => Routemaster.of(context)
-                  .replaceNamed('/bottom-navigation-bar/sub-page'),
+                  .setLocation('/bottom-navigation-bar/sub-page'),
               child: Text("Push page Android-style"),
             ),
           ],

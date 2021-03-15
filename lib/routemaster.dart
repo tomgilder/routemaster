@@ -33,7 +33,7 @@ abstract class RouteConfig {
   Map<String, PageBuilder> get routes;
 
   void onUnknownRoute(Routemaster routemaster, String route) {
-    routemaster.replaceNamed('/');
+    routemaster.setLocation('/');
   }
 }
 
@@ -107,14 +107,14 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
 
   /// Add [path] to the end of the current path.
   void pushNamed(String path, {Map<String, String>? queryParameters}) {
-    replaceNamed(
+    setLocation(
       join(currentConfiguration!.routeString, path),
       queryParameters: queryParameters,
     );
   }
 
   /// Replace the entire route with the path from [path].
-  void replaceNamed(String path, {Map<String, String>? queryParameters}) {
+  void setLocation(String path, {Map<String, String>? queryParameters}) {
     if (queryParameters != null) {
       path = Uri(
         path: path,

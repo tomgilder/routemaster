@@ -28,7 +28,7 @@ void main() {
 And then to navigate:
 
 ```dart
-Routemaster.of(context).replaceNamed('/feed/profile/1');
+Routemaster.of(context).setLocation('/feed/profile/1');
 ```
 
 ...you can see this in action in [this simple app example](https://github.com/tomgilder/routemaster/blob/main/example/simple_example/lib/main.dart).
