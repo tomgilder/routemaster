@@ -5,7 +5,7 @@ import 'package:routemaster/src/route_dart.dart';
 import 'helpers.dart';
 
 void main() {
-  testWidgets("Can push and pop a page", (tester) async {
+  testWidgets('Can push and pop a page', (tester) async {
     final delegate = Routemaster(routesBuilder: (context) {
       return RouteMap(routes: {
         '/': (_) => MaterialPage<void>(child: PageOne()),
@@ -33,7 +33,7 @@ void main() {
     expect(find.byType(PageTwo), findsOneWidget);
   });
 
-  testWidgets("Can push and pop a page with query string", (tester) async {
+  testWidgets('Can push and pop a page with query string', (tester) async {
     final delegate = Routemaster(routesBuilder: (context) {
       return RouteMap(routes: {
         '/': (_) => MaterialPage<void>(child: PageOne()),

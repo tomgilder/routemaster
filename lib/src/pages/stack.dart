@@ -4,6 +4,7 @@ part of '../../routemaster.dart';
 class _StackPageState with PageState {
   final Routemaster delegate;
 
+  @override
   Page get page => throw UnimplementedError('Stacks do not have a page');
 
   late List<PageState> _routes;
@@ -57,44 +58,45 @@ class _StackPageState with PageState {
           return pageState.createPage();
         }
 
-        throw "Not a SinglePageRoute";
+        throw 'Not a SinglePageRoute';
       },
     ).toList();
 
-    assert(pages.isNotEmpty, "Returned pages list must not be empty");
+    assert(pages.isNotEmpty, 'Returned pages list must not be empty');
 
     return pages;
   }
 
   void _setPageStates(Iterable<PageState> newPageStates) {
-    int i = 0;
+    var i = 0;
 
     for (final pageState in newPageStates) {
-      final bool hasMoreRoutes = i < newPageStates.length - 1;
+      final hasMoreRoutes = i < newPageStates.length - 1;
 
       if (hasMoreRoutes &&
           pageState.maybeSetPageStates(newPageStates.skip(i + 1))) {
         // Route has handled all of the rest of routes
         // Our job here is done
-        print("StackRoute.setRoutes: adding $i routes");
-        this._routes = newPageStates.take(i).toList();
+        print('StackRoute.setRoutes: adding $i routes');
+        _routes = newPageStates.take(i).toList();
         return;
       }
 
       i++;
     }
 
-    this._routes = newPageStates.toList();
+    _routes = newPageStates.toList();
   }
 
+  @override
   bool maybeSetPageStates(Iterable<PageState> routes) {
-    this._routes = routes.toList();
+    _routes = routes.toList();
     delegate._markNeedsUpdate();
     return true;
   }
 
   @override
-  RouteInfo get routeInfo => this._routes.last.routeInfo;
+  RouteInfo get routeInfo => _routes.last.routeInfo;
 
   @override
   bool maybePush(PageState route) {

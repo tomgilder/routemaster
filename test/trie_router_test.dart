@@ -24,7 +24,7 @@ RouteInfo getRouteInfo(RouterResult routerResult) {
 }
 
 void main() {
-  test("Can add and get single routes", () {
+  test('Can add and get single routes', () {
     final router = TrieRouter();
     final rootRoute = TestRoute('root');
     final route1 = TestRoute('one');
@@ -50,7 +50,7 @@ void main() {
     expect(data2.pathParameters.isEmpty, isTrue);
   });
 
-  test("Can add and get all routes", () {
+  test('Can add and get all routes', () {
     final router = TrieRouter();
     final rootRoute = TestRoute('root');
     final route1 = TestRoute('one');

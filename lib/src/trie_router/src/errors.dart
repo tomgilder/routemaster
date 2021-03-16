@@ -7,9 +7,10 @@ class ConflictingPathError extends RouteConfigurationError {
 
   ConflictingPathError(this.segmentsToAdd, this.segmentsAlreadyAdded);
 
+  @override
   String toString() {
-    return "Attempt to add $segmentsToAdd but a path containing "
-        "$segmentsAlreadyAdded has already been added. Adding two paths "
+    return 'Attempt to add $segmentsToAdd but a path containing '
+        '$segmentsAlreadyAdded has already been added. Adding two paths '
         "prefixed with ':' at the same index is not allowed.";
   }
 }

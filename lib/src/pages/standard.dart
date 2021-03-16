@@ -7,7 +7,7 @@ abstract class StatefulPage<T> extends Page<T> {
   @override
   Route<T> createRoute(BuildContext context) {
     throw UnimplementedError(
-        "Stateful pages do not directly create routes. Do not call createRoute on them directly.");
+        'Stateful pages do not directly create routes. Do not call createRoute on them directly.');
   }
 }
 
@@ -56,6 +56,7 @@ class ProxyPage<T> extends StatefulPage<T> {
 class _StatelessPage extends PageState with PageCreator {
   _StatelessPage(this.routeInfo, this.page);
 
+  @override
   final Page page;
 
   @override

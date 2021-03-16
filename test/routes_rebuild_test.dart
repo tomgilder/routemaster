@@ -5,7 +5,7 @@ import 'helpers.dart';
 
 void main() {
   testWidgets("Doesn't rebuild routes by default", (tester) async {
-    int routeBuildCount = 0;
+    var routeBuildCount = 0;
 
     final delegate = Routemaster(routesBuilder: (context) {
       routeBuildCount++;
@@ -31,8 +31,8 @@ void main() {
     expect(routeBuildCount, 1);
   });
 
-  testWidgets("Rebuilds route map when dependencies change", (tester) async {
-    int routeBuildCount = 0;
+  testWidgets('Rebuilds route map when dependencies change', (tester) async {
+    var routeBuildCount = 0;
 
     final delegate = Routemaster(routesBuilder: (context) {
       routeBuildCount++;

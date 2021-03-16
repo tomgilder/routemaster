@@ -117,8 +117,8 @@ class TrieRouter {
     var parameters = <String, String>{};
     TrieNode<String?, PageBuilder?>? current = _trie.root;
 
-    final List<RouterResult> result = <RouterResult>[];
-    int i = 0;
+    final result = <RouterResult>[];
+    var i = 0;
 
     void addCurrentToResult() => result.add(
           RouterResult(

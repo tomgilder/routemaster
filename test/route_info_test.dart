@@ -9,52 +9,52 @@ MaterialPage<void> builder(RouteInfo info) {
 }
 
 void main() {
-  test("Provides correct path without query string", () {
+  test('Provides correct path without query string', () {
     final routeInfo = RouteInfo(RouterResult(builder, {}, '/path'), '/path');
     expect(routeInfo.path, '/path');
   });
 
-  test("Provides correct path with query string", () {
+  test('Provides correct path with query string', () {
     final routeInfo =
         RouteInfo(RouterResult(builder, {}, '/path'), '/path?hello=world');
     expect(routeInfo.path, '/path?hello=world');
   });
 
-  test("Route info with different paths are not equal", () {
+  test('Route info with different paths are not equal', () {
     final one = RouteInfo(RouterResult(builder, {}, '/one'), '/one/two');
     final two = RouteInfo(RouterResult(builder, {}, '/two'), '/one');
 
     expect(one == two, isFalse);
   });
 
-  test("Route info with same paths are equal", () {
+  test('Route info with same paths are equal', () {
     final one = RouteInfo(RouterResult(builder, {}, '/'), '/');
     final two = RouteInfo(RouterResult(builder, {}, '/'), '/');
 
     expect(one == two, isTrue);
   });
 
-  test("Route info with different query strings are not equal", () {
+  test('Route info with different query strings are not equal', () {
     final one = RouteInfo(RouterResult(builder, {}, '/'), '/?a=b');
     final two = RouteInfo(RouterResult(builder, {}, '/'), '/');
 
     expect(one == two, isFalse);
   });
 
-  test("Route info with same query strings are equal", () {
+  test('Route info with same query strings are equal', () {
     final one = RouteInfo(RouterResult(builder, {}, '/'), '/?a=b');
     final two = RouteInfo(RouterResult(builder, {}, '/'), '/?a=b');
 
     expect(one == two, isTrue);
   });
-  test("Route info with  different path params are not equal", () {
+  test('Route info with  different path params are not equal', () {
     final one = RouteInfo(RouterResult(builder, {'a': 'b'}, '/'), '/');
     final two = RouteInfo(RouterResult(builder, {}, '/'), '/');
 
     expect(one == two, isFalse);
   });
 
-  test("Route info with same path params are equal", () {
+  test('Route info with same path params are equal', () {
     final one = RouteInfo(RouterResult(builder, {'a': 'b'}, '/'), '/');
     final two = RouteInfo(RouterResult(builder, {'a': 'b'}, '/'), '/');
 

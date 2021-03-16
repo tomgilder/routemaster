@@ -19,14 +19,17 @@ part 'src/pages/stack.dart';
 part 'src/pages/tab_pages.dart';
 part 'src/pages/standard.dart';
 
-typedef Widget RoutemasterBuilder(
+typedef RoutemasterBuilder = Widget Function(
   BuildContext context,
   Routemaster routemaster,
 );
 
-typedef Page PageBuilder(RouteInfo info);
+typedef PageBuilder = Page Function(RouteInfo info);
 
-typedef void UnknownRouteCallback(Routemaster routemaster, String route);
+typedef UnknownRouteCallback = void Function(
+  Routemaster routemaster,
+  String route,
+);
 
 /// An abstract class that can provide a map of routes
 abstract class RouteConfig {
@@ -42,6 +45,7 @@ abstract class RouteConfig {
 class RouteMap extends RouteConfig {
   /// A map of paths and [PageBuilder] delegates that return [Page] objects to
   /// build.
+  @override
   final Map<String, PageBuilder> routes;
 
   final UnknownRouteCallback? _onUnknownRoute;
@@ -78,7 +82,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
     required this.routesBuilder,
     this.builder,
     GlobalKey<NavigatorState>? navigatorKey,
-  }) : _navigatorKey = navigatorKey ?? GlobalKey<NavigatorState>() {}
+  }) : _navigatorKey = navigatorKey ?? GlobalKey<NavigatorState>();
 
   static Routemaster of(BuildContext context) {
     return context
@@ -94,7 +98,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
 
   @override
   Future<bool> popRoute() {
-    final NavigatorState? navigator = _navigatorKey.currentState;
+    final navigator = _navigatorKey.currentState;
     if (navigator == null) return SynchronousFuture<bool>(false);
     return navigator.maybePop();
   }
@@ -159,17 +163,18 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
       builder: (context) {
         _isBuilding = true;
         _processPendingNavigation();
+        final pages = createPages(context);
         _isBuilding = false;
 
         return _RoutemasterWidget(
+          delegate: this,
           child: builder != null
               ? builder!(context, this)
               : Navigator(
-                  pages: createPages(context),
+                  pages: pages,
                   onPopPage: onPopPage,
                   key: _navigatorKey,
                 ),
-          delegate: this,
         );
       },
     );
@@ -218,7 +223,27 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
     _navigatorKey = oldDelegate._navigatorKey;
   }
 
-  void _rebuildRouter(BuildContext context) {
+  void _rebuild(BuildContext context) {
+    if (currentConfiguration == null) {
+      return;
+    }
+
+    _buildRouter(context);
+
+    _isBuilding = true;
+    final path = currentConfiguration!.routeString;
+    final pageStates = _createAllStates(currentConfiguration!.routeString);
+    if (pageStates == null) {
+      print(
+        "Router rebuilt but no match for '$path'. Assuming navigation is about to happen.",
+      );
+      return;
+    }
+    _stack = _StackPageState(delegate: this, routes: pageStates.toList());
+    _isBuilding = false;
+  }
+
+  void _buildRouter(BuildContext context) {
     final routeMap = routesBuilder(context);
 
     _router = TrieRouter()..addAll(routeMap.routes);
@@ -233,7 +258,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
 
   void _initRoutes(BuildContext context) {
     if (_routeMap == null) {
-      _rebuildRouter(context);
+      _buildRouter(context);
     }
 
     if (_stack == null) {
@@ -241,7 +266,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
           currentConfiguration?.routeString ??
           '/');
       if (pageStates == null) {
-        throw "Failed to create initial state";
+        throw 'Failed to create initial state';
       }
 
       _stack = _StackPageState(delegate: this, routes: pageStates.toList());
@@ -253,14 +278,16 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
     _initRoutes(context);
 
     assert(_stack != null,
-        "Stack must have been created when createPages() is called");
+        'Stack must have been created when createPages() is called');
     final pages = _stack!.createPages();
-    assert(pages.isNotEmpty, "Returned pages list must not be empty");
+    assert(pages.isNotEmpty, 'Returned pages list must not be empty');
     return pages;
   }
 
   void _markNeedsUpdate() {
-    notifyListeners();
+    if (!_isBuilding) {
+      notifyListeners();
+    }
   }
 
   List<PageState>? _createAllStates(String requestedPath) {
@@ -279,7 +306,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
 
     var result = <PageState>[];
 
-    int i = 0;
+    var i = 0;
     for (final routerData in routerResult.reversed) {
       final routeInfo = RouteInfo(
         routerData,
@@ -322,11 +349,11 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
       );
 
       if (currentState != null) {
-        print(" - Found match for state");
+        print(' - Found match for state');
         return currentState;
       }
 
-      print(" - No match for state, will need to create it");
+      print(' - No match for state, will need to create it');
     }
 
     return _createState(routerResult, routeInfo);
@@ -366,7 +393,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
       return page.createState(this, routeInfo);
     }
 
-    assert(page is! ProxyPage, "ProxyPage has not been unwrapped");
+    assert(page is! ProxyPage, 'ProxyPage has not been unwrapped');
 
     // Page is just a standard Flutter page, create a wrapper for it
     return _StatelessPage(routeInfo, page);
@@ -417,6 +444,6 @@ class _DependencyTrackerState extends State<_DependencyTracker> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    widget.delegate._rebuildRouter(this.context);
+    widget.delegate._rebuild(this.context);
   }
 }

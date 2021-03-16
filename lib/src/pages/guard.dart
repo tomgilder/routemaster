@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../routemaster.dart';
 
-typedef bool ValidateCallback(RouteInfo info);
+typedef ValidateCallback = bool Function(RouteInfo info);
 
-typedef void ValidationFailedCallback(Routemaster delegate, RouteInfo info);
+typedef ValidationFailedCallback = void Function(
+  Routemaster delegate,
+  RouteInfo info,
+);
 
 mixin GuardedPage<T> on ProxyPage<T> {
   /// Callback to check if the route is valid. If this returns false,
@@ -19,7 +22,10 @@ mixin GuardedPage<T> on ProxyPage<T> {
 }
 
 class Guard<T> extends ProxyPage<T> with GuardedPage<T> {
+  @override
   final ValidateCallback? validate;
+
+  @override
   final ValidationFailedCallback? onValidationFailed;
 
   Guard({
