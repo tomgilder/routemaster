@@ -97,4 +97,59 @@ void main() {
       findsOneWidget,
     );
   });
+
+  testWidgets('Test skipping stacks', (tester) async {
+    await pumpFeedPage(tester);
+
+    expect(
+      await recordUrlChanges(() async {
+        await tester.tap(
+          find.text("Go to user 1's photo page (skipping stacks)"),
+        );
+        await tester.pump();
+      }),
+      ['/feed/profile/1/photo'],
+    );
+
+    expect(
+      find.text('This would be a lovely picture of user 1'),
+      findsOneWidget,
+    );
+
+    // Goes back to profile
+    expect(
+      await recordUrlChanges(() async {
+        await invokeSystemBack();
+        // TODO: Investigate - if we don't pumpAndSettle, but do a regular pump, this test fails
+        await tester.pumpAndSettle();
+      }),
+      ['/feed/profile/1'],
+    );
+
+    expect(find.byType(ProfilePage), findsOneWidget);
+    expect(find.byType(PhotoPage), findsNothing);
+
+    // Goes back to feed home
+    expect(
+      await recordUrlChanges(() async {
+        await invokeSystemBack();
+        await tester.pumpAndSettle();
+      }),
+      ['/feed'],
+    );
+  });
+
+  testWidgets('Can jump to settings tab', (tester) async {
+    await pumpFeedPage(tester);
+
+    expect(
+      await recordUrlChanges(() async {
+        await tester.tap(
+          find.text('Jump to settings tab'),
+        );
+        await tester.pump();
+      }),
+      ['/settings'],
+    );
+  });
 }
