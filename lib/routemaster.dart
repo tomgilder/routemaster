@@ -97,10 +97,14 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
   }
 
   @override
-  Future<bool> popRoute() {
+  Future<bool> popRoute() async {
+    if (_stack?.maybePop() == true) {
+      return SynchronousFuture<bool>(true);
+    }
+
     final navigator = _navigatorKey.currentState;
     if (navigator == null) return SynchronousFuture<bool>(false);
-    return navigator.maybePop();
+    return await navigator.maybePop();
   }
 
   /// Passed to [Navigator] widgets, called when the navigator requests that it

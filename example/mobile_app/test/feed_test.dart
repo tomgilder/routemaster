@@ -57,7 +57,7 @@ void main() {
 
     expect(
       await recordUrlChanges(() async {
-        await popRouterDelegate(tester);
+        await invokeSystemBack();
         await tester.pumpAndSettle();
       }),
       ['/feed/profile/1'],

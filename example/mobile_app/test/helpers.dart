@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+/// Records changes in URL
 Future<List<String>> recordUrlChanges(Future Function() callback) async {
   final result = <String>[];
   SystemChannels.navigation.setMockMethodCallHandler((call) async {
@@ -15,8 +16,8 @@ Future<List<String>> recordUrlChanges(Future Function() callback) async {
   return result;
 }
 
-Future<bool> popRouterDelegate(WidgetTester tester) {
-  return (tester.state(find.byType(MaterialApp)).widget as MaterialApp)
-      .routerDelegate
-      .popRoute();
+/// Simulates pressing the system back button
+Future<void> invokeSystemBack() {
+  // ignore: invalid_use_of_protected_member
+  return WidgetsBinding.instance.handlePopRoute();
 }
