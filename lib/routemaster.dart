@@ -72,7 +72,6 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
   late TrieRouter _router;
   _StackPageState? _stack;
   RouteConfig? _routeMap;
-  GlobalKey<NavigatorState> _navigatorKey;
 
   // TODO: Could this have a better name?
   // Options: mapBuilder, builder, routeMapBuilder
@@ -81,8 +80,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
   Routemaster({
     required this.routesBuilder,
     this.builder,
-    GlobalKey<NavigatorState>? navigatorKey,
-  }) : _navigatorKey = navigatorKey ?? GlobalKey<NavigatorState>();
+  });
 
   static Routemaster of(BuildContext context) {
     return context
@@ -97,18 +95,16 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
   }
 
   @override
-  Future<bool> popRoute() async {
-    if (_stack?.maybePop() == true) {
-      return SynchronousFuture<bool>(true);
+  Future<bool> popRoute() {
+    if (_stack == null) {
+      return SynchronousFuture(false);
     }
 
-    final navigator = _navigatorKey.currentState;
-    if (navigator == null) return SynchronousFuture<bool>(false);
-    return await navigator.maybePop();
+    return _stack!.maybePop();
   }
 
-  /// Passed to [Navigator] widgets, called when the navigator requests that it
-  /// wants to pop a page.
+  /// Passed to top-level [Navigator] widget, called when the navigator requests
+  /// that it wants to pop a page.
   bool onPopPage(Route<dynamic> route, dynamic result) {
     return _stack!.onPopPage(route, result);
   }
@@ -177,7 +173,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
               : Navigator(
                   pages: pages,
                   onPopPage: onPopPage,
-                  key: _navigatorKey,
+                  key: _stack!.navigatorKey,
                 ),
         );
       },
@@ -223,8 +219,6 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
     if (oldConfiguration != null) {
       _oldConfiguration = oldDelegate.currentConfiguration;
     }
-
-    _navigatorKey = oldDelegate._navigatorKey;
   }
 
   void _rebuild(BuildContext context) {

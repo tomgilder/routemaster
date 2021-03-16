@@ -152,4 +152,32 @@ void main() {
       ['/settings'],
     );
   });
+
+  testWidgets('Can push and go back from non-Page route', (tester) async {
+    await pumpFeedPage(tester);
+
+    expect(
+      await recordUrlChanges(() async {
+        await tester.tap(
+          find.text('Push non-Page route'),
+        );
+        await tester.pump();
+        await tester.pump(Duration(seconds: 1));
+      }),
+      [],
+    );
+
+    expect(find.text('Non-Page route'), findsOneWidget);
+
+    expect(
+      await recordUrlChanges(() async {
+        await invokeSystemBack();
+        await tester.pump();
+        await tester.pump(Duration(seconds: 1));
+
+        expect(find.text('Non-Page route'), findsNothing);
+      }),
+      [],
+    );
+  });
 }

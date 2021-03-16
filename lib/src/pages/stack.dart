@@ -2,6 +2,7 @@ part of '../../routemaster.dart';
 
 /// The state of a stack of pages.
 class _StackPageState with PageState {
+  final navigatorKey = GlobalKey<NavigatorState>();
   final Routemaster delegate;
 
   @override
@@ -28,8 +29,8 @@ class _StackPageState with PageState {
     return false;
   }
 
-  void pop() {
-    if (_routes.last.maybePop()) {
+  void pop() async {
+    if (await _routes.last.maybePop()) {
       return;
     }
 
@@ -105,17 +106,27 @@ class _StackPageState with PageState {
   }
 
   @override
-  bool maybePop() {
-    if (_routes.last.maybePop()) {
-      return true;
+  Future<bool> maybePop() async {
+    print('stack: maybePop');
+
+    if (await _routes.last.maybePop()) {
+      print('stack: last route popped, success');
+      return SynchronousFuture(true);
+    }
+
+    if (await navigatorKey.currentState?.maybePop() == true) {
+      print('stack: navigator popped, success');
+      return SynchronousFuture(true);
     }
 
     if (_routes.length > 1) {
+      print('stack: popping stack');
       pop();
-      return true;
+      return SynchronousFuture(true);
     }
 
-    return false;
+    print('stack: failed to pop, failure');
+    return SynchronousFuture(false);
   }
 
   @override

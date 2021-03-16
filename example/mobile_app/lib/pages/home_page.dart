@@ -33,6 +33,7 @@ class HomePage extends StatelessWidget {
       tabBuilder: (BuildContext context, int index) {
         final stack = tabState.getStackForIndex(index);
         return Navigator(
+          key: stack.navigatorKey,
           onPopPage: stack.onPopPage,
           pages: stack.createPages(),
         );

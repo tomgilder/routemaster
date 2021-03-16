@@ -17,7 +17,7 @@ abstract class PageState {
 
   bool maybeSetPageStates(Iterable<PageState> routes);
   bool maybePush(PageState route);
-  bool maybePop();
+  Future<bool> maybePop();
 
   RouteInfo get routeInfo;
   Iterable<PageState> getCurrentPageStates();
@@ -68,7 +68,7 @@ class _StatelessPage extends PageState with PageCreator {
   }
 
   @override
-  bool maybePop() => false;
+  Future<bool> maybePop() => SynchronousFuture(false);
 
   @override
   bool maybePush(PageState route) => false;

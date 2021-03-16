@@ -198,10 +198,13 @@ class CupertinoTabPageState
     with PageState, PageCreator, ChangeNotifier, IndexedPageStateMixIn {
   @override
   final CupertinoTabPage page;
+
   @override
   final Routemaster delegate;
+
   @override
   final RouteInfo routeInfo;
+
   final CupertinoTabController tabController = CupertinoTabController();
 
   CupertinoTabPageState(
@@ -246,6 +249,7 @@ class CupertinoTabPageState
     assert(pages.isNotEmpty, 'Pages must not be empty');
 
     return Navigator(
+      key: stack.navigatorKey,
       onPopPage: stack.onPopPage,
       pages: pages,
     );
@@ -336,7 +340,7 @@ mixin IndexedPageStateMixIn on PageCreator, ChangeNotifier {
   }
 
   @override
-  bool maybePop() {
+  Future<bool> maybePop() {
     return getStackForIndex(index).maybePop();
   }
 

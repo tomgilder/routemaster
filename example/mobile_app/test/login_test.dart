@@ -42,5 +42,18 @@ void main() {
 
     expect(find.byType(HomePage), findsNothing);
     expect(find.byType(LoginPage), findsOneWidget);
+
+    // Log back in just for fun
+    expect(
+      await recordUrlChanges(() async {
+        await tester.tap(find.text('Log in'));
+        await tester.pump();
+        await tester.pump(Duration(seconds: 1));
+      }),
+      ['/feed'],
+    );
+
+    expect(find.byType(HomePage), findsOneWidget);
+    expect(find.byType(LoginPage), findsNothing);
   });
 }

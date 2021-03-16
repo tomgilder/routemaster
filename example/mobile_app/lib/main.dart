@@ -144,6 +144,7 @@ class FancyAnimationPage extends Page {
 
   FancyAnimationPage({@required this.child});
 
+  @override
   Route createRoute(BuildContext context) {
     return PageRouteBuilder(
       settings: this,

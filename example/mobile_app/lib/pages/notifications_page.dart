@@ -61,6 +61,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
         return Navigator(
           // observers: [HeroController()],
+          key: stack.navigatorKey,
           onPopPage: stack.onPopPage,
           pages: stack.createPages(),
         );
