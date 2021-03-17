@@ -260,13 +260,16 @@ mixin IndexedRouteMixIn<T> on Page<T> {
   List<String> get paths;
 }
 
-mixin IndexedPageStateMixIn on PageCreator, ChangeNotifier {
+mixin IndexedPageStateMixIn on PageCreator {
   late List<_StackPageState?> _routes;
+
+  Routemaster get delegate;
+
   @override
   RouteInfo get routeInfo;
+
   @override
   IndexedRouteMixIn get page;
-  Routemaster get delegate;
 
   int _index = 0;
   int get index => _index;
@@ -274,7 +277,6 @@ mixin IndexedPageStateMixIn on PageCreator, ChangeNotifier {
     if (value != _index) {
       _index = value;
       delegate._markNeedsUpdate();
-      notifyListeners();
     }
   }
 

@@ -120,3 +120,28 @@ class MessagePage extends StatelessWidget {
     );
   }
 }
+
+class DoubleBackPage extends StatelessWidget {
+  const DoubleBackPage();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                Routemaster.of(context).pop();
+                Routemaster.of(context).pop();
+              },
+              child: Text('Go back twice'),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}

@@ -107,25 +107,23 @@ class _StackPageState with PageState {
 
   @override
   Future<bool> maybePop() async {
-    print('stack: maybePop');
-
+    // First try delegating the pop to the last child route
     if (await _routes.last.maybePop()) {
-      print('stack: last route popped, success');
       return SynchronousFuture(true);
     }
 
+    // Child wasn't interested, ask a navigator if we have a key
     if (await navigatorKey.currentState?.maybePop() == true) {
-      print('stack: navigator popped, success');
       return SynchronousFuture(true);
     }
 
+    // No navigator attached, but we can pop the stack anyway
     if (_routes.length > 1) {
-      print('stack: popping stack');
       pop();
       return SynchronousFuture(true);
     }
 
-    print('stack: failed to pop, failure');
+    // Couldn't find anything to pop
     return SynchronousFuture(false);
   }
 

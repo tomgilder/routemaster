@@ -127,13 +127,13 @@ final routeMap = RouteMap(
           child: BottomContentPage(),
         ),
     '/bottom-navigation-bar/two': (_) => MaterialPage(
-          child: MessagePage(message: 'Page two'),
+          child: BottomContentPage2(),
         ),
     '/bottom-navigation-bar/three': (_) => MaterialPage(
           child: MessagePage(message: 'Page three'),
         ),
     '/bottom-navigation-bar/sub-page': (_) => MaterialPage(
-          child: MessagePage(message: 'Sub-page'),
+          child: DoubleBackPage(),
         ),
   },
 );
