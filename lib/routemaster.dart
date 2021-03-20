@@ -27,16 +27,18 @@ typedef RoutemasterBuilder = Widget Function(
 
 typedef PageBuilder = Page Function(RouteInfo info);
 
-typedef UnknownRouteCallback = void Function(
+typedef UnknownRouteCallback = Page? Function(
   Routemaster routemaster,
   String route,
+  BuildContext context,
 );
 
 /// An abstract class that can provide a map of routes
 abstract class RouteConfig {
   Map<String, PageBuilder> get routes;
 
-  void onUnknownRoute(Routemaster routemaster, String route) {
+  Page? onUnknownRoute(
+      Routemaster routemaster, String route, BuildContext context) {
     routemaster.push('/');
   }
 }
@@ -57,12 +59,13 @@ class RouteMap extends RouteConfig {
   }) : _onUnknownRoute = onUnknownRoute;
 
   @override
-  void onUnknownRoute(Routemaster routemaster, String route) {
+  Page? onUnknownRoute(
+      Routemaster routemaster, String route, BuildContext context) {
     if (_onUnknownRoute != null) {
-      _onUnknownRoute!(routemaster, route);
-    } else {
-      super.onUnknownRoute(routemaster, route);
+      return _onUnknownRoute!(routemaster, route, context);
     }
+
+    super.onUnknownRoute(routemaster, route, context);
   }
 }
 
@@ -317,8 +320,16 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
         "Router couldn't find a match for path '$requestedPath''",
       );
 
-      _routeMap!.onUnknownRoute(this, requestedPath);
-      return null;
+      final result = _routeMap!.onUnknownRoute(
+          this, requestedPath, _state.globalKey.currentContext!);
+      if (result == null) {
+        // No 404 page returned
+        return null;
+      }
+
+      // Show 404 page
+      final routeInfo = RouteInfo(requestedPath, (_) => result);
+      return [_StatelessPage(routeInfo, result)];
     }
 
     final currentRoutes = _stack?._getCurrentPageStates().toList();
@@ -387,7 +398,8 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
         "Router couldn't find a match for path '$requestedPath'",
       );
 
-      _routeMap!.onUnknownRoute(this, requestedPath);
+      _routeMap!.onUnknownRoute(
+          this, requestedPath, _state.globalKey.currentContext!);
       return null;
     }
 
