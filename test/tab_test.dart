@@ -96,7 +96,7 @@ void main() {
 class MyTabPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final tab = TabPageState.of(context).getStackForIndex(0);
+    final tab = TabPage.of(context).stacks[0];
 
     return Container(
       height: 300,

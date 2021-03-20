@@ -1,27 +1,25 @@
 part of '../../routemaster.dart';
 
 /// The state of a stack of pages.
-class _StackPageState with PageState {
+class StackPageState with _PageState {
   final navigatorKey = GlobalKey<NavigatorState>();
-  final Routemaster delegate;
 
-  @override
-  Page get page => throw UnimplementedError('Stacks do not have a page');
+  final Routemaster _delegate;
+  late List<_PageState> _routes;
 
-  late List<PageState> _routes;
-
-  _StackPageState({
-    required this.delegate,
-    List<PageState>? routes,
-  }) {
+  StackPageState({
+    required Routemaster delegate,
+    List<_PageState>? routes,
+  }) : _delegate = delegate {
     if (routes != null) {
       _setPageStates(routes);
     }
   }
 
+  /// Passed to [Navigator] widgets for them to inform this stack of a pop
   bool onPopPage(Route<dynamic> route, dynamic result) {
     if (route.didPop(result)) {
-      pop();
+      _pop();
 
       return true;
     }
@@ -29,34 +27,13 @@ class _StackPageState with PageState {
     return false;
   }
 
-  void pop() async {
-    if (await _routes.last.maybePop()) {
-      return;
-    }
-
-    if (_routes.length > 1) {
-      _routes.removeLast();
-    }
-
-    delegate._markNeedsUpdate();
-  }
-
-  void push(PageState route) {
-    if (_routes.last.maybePush(route)) {
-      return;
-    }
-
-    _routes.add(route);
-    delegate._markNeedsUpdate();
-  }
-
   List<Page> createPages() {
     assert(_routes.isNotEmpty, "Can't generate pages with no routes");
 
     final pages = _routes.map(
       (pageState) {
-        if (pageState is PageCreator) {
-          return pageState.createPage();
+        if (pageState is _PageCreator) {
+          return pageState._createPage();
         }
 
         throw 'Not a SinglePageRoute';
@@ -68,14 +45,35 @@ class _StackPageState with PageState {
     return pages;
   }
 
-  void _setPageStates(Iterable<PageState> newPageStates) {
+  void _pop() async {
+    if (await _routes.last._maybePop()) {
+      return;
+    }
+
+    if (_routes.length > 1) {
+      _routes.removeLast();
+    }
+
+    _delegate._markNeedsUpdate();
+  }
+
+  void _push(_PageState route) {
+    if (_routes.last._maybePush(route)) {
+      return;
+    }
+
+    _routes.add(route);
+    _delegate._markNeedsUpdate();
+  }
+
+  void _setPageStates(Iterable<_PageState> newPageStates) {
     var i = 0;
 
     for (final pageState in newPageStates) {
       final hasMoreRoutes = i < newPageStates.length - 1;
 
       if (hasMoreRoutes &&
-          pageState.maybeSetPageStates(newPageStates.skip(i + 1))) {
+          pageState._maybeSetPageStates(newPageStates.skip(i + 1))) {
         // Route has handled all of the rest of routes
         // Our job here is done
         print('StackRoute.setRoutes: adding $i routes');
@@ -90,25 +88,25 @@ class _StackPageState with PageState {
   }
 
   @override
-  bool maybeSetPageStates(Iterable<PageState> routes) {
+  bool _maybeSetPageStates(Iterable<_PageState> routes) {
     _routes = routes.toList();
-    delegate._markNeedsUpdate();
+    _delegate._markNeedsUpdate();
     return true;
   }
 
   @override
-  RouteInfo get routeInfo => _routes.last.routeInfo;
+  RouteInfo get _routeInfo => _routes.last._routeInfo;
 
   @override
-  bool maybePush(PageState route) {
-    push(route);
+  bool _maybePush(_PageState route) {
+    _push(route);
     return true;
   }
 
   @override
-  Future<bool> maybePop() async {
+  Future<bool> _maybePop() async {
     // First try delegating the pop to the last child route
-    if (await _routes.last.maybePop()) {
+    if (await _routes.last._maybePop()) {
       return SynchronousFuture(true);
     }
 
@@ -119,7 +117,7 @@ class _StackPageState with PageState {
 
     // No navigator attached, but we can pop the stack anyway
     if (_routes.length > 1) {
-      pop();
+      _pop();
       return SynchronousFuture(true);
     }
 
@@ -128,7 +126,7 @@ class _StackPageState with PageState {
   }
 
   @override
-  Iterable<PageState> getCurrentPageStates() sync* {
-    yield* _routes.last.getCurrentPageStates();
+  Iterable<_PageState> _getCurrentPageStates() sync* {
+    yield* _routes.last._getCurrentPageStates();
   }
 }

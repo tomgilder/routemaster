@@ -2,7 +2,7 @@ part of '../../routemaster.dart';
 
 /// A page that can create a state.
 abstract class StatefulPage<T> extends Page<T> {
-  PageState createState(Routemaster delegate, RouteInfo info);
+  _PageState createState(Routemaster delegate, RouteInfo info);
 
   @override
   Route<T> createRoute(BuildContext context) {
@@ -11,21 +11,19 @@ abstract class StatefulPage<T> extends Page<T> {
   }
 }
 
-/// The state for a page.
-abstract class PageState {
-  Page get page;
-
-  bool maybeSetPageStates(Iterable<PageState> routes);
-  bool maybePush(PageState route);
-  Future<bool> maybePop();
-
-  RouteInfo get routeInfo;
-  Iterable<PageState> getCurrentPageStates();
+/// The state for a page. For now, this is all private, but could be opened up
+/// in future for users to make their own page subclasses.
+abstract class _PageState {
+  bool _maybePush(_PageState route);
+  Future<bool> _maybePop();
+  RouteInfo get _routeInfo;
+  Iterable<_PageState> _getCurrentPageStates();
+  bool _maybeSetPageStates(Iterable<_PageState> routes);
 }
 
 /// A page state that can create a single page.
-mixin PageCreator on PageState {
-  Page createPage();
+mixin _PageCreator on _PageState {
+  Page _createPage();
 }
 
 /// A page that wraps other pages in order to provide more functionality.
@@ -42,40 +40,41 @@ class ProxyPage<T> extends StatefulPage<T> {
   }
 
   @override
-  PageState createState(Routemaster delegate, RouteInfo info) {
+  _PageState createState(Routemaster delegate, RouteInfo info) {
     if (child is StatefulPage) {
       return (child as StatefulPage).createState(delegate, info);
     }
 
-    return StatelessPage(info, this);
+    return _StatelessPage(info, this);
   }
 }
 
 /// A wrapper for normal, non-stateless pages that allows us to treat them like
 /// stateful ones.
-class StatelessPage extends PageState with PageCreator {
-  StatelessPage(this.routeInfo, this.page);
+class _StatelessPage extends _PageState with _PageCreator {
+  _StatelessPage(RouteInfo routeInfo, Page page)
+      : _routeInfo = routeInfo,
+        _page = page;
+
+  final Page _page;
 
   @override
-  final Page page;
+  final RouteInfo _routeInfo;
 
   @override
-  final RouteInfo routeInfo;
-
-  @override
-  Iterable<PageState> getCurrentPageStates() sync* {
+  Iterable<_PageState> _getCurrentPageStates() sync* {
     yield this;
   }
 
   @override
-  Future<bool> maybePop() => SynchronousFuture(false);
+  Future<bool> _maybePop() => SynchronousFuture(false);
 
   @override
-  bool maybePush(PageState route) => false;
+  bool _maybePush(_PageState route) => false;
 
   @override
-  bool maybeSetPageStates(Iterable<PageState> routes) => false;
+  bool _maybeSetPageStates(Iterable<_PageState> routes) => false;
 
   @override
-  Page createPage() => page;
+  Page _createPage() => _page;
 }

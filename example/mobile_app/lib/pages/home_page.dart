@@ -6,7 +6,7 @@ import 'package:routemaster/routemaster.dart';
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final tabState = CupertinoTabPageState.of(context);
+    final tabState = CupertinoTabPage.of(context);
 
     return CupertinoTabScaffold(
       controller: tabState.tabController,
@@ -31,7 +31,8 @@ class HomePage extends StatelessWidget {
         ],
       ),
       tabBuilder: (BuildContext context, int index) {
-        final stack = tabState.getStackForIndex(index);
+        final stack = tabState.stacks[index];
+
         return Navigator(
           key: stack.navigatorKey,
           onPopPage: stack.onPopPage,

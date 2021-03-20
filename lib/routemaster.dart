@@ -76,7 +76,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
   final RouteConfig Function(BuildContext context) routesBuilder;
 
   _RoutemasterState _state = _RoutemasterState();
-  _StackPageState? get _stack => _state.stack;
+  StackPageState? get _stack => _state.stack;
   late TrieRouter _router;
   RouteConfig? _routeMap;
 
@@ -94,7 +94,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
 
   /// Pop the top-most path from the router.
   void pop() {
-    _stack!.pop();
+    _stack!._pop();
     _markNeedsUpdate();
   }
 
@@ -104,7 +104,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
       return SynchronousFuture(false);
     }
 
-    return _stack!.maybePop();
+    return _stack!._maybePop();
   }
 
   /// Passed to top-level [Navigator] widget, called when the navigator requests
@@ -208,7 +208,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
       return null;
     }
 
-    final path = _stack!.getCurrentPageStates().last.routeInfo.path;
+    final path = _stack!._getCurrentPageStates().last._routeInfo.path;
     return RouteData(path);
   }
 
@@ -257,7 +257,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
       );
       return;
     }
-    _state.stack = _StackPageState(delegate: this, routes: pageStates.toList());
+    _state.stack = StackPageState(delegate: this, routes: pageStates.toList());
     _isBuilding = false;
   }
 
@@ -288,7 +288,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
       }
 
       _state.stack =
-          _StackPageState(delegate: this, routes: pageStates.toList());
+          StackPageState(delegate: this, routes: pageStates.toList());
     }
   }
 
@@ -309,7 +309,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
     }
   }
 
-  List<PageState>? _createAllStates(String requestedPath) {
+  List<_PageState>? _createAllStates(String requestedPath) {
     final routerResult = _router.getAll(requestedPath);
 
     if (routerResult == null) {
@@ -321,9 +321,9 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
       return null;
     }
 
-    final currentRoutes = _stack?.getCurrentPageStates().toList();
+    final currentRoutes = _stack?._getCurrentPageStates().toList();
 
-    var result = <PageState>[];
+    var result = <_PageState>[];
 
     var i = 0;
     for (final routerData in routerResult.reversed) {
@@ -339,7 +339,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
         return null;
       }
 
-      if (result.isNotEmpty && state.maybeSetPageStates(result)) {
+      if (result.isNotEmpty && state._maybeSetPageStates(result)) {
         result = [state];
       } else {
         result.insert(0, state);
@@ -355,16 +355,16 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
   /// If there's a current route matching the path in the tree, return it.
   /// Otherwise create a new one. This could possibly be made more efficient
   /// By using a map rather than iterating over all currentRoutes.
-  PageState? _getOrCreatePageState(
+  _PageState? _getOrCreatePageState(
     RouteInfo routeInfo,
-    List<PageState>? currentRoutes,
+    List<_PageState>? currentRoutes,
     RouterResult routerResult,
   ) {
     if (currentRoutes != null) {
       print(
           " - Trying to find match for state matching '${routeInfo.path}'...");
       final currentState = currentRoutes.firstWhereOrNull(
-        ((element) => element.routeInfo == routeInfo),
+        ((element) => element._routeInfo == routeInfo),
       );
 
       if (currentState != null) {
@@ -380,7 +380,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
 
   /// Try to get the route for [requestedPath]. If no match, returns default path.
   /// Returns null if validation fails.
-  PageState? _getRoute(String requestedPath) {
+  _PageState? _getRoute(String requestedPath) {
     final routerResult = _router.get(requestedPath);
     if (routerResult == null) {
       print(
@@ -395,7 +395,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
     return _createState(routerResult, routeInfo);
   }
 
-  PageState? _createState(RouterResult routerResult, RouteInfo routeInfo) {
+  _PageState? _createState(RouterResult routerResult, RouteInfo routeInfo) {
     var page = routerResult.builder(routeInfo);
 
     if (page is GuardedPage) {
@@ -416,7 +416,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
     assert(page is! ProxyPage, 'ProxyPage has not been unwrapped');
 
     // Page is just a standard Flutter page, create a wrapper for it
-    return StatelessPage(routeInfo, page);
+    return _StatelessPage(routeInfo, page);
   }
 }
 
@@ -436,7 +436,7 @@ class _RoutemasterWidget extends InheritedWidget {
 }
 
 class _RoutemasterState {
-  _StackPageState? stack;
+  StackPageState? stack;
   final globalKey = GlobalKey();
 }
 

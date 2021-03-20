@@ -14,7 +14,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _pageState = IndexedPageState.of(context);
+    _pageState = IndexedPage.of(context);
   }
 
   @override
@@ -56,8 +56,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
         ],
       ),
       tabBuilder: (BuildContext context, int index) {
-        final tabPageState = IndexedPageState.of(context);
-        final stack = tabPageState.getStackForIndex(index);
+        final tabPageState = IndexedPage.of(context);
+        final stack = tabPageState.stacks[index];
 
         return Navigator(
           // observers: [HeroController()],

@@ -12,8 +12,14 @@ class IndexedPage extends StatefulPage<void> with IndexedRouteMixIn {
   });
 
   @override
-  PageState createState(Routemaster delegate, RouteInfo routeInfo) {
+  _PageState createState(Routemaster delegate, RouteInfo routeInfo) {
     return IndexedPageState(this, delegate, routeInfo);
+  }
+
+  static IndexedPageState of(BuildContext context) {
+    return context
+        .dependOnInheritedWidgetOfExactType<_IndexedPageStateProvider>()!
+        .pageState;
   }
 }
 
@@ -25,7 +31,7 @@ class _IndexedPageStateProvider extends InheritedNotifier {
     required this.pageState,
   }) : super(
           child: child,
-          notifier: pageState.delegate,
+          notifier: pageState._delegate,
         );
 
   @override
@@ -35,38 +41,31 @@ class _IndexedPageStateProvider extends InheritedNotifier {
 }
 
 class IndexedPageState
-    with PageState, PageCreator, ChangeNotifier, IndexedPageStateMixIn {
+    with _PageState, _PageCreator, ChangeNotifier, IndexedPageStateMixIn {
   @override
-  final IndexedPage page;
+  final IndexedPage _page;
 
   @override
-  final Routemaster delegate;
+  final Routemaster _delegate;
 
   @override
-  final RouteInfo routeInfo;
+  final RouteInfo _routeInfo;
 
   IndexedPageState(
-    this.page,
-    this.delegate,
-    this.routeInfo,
+    this._page,
+    this._delegate,
+    this._routeInfo,
   ) {
-    _routes = List.filled(page.paths.length, null);
+    _routes = List.filled(_page.paths.length, null);
   }
-
-  static IndexedPageState of(BuildContext context) {
-    return context
-        .dependOnInheritedWidgetOfExactType<_IndexedPageStateProvider>()!
-        .pageState;
-  }
-
   @override
-  Page createPage() {
+  Page _createPage() {
     return MaterialPage<void>(
       child: _IndexedPageStateProvider(
         pageState: this,
-        child: page.child,
+        child: _page.child,
       ),
-      key: ValueKey(routeInfo),
+      key: ValueKey(_routeInfo),
     );
   }
 }
@@ -84,8 +83,14 @@ class TabPage extends StatefulPage<void> with IndexedRouteMixIn {
   });
 
   @override
-  PageState createState(Routemaster delegate, RouteInfo routeInfo) {
+  _PageState createState(Routemaster delegate, RouteInfo routeInfo) {
     return TabPageState(this, delegate, routeInfo);
+  }
+
+  static TabPageState of(BuildContext context) {
+    return context
+        .dependOnInheritedWidgetOfExactType<_TabPageStateProvider>()!
+        .pageState;
   }
 }
 
@@ -97,7 +102,7 @@ class _TabPageStateProvider extends InheritedNotifier {
     required this.pageState,
   }) : super(
           child: child,
-          notifier: pageState.delegate,
+          notifier: pageState._delegate,
         );
 
   @override
@@ -107,34 +112,28 @@ class _TabPageStateProvider extends InheritedNotifier {
 }
 
 class TabPageState
-    with PageState, PageCreator, ChangeNotifier, IndexedPageStateMixIn {
+    with _PageState, _PageCreator, ChangeNotifier, IndexedPageStateMixIn {
   @override
-  final TabPage page;
-
-  @override
-  final Routemaster delegate;
+  final TabPage _page;
 
   @override
-  final RouteInfo routeInfo;
+  final Routemaster _delegate;
 
-  TabPageState(this.page, this.delegate, this.routeInfo) {
-    _routes = List.filled(page.paths.length, null);
-  }
+  @override
+  final RouteInfo _routeInfo;
 
-  static TabPageState of(BuildContext context) {
-    return context
-        .dependOnInheritedWidgetOfExactType<_TabPageStateProvider>()!
-        .pageState;
+  TabPageState(this._page, this._delegate, this._routeInfo) {
+    _routes = List.filled(_page.paths.length, null);
   }
 
   @override
-  Page createPage() {
+  Page _createPage() {
     return MaterialPage<void>(
       child: _TabPageStateProvider(
         pageState: this,
-        child: page.child,
+        child: _page.child,
       ),
-      key: ValueKey(routeInfo),
+      key: ValueKey(_routeInfo),
     );
   }
 
@@ -172,8 +171,14 @@ class CupertinoTabPage extends StatefulPage<void> with IndexedRouteMixIn {
   });
 
   @override
-  PageState createState(Routemaster delegate, RouteInfo routeInfo) {
+  _PageState createState(Routemaster delegate, RouteInfo routeInfo) {
     return CupertinoTabPageState(this, delegate, routeInfo);
+  }
+
+  static CupertinoTabPageState of(BuildContext context) {
+    return context
+        .dependOnInheritedWidgetOfExactType<_CupertinoTabPageStateProvider>()!
+        .pageState;
   }
 }
 
@@ -185,7 +190,7 @@ class _CupertinoTabPageStateProvider extends InheritedNotifier {
     required this.pageState,
   }) : super(
           child: child,
-          notifier: pageState.delegate,
+          notifier: pageState._delegate,
         );
 
   @override
@@ -195,24 +200,24 @@ class _CupertinoTabPageStateProvider extends InheritedNotifier {
 }
 
 class CupertinoTabPageState
-    with PageState, PageCreator, ChangeNotifier, IndexedPageStateMixIn {
+    with _PageState, _PageCreator, ChangeNotifier, IndexedPageStateMixIn {
   @override
-  final CupertinoTabPage page;
+  final CupertinoTabPage _page;
 
   @override
-  final Routemaster delegate;
+  final Routemaster _delegate;
 
   @override
-  final RouteInfo routeInfo;
+  final RouteInfo _routeInfo;
 
   final CupertinoTabController tabController = CupertinoTabController();
 
   CupertinoTabPageState(
-    this.page,
-    this.delegate,
-    this.routeInfo,
+    this._page,
+    this._delegate,
+    this._routeInfo,
   ) {
-    _routes = List.filled(page.paths.length, null);
+    _routes = List.filled(_page.paths.length, null);
 
     addListener(() {
       if (index != tabController.index) {
@@ -225,25 +230,19 @@ class CupertinoTabPageState
     });
   }
 
-  static CupertinoTabPageState of(BuildContext context) {
-    return context
-        .dependOnInheritedWidgetOfExactType<_CupertinoTabPageStateProvider>()!
-        .pageState;
-  }
-
   @override
-  Page createPage() {
+  Page _createPage() {
     return MaterialPage<void>(
       child: _CupertinoTabPageStateProvider(
         pageState: this,
-        child: page.child,
+        child: _page.child,
       ),
-      key: ValueKey(routeInfo),
+      key: ValueKey(_routeInfo),
     );
   }
 
   Widget tabBuilder(BuildContext context, int index) {
-    final stack = getStackForIndex(index);
+    final stack = _getStackForIndex(index);
     final pages = stack.createPages();
 
     assert(pages.isNotEmpty, 'Pages must not be empty');
@@ -260,16 +259,18 @@ mixin IndexedRouteMixIn<T> on Page<T> {
   List<String> get paths;
 }
 
-mixin IndexedPageStateMixIn on PageCreator, ChangeNotifier {
-  late List<_StackPageState?> _routes;
+mixin IndexedPageStateMixIn on _PageCreator, ChangeNotifier {
+  late List<StackPageState?> _routes;
 
-  Routemaster get delegate;
-
-  @override
-  RouteInfo get routeInfo;
+  Routemaster get _delegate;
 
   @override
-  IndexedRouteMixIn get page;
+  RouteInfo get _routeInfo;
+
+  IndexedRouteMixIn get _page;
+
+  StackList? _stacks;
+  StackList get stacks => _stacks ??= StackList(this);
 
   int _index = 0;
   int get index => _index;
@@ -278,18 +279,18 @@ mixin IndexedPageStateMixIn on PageCreator, ChangeNotifier {
       _index = value;
 
       notifyListeners();
-      delegate._markNeedsUpdate();
+      _delegate._markNeedsUpdate();
     }
   }
 
-  _StackPageState getStackForIndex(int index) {
+  StackPageState _getStackForIndex(int index) {
     if (_routes[index] == null) {
-      final path = join(routeInfo.path, page.paths[index]);
-      final route = delegate._getRoute(path);
+      final path = join(_routeInfo.path, _page.paths[index]);
+      final route = _delegate._getRoute(path);
 
       if (route != null) {
-        _routes[index] = _StackPageState(
-          delegate: delegate,
+        _routes[index] = StackPageState(
+          delegate: _delegate,
           routes: [route],
         );
       } else {
@@ -316,9 +317,9 @@ mixin IndexedPageStateMixIn on PageCreator, ChangeNotifier {
     return _routes[index]!;
   }
 
-  int? getIndexForPath(String path) {
+  int? _getIndexForPath(String path) {
     var i = 0;
-    for (var initialPath in page.paths) {
+    for (var initialPath in _page.paths) {
       if (path.startsWith(initialPath)) {
         return i;
       }
@@ -329,25 +330,25 @@ mixin IndexedPageStateMixIn on PageCreator, ChangeNotifier {
   }
 
   @override
-  bool maybeSetPageStates(Iterable<PageState> routes) {
+  bool _maybeSetPageStates(Iterable<_PageState> routes) {
     assert(
       routes.isNotEmpty,
       "Don't call maybeSetPageStates with an empty list",
     );
 
-    final tabPagePath = routeInfo.path;
-    final subPagePath = routes.first.routeInfo.path;
+    final tabPagePath = _routeInfo.path;
+    final subPagePath = routes.first._routeInfo.path;
 
     if (!isWithin(tabPagePath, subPagePath)) {
       return false;
     }
 
-    final index = getIndexForPath(_stripPath(tabPagePath, subPagePath));
+    final index = _getIndexForPath(_stripPath(tabPagePath, subPagePath));
     if (index == null) {
       return false;
     }
 
-    getStackForIndex(index)._setPageStates(routes.toList());
+    _getStackForIndex(index)._setPageStates(routes.toList());
     this.index = index;
     return true;
   }
@@ -359,24 +360,33 @@ mixin IndexedPageStateMixIn on PageCreator, ChangeNotifier {
   }
 
   @override
-  bool maybePush(PageState route) {
-    final index = getIndexForPath(route.routeInfo.path);
+  bool _maybePush(_PageState route) {
+    final index = _getIndexForPath(route._routeInfo.path);
     if (index == null) {
       return false;
     }
 
-    getStackForIndex(index).push(route);
+    _getStackForIndex(index)._push(route);
     return true;
   }
 
   @override
-  Future<bool> maybePop() {
-    return getStackForIndex(index).maybePop();
+  Future<bool> _maybePop() {
+    return _getStackForIndex(index)._maybePop();
   }
 
   @override
-  Iterable<PageState> getCurrentPageStates() sync* {
+  Iterable<_PageState> _getCurrentPageStates() sync* {
     yield this;
-    yield* getStackForIndex(index).getCurrentPageStates();
+    yield* _getStackForIndex(index)._getCurrentPageStates();
   }
+}
+
+class StackList {
+  final IndexedPageStateMixIn _indexedPageState;
+
+  StackList(this._indexedPageState);
+
+  StackPageState operator [](int index) =>
+      _indexedPageState._getStackForIndex(index);
 }

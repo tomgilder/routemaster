@@ -11,9 +11,9 @@ class BottomNavigationBarPage extends StatefulWidget {
 class _BottomNavigationBarPageState extends State<BottomNavigationBarPage> {
   @override
   Widget build(BuildContext context) {
-    final pageState = IndexedPageState.of(context);
+    final pageState = IndexedPage.of(context);
     final selectedIndex = pageState.index;
-    final stack = pageState.getStackForIndex(selectedIndex);
+    final stack = pageState.stacks[selectedIndex];
     final pages = stack.createPages();
 
     return Scaffold(

@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final tabState = CupertinoTabPageState.of(context);
+    final tabState = CupertinoTabPage.of(context);
 
     return CupertinoTabScaffold(
       controller: tabState.tabController,
