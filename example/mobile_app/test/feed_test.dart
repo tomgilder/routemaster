@@ -184,10 +184,10 @@ void main() {
         await invokeSystemBack();
         await tester.pump();
         await tester.pump(Duration(seconds: 1));
-
-        expect(find.text('Non-Page route'), findsNothing);
       }),
       [],
     );
+
+    expect(find.text('Non-Page route'), findsNothing);
   });
 }

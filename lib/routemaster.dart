@@ -70,15 +70,15 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
   /// Used to override how the [Navigator] builds.
   final RoutemasterBuilder? builder;
   final TransitionDelegate? transitionDelegate;
-  GlobalKey? _globalKey;
-
-  late TrieRouter _router;
-  _StackPageState? _stack;
-  RouteConfig? _routeMap;
 
   // TODO: Could this have a better name?
   // Options: mapBuilder, builder, routeMapBuilder
   final RouteConfig Function(BuildContext context) routesBuilder;
+
+  _RoutemasterState _state = _RoutemasterState();
+  _StackPageState? get _stack => _state.stack;
+  late TrieRouter _router;
+  RouteConfig? _routeMap;
 
   Routemaster({
     required this.routesBuilder,
@@ -131,10 +131,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
       final url = Uri(path: path, queryParameters: queryParameters);
       SystemNav.replaceLocation(url.toString());
     } else {
-      push(
-        join(currentConfiguration!.routeString, path),
-        queryParameters: queryParameters,
-      );
+      push(path, queryParameters: queryParameters);
     }
   }
 
@@ -179,30 +176,27 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
 
   @override
   Widget build(BuildContext context) {
-    return KeyedSubtree(
-      key: _globalKey ??= GlobalKey(),
-      child: _DependencyTracker(
-        delegate: this,
-        builder: (context) {
-          _isBuilding = true;
-          _processPendingNavigation();
-          final pages = createPages(context);
-          _isBuilding = false;
+    return _DependencyTracker(
+      delegate: this,
+      builder: (context) {
+        _isBuilding = true;
+        _processPendingNavigation();
+        final pages = createPages(context);
+        _isBuilding = false;
 
-          return _RoutemasterWidget(
-            delegate: this,
-            child: builder != null
-                ? builder!(context, this)
-                : Navigator(
-                    pages: pages,
-                    onPopPage: onPopPage,
-                    key: _stack!.navigatorKey,
-                    transitionDelegate: transitionDelegate ??
-                        const DefaultTransitionDelegate<dynamic>(),
-                  ),
-          );
-        },
-      ),
+        return _RoutemasterWidget(
+          delegate: this,
+          child: builder != null
+              ? builder!(context, this)
+              : Navigator(
+                  pages: pages,
+                  onPopPage: onPopPage,
+                  key: _stack!.navigatorKey,
+                  transitionDelegate: transitionDelegate ??
+                      const DefaultTransitionDelegate<dynamic>(),
+                ),
+        );
+      },
     );
   }
 
@@ -241,14 +235,8 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
   /// TODO: Should this reuse more data for performance?
   void _didUpdateWidget(Routemaster oldDelegate) {
     final oldConfiguration = oldDelegate.currentConfiguration;
-    _globalKey = oldDelegate._globalKey;
 
     if (oldConfiguration != null) {
-      // final currentStates = oldDelegate._stack!.getCurrentPageStates().toList();
-      // print(
-      //     "didUpdateWidget: path is '${oldDelegate.currentConfiguration?.routeString}'");
-      // final lastCurrentState = currentStates.last;
-
       _oldConfiguration = oldDelegate.currentConfiguration;
     }
   }
@@ -269,7 +257,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
       );
       return;
     }
-    _stack = _StackPageState(delegate: this, routes: pageStates.toList());
+    _state.stack = _StackPageState(delegate: this, routes: pageStates.toList());
     _isBuilding = false;
   }
 
@@ -299,7 +287,8 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
         throw 'Failed to create initial state';
       }
 
-      _stack = _StackPageState(delegate: this, routes: pageStates.toList());
+      _state.stack =
+          _StackPageState(delegate: this, routes: pageStates.toList());
     }
   }
 
@@ -410,7 +399,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
     var page = routerResult.builder(routeInfo);
 
     if (page is GuardedPage) {
-      final context = _globalKey!.currentContext!;
+      final context = _state.globalKey.currentContext!;
       if (page.validate != null && !page.validate!(routeInfo, context)) {
         print("Validation failed for '${routeInfo.path}'");
         page.onValidationFailed!(this, routeInfo, context);
@@ -446,6 +435,11 @@ class _RoutemasterWidget extends InheritedWidget {
   }
 }
 
+class _RoutemasterState {
+  _StackPageState? stack;
+  final globalKey = GlobalKey();
+}
+
 /// Widget to trigger router rebuild when dependencies change
 class _DependencyTracker extends StatefulWidget {
   final Routemaster delegate;
@@ -461,14 +455,27 @@ class _DependencyTracker extends StatefulWidget {
 }
 
 class _DependencyTrackerState extends State<_DependencyTracker> {
+  late _RoutemasterState _delegateState;
+
   @override
   Widget build(BuildContext context) {
-    return widget.builder(context);
+    return KeyedSubtree(
+      key: _delegateState.globalKey,
+      child: widget.builder(context),
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _delegateState = widget.delegate._state;
+    widget.delegate._state = _delegateState;
   }
 
   @override
   void didUpdateWidget(_DependencyTracker oldWidget) {
     super.didUpdateWidget(oldWidget);
+    widget.delegate._state = _delegateState;
     widget.delegate._didUpdateWidget(oldWidget.delegate);
   }
 

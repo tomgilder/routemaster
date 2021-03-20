@@ -135,6 +135,9 @@ final routeMap = RouteMap(
     '/bottom-navigation-bar/sub-page': (_) => MaterialPage(
           child: DoubleBackPage(),
         ),
+    '/bottom-navigation-bar/replaced': (_) => MaterialPage(
+          child: MessagePage(message: 'Replaced'),
+        ),
   },
 );
 
