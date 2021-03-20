@@ -8,7 +8,7 @@ final routes = RouteMap(
   routes: {
     '/': (_) => CupertinoTabPage(
           child: HomePage(),
-          paths: ['/feed', '/settings'],
+          paths: ['feed', 'settings'],
         ),
     '/feed': (_) => MaterialPage(child: FeedPage()),
     '/feed/profile/:id': (_) => MaterialPage(child: ProfilePage()),
@@ -56,7 +56,7 @@ class FeedPage extends StatelessWidget {
     return Scaffold(
       body: Center(
         child: ElevatedButton(
-          onPressed: () => Routemaster.of(context).pushNamed('profile/1'),
+          onPressed: () => Routemaster.of(context).push('profile/1'),
           child: Text('Feed page'),
         ),
       ),

@@ -28,10 +28,13 @@ class RouteInfo {
   /// The builder used to build this route
   final PageBuilder builder;
 
-  RouteInfo(RouterResult result, this.path)
+  RouteInfo.fromRouterResult(RouterResult result, this.path)
       : pathParameters = result.pathParameters,
         queryParameters = QueryParser.parseQueryParameters(path),
         builder = result.builder;
+
+  RouteInfo(this.path, this.builder, [this.pathParameters = const {}])
+      : queryParameters = QueryParser.parseQueryParameters(path);
 
   @override
   bool operator ==(Object other) =>

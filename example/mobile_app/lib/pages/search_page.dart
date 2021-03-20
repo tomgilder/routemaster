@@ -14,7 +14,7 @@ class SearchPage extends StatelessWidget {
           children: [
             Hero(tag: 'my-hero', child: Text('Hero text')),
             ElevatedButton(
-              onPressed: () => Routemaster.of(context).pushNamed('hero'),
+              onPressed: () => Routemaster.of(context).push('hero'),
               child: Text(
                   "Test hero animations work\n\n(spoiler alert: they don't)"),
             ),

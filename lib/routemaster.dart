@@ -12,6 +12,7 @@ import 'package:path/path.dart';
 import 'package:collection/collection.dart';
 import 'src/pages/guard.dart';
 import 'src/route_dart.dart';
+import 'src/system_nav.dart';
 import 'src/trie_router/trie_router.dart';
 import 'src/route_info.dart';
 
@@ -68,6 +69,8 @@ class RouteMap extends RouteConfig {
 class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
   /// Used to override how the [Navigator] builds.
   final RoutemasterBuilder? builder;
+  final TransitionDelegate? transitionDelegate;
+  GlobalKey? _globalKey;
 
   late TrieRouter _router;
   _StackPageState? _stack;
@@ -80,6 +83,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
   Routemaster({
     required this.routesBuilder,
     this.builder,
+    this.transitionDelegate,
   });
 
   static Routemaster of(BuildContext context) {
@@ -109,12 +113,29 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
     return _stack!.onPopPage(route, result);
   }
 
-  /// Add [path] to the end of the current path.
-  void pushNamed(String path, {Map<String, String>? queryParameters}) {
-    setLocation(
-      join(currentConfiguration!.routeString, path),
-      queryParameters: queryParameters,
-    );
+  /// Pushes [path] into the navigation tree.
+  void push(String path, {Map<String, String>? queryParameters}) {
+    if (isAbsolute(path)) {
+      setLocation(path, queryParameters: queryParameters);
+    } else {
+      setLocation(
+        join(currentConfiguration!.routeString, path),
+        queryParameters: queryParameters,
+      );
+    }
+  }
+
+  /// Replaces the current route with [path].
+  void replace(String path, {Map<String, String>? queryParameters}) {
+    if (kIsWeb) {
+      final url = Uri(path: path, queryParameters: queryParameters);
+      SystemNav.replaceLocation(url.toString());
+    } else {
+      setLocation(
+        join(currentConfiguration!.routeString, path),
+        queryParameters: queryParameters,
+      );
+    }
   }
 
   /// Replace the entire route with the path from [path].
@@ -158,25 +179,30 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
 
   @override
   Widget build(BuildContext context) {
-    return _DependencyTracker(
-      delegate: this,
-      builder: (context) {
-        _isBuilding = true;
-        _processPendingNavigation();
-        final pages = createPages(context);
-        _isBuilding = false;
+    return KeyedSubtree(
+      key: _globalKey ??= GlobalKey(),
+      child: _DependencyTracker(
+        delegate: this,
+        builder: (context) {
+          _isBuilding = true;
+          _processPendingNavigation();
+          final pages = createPages(context);
+          _isBuilding = false;
 
-        return _RoutemasterWidget(
-          delegate: this,
-          child: builder != null
-              ? builder!(context, this)
-              : Navigator(
-                  pages: pages,
-                  onPopPage: onPopPage,
-                  key: _stack!.navigatorKey,
-                ),
-        );
-      },
+          return _RoutemasterWidget(
+            delegate: this,
+            child: builder != null
+                ? builder!(context, this)
+                : Navigator(
+                    pages: pages,
+                    onPopPage: onPopPage,
+                    key: _stack!.navigatorKey,
+                    transitionDelegate: transitionDelegate ??
+                        const DefaultTransitionDelegate<dynamic>(),
+                  ),
+          );
+        },
+      ),
     );
   }
 
@@ -215,8 +241,14 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
   /// TODO: Should this reuse more data for performance?
   void _didUpdateWidget(Routemaster oldDelegate) {
     final oldConfiguration = oldDelegate.currentConfiguration;
+    _globalKey = oldDelegate._globalKey;
 
     if (oldConfiguration != null) {
+      // final currentStates = oldDelegate._stack!.getCurrentPageStates().toList();
+      // print(
+      //     "didUpdateWidget: path is '${oldDelegate.currentConfiguration?.routeString}'");
+      // final lastCurrentState = currentStates.last;
+
       _oldConfiguration = oldDelegate.currentConfiguration;
     }
   }
@@ -306,7 +338,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
 
     var i = 0;
     for (final routerData in routerResult.reversed) {
-      final routeInfo = RouteInfo(
+      final routeInfo = RouteInfo.fromRouterResult(
         routerData,
         // Only the last route gets query parameters
         i == 0 ? requestedPath : routerData.pathSegment,
@@ -370,7 +402,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
       return null;
     }
 
-    final routeInfo = RouteInfo(routerResult, requestedPath);
+    final routeInfo = RouteInfo.fromRouterResult(routerResult, requestedPath);
     return _createState(routerResult, routeInfo);
   }
 
@@ -378,9 +410,10 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
     var page = routerResult.builder(routeInfo);
 
     if (page is GuardedPage) {
-      if (page.validate != null && !page.validate!(routeInfo)) {
+      final context = _globalKey!.currentContext!;
+      if (page.validate != null && !page.validate!(routeInfo, context)) {
         print("Validation failed for '${routeInfo.path}'");
-        page.onValidationFailed!(this, routeInfo);
+        page.onValidationFailed!(this, routeInfo, context);
         return null;
       }
 
@@ -394,7 +427,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
     assert(page is! ProxyPage, 'ProxyPage has not been unwrapped');
 
     // Page is just a standard Flutter page, create a wrapper for it
-    return _StatelessPage(routeInfo, page);
+    return StatelessPage(routeInfo, page);
   }
 }
 

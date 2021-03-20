@@ -61,20 +61,20 @@ final routeMap = RouteMap(
     '/': (_) => CupertinoTabPage(
           child: HomePage(),
           paths: [
-            '/feed',
-            '/search',
-            '/notifications',
-            '/settings',
+            'feed',
+            'search',
+            'notifications',
+            'settings',
           ],
         ),
     '/feed': (_) => MaterialPage(child: FeedPage()),
     '/feed/profile/:id': (info) {
       return Guard(
-        validate: (info) {
+        validate: (info, context) {
           return info.pathParameters['id'] == '1' ||
               info.pathParameters['id'] == '2';
         },
-        onValidationFailed: (rm, info) => rm.setLocation('/feed'),
+        onValidationFailed: (rm, info, context) => rm.setLocation('/feed'),
         child: MaterialPage(
           child: ProfilePage(
             id: info.pathParameters['id'],

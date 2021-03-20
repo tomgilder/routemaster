@@ -2,6 +2,7 @@ part of '../../routemaster.dart';
 
 class IndexedPage extends StatefulPage<void> with IndexedRouteMixIn {
   final Widget child;
+
   @override
   final List<String> paths;
 
@@ -37,8 +38,10 @@ class IndexedPageState
     with PageState, PageCreator, ChangeNotifier, IndexedPageStateMixIn {
   @override
   final IndexedPage page;
+
   @override
   final Routemaster delegate;
+
   @override
   final RouteInfo routeInfo;
 
@@ -69,20 +72,14 @@ class IndexedPageState
 }
 
 class TabPage extends StatefulPage<void> with IndexedRouteMixIn {
-  final List<String> pathTemplates;
+  // TODO: This should probably take a page and not a widget
   final Widget child;
+
   @override
   final List<String> paths;
 
-  TabPage(
-    String pathTemplate,
-    this.child, {
-    required this.paths,
-  }) : pathTemplates = [pathTemplate];
-
-  TabPage.routes(
-    this.pathTemplates,
-    this.child, {
+  TabPage({
+    required this.child,
     required this.paths,
   });
 
@@ -113,8 +110,10 @@ class TabPageState
     with PageState, PageCreator, ChangeNotifier, IndexedPageStateMixIn {
   @override
   final TabPage page;
+
   @override
   final Routemaster delegate;
+
   @override
   final RouteInfo routeInfo;
 
@@ -163,6 +162,7 @@ class TabPageState
 
 class CupertinoTabPage extends StatefulPage<void> with IndexedRouteMixIn {
   final Widget child;
+
   @override
   final List<String> paths;
 
@@ -260,7 +260,7 @@ mixin IndexedRouteMixIn<T> on Page<T> {
   List<String> get paths;
 }
 
-mixin IndexedPageStateMixIn on PageCreator {
+mixin IndexedPageStateMixIn on PageCreator, ChangeNotifier {
   late List<_StackPageState?> _routes;
 
   Routemaster get delegate;
@@ -276,20 +276,41 @@ mixin IndexedPageStateMixIn on PageCreator {
   set index(int value) {
     if (value != _index) {
       _index = value;
+
+      notifyListeners();
       delegate._markNeedsUpdate();
     }
   }
 
   _StackPageState getStackForIndex(int index) {
     if (_routes[index] == null) {
-      _routes[index] = _StackPageState(
-        delegate: delegate,
-        routes: [
-          delegate._getRoute(
-            join(routeInfo.path, page.paths[index]),
-          )!,
-        ],
-      );
+      final path = join(routeInfo.path, page.paths[index]);
+      final route = delegate._getRoute(path);
+
+      if (route != null) {
+        _routes[index] = _StackPageState(
+          delegate: delegate,
+          routes: [route],
+        );
+      } else {
+        print("Couldn't find route for '$path'!");
+        // TODO: Show 404 page in debug mode
+        // _routes[index] = _StackPageState(
+        //   delegate: delegate,
+        //   routes: [
+        //     StatelessPage(
+        //       RouteInfo(RouterResult()),
+        //       MaterialPage<void>(
+        //         child: Scaffold(
+        //           body: Center(
+        //             child: Text("Couldn't find route for '$path'!"),
+        //           ),
+        //         ),
+        //       ),
+        //     )
+        //   ],
+        // );
+      }
     }
 
     return _routes[index]!;
@@ -307,27 +328,34 @@ mixin IndexedPageStateMixIn on PageCreator {
     return null;
   }
 
-  void setNewPath(List<PageState> newRoutes) {
-    final tabIndex = getIndexForPath(newRoutes[0].routeInfo.path)!;
-    index = tabIndex;
-    final stack = getStackForIndex(tabIndex);
-    stack._setPageStates(newRoutes);
-    delegate._markNeedsUpdate();
-  }
-
   @override
   bool maybeSetPageStates(Iterable<PageState> routes) {
     assert(
-        routes.isNotEmpty, "Don't call maybeSetPageStates with an empty list");
+      routes.isNotEmpty,
+      "Don't call maybeSetPageStates with an empty list",
+    );
 
-    final newIndex = getIndexForPath(routes.toList()[0].routeInfo.path);
-    if (newIndex == null) {
+    final tabPagePath = routeInfo.path;
+    final subPagePath = routes.first.routeInfo.path;
+
+    if (!isWithin(tabPagePath, subPagePath)) {
       return false;
     }
 
-    index = newIndex;
+    final index = getIndexForPath(_stripPath(tabPagePath, subPagePath));
+    if (index == null) {
+      return false;
+    }
+
     getStackForIndex(index)._setPageStates(routes.toList());
+    this.index = index;
     return true;
+  }
+
+  static String _stripPath(String parent, String child) {
+    final splitParent = split(parent);
+    final splitChild = split(child);
+    return joinAll(splitChild.skip(splitParent.length));
   }
 
   @override

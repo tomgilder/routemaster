@@ -47,14 +47,14 @@ class ProxyPage<T> extends StatefulPage<T> {
       return (child as StatefulPage).createState(delegate, info);
     }
 
-    return _StatelessPage(info, this);
+    return StatelessPage(info, this);
   }
 }
 
 /// A wrapper for normal, non-stateless pages that allows us to treat them like
 /// stateful ones.
-class _StatelessPage extends PageState with PageCreator {
-  _StatelessPage(this.routeInfo, this.page);
+class StatelessPage extends PageState with PageCreator {
+  StatelessPage(this.routeInfo, this.page);
 
   @override
   final Page page;

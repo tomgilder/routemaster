@@ -8,7 +8,7 @@ Here's the entire routing setup needed for an app featuring tabs and pushed rout
 final routes = <String, PageBuilder>{
   '/': (_) => CupertinoTabPage(
         child: HomePage(),
-        paths: ['/feed', '/settings'],
+        paths: ['feed', 'settings'],
       ),
   '/feed': (_) => MaterialPage<void>(child: FeedPage()),
   '/feed/profile/:id': (info) => MaterialPage<void>(child: ProfilePage(id: info['id'])),

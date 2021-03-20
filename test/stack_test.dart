@@ -24,7 +24,7 @@ void main() {
     expect(find.byType(PageOne), findsOneWidget);
     expect(find.byType(PageTwo), findsNothing);
 
-    delegate.pushNamed('two');
+    delegate.push('two');
     await tester.pump();
     await tester.pump(kTransitionDuration);
 
@@ -52,7 +52,7 @@ void main() {
     expect(find.byType(PageOne), findsOneWidget);
     expect(find.byType(PageTwo), findsNothing);
 
-    delegate.pushNamed('two?query=string');
+    delegate.push('two?query=string');
     await tester.pump();
     await tester.pump(kTransitionDuration);
 

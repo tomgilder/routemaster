@@ -14,21 +14,21 @@ class FeedPage extends StatelessWidget {
           Column(
             children: [
               ElevatedButton(
-                onPressed: () => Routemaster.of(context).pushNamed('profile/1'),
+                onPressed: () => Routemaster.of(context).push('profile/1'),
                 child: Text('Push profile page with ID 1'),
               ),
               ElevatedButton(
-                onPressed: () => Routemaster.of(context)
-                    .pushNamed('profile/2?message=hello'),
+                onPressed: () =>
+                    Routemaster.of(context).push('profile/2?message=hello'),
                 child: Text('Push profile page with ID 2 and query string'),
               ),
               ElevatedButton(
                 onPressed: () =>
-                    Routemaster.of(context).pushNamed('profile/1/photo'),
+                    Routemaster.of(context).push('profile/1/photo'),
                 child: Text("Go to user 1's photo page (skipping stacks)"),
               ),
               ElevatedButton(
-                onPressed: () => Routemaster.of(context).pushNamed('profile/3'),
+                onPressed: () => Routemaster.of(context).push('profile/3'),
                 child: Text('Go to user 3 (validation fail)'),
               ),
               ElevatedButton(
@@ -85,7 +85,7 @@ class ProfilePage extends StatelessWidget {
           children: [
             Text('Profile page, ID = $id, message = $message'),
             ElevatedButton(
-              onPressed: () => Routemaster.of(context).pushNamed('photo'),
+              onPressed: () => Routemaster.of(context).push('photo'),
               child: Text('Photo page (custom animation)'),
             ),
             ElevatedButton(

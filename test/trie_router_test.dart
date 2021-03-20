@@ -20,7 +20,7 @@ class TestRoute extends Page<void> {
 }
 
 RouteInfo getRouteInfo(RouterResult routerResult) {
-  return RouteInfo(routerResult, '/');
+  return RouteInfo.fromRouterResult(routerResult, '/');
 }
 
 void main() {
@@ -72,5 +72,147 @@ void main() {
     expect(routes[2].pathSegment, '/one/two');
     expect(routes[2].builder(getRouteInfo(routes[2])), route2);
     expect(routes[2].pathParameters.isEmpty, isTrue);
+  });
+
+  test('Can get route which starts with parameter', () {
+    final router = TrieRouter();
+    final rootRoute = TestRoute('root');
+    final route1 = TestRoute('one');
+
+    router.add('/', (_) => rootRoute);
+    router.add('/:id/one', (_) => route1);
+
+    final routes = router.getAll('/myId/one')!;
+    expect(routes.length, 2);
+
+    expect(routes[0].pathSegment, '/');
+    expect(routes[0].builder(getRouteInfo(routes[0])), rootRoute);
+    expect(routes[0].pathParameters.isEmpty, isTrue);
+
+    expect(routes[1].pathSegment, '/myId/one'); // actual '/myId'
+    expect(routes[1].builder(getRouteInfo(routes[1])), route1);
+    expect(routes[1].pathParameters.isEmpty, isFalse);
+  });
+
+  test('Can get route which starts with multiple parameters', () {
+    final router = TrieRouter();
+    final rootRoute = TestRoute('root');
+    final idRoute1 = TestRoute('id1');
+    final idRoute2 = TestRoute('id2');
+    final finalRoute = TestRoute('id2');
+
+    router.add('/', (_) => rootRoute);
+    router.add('/:id1', (_) => idRoute1);
+    router.add('/:id1/:id2', (_) => idRoute2);
+    router.add('/:id1/:id2/final', (_) => finalRoute);
+
+    final routes = router.getAll('/prod1/prod2/final')!;
+    expect(routes[0].pathSegment, '/');
+    expect(routes[0].builder(getRouteInfo(routes[0])), rootRoute);
+    expect(routes[0].pathParameters.isEmpty, isTrue);
+
+    expect(routes[1].pathSegment, '/prod1');
+    expect(routes[1].builder(getRouteInfo(routes[1])), idRoute1);
+    expect(routes[1].pathParameters.isEmpty, isFalse);
+
+    expect(routes[2].pathSegment, '/prod1/prod2');
+    expect(routes[2].builder(getRouteInfo(routes[2])), idRoute2);
+    expect(routes[2].pathParameters.isEmpty, isFalse);
+
+    expect(routes[3].pathSegment, '/prod1/prod2/final');
+    expect(routes[3].builder(getRouteInfo(routes[3])), finalRoute);
+    expect(routes[3].pathParameters.isEmpty, isFalse);
+  });
+
+  test('Can get route which starts with multiple skipped parameters', () {
+    final router = TrieRouter();
+    final rootRoute = TestRoute('root');
+    final finalRoute = TestRoute('id2');
+
+    router.add('/', (_) => rootRoute);
+    router.add('/:id1/:id2/final', (_) => finalRoute);
+
+    final routes = router.getAll('/prod1/prod2/final')!;
+    expect(routes[0].pathSegment, '/');
+    expect(routes[0].builder(getRouteInfo(routes[0])), rootRoute);
+    expect(routes[0].pathParameters.isEmpty, isTrue);
+
+    expect(routes[1].pathSegment, '/prod1/prod2/final');
+    expect(routes[1].builder(getRouteInfo(routes[1])), finalRoute);
+    expect(routes[1].pathParameters.isEmpty, isFalse);
+  });
+
+  test('Can get route with parameter in middle', () {
+    final router = TrieRouter();
+    final rootRoute = TestRoute('root');
+    final productRoute = TestRoute('product');
+    final productIdRoute = TestRoute('productId');
+    final detailsRoute = TestRoute('details');
+
+    router.add('/', (_) => rootRoute);
+    router.add('/product', (_) => productRoute);
+    router.add('/product/:id', (_) => productIdRoute);
+    router.add('/product/:id/details', (_) => detailsRoute);
+
+    final routes = router.getAll('/product/myProduct/details')!;
+
+    expect(routes.length, 4);
+
+    expect(routes[0].pathSegment, '/');
+    expect(routes[0].builder(getRouteInfo(routes[0])), rootRoute);
+    expect(routes[0].pathParameters.isEmpty, isTrue);
+
+    expect(routes[1].pathSegment, '/product');
+    expect(routes[1].builder(getRouteInfo(routes[1])), productRoute);
+    expect(routes[1].pathParameters.isEmpty, isTrue);
+
+    // Wrong here - Actual: '/product/myProduct/details'
+    expect(routes[2].pathSegment, '/product/myProduct');
+    expect(routes[2].builder(getRouteInfo(routes[2])), productIdRoute);
+    expect(routes[2].pathParameters.isEmpty, isFalse);
+
+    expect(routes[3].pathSegment, '/product/myProduct/details');
+    expect(routes[3].builder(getRouteInfo(routes[3])), detailsRoute);
+    expect(routes[3].pathParameters.isEmpty, isFalse);
+  });
+
+  test('Can get route with multiple parameters in middle', () {
+    final router = TrieRouter();
+    final rootRoute = TestRoute('root');
+    final productRoute = TestRoute('product');
+    final productId1Route = TestRoute('productId1');
+    final productId2Route = TestRoute('productId2');
+    final detailsRoute = TestRoute('details');
+
+    router.add('/', (_) => rootRoute);
+    router.add('/product', (_) => productRoute);
+    router.add('/product/:id1', (_) => productId1Route);
+    router.add('/product/:id1/:id2', (_) => productId2Route);
+    router.add('/product/:id1/:id2/details', (_) => detailsRoute);
+
+    final routes = router.getAll('/product/prod1/prod2/details')!;
+
+    expect(routes.length, 5);
+
+    expect(routes[0].pathSegment, '/');
+    expect(routes[0].builder(getRouteInfo(routes[0])), rootRoute);
+    expect(routes[0].pathParameters.isEmpty, isTrue);
+
+    expect(routes[1].pathSegment, '/product');
+    expect(routes[1].builder(getRouteInfo(routes[1])), productRoute);
+    expect(routes[1].pathParameters.isEmpty, isTrue);
+
+    // Wrong here - Actual: '/product/myProduct/details'
+    expect(routes[2].pathSegment, '/product/prod1');
+    expect(routes[2].builder(getRouteInfo(routes[2])), productId1Route);
+    expect(routes[2].pathParameters.isEmpty, isFalse);
+
+    expect(routes[3].pathSegment, '/product/prod1/prod2');
+    expect(routes[3].builder(getRouteInfo(routes[3])), productId2Route);
+    expect(routes[3].pathParameters.isEmpty, isFalse);
+
+    expect(routes[4].pathSegment, '/product/prod1/prod2/details');
+    expect(routes[4].builder(getRouteInfo(routes[4])), detailsRoute);
+    expect(routes[4].pathParameters.isEmpty, isFalse);
   });
 }

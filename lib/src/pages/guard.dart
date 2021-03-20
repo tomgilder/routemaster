@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import '../../routemaster.dart';
 
-typedef ValidateCallback = bool Function(RouteInfo info);
+typedef ValidateCallback = bool Function(
+  RouteInfo info,
+  BuildContext context,
+);
 
 typedef ValidationFailedCallback = void Function(
   Routemaster delegate,
   RouteInfo info,
+  BuildContext context,
 );
 
 mixin GuardedPage<T> on ProxyPage<T> {

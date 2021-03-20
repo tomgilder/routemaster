@@ -55,7 +55,13 @@ class TrieRouter {
 
       if (!current!.contains(pathSegment)) {
         isNew = true;
-        current.add(pathSegment, value);
+
+        final isLastSegment = i == list.length - 1;
+        if (isLastSegment) {
+          current.add(pathSegment, value);
+        } else {
+          current.add(pathSegment, null);
+        }
       }
 
       current = current.get(pathSegment);
@@ -115,43 +121,52 @@ class TrieRouter {
   List<RouterResult>? getAll(String route) {
     var pathSegments = path.split(QueryParser.stripQueryString(route));
     var parameters = <String, String>{};
+    final result = <RouterResult>[];
+
+    void addToResult(int index, TrieNode<String?, PageBuilder?> node) {
+      final p = path.joinAll(pathSegments.take(index));
+      print("$index: adding '$p'");
+      result.add(
+        RouterResult(
+          node.value!,
+          Map.unmodifiable(parameters),
+          p,
+        ),
+      );
+    }
+
     TrieNode<String?, PageBuilder?>? current = _trie.root;
 
-    final result = <RouterResult>[];
     var i = 0;
 
-    void addCurrentToResult() => result.add(
-          RouterResult(
-            current!.value!,
-            Map.unmodifiable(parameters),
-            path.joinAll(pathSegments.take(i)),
-          ),
-        );
-
     for (var segment in pathSegments) {
-      if (current!.contains(segment)) {
-        if (current.value != null) {
-          // Flush current value to results
-          addCurrentToResult();
-        }
+      i++;
 
+      if (current!.contains(segment)) {
         current = current.get(segment);
+        if (current!.value != null) {
+          addToResult(i, current);
+        }
       } else if (current.containsWhere((k) => k!.startsWith(':'))) {
+        final nextSegment =
+            i < pathSegments.length - 1 ? pathSegments[i] : null;
+        final nextSegmentIsParam = nextSegment?.startsWith(':') ?? false;
+
         // If there is a segment that starts with `:`, we should match any
         // route.
         current = current.getWhere((k) => k != null && k.startsWith(':'));
 
         // Add the current segment to the parameters. E.g. ':id': '123'
         parameters[current!.key!.substring(1)] = segment;
+
+        if (!nextSegmentIsParam && current.value != null) {
+          addToResult(i, current);
+        }
       } else {
         return null;
       }
-
-      i++;
     }
 
-    // Flush final value to results
-    addCurrentToResult();
     return result;
   }
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile_app/main.dart';
@@ -16,11 +17,14 @@ void main() {
       (tester) async {
     await pumpFeedPage(tester);
 
+    expect(find.byType(CupertinoTabBar), findsOneWidget);
+
     // Go to profile page
     expect(
       await recordUrlChanges(() async {
         await tester.tap(find.text('Push profile page with ID 1'));
         await tester.pump();
+        await tester.pump(Duration(seconds: 1));
       }),
       ['/feed/profile/1'],
     );
@@ -30,11 +34,15 @@ void main() {
       findsOneWidget,
     );
 
+    // Verify page is being shown within tab bar
+    expect(find.byType(CupertinoTabBar), findsOneWidget);
+
     // Go to photo page
     expect(
       await recordUrlChanges(() async {
         await tester.tap(find.text('Photo page (custom animation)'));
         await tester.pump();
+        await tester.pump(Duration(seconds: 1));
       }),
       ['/feed/profile/1/photo'],
     );
@@ -88,6 +96,7 @@ void main() {
           find.text('Push profile page with ID 2 and query string'),
         );
         await tester.pump();
+        await tester.pump(Duration(seconds: 1));
       }),
       ['/feed/profile/2?message=hello'],
     );
@@ -107,6 +116,7 @@ void main() {
           find.text("Go to user 1's photo page (skipping stacks)"),
         );
         await tester.pump();
+        await tester.pump(Duration(seconds: 1));
       }),
       ['/feed/profile/1/photo'],
     );

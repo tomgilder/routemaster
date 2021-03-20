@@ -24,7 +24,7 @@ void main() {
 
     expect(routeBuildCount, 1);
 
-    delegate.pushNamed('two');
+    delegate.push('two');
     await tester.pump();
     await tester.pump(kTransitionDuration);
 
@@ -58,7 +58,7 @@ void main() {
     expect(routeBuildCount, 1);
     state.someValue = 'state change';
 
-    delegate.pushNamed('two');
+    delegate.push('two');
     await tester.pump();
     await tester.pump(kTransitionDuration);
 
