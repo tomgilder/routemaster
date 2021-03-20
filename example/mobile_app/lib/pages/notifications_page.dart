@@ -88,8 +88,8 @@ class NotificationsContentPage extends StatelessWidget {
             children: [
               Text(message),
               ElevatedButton(
-                onPressed: () => Routemaster.of(context)
-                    .setLocation('/notifications/pushed'),
+                onPressed: () =>
+                    Routemaster.of(context).push('/notifications/pushed'),
                 child: Text('Push on top of tab stack'),
               ),
             ],

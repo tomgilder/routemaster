@@ -32,17 +32,16 @@ class FeedPage extends StatelessWidget {
                 child: Text('Go to user 3 (validation fail)'),
               ),
               ElevatedButton(
-                onPressed: () => Routemaster.of(context).setLocation('/404'),
+                onPressed: () => Routemaster.of(context).push('/404'),
                 child: Text('Go to /404'),
               ),
               ElevatedButton(
-                onPressed: () => Routemaster.of(context)
-                    .setLocation('/bottom-navigation-bar'),
+                onPressed: () =>
+                    Routemaster.of(context).push('/bottom-navigation-bar'),
                 child: Text('Bottom Navigation Bar page'),
               ),
               ElevatedButton(
-                onPressed: () =>
-                    Routemaster.of(context).setLocation('/settings'),
+                onPressed: () => Routemaster.of(context).push('/settings'),
                 child: Text('Jump to settings tab'),
               ),
               ElevatedButton(

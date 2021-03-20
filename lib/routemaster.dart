@@ -37,7 +37,7 @@ abstract class RouteConfig {
   Map<String, PageBuilder> get routes;
 
   void onUnknownRoute(Routemaster routemaster, String route) {
-    routemaster.setLocation('/');
+    routemaster.push('/');
   }
 }
 
@@ -116,9 +116,9 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
   /// Pushes [path] into the navigation tree.
   void push(String path, {Map<String, String>? queryParameters}) {
     if (isAbsolute(path)) {
-      setLocation(path, queryParameters: queryParameters);
+      _setLocation(path, queryParameters: queryParameters);
     } else {
-      setLocation(
+      _setLocation(
         join(currentConfiguration!.routeString, path),
         queryParameters: queryParameters,
       );
@@ -131,7 +131,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
       final url = Uri(path: path, queryParameters: queryParameters);
       SystemNav.replaceLocation(url.toString());
     } else {
-      setLocation(
+      push(
         join(currentConfiguration!.routeString, path),
         queryParameters: queryParameters,
       );
@@ -139,7 +139,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
   }
 
   /// Replace the entire route with the path from [path].
-  void setLocation(String path, {Map<String, String>? queryParameters}) {
+  void _setLocation(String path, {Map<String, String>? queryParameters}) {
     if (queryParameters != null) {
       path = Uri(
         path: path,
