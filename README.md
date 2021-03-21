@@ -1,4 +1,4 @@
-# Routemaster
+# Routemaster <img src="https://openclipart.org/download/286938/Double-Decker-Bus.svg" width="30">
 
 Hello! This is an in-development router for Flutter. It's an easy-to-use wrapper over Navigator 2.0.
 
