@@ -106,9 +106,6 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
   /// Used to override how the [Navigator] builds.
   final RoutemasterBuilder? builder;
   final TransitionDelegate? transitionDelegate;
-
-  // TODO: Could this have a better name?
-  // Options: mapBuilder, builder, routeMapBuilder
   final RouteConfig Function(BuildContext context) routesBuilder;
 
   _RoutemasterState _state = _RoutemasterState();
