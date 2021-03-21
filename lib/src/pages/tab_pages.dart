@@ -129,6 +129,7 @@ class TabPageState
   @override
   Page _createPage() {
     return MaterialPage<void>(
+      key: ValueKey(_routeInfo),
       child: _TabControllerProvider(
         pageState: this,
         child: _TabPageStateProvider(
@@ -136,7 +137,6 @@ class TabPageState
           child: _page.child,
         ),
       ),
-      key: ValueKey(_routeInfo),
     );
   }
 
