@@ -36,7 +36,7 @@ class _IndexedPageStateProvider extends InheritedNotifier {
 
   @override
   bool updateShouldNotify(covariant _IndexedPageStateProvider oldWidget) {
-    return true;
+    return pageState != oldWidget.pageState;
   }
 }
 
@@ -107,7 +107,7 @@ class _TabPageStateProvider extends InheritedNotifier {
 
   @override
   bool updateShouldNotify(covariant _TabPageStateProvider oldWidget) {
-    return true;
+    return pageState != oldWidget.pageState;
   }
 }
 
@@ -129,34 +129,54 @@ class TabPageState
   @override
   Page _createPage() {
     return MaterialPage<void>(
-      child: _TabPageStateProvider(
+      child: _TabControllerProvider(
         pageState: this,
-        child: _page.child,
+        child: _TabPageStateProvider(
+          pageState: this,
+          child: _page.child,
+        ),
       ),
       key: ValueKey(_routeInfo),
     );
   }
 
   TabController? _tabController;
-  TabController getTabController({required TickerProvider vsync}) {
-    if (_tabController == null) {
-      final tabController = TabController(length: _routes.length, vsync: vsync);
+  TabController get tabController => _tabController!;
+}
 
-      addListener(() {
-        if (index != tabController.index) {
-          tabController.index = index;
-        }
-      });
+/// Creates a [TabController] for [TabPageState]
+class _TabControllerProvider extends StatefulWidget {
+  final Widget child;
+  final TabPageState pageState;
 
-      tabController.addListener(() {
-        index = tabController.index;
-      });
+  _TabControllerProvider({
+    required this.child,
+    required this.pageState,
+  });
 
-      _tabController = tabController;
-    }
+  @override
+  _TabControllerProviderState createState() => _TabControllerProviderState();
+}
 
-    return _tabController!;
+class _TabControllerProviderState extends State<_TabControllerProvider>
+    with SingleTickerProviderStateMixin {
+  @override
+  void initState() {
+    super.initState();
+    widget.pageState._tabController = TabController(
+      length: widget.pageState._routes.length,
+      vsync: this,
+    );
   }
+
+  @override
+  void dispose() {
+    widget.pageState._tabController?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
 
 class CupertinoTabPage extends StatefulPage<void> with IndexedRouteMixIn {
@@ -195,7 +215,7 @@ class _CupertinoTabPageStateProvider extends InheritedNotifier {
 
   @override
   bool updateShouldNotify(covariant _CupertinoTabPageStateProvider oldWidget) {
-    return true;
+    return pageState != oldWidget.pageState;
   }
 }
 
