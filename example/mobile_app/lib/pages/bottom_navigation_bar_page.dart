@@ -59,12 +59,9 @@ class BottomContentPage extends StatelessWidget {
           children: [
             Text('Bottom bar page 1'),
             ElevatedButton(
-              // TODO: Is this confusing?
-              // It feels like we should be able to use .pushNamed for
-              // Android-style navigation where we don't push into the tab
-              // navigator. Not sure there's a good solution to this.
-              onPressed: () => Routemaster.of(context)
-                  .push('/bottom-navigation-bar/sub-page'),
+              onPressed: () {
+                Routemaster.of(context).push('/bottom-navigation-bar/sub-page');
+              },
               child: Text('Push page Android-style'),
             ),
           ],

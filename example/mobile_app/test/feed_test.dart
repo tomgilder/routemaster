@@ -130,8 +130,9 @@ void main() {
     expect(
       await recordUrlChanges(() async {
         await invokeSystemBack();
-        // TODO: Investigate - if we don't pumpAndSettle, but do a regular pump, this test fails
-        await tester.pumpAndSettle();
+
+        await tester.pump();
+        await tester.pump(Duration(seconds: 1));
       }),
       ['/feed/profile/1'],
     );

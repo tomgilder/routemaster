@@ -82,6 +82,9 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
   StackPageState? get _stack => _state.stack;
   late TrieRouter _router;
   RouteConfig? _routeMap;
+  RouteData? _oldConfiguration;
+  String? _pendingNavigation;
+  bool _isBuilding = false;
 
   Routemaster({
     required this.routesBuilder,
@@ -118,14 +121,10 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
 
   /// Pushes [path] into the navigation tree.
   void push(String path, {Map<String, String>? queryParameters}) {
-    if (isAbsolute(path)) {
-      _setLocation(path, queryParameters: queryParameters);
-    } else {
-      _setLocation(
-        join(currentConfiguration!.routeString, path),
-        queryParameters: queryParameters,
-      );
-    }
+    _setLocation(
+      isAbsolute(path) ? path : join(currentConfiguration!.path, path),
+      queryParameters: queryParameters,
+    );
   }
 
   /// Replaces the current route with [path].
@@ -135,6 +134,24 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
       SystemNav.replaceLocation(url.toString());
     } else {
       push(path, queryParameters: queryParameters);
+    }
+  }
+
+  /// Generates all pages and sub-pages.
+  List<Page> createPages(BuildContext context) {
+    assert(_stack != null,
+        'Stack must have been created when createPages() is called');
+    final pages = _stack!.createPages();
+    assert(pages.isNotEmpty, 'Returned pages list must not be empty');
+    _updateCurrentConfiguration();
+    return pages;
+  }
+
+  void _markNeedsUpdate() {
+    _updateCurrentConfiguration();
+
+    if (!_isBuilding) {
+      notifyListeners();
     }
   }
 
@@ -154,12 +171,9 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
       // Schedule request for next build. This makes sure the routing table is
       // updated before processing the new path.
       _pendingNavigation = path;
-      notifyListeners();
+      _markNeedsUpdate();
     }
   }
-
-  String? _pendingNavigation;
-  bool _isBuilding = false;
 
   void _processPendingNavigation() {
     if (_pendingNavigation != null) {
@@ -183,6 +197,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
       delegate: this,
       builder: (context) {
         _isBuilding = true;
+        _init(context);
         _processPendingNavigation();
         final pages = createPages(context);
         _isBuilding = false;
@@ -205,14 +220,21 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
 
   // Returns a [RouteData] that matches the current route state.
   // This is used to update a browser's current URL.
+  RouteData? _currentConfiguration;
+
   @override
   RouteData? get currentConfiguration {
+    return _currentConfiguration;
+  }
+
+  void _updateCurrentConfiguration() {
     if (_stack == null) {
-      return null;
+      return;
     }
 
     final path = _stack!._getCurrentPageStates().last._routeInfo.path;
-    return RouteData(path);
+    print("Updated path: '$path'");
+    _currentConfiguration = RouteData(path);
   }
 
   // Called when a new URL is set. The RouteInformationParser will parse the
@@ -221,13 +243,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
   // This method then modifies the state based on that information.
   @override
   Future<void> setNewRoutePath(RouteData routeData) {
-    if (currentConfiguration != routeData) {
-      final states = _createAllStates(routeData.routeString);
-      if (states != null) {
-        _stack!._setPageStates(states);
-      }
-    }
-
+    push(routeData.path);
     return SynchronousFuture(null);
   }
 
@@ -244,81 +260,57 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
     }
   }
 
-  void _rebuild(BuildContext context) {
+  void _init(BuildContext context, {bool isRebuild = false}) {
+    if (_routeMap == null) {
+      _buildRouter(context);
+
+      final path = _oldConfiguration?.path ?? currentConfiguration?.path ?? '/';
+      final pageStates = _createAllStates(path);
+      if (pageStates == null) {
+        if (isRebuild) {
+          // Route map has rebuilt but there's no path match. Assume user is
+          // about to set a new path on the router that we don't know about yet
+          print(
+            "Router rebuilt but no match for '$path'. Assuming navigation is about to happen.",
+          );
+          return;
+        }
+
+        throw 'Failed to create initial state';
+      }
+
+      _state.stack = StackPageState(
+        delegate: this,
+        routes: pageStates.toList(),
+      );
+    }
+  }
+
+  /// Called when dependencies of the [routesBuilder] changed.
+  void _didChangeDependencies(BuildContext context) {
     if (currentConfiguration == null) {
       return;
     }
 
-    _buildRouter(context);
+    WidgetsBinding.instance?.addPostFrameCallback((_) => _markNeedsUpdate());
 
     _isBuilding = true;
-    final path = currentConfiguration!.routeString;
-    final pageStates = _createAllStates(currentConfiguration!.routeString);
-    if (pageStates == null) {
-      print(
-        "Router rebuilt but no match for '$path'. Assuming navigation is about to happen.",
-      );
-      return;
-    }
-    _state.stack = StackPageState(delegate: this, routes: pageStates.toList());
+    _routeMap = null;
+    _init(context, isRebuild: true);
     _isBuilding = false;
   }
 
   void _buildRouter(BuildContext context) {
     final routeMap = routesBuilder(context);
-
     _router = TrieRouter()..addAll(routeMap.routes);
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
-      notifyListeners();
-    });
-
     _routeMap = routeMap;
-  }
-
-  RouteData? _oldConfiguration;
-
-  void _initRoutes(BuildContext context) {
-    if (_routeMap == null) {
-      _buildRouter(context);
-    }
-
-    if (_stack == null) {
-      final pageStates = _createAllStates(_oldConfiguration?.routeString ??
-          currentConfiguration?.routeString ??
-          '/');
-      if (pageStates == null) {
-        throw 'Failed to create initial state';
-      }
-
-      _state.stack =
-          StackPageState(delegate: this, routes: pageStates.toList());
-    }
-  }
-
-  /// Generates all pages and sub-pages.
-  List<Page> createPages(BuildContext context) {
-    _initRoutes(context);
-
-    assert(_stack != null,
-        'Stack must have been created when createPages() is called');
-    final pages = _stack!.createPages();
-    assert(pages.isNotEmpty, 'Returned pages list must not be empty');
-    return pages;
-  }
-
-  void _markNeedsUpdate() {
-    if (!_isBuilding) {
-      notifyListeners();
-    }
   }
 
   List<_PageState>? _createAllStates(String requestedPath) {
     final routerResult = _router.getAll(requestedPath);
 
     if (routerResult == null) {
-      print(
-        "Router couldn't find a match for path '$requestedPath''",
-      );
+      print("Router couldn't find a match for path '$requestedPath''");
 
       final result = _routeMap!.onUnknownRoute(
           this, requestedPath, _state.globalKey.currentContext!);
@@ -494,6 +486,6 @@ class _DependencyTrackerState extends State<_DependencyTracker> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    widget.delegate._rebuild(this.context);
+    widget.delegate._didChangeDependencies(this.context);
   }
 }
