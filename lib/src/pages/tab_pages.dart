@@ -307,30 +307,11 @@ mixin IndexedPageStateMixIn on _PageCreator, ChangeNotifier {
     if (_routes[index] == null) {
       final path = join(_routeInfo.path, _page.paths[index]);
       final route = _delegate._getRoute(path);
-
       if (route != null) {
         _routes[index] = StackPageState(
           delegate: _delegate,
           routes: [route],
         );
-      } else {
-        print("Couldn't find route for '$path'!");
-        // TODO: Show 404 page in debug mode
-        // _routes[index] = _StackPageState(
-        //   delegate: delegate,
-        //   routes: [
-        //     StatelessPage(
-        //       RouteInfo(RouterResult()),
-        //       MaterialPage<void>(
-        //         child: Scaffold(
-        //           body: Center(
-        //             child: Text("Couldn't find route for '$path'!"),
-        //           ),
-        //         ),
-        //       ),
-        //     )
-        //   ],
-        // );
       }
     }
 

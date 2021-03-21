@@ -315,22 +315,35 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
     _isBuilding = false;
   }
 
+  _StatelessPage? _onUnknownRoute(String requestedPath) {
+    print("Router couldn't find a match for path '$requestedPath''");
+
+    final result = _state.routeConfig!.onUnknownRoute(
+      this,
+      requestedPath,
+      _state.globalKey.currentContext!,
+    );
+
+    if (result == null) {
+      // No 404 page returned
+      return null;
+    }
+
+    // Return 404 page
+    final routeInfo = RouteInfo(requestedPath, (_) => result);
+    return _StatelessPage(routeInfo, result);
+  }
+
   List<_PageState>? _createAllStates(String requestedPath) {
     final routerResult = _state.routeConfig!.getAll(requestedPath);
 
     if (routerResult == null) {
-      print("Router couldn't find a match for path '$requestedPath''");
-
-      final result = _state.routeConfig!.onUnknownRoute(
-          this, requestedPath, _state.globalKey.currentContext!);
+      final result = _onUnknownRoute(requestedPath);
       if (result == null) {
-        // No 404 page returned
         return null;
       }
 
-      // Show 404 page
-      final routeInfo = RouteInfo(requestedPath, (_) => result);
-      return [_StatelessPage(routeInfo, result)];
+      return [result];
     }
 
     final currentRoutes = _state.stack?._getCurrentPageStates().toList();
@@ -395,13 +408,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
   _PageState? _getRoute(String requestedPath) {
     final routerResult = _state.routeConfig!.get(requestedPath);
     if (routerResult == null) {
-      print(
-        "Router couldn't find a match for path '$requestedPath'",
-      );
-
-      _state.routeConfig!.onUnknownRoute(
-          this, requestedPath, _state.globalKey.currentContext!);
-      return null;
+      return _onUnknownRoute(requestedPath);
     }
 
     final routeInfo = RouteInfo.fromRouterResult(routerResult, requestedPath);
