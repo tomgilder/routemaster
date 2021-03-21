@@ -5,7 +5,7 @@ Hello! This is an in-development router for Flutter. It's an easy-to-use wrapper
 Here's the entire routing setup needed for an app featuring tabs and pushed routes:
 
 ```dart
-final routes = <String, PageBuilder>{
+final routes = RouteMap(routes: {
   '/': (_) => CupertinoTabPage(
         child: HomePage(),
         paths: ['feed', 'settings'],
