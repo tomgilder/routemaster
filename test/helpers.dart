@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:routemaster/routemaster.dart';
 
 const kTransitionDuration = Duration(milliseconds: 310);
 
@@ -31,6 +32,8 @@ class PageOne extends StatelessWidget {
 }
 
 class PageTwo extends StatelessWidget {
+  PageTwo({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return SizedBox();
@@ -41,5 +44,17 @@ class PageThree extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox();
+  }
+}
+
+class PopPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: ElevatedButton(
+        onPressed: () => Routemaster.of(context).pop(),
+        child: Text('Pop'),
+      ),
+    );
   }
 }

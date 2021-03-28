@@ -5,7 +5,7 @@ import 'package:routemaster/src/route_dart.dart';
 import 'helpers.dart';
 
 void main() {
-  testWidgets('Can push and pop a page', (tester) async {
+  testWidgets('Can push and pop a page via delegate pop()', (tester) async {
     final delegate = Routemaster(routesBuilder: (context) {
       return RouteMap(routes: {
         '/': (_) => MaterialPage<void>(child: PageOne()),
@@ -31,6 +31,51 @@ void main() {
     expect(delegate.currentConfiguration, RouteData('/two'));
     expect(find.byType(PageOne), findsNothing);
     expect(find.byType(PageTwo), findsOneWidget);
+
+    delegate.pop();
+    await tester.pump();
+    await tester.pump(kTransitionDuration);
+
+    expect(delegate.currentConfiguration, RouteData('/'));
+    expect(find.byType(PageOne), findsOneWidget);
+    expect(find.byType(PageTwo), findsNothing);
+  });
+
+  testWidgets('Can push and pop a page via Navigator', (tester) async {
+    final page2Key = GlobalKey();
+    final delegate = Routemaster(routesBuilder: (context) {
+      return RouteMap(routes: {
+        '/': (_) => MaterialPage<void>(child: PageOne()),
+        '/two': (_) => MaterialPage<void>(child: PageTwo(key: page2Key)),
+      });
+    });
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    expect(delegate.currentConfiguration, RouteData('/'));
+    expect(find.byType(PageOne), findsOneWidget);
+    expect(find.byType(PageTwo), findsNothing);
+
+    delegate.push('two');
+    await tester.pump();
+    await tester.pump(kTransitionDuration);
+
+    expect(delegate.currentConfiguration, RouteData('/two'));
+    expect(find.byType(PageOne), findsNothing);
+    expect(find.byType(PageTwo), findsOneWidget);
+
+    Navigator.of(page2Key.currentContext!).pop();
+    await tester.pump();
+    await tester.pump(kTransitionDuration);
+
+    expect(delegate.currentConfiguration, RouteData('/'));
+    expect(find.byType(PageOne), findsOneWidget);
+    expect(find.byType(PageTwo), findsNothing);
   });
 
   testWidgets('Can push and pop a page with query string', (tester) async {
