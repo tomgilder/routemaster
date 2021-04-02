@@ -134,7 +134,7 @@ class TabPageState
         pageState: this,
         child: _TabPageStateProvider(
           pageState: this,
-          child: _page.child,
+          child: Builder(builder: (_) => _page.child),
         ),
       ),
     );
@@ -163,10 +163,18 @@ class _TabControllerProviderState extends State<_TabControllerProvider>
   @override
   void initState() {
     super.initState();
-    widget.pageState._tabController = TabController(
+
+    final tabController = TabController(
       length: widget.pageState._routes.length,
+      initialIndex: widget.pageState.index,
       vsync: this,
     );
+
+    tabController.addListener(() {
+      widget.pageState.index = tabController.index;
+    });
+
+    widget.pageState._tabController = tabController;
   }
 
   @override

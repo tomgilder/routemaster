@@ -129,6 +129,8 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
     _markNeedsUpdate();
   }
 
+  /// Called by the [Router] when the [Router.backButtonDispatcher] reports that
+  /// the operating system is requesting that the current route be popped.
   @override
   Future<bool> popRoute() {
     if (_state.stack == null) {
@@ -213,7 +215,11 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
       return;
     }
 
-    _state.stack!._setPageStates(states);
+    if (_state.stack == null) {
+      _state.stack = StackPageState(delegate: this, routes: states);
+    } else {
+      _state.stack!._setPageStates(states);
+    }
   }
 
   @override
@@ -305,7 +311,9 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
 
     WidgetsBinding.instance?.addPostFrameCallback((_) => _markNeedsUpdate());
 
+    // Reset state
     _state.routeConfig = null;
+    _state.stack = null;
 
     _isBuilding = true;
     _init(context, isRebuild: true);
