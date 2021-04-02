@@ -6,8 +6,7 @@ typedef ValidateCallback = bool Function(
   BuildContext context,
 );
 
-typedef ValidationFailedCallback = void Function(
-  Routemaster delegate,
+typedef ValidationFailedCallback = Page Function(
   RouteInfo info,
   BuildContext context,
 );
@@ -17,7 +16,7 @@ mixin GuardedPage<T> on ProxyPage<T> {
   /// [onValidationFailed] is called.
   ///
   /// By default this redirects to the default path.
-  ValidateCallback? get validate;
+  ValidateCallback get validate;
 
   /// Callback, called when the [validate] returns false.
   ///
@@ -25,16 +24,33 @@ mixin GuardedPage<T> on ProxyPage<T> {
   ValidationFailedCallback? get onValidationFailed;
 }
 
-class Guard<T> extends ProxyPage<T> with GuardedPage<T> {
+/// A page results which tells the router to redirect to another page.
+class Redirect extends Page<void> {
+  final String path;
+  final Map<String, String>? queryParameters;
+
+  Redirect(this.path, {this.queryParameters});
+
   @override
-  final ValidateCallback? validate;
+  Route createRoute(BuildContext context) {
+    throw UnimplementedError('Redirect does not support building a route');
+  }
+
+  void redirect(Routemaster delegate, RouteInfo info, BuildContext context) {
+    delegate.replace(path);
+  }
+}
+
+class Guard extends ProxyPage<void> with GuardedPage<void> {
+  @override
+  final ValidateCallback validate;
 
   @override
   final ValidationFailedCallback? onValidationFailed;
 
   Guard({
-    required Page<T> child,
+    required Page child,
     required this.validate,
-    required this.onValidationFailed,
+    this.onValidationFailed,
   }) : super(child: child);
 }

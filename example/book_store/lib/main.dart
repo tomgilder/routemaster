@@ -12,12 +12,14 @@ import 'models.dart';
 import 'page_scaffold.dart';
 import 'search_page.dart';
 
+final booksDatabase = BooksDatabase();
+
 void main() {
   runApp(BookStoreApp());
 }
 
 final routeMap = RouteMap(
-  onUnknownRoute: (delegate, routeInfo, context) {
+  onUnknownRoute: (routeInfo, context) {
     return MaterialPage(
       child: PageScaffold(
         title: 'Page not found',
@@ -44,7 +46,7 @@ final routeMap = RouteMap(
           child: CategoryPage(
             category: BookCategory.values.firstWhere(
               (e) => e.queryParam == route.pathParameters['category'],
-              orElse: () => null,
+              orElse: () => BookCategory.values.first,
             ),
           ),
         ),
@@ -61,12 +63,18 @@ final routeMap = RouteMap(
     '/audiobooks/picks': (route) => MaterialPage(
           child: AudiobookListPage(mode: 'picks'),
         ),
-    '/audiobooks/book/:id': (route) => MaterialPage(
-          child: BookPage(id: route.pathParameters['id']),
+    '/audiobooks/book/:id': (route) => Guard(
+          validate: (info, context) {
+            return booksDatabase.books
+                .contains((book) => book.id == route.pathParameters['id']);
+          },
+          child: MaterialPage(
+            child: BookPage(id: route.pathParameters['id']),
+          ),
         ),
     '/search': (route) => MaterialPage(
           child: SearchPage(
-            query: route.queryParameters['query'],
+            query: route.queryParameters['query'] ?? '',
             sortOrder: SortOrder.values.firstWhere(
               (e) => e.queryParam == route.queryParameters['sort'],
               orElse: () => SortOrder.name,
@@ -80,8 +88,11 @@ final routeMap = RouteMap(
             final appState = Provider.of<AppState>(context, listen: false);
             return appState.isLoggedIn;
           },
-          onValidationFailed: (rm, route, context) {
-            rm.replace('/login', queryParameters: {'redirectTo': route.path});
+          onValidationFailed: (route, context) {
+            return Redirect(
+              '/login',
+              queryParameters: {'redirectTo': route.path},
+            );
           },
           child: MaterialPage(
             child: WishlistPage(id: route.pathParameters['id']),
@@ -186,7 +197,7 @@ class ShopHome extends StatelessWidget {
           ),
           Wrap(
             children: [
-              for (final book in BooksDatabase().books) BookCard(book: book),
+              for (final book in booksDatabase.books) BookCard(book: book),
             ],
           ),
         ],

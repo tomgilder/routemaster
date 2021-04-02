@@ -54,7 +54,8 @@ class ProxyPage<T> extends StatefulPage<T> {
 class _StatelessPage extends _PageState with _PageCreator {
   _StatelessPage(RouteInfo routeInfo, Page page)
       : _routeInfo = routeInfo,
-        _page = page;
+        _page = page,
+        assert(page is! Redirect);
 
   final Page _page;
 

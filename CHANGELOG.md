@@ -1,3 +1,7 @@
+## [0.2.0] - 3 April 2021
+
+* Re-work guards and redirects to make API simpler
+
 ## [0.1.0] - 2 April 2021
 
 * API hopefully becoming stable

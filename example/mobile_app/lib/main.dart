@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:provider/provider.dart';
@@ -55,6 +57,8 @@ final loggedOutRouteMap = RouteMap(
   },
 );
 
+FutureOr<String> test;
+
 // This is the real route map - used if the user is logged in.
 final routeMap = RouteMap(
   routes: {
@@ -74,7 +78,7 @@ final routeMap = RouteMap(
           return info.pathParameters['id'] == '1' ||
               info.pathParameters['id'] == '2';
         },
-        onValidationFailed: (rm, info, context) => rm.push('/feed'),
+        onValidationFailed: (info, context) => Redirect('/feed'),
         child: MaterialPage(
           child: ProfilePage(
             id: info.pathParameters['id'],
@@ -92,7 +96,7 @@ final routeMap = RouteMap(
 
     // Most pages tend to appear only in one place in the app
     // However sometimes you can push them into multiple places.
-    // TODO: Is there a better way to do this?
+    // TODO: Is there a better way to do this? Such as an `Alias` page class?
     '/search/hero': (_) => MaterialPage(child: HeroPage()),
     '/settings/hero': (_) => MaterialPage(child: HeroPage()),
 

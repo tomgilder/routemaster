@@ -314,7 +314,7 @@ mixin IndexedPageStateMixIn on _PageCreator, ChangeNotifier {
   StackPageState _getStackForIndex(int index) {
     if (_routes[index] == null) {
       final path = join(_routeInfo.path, _page.paths[index]);
-      final route = _delegate._getRoute(path);
+      final route = _delegate._getPageState(path);
       if (route != null) {
         _routes[index] = StackPageState(
           delegate: _delegate,

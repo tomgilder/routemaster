@@ -58,3 +58,10 @@ class PopPage extends StatelessWidget {
     );
   }
 }
+
+class NotFoundPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox();
+  }
+}

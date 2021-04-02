@@ -27,8 +27,7 @@ typedef RoutemasterBuilder = Widget Function(
 
 typedef PageBuilder = Page Function(RouteInfo info);
 
-typedef UnknownRouteCallback = Page? Function(
-  Routemaster routemaster,
+typedef UnknownRouteCallback = Page Function(
   String route,
   BuildContext context,
 );
@@ -46,9 +45,8 @@ abstract class RouteConfig {
   ///   2. Use the routing delegate to, for instance, redirect to another route
   ///      and return null.
   ///
-  Page? onUnknownRoute(
-      Routemaster delegate, String route, BuildContext context) {
-    delegate.push('/');
+  Page onUnknownRoute(String route, BuildContext context) {
+    return Redirect('/');
   }
 
   /// Generate a single [RouteResult] for the given [path]. Returns null if the
@@ -92,13 +90,12 @@ class RouteMap extends DefaultRouterConfig {
   }) : _onUnknownRoute = onUnknownRoute;
 
   @override
-  Page? onUnknownRoute(
-      Routemaster routemaster, String route, BuildContext context) {
+  Page onUnknownRoute(String route, BuildContext context) {
     if (_onUnknownRoute != null) {
-      return _onUnknownRoute!(routemaster, route, context);
+      return _onUnknownRoute!(route, context);
     }
 
-    super.onUnknownRoute(routemaster, route, context);
+    return super.onUnknownRoute(route, context);
   }
 }
 
@@ -171,6 +168,12 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
     final pages = _state.stack!.createPages();
     assert(pages.isNotEmpty, 'Returned pages list must not be empty');
     _updateCurrentConfiguration();
+
+    assert(
+      pages.none((page) => page is Redirect),
+      'Returned pages list must not have redirect',
+    );
+
     return pages;
   }
 
@@ -210,15 +213,15 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
   }
 
   void _processNavigation(String path) {
-    final states = _createAllStates(path);
-    if (states == null) {
+    final pages = _createAllStates(path);
+    if (pages == null) {
       return;
     }
 
     if (_state.stack == null) {
-      _state.stack = StackPageState(delegate: this, routes: states);
+      _state.stack = StackPageState(delegate: this, routes: pages);
     } else {
-      _state.stack!._setPageStates(states);
+      _state.stack!._setPageStates(pages);
     }
   }
 
@@ -283,6 +286,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
 
       final path = currentConfiguration?.path ?? '/';
       final pageStates = _createAllStates(path);
+
       if (pageStates == null) {
         if (isRebuild) {
           // Route map has rebuilt but there's no path match. Assume user is
@@ -291,15 +295,12 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
             "Router rebuilt but no match for '$path'. Assuming navigation is about to happen.",
           );
           return;
+        } else {
+          throw 'Failed to create initial state';
         }
-
-        throw 'Failed to create initial state';
       }
 
-      _state.stack = StackPageState(
-        delegate: this,
-        routes: pageStates.toList(),
-      );
+      _state.stack = StackPageState(delegate: this, routes: pageStates);
     }
   }
 
@@ -320,18 +321,21 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
     _isBuilding = false;
   }
 
-  _StatelessPage? _onUnknownRoute(String requestedPath) {
+  _PageState? _onUnknownRoute(String requestedPath) {
     print("Router couldn't find a match for path '$requestedPath''");
 
     final result = _state.routeConfig!.onUnknownRoute(
-      this,
       requestedPath,
       _state.globalKey.currentContext!,
     );
 
-    if (result == null) {
-      // No 404 page returned
-      return null;
+    if (result is Redirect) {
+      return _getPageState(
+        Uri(
+          path: result.path,
+          queryParameters: result.queryParameters,
+        ).toString(),
+      );
     }
 
     // Return 404 page
@@ -339,7 +343,8 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
     return _StatelessPage(routeInfo, result);
   }
 
-  List<_PageState>? _createAllStates(String requestedPath) {
+  List<_PageState>? _createAllStates(String requestedPath,
+      {List<String>? redirects}) {
     final routerResult = _state.routeConfig!.getAll(requestedPath);
 
     if (routerResult == null) {
@@ -352,10 +357,9 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
     }
 
     final currentRoutes = _state.stack?._getCurrentPageStates().toList();
-
     var result = <_PageState>[];
-
     var i = 0;
+
     for (final routerData in routerResult.reversed) {
       final routeInfo = RouteInfo.fromRouterResult(
         routerData,
@@ -363,7 +367,39 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
         i == 0 ? requestedPath : routerData.pathSegment,
       );
 
-      final state = _getOrCreatePageState(routeInfo, currentRoutes, routerData);
+      final state = _getOrCreatePageState(
+        requestedPath,
+        routeInfo,
+        currentRoutes,
+        routerData,
+      );
+
+      if (state is _RedirectWrapperPageState) {
+        final shouldFollowRedirects = i == 0;
+        if (shouldFollowRedirects) {
+          final redirectPath = Uri(
+            path: state.redirectPage.path,
+            queryParameters: state.redirectPage.queryParameters,
+          ).toString();
+
+          if (kDebugMode) {
+            if (redirects == null) {
+              redirects = [requestedPath];
+            } else {
+              if (redirects.contains(requestedPath)) {
+                redirects.add(requestedPath);
+                throw RedirectLoopError(redirects);
+              }
+
+              redirects.add(requestedPath);
+            }
+          }
+
+          return _createAllStates(redirectPath, redirects: redirects);
+        } else {
+          continue;
+        }
+      }
 
       if (state == null) {
         return null;
@@ -386,6 +422,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
   /// Otherwise create a new one. This could possibly be made more efficient
   /// By using a map rather than iterating over all currentRoutes.
   _PageState? _getOrCreatePageState(
+    String requestedPath,
     RouteInfo routeInfo,
     List<_PageState>? currentRoutes,
     RouterResult routerResult,
@@ -405,30 +442,57 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
       print(' - No match for state, will need to create it');
     }
 
-    return _createState(routerResult, routeInfo);
+    return _createState(
+      requestedPath: requestedPath,
+      page: routerResult.builder(routeInfo),
+      routeInfo: routeInfo,
+    );
   }
 
   /// Try to get the route for [requestedPath]. If no match, returns default path.
   /// Returns null if validation fails.
-  _PageState? _getRoute(String requestedPath) {
+  _PageState? _getPageState(String requestedPath) {
     final routerResult = _state.routeConfig!.get(requestedPath);
     if (routerResult == null) {
       return _onUnknownRoute(requestedPath);
     }
 
     final routeInfo = RouteInfo.fromRouterResult(routerResult, requestedPath);
-    return _createState(routerResult, routeInfo);
+    final page = routerResult.builder(routeInfo);
+
+    if (page is Redirect) {
+      return _getPageState(page.path);
+    }
+
+    return _createState(
+      requestedPath: requestedPath,
+      page: page,
+      routeInfo: routeInfo,
+    );
   }
 
-  _PageState? _createState(RouterResult routerResult, RouteInfo routeInfo) {
-    var page = routerResult.builder(routeInfo);
+  _PageState? _createState({
+    required String requestedPath,
+    required Page page,
+    required RouteInfo routeInfo,
+  }) {
+    while (page is ProxyPage) {
+      if (page is GuardedPage) {
+        final context = _state.globalKey.currentContext!;
+        if (!page.validate(routeInfo, context)) {
+          print("Validation failed for '${routeInfo.path}'");
 
-    if (page is GuardedPage) {
-      final context = _state.globalKey.currentContext!;
-      if (page.validate != null && !page.validate!(routeInfo, context)) {
-        print("Validation failed for '${routeInfo.path}'");
-        page.onValidationFailed!(this, routeInfo, context);
-        return null;
+          if (page.onValidationFailed == null) {
+            return _onUnknownRoute(requestedPath);
+          }
+
+          final result = page.onValidationFailed!(routeInfo, context);
+          return _createState(
+            requestedPath: requestedPath,
+            page: result,
+            routeInfo: routeInfo,
+          );
+        }
       }
 
       page = page.child;
@@ -438,6 +502,11 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
       return page.createState(this, routeInfo);
     }
 
+    if (page is Redirect) {
+      return _RedirectWrapperPageState(page);
+    }
+
+    assert(page is! Redirect, 'Redirect has not been followed');
     assert(page is! ProxyPage, 'ProxyPage has not been unwrapped');
 
     // Page is just a standard Flutter page, create a wrapper for it
@@ -461,7 +530,7 @@ class _RoutemasterWidget extends InheritedWidget {
 }
 
 class _RoutemasterState {
-  final globalKey = GlobalKey();
+  final globalKey = GlobalKey(debugLabel: 'routemaster');
   StackPageState? stack;
   RouteConfig? routeConfig;
   RouteData? currentConfiguration;
@@ -476,7 +545,7 @@ class _DependencyTracker extends StatefulWidget {
   _DependencyTracker({
     required this.delegate,
     required this.builder,
-  });
+  }) : super(key: delegate._state.globalKey);
 
   @override
   _DependencyTrackerState createState() => _DependencyTrackerState();
@@ -487,10 +556,7 @@ class _DependencyTrackerState extends State<_DependencyTracker> {
 
   @override
   Widget build(BuildContext context) {
-    return KeyedSubtree(
-      key: _delegateState.globalKey,
-      child: widget.builder(context),
-    );
+    return widget.builder(context);
   }
 
   @override
@@ -510,5 +576,52 @@ class _DependencyTrackerState extends State<_DependencyTracker> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     widget.delegate._didChangeDependencies(this.context);
+  }
+}
+
+/// A fake page state to wrap redirects
+class _RedirectWrapperPageState extends _PageState {
+  final Redirect redirectPage;
+
+  _RedirectWrapperPageState(this.redirectPage);
+
+  @override
+  Iterable<_PageState> _getCurrentPageStates() {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool> _maybePop() {
+    throw UnimplementedError();
+  }
+
+  @override
+  bool _maybePush(_PageState route) {
+    throw UnimplementedError();
+  }
+
+  @override
+  bool _maybeSetPageStates(Iterable<_PageState> routes) {
+    throw UnimplementedError();
+  }
+
+  @override
+  RouteInfo get _routeInfo => throw UnimplementedError();
+}
+
+class RedirectLoopError extends Error {
+  final List<String> redirects;
+
+  RedirectLoopError(this.redirects);
+
+  @override
+  String toString() {
+    return 'Routemaster is stuck in an endless redirect loop:\n\n' +
+        redirects
+            .take(redirects.length - 1)
+            .mapIndexed((i, path1) =>
+                "  * '$path1' redirected to '${redirects[i + 1]}'")
+            .join('\n') +
+        '\n\nThis is an error in your routing map.';
   }
 }
