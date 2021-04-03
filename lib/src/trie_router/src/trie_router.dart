@@ -125,7 +125,6 @@ class TrieRouter {
 
     void addToResult(int index, TrieNode<String?, PageBuilder?> node) {
       final p = path.joinAll(pathSegments.take(index));
-      print("$index: adding '$p'");
       result.add(
         RouterResult(
           node.value!,
