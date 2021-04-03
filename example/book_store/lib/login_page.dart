@@ -9,7 +9,7 @@ class LoginPage extends StatefulWidget {
   static const usernameFieldKey = Key('username-field');
   static const loginButtonKey = Key('login-button');
 
-  final String redirectTo;
+  final String? redirectTo;
 
   const LoginPage({
     this.redirectTo = '/',
@@ -32,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
     if (_usernameController.text.isNotEmpty) {
       Provider.of<AppState>(context, listen: false).username =
           _usernameController.text;
-      Routemaster.of(context).push(widget.redirectTo);
+      Routemaster.of(context).push(widget.redirectTo!);
     }
   }
 

@@ -57,7 +57,7 @@ final loggedOutRouteMap = RouteMap(
   },
 );
 
-FutureOr<String> test;
+FutureOr<String>? test;
 
 // This is the real route map - used if the user is logged in.
 final routeMap = RouteMap(
@@ -149,7 +149,7 @@ final routeMap = RouteMap(
 class FancyAnimationPage extends Page {
   final Widget child;
 
-  FancyAnimationPage({@required this.child});
+  FancyAnimationPage({required this.child});
 
   @override
   Route createRoute(BuildContext context) {

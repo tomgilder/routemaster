@@ -3,11 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Records changes in URL
-Future<List<String>> recordUrlChanges(Future Function() callback) async {
-  final result = <String>[];
+Future<List<String?>> recordUrlChanges(Future Function() callback) async {
+  final result = <String?>[];
   SystemChannels.navigation.setMockMethodCallHandler((call) async {
     if (call.method == 'routeInformationUpdated') {
-      result.add(call.arguments['location'] as String);
+      result.add(call.arguments['location'] as String?);
     }
   });
 
@@ -19,5 +19,5 @@ Future<List<String>> recordUrlChanges(Future Function() callback) async {
 /// Simulates pressing the system back button
 Future<void> invokeSystemBack() {
   // ignore: invalid_use_of_protected_member
-  return WidgetsBinding.instance.handlePopRoute();
+  return WidgetsBinding.instance!.handlePopRoute();
 }

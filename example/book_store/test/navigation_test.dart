@@ -381,4 +381,11 @@ void main() {
       ['/'],
     );
   });
+
+  testWidgets('Shows 404 page for unknown book', (tester) async {
+    await tester.pumpWidget(BookStoreApp());
+    await setSystemUrl('/book/123');
+    await tester.pump();
+    expect(find.text("Couldn't find page '/book/123'"), findsOneWidget);
+  });
 }

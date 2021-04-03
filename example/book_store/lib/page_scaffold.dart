@@ -7,11 +7,11 @@ import 'package:routemaster/routemaster.dart';
 class PageScaffold extends StatefulWidget {
   final String title;
   final Widget body;
-  final String searchQuery;
+  final String? searchQuery;
 
   PageScaffold({
-    @required this.title,
-    @required this.body,
+    required this.title,
+    required this.body,
     this.searchQuery,
   });
 
@@ -32,7 +32,7 @@ class _PageScaffoldState extends State<PageScaffold> {
   void initState() {
     super.initState();
     if (widget.searchQuery != null) {
-      _searchController.text = widget.searchQuery;
+      _searchController.text = widget.searchQuery!;
     }
   }
 
@@ -106,7 +106,7 @@ class _PageScaffoldState extends State<PageScaffold> {
                 children: [
                   Container(
                     width: 70,
-                    child: ModalRoute.of(context).canPop
+                    child: ModalRoute.of(context)!.canPop
                         ? const BackButton(color: Colors.white)
                         : null,
                   ),
@@ -149,7 +149,7 @@ class _PageScaffoldState extends State<PageScaffold> {
                           '/login',
                           queryParameters: {
                             'redirectTo': Routemaster.of(context)
-                                .currentConfiguration
+                                .currentConfiguration!
                                 .path
                           },
                         );
@@ -196,7 +196,7 @@ class _PageScaffoldState extends State<PageScaffold> {
     });
   }
 
-  List<Widget> _buildNavBarChildren({@required bool inDrawer}) {
+  List<Widget> _buildNavBarChildren({required bool inDrawer}) {
     return [
       NavigationLink(
         title: 'Fiction',
@@ -228,14 +228,14 @@ class NavigationLink extends StatelessWidget {
   final bool inDrawer;
 
   const NavigationLink({
-    @required this.title,
-    @required this.path,
-    @required this.inDrawer,
+    required this.title,
+    required this.path,
+    required this.inDrawer,
   });
 
   @override
   Widget build(BuildContext context) {
-    final route = Routemaster.of(context).currentConfiguration.path;
+    final route = Routemaster.of(context).currentConfiguration!.path;
     final isCurrent = route.startsWith(path);
 
     return Container(

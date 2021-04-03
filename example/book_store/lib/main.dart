@@ -18,6 +18,16 @@ void main() {
   runApp(BookStoreApp());
 }
 
+bool _isValidCategory(String? category) {
+  return BookCategory.values.any(
+    (e) => e.queryParam == category,
+  );
+}
+
+bool _isValidBookId(String? id) {
+  return booksDatabase.books.any((book) => book.id == id);
+}
+
 final routeMap = RouteMap(
   onUnknownRoute: (routeInfo, context) {
     return MaterialPage(
@@ -39,19 +49,32 @@ final routeMap = RouteMap(
             redirectTo: route.queryParameters['redirectTo'],
           ),
         ),
-    '/book/:id': (route) => MaterialPage(
-          child: BookPage(id: route.pathParameters['id']),
+    '/book/:id': (route) => Guard(
+          validate: (info, context) => booksDatabase.books.any(
+            (book) => book.id == info.pathParameters['id'],
+          ),
+          child: MaterialPage(
+            child: BookPage(id: route.pathParameters['id']!),
+          ),
         ),
-    '/category/:category': (route) => MaterialPage(
-          child: CategoryPage(
-            category: BookCategory.values.firstWhere(
-              (e) => e.queryParam == route.pathParameters['category'],
-              orElse: () => BookCategory.values.first,
+    '/category/:category': (route) => Guard(
+          validate: (info, context) =>
+              _isValidCategory(route.pathParameters['category']),
+          child: MaterialPage(
+            child: CategoryPage(
+              category: BookCategory.values.firstWhere(
+                (e) => e.queryParam == route.pathParameters['category'],
+              ),
             ),
           ),
         ),
-    '/category/:category/book/:id': (route) => MaterialPage(
-          child: BookPage(id: route.pathParameters['id']),
+    '/category/:category/book/:id': (route) => Guard(
+          validate: (info, context) =>
+              _isValidCategory(route.pathParameters['category']) &&
+              _isValidBookId(route.pathParameters['id']),
+          child: MaterialPage(
+            child: BookPage(id: route.pathParameters['id']!),
+          ),
         ),
     '/audiobooks': (route) => TabPage(
           child: AudiobookPage(),
@@ -63,15 +86,14 @@ final routeMap = RouteMap(
     '/audiobooks/picks': (route) => MaterialPage(
           child: AudiobookListPage(mode: 'picks'),
         ),
-    '/audiobooks/book/:id': (route) => Guard(
-          validate: (info, context) {
-            return booksDatabase.books
-                .contains((book) => book.id == route.pathParameters['id']);
-          },
-          child: MaterialPage(
-            child: BookPage(id: route.pathParameters['id']),
-          ),
+    '/audiobooks/book/:id': (route) {
+      return Guard(
+        validate: (info, context) => _isValidBookId(route.pathParameters['id']),
+        child: MaterialPage(
+          child: BookPage(id: route.pathParameters['id']!),
         ),
+      );
+    },
     '/search': (route) => MaterialPage(
           child: SearchPage(
             query: route.queryParameters['query'] ?? '',
@@ -83,21 +105,23 @@ final routeMap = RouteMap(
         ),
     '/wishlist': (route) => MaterialPage(child: WishlistHomePage()),
     '/wishlist/add': (route) => AddWishlistPage(),
-    '/wishlist/shared/:id': (route) => Guard(
-          validate: (info, context) {
-            final appState = Provider.of<AppState>(context, listen: false);
-            return appState.isLoggedIn;
-          },
-          onValidationFailed: (route, context) {
-            return Redirect(
-              '/login',
-              queryParameters: {'redirectTo': route.path},
-            );
-          },
-          child: MaterialPage(
-            child: WishlistPage(id: route.pathParameters['id']),
-          ),
+    '/wishlist/shared/:id': (route) {
+      return Guard(
+        validate: (info, context) {
+          final appState = Provider.of<AppState>(context, listen: false);
+          return appState.isLoggedIn;
+        },
+        onValidationFailed: (route, context) {
+          return Redirect(
+            '/login',
+            queryParameters: {'redirectTo': route.path},
+          );
+        },
+        child: MaterialPage(
+          child: WishlistPage(id: route.pathParameters['id']),
         ),
+      );
+    },
   },
 );
 
@@ -108,9 +132,9 @@ final loggedOutRouteMap = RouteMap(
 );
 
 class BookStoreApp extends StatelessWidget {
-  final String username;
+  final String? username;
   final bool siteBlockedWithoutLogin;
-  final RouteInformationProvider routeInformationProvider;
+  final RouteInformationProvider? routeInformationProvider;
 
   BookStoreApp({
     this.username,
@@ -209,10 +233,10 @@ class ShopHome extends StatelessWidget {
 class NoAnimationTransitionDelegate extends TransitionDelegate<void> {
   @override
   Iterable<RouteTransitionRecord> resolve({
-    List<RouteTransitionRecord> newPageRouteHistory,
-    Map<RouteTransitionRecord, RouteTransitionRecord>
+    required List<RouteTransitionRecord> newPageRouteHistory,
+    required Map<RouteTransitionRecord?, RouteTransitionRecord>
         locationToExitingPageRoute,
-    Map<RouteTransitionRecord, List<RouteTransitionRecord>>
+    Map<RouteTransitionRecord?, List<RouteTransitionRecord>>?
         pageRouteToPagelessRoutes,
   }) {
     final results = <RouteTransitionRecord>[];
@@ -227,7 +251,7 @@ class NoAnimationTransitionDelegate extends TransitionDelegate<void> {
     for (final exitingPageRoute in locationToExitingPageRoute.values) {
       if (exitingPageRoute.isWaitingForExitingDecision) {
         exitingPageRoute.markForRemove();
-        final pagelessRoutes = pageRouteToPagelessRoutes[exitingPageRoute];
+        final pagelessRoutes = pageRouteToPagelessRoutes![exitingPageRoute];
         if (pagelessRoutes != null) {
           for (final pagelessRoute in pagelessRoutes) {
             pagelessRoute.markForRemove();

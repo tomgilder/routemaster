@@ -59,9 +59,9 @@ class WishlistHomePage extends StatelessWidget {
 }
 
 class WishlistPage extends StatelessWidget {
-  final String id;
+  final String? id;
 
-  const WishlistPage({@required this.id});
+  const WishlistPage({required this.id});
 
   @override
   Widget build(BuildContext context) {

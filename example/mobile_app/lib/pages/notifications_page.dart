@@ -8,7 +8,7 @@ class NotificationsPage extends StatefulWidget {
 }
 
 class _NotificationsPageState extends State<NotificationsPage> {
-  IndexedPageState _pageState;
+  late IndexedPageState _pageState;
   final _tabController = CupertinoTabController();
 
   @override
@@ -73,7 +73,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
 class NotificationsContentPage extends StatelessWidget {
   final String message;
 
-  const NotificationsContentPage({@required this.message});
+  const NotificationsContentPage({required this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -103,7 +103,7 @@ class NotificationsContentPage extends StatelessWidget {
 class MessagePage extends StatelessWidget {
   final String message;
 
-  const MessagePage({@required this.message});
+  const MessagePage({required this.message});
 
   @override
   Widget build(BuildContext context) {

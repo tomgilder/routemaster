@@ -64,12 +64,12 @@ class FeedPage extends StatelessWidget {
 }
 
 class ProfilePage extends StatelessWidget {
-  final String id;
-  final String message;
+  final String? id;
+  final String? message;
 
   const ProfilePage({
-    @required this.id,
-    @required this.message,
+    required this.id,
+    required this.message,
   });
 
   @override
@@ -99,10 +99,10 @@ class ProfilePage extends StatelessWidget {
 }
 
 class PhotoPage extends StatelessWidget {
-  final String id;
+  final String? id;
 
   const PhotoPage({
-    @required this.id,
+    required this.id,
   });
 
   @override

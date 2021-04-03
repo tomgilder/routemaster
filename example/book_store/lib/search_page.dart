@@ -16,8 +16,6 @@ extension SortOrderExtension on SortOrder {
       case SortOrder.date:
         return 'Release date';
     }
-
-    return '';
   }
 
   String get queryParam {
@@ -27,8 +25,6 @@ extension SortOrderExtension on SortOrder {
       case SortOrder.date:
         return 'date';
     }
-
-    return '';
   }
 }
 
@@ -37,26 +33,23 @@ class SearchPage extends StatelessWidget {
   final SortOrder sortOrder;
 
   const SearchPage({
-    @required this.query,
+    required this.query,
     this.sortOrder = SortOrder.name,
   });
 
   @override
   Widget build(BuildContext context) {
-    final books = (query == null
-            ? BooksDatabase().books
-            : BooksDatabase()
-                .books
-                .where(
-                  (book) =>
-                      book.title.toLowerCase().contains(query.toLowerCase()),
-                )
-                .toList())
+    final books = BooksDatabase()
+        .books
+        .where(
+          (book) => book.title.toLowerCase().contains(query.toLowerCase()),
+        )
+        .toList()
         .sorted(
-      (a, b) => sortOrder == SortOrder.name
-          ? a.title.compareTo(b.title)
-          : a.releaseDate.compareTo(b.releaseDate),
-    );
+          (a, b) => sortOrder == SortOrder.name
+              ? a.title.compareTo(b.title)
+              : a.releaseDate.compareTo(b.releaseDate),
+        );
 
     final categoryMatches = BookCategory.values.where((category) =>
         category.displayName.toLowerCase().contains(query.toLowerCase()));
@@ -82,13 +75,10 @@ class SearchPage extends StatelessWidget {
                   height: 2,
                   color: Colors.deepPurpleAccent,
                 ),
-                onChanged: (SortOrder newValue) {
-                  // setState(() {
-                  //   _orderBy = newValue;
-                  // });
+                onChanged: (SortOrder? newValue) {
                   Routemaster.of(context).replace('/search', queryParameters: {
                     'query': query,
-                    'sort': newValue.queryParam,
+                    if (newValue != null) 'sort': newValue.queryParam,
                   });
                 },
                 items: SortOrder.values.map((SortOrder value) {

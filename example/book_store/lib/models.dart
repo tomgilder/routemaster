@@ -1,13 +1,13 @@
 import 'package:flutter/foundation.dart';
 
 class AppState extends ChangeNotifier {
-  AppState({String username}) : _username = username;
+  AppState({String? username}) : _username = username;
 
   bool get isLoggedIn => _username != null;
 
-  String _username = null;
-  String get username => _username;
-  set username(String value) {
+  String? _username = null;
+  String? get username => _username;
+  set username(String? value) {
     _username = value;
     notifyListeners();
   }
@@ -37,12 +37,12 @@ class Book {
   final bool isStaffPick;
 
   Book({
-    @required this.id,
-    @required this.title,
-    @required this.description,
-    @required this.releaseDate,
-    @required this.categories,
-    @required this.isStaffPick,
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.releaseDate,
+    required this.categories,
+    required this.isStaffPick,
   });
 }
 
@@ -59,8 +59,6 @@ extension BookCategoryExtension on BookCategory {
       case BookCategory.nonFiction:
         return 'Non-fiction';
     }
-
-    return '';
   }
 
   String get queryParam {
@@ -70,8 +68,6 @@ extension BookCategoryExtension on BookCategory {
       case BookCategory.nonFiction:
         return 'nonfiction';
     }
-
-    return '';
   }
 }
 
@@ -116,15 +112,15 @@ class BooksDatabase {
 class Wishlist {
   final String title;
   final String id;
-  final String username;
+  final String? username;
   final List<String> bookIds;
 
   String get shareUrl => '/wishlist/shared/$id';
 
   Wishlist({
-    @required this.id,
-    @required this.title,
-    @required this.username,
-    @required this.bookIds,
+    required this.id,
+    required this.title,
+    required this.username,
+    required this.bookIds,
   });
 }

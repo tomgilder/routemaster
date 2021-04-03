@@ -9,8 +9,8 @@ class CustomCard extends StatelessWidget {
   final void Function() onTap;
 
   const CustomCard({
-    @required this.onTap,
-    @required this.child,
+    required this.onTap,
+    required this.child,
   });
 
   @override
@@ -39,10 +39,10 @@ class CustomCard extends StatelessWidget {
 class BookCard extends StatelessWidget {
   final Book book;
   final bool showReleaseDate;
-  final String Function(String id) pathBuilder;
+  final String Function(String id)? pathBuilder;
 
   const BookCard({
-    @required this.book,
+    required this.book,
     this.showReleaseDate = false,
     this.pathBuilder,
   });
@@ -54,7 +54,7 @@ class BookCard extends StatelessWidget {
     return CustomCard(
       onTap: () {
         Routemaster.of(context).push(
-            pathBuilder != null ? pathBuilder(book.id) : '/book/${book.id}');
+            pathBuilder != null ? pathBuilder!(book.id) : '/book/${book.id}');
       },
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

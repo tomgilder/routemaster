@@ -5,7 +5,7 @@ import 'page_scaffold.dart';
 class BookPage extends StatelessWidget {
   final String id;
 
-  const BookPage({@required this.id});
+  const BookPage({required this.id});
 
   @override
   Widget build(BuildContext context) {

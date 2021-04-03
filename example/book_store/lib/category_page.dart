@@ -1,6 +1,4 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
 import 'book_card.dart';
 import 'models.dart';
 import 'page_scaffold.dart';
@@ -8,7 +6,7 @@ import 'page_scaffold.dart';
 class CategoryPage extends StatelessWidget {
   final BookCategory category;
 
-  const CategoryPage({@required this.category});
+  const CategoryPage({required this.category});
 
   @override
   Widget build(BuildContext context) {

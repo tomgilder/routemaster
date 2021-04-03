@@ -52,7 +52,7 @@ class AudiobookPage extends StatelessWidget {
 class AudiobookListPage extends StatelessWidget {
   final String mode;
 
-  const AudiobookListPage({@required this.mode});
+  const AudiobookListPage({required this.mode});
 
   @override
   Widget build(BuildContext context) {

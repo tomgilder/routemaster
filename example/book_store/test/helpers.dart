@@ -3,11 +3,11 @@ import 'dart:collection';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-Future<List<String>> recordUrlChanges(Future Function() callback) async {
-  final result = <String>[];
+Future<List<String?>> recordUrlChanges(Future Function() callback) async {
+  final result = <String?>[];
   SystemChannels.navigation.setMockMethodCallHandler((call) async {
     if (call.method == 'routeInformationUpdated') {
-      result.add(call.arguments['location'] as String);
+      result.add(call.arguments['location'] as String?);
     }
   });
 
@@ -19,12 +19,12 @@ Future<List<String>> recordUrlChanges(Future Function() callback) async {
 /// Simulates pressing the system back button
 Future<void> invokeSystemBack() {
   // ignore: invalid_use_of_protected_member
-  return WidgetsBinding.instance.handlePopRoute();
+  return WidgetsBinding.instance!.handlePopRoute();
 }
 
 Future<void> setSystemUrl(String url) {
   // ignore: invalid_use_of_protected_member
-  return WidgetsBinding.instance.handlePushRoute(url);
+  return WidgetsBinding.instance!.handlePushRoute(url);
 }
 
 /// Allows us to emulate the behavior of a web browser by storing a simple
@@ -33,7 +33,7 @@ Future<void> setSystemUrl(String url) {
 class BrowserEmulatorRouteInfoProvider
     extends PlatformRouteInformationProvider {
   BrowserEmulatorRouteInfoProvider({
-    RouteInformation initialRouteInformation,
+    RouteInformation? initialRouteInformation,
   }) : super(
           initialRouteInformation: initialRouteInformation ??
               RouteInformation(
