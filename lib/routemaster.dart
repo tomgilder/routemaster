@@ -218,10 +218,6 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
 
   void _processNavigation(String path) {
     final pages = _createAllPageWrappers(path);
-    if (pages == null) {
-      return;
-    }
-
     _state.stack = StackPageState(delegate: this, routes: pages);
   }
 
@@ -294,10 +290,6 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
           _state.pendingNavigation ?? currentConfiguration?.path ?? '/';
       final pageStates = _createAllPageWrappers(path);
 
-      if (pageStates == null) {
-        throw 'Failed to create any pages';
-      }
-
       assert(pageStates.isNotEmpty);
       _state.stack = StackPageState(delegate: this, routes: pageStates);
     }
@@ -320,7 +312,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
     _isBuilding = false;
   }
 
-  PageWrapper? _onUnknownRoute(String requestedPath) {
+  PageWrapper _onUnknownRoute(String requestedPath) {
     print("Router couldn't find a match for path '$requestedPath''");
 
     final result = _state.routeConfig!.onUnknownRoute(
@@ -342,19 +334,14 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
     return StatelessPage(routeInfo: routeInfo, page: result);
   }
 
-  List<PageWrapper>? _createAllPageWrappers(
+  List<PageWrapper> _createAllPageWrappers(
     String requestedPath, {
     List<String>? redirects,
   }) {
     final routerResult = _state.routeConfig!.getAll(requestedPath);
 
     if (routerResult == null || routerResult.isEmpty) {
-      final result = _onUnknownRoute(requestedPath);
-      if (result == null) {
-        return null;
-      }
-
-      return [result];
+      return [_onUnknownRoute(requestedPath)];
     }
 
     final currentRoutes = _state.stack?._getCurrentPages().toList();
@@ -399,10 +386,6 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
         }
       }
 
-      if (current == null) {
-        return null;
-      }
-
       if (result.isNotEmpty && current.maybeSetChildPages(result)) {
         result = [current];
       } else {
@@ -419,25 +402,20 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
   /// If there's a current route matching the path in the tree, return it.
   /// Otherwise create a new one. This could possibly be made more efficient
   /// By using a map rather than iterating over all currentRoutes.
-  PageWrapper? _getOrCreatePageWrapper(
+  PageWrapper _getOrCreatePageWrapper(
     String requestedPath,
     RouteInfo routeInfo,
     List<PageWrapper>? currentRoutes,
     RouterResult routerResult,
   ) {
     if (currentRoutes != null) {
-      print(
-          " - Trying to find match for state matching '${routeInfo.path}'...");
       final currentState = currentRoutes.firstWhereOrNull(
         ((element) => element.routeInfo == routeInfo),
       );
 
       if (currentState != null) {
-        print(' - Found match for state');
         return currentState;
       }
-
-      print(' - No match for state, will need to create it');
     }
 
     return _createPageWrapper(
@@ -449,7 +427,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
 
   /// Try to get the route for [requestedPath]. If no match, returns default path.
   /// Returns null if validation fails.
-  PageWrapper? _getPageWrapper(String requestedPath) {
+  PageWrapper _getPageWrapper(String requestedPath) {
     final routerResult = _state.routeConfig!.get(requestedPath);
     if (routerResult == null) {
       return _onUnknownRoute(requestedPath);
@@ -469,7 +447,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
     );
   }
 
-  PageWrapper? _createPageWrapper({
+  PageWrapper _createPageWrapper({
     required String requestedPath,
     required Page page,
     required RouteInfo routeInfo,

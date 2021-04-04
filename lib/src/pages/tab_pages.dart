@@ -334,12 +334,7 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
   StackPageState? _createInitialStackState(int index) {
     final path = join(routeInfo.path, _page.paths[index]);
     final route = _delegate._getPageWrapper(path);
-    if (route != null) {
-      return StackPageState(delegate: _delegate, routes: [route]);
-    }
-
-    // TODO: Should this return null?
-    return null;
+    return StackPageState(delegate: _delegate, routes: [route]);
   }
 
   /// Attempts to handle a list of child pages.
