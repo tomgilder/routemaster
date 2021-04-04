@@ -16,10 +16,6 @@ abstract class PageState {
   RouteInfo get routeInfo;
   Iterable<PageState> getCurrentPageStates();
   bool maybeSetChildPages(Iterable<PageState> pages);
-}
-
-/// A page state that can create a single page.
-mixin PageCreator on PageState {
   Page createPage();
 }
 
@@ -39,7 +35,7 @@ abstract class ProxyPage<T> extends Page<T> {
 
 /// A wrapper for normal, non-stateless pages that allows us to treat them like
 /// stateful ones.
-class StatelessPage extends PageState with PageCreator {
+class StatelessPage extends PageState {
   StatelessPage({
     required this.routeInfo,
     required this.page,

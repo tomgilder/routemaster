@@ -40,8 +40,7 @@ class _IndexedPageStateProvider extends InheritedNotifier {
   }
 }
 
-class IndexedPageState
-    with PageState, PageCreator, ChangeNotifier, IndexedPageStateMixIn {
+class IndexedPageState with PageState, ChangeNotifier, IndexedPageStateMixIn {
   @override
   final IndexedPage _page;
 
@@ -111,8 +110,7 @@ class _TabPageStateProvider extends InheritedNotifier {
   }
 }
 
-class TabPageState
-    with PageState, PageCreator, ChangeNotifier, IndexedPageStateMixIn {
+class TabPageState with PageState, ChangeNotifier, IndexedPageStateMixIn {
   @override
   final TabPage _page;
 
@@ -238,7 +236,7 @@ class _CupertinoTabPageStateProvider extends InheritedNotifier {
 }
 
 class CupertinoTabPageState
-    with PageState, PageCreator, ChangeNotifier, IndexedPageStateMixIn {
+    with PageState, ChangeNotifier, IndexedPageStateMixIn {
   @override
   final CupertinoTabPage _page;
 
@@ -297,7 +295,7 @@ mixin IndexedRouteMixIn<T> on Page<T> {
   List<String> get paths;
 }
 
-mixin IndexedPageStateMixIn on PageCreator, ChangeNotifier {
+mixin IndexedPageStateMixIn on PageState, ChangeNotifier {
   late List<StackPageState?> _routes;
 
   Routemaster get _delegate;

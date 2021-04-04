@@ -616,6 +616,11 @@ class _RedirectWrapperPageState extends PageState {
 
   @override
   RouteInfo get routeInfo => throw UnimplementedError();
+
+  @override
+  Page createPage() {
+    throw UnimplementedError();
+  }
 }
 
 class RedirectLoopError extends Error {

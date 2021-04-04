@@ -1,14 +1,13 @@
 part of '../../routemaster.dart';
 
 /// The state of a stack of pages.
-class StackPageState with PageState {
+class StackPageState {
   final navigatorKey = GlobalKey<NavigatorState>();
   final Routemaster _delegate;
 
   // TODO: Can this be final?
   late List<PageState> _routes;
 
-  @override
   RouteInfo get routeInfo => _routes.last.routeInfo;
 
   StackPageState({
@@ -22,30 +21,17 @@ class StackPageState with PageState {
 
   List<Page> createPages() {
     assert(_routes.isNotEmpty, "Can't generate pages with no routes");
-
-    final pages = _routes.map(
-      (pageState) {
-        if (pageState is PageCreator) {
-          return pageState.createPage();
-        }
-
-        throw 'Page must be a PageCreator';
-      },
-    ).toList();
-
+    final pages = _routes.map((pageState) => pageState.createPage()).toList();
     assert(pages.isNotEmpty, 'Returned pages list must not be empty');
-
     return pages;
   }
 
-  @override
   bool maybeSetChildPages(Iterable<PageState> pages) {
     _routes = pages.toList();
     _delegate._markNeedsUpdate();
     return true;
   }
 
-  @override
   Iterable<PageState> getCurrentPageStates() sync* {
     yield* _routes.last.getCurrentPageStates();
   }
@@ -71,7 +57,6 @@ class StackPageState with PageState {
     }
   }
 
-  @override
   Future<bool> maybePop() async {
     // First try delegating the pop to the last child route.
     // Covered by several tests in feed_test.dart
