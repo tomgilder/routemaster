@@ -46,18 +46,6 @@ Please don't report bugs yet; it's way too early. There are almost no tests, so 
 * Opinionated: don't provide 10 options to achieve a goal, but be flexible for all scenarios.
 * Focused: just navigation, nothing else. For example, no dependency injection.
 
-# Architecture 
-
-The architecture mirrors Flutter's fairly closely.
-
-You create immutable `RoutePlan` objects as mapping between paths and widgets:
-
-`MaterialPagePlan('/search', (_) => SearchPage())`
-
-These `RoutePlan` objects have a `createState()` object which creates a mutable `PageState` object to manage the in-memory state.
-
-So for instance `TabPlan` creates a `TabPageState`, which has a `index` property for which the current tab is.
-
 This project builds on [page_router](https://github.com/johnpryan/page_router).
 
 # Name
