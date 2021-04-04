@@ -60,6 +60,7 @@ class IndexedPageState extends PageState
   }
   @override
   Page createPage() {
+    // TODO: Provide a way for user to specify something other than MaterialPage
     return MaterialPage<void>(
       child: _IndexedPageStateProvider(
         pageState: this,
@@ -71,7 +72,6 @@ class IndexedPageState extends PageState
 }
 
 class TabPage extends StatefulPage<void> with IndexedRouteMixIn {
-  // TODO: This should probably take a page and not a widget
   final Widget child;
 
   @override
@@ -137,6 +137,7 @@ class TabPageState extends PageState
 
   @override
   Page createPage() {
+    // TODO: Provide a way for user to specify something other than MaterialPage
     return MaterialPage<void>(
       key: ValueKey(routeInfo),
       child: _TabControllerProvider(
@@ -270,6 +271,7 @@ class CupertinoTabPageState extends PageState
 
   @override
   Page createPage() {
+    // TODO: Provide a way for user to specify something other than MaterialPage
     return MaterialPage<void>(
       child: _CupertinoTabPageStateProvider(
         pageState: this,
