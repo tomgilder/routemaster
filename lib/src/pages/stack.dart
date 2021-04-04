@@ -6,13 +6,11 @@ class StackPageState {
   final Routemaster _delegate;
 
   // TODO: Can this be final?
-  late List<PageState> _routes;
-
-  RouteInfo get routeInfo => _routes.last.routeInfo;
+  late List<PageWrapper> _routes;
 
   StackPageState({
     required Routemaster delegate,
-    List<PageState>? routes,
+    List<PageWrapper>? routes,
   }) : _delegate = delegate {
     if (routes != null) {
       _routes = routes;
@@ -26,14 +24,14 @@ class StackPageState {
     return pages;
   }
 
-  bool maybeSetChildPages(Iterable<PageState> pages) {
+  bool maybeSetChildPages(Iterable<PageWrapper> pages) {
     _routes = pages.toList();
     _delegate._markNeedsUpdate();
     return true;
   }
 
-  Iterable<PageState> getCurrentPageStates() sync* {
-    yield* _routes.last.getCurrentPageStates();
+  Iterable<PageWrapper> _getCurrentPages() sync* {
+    yield* _routes.last.getCurrentPages();
   }
 
   /// Passed to [Navigator] widgets for them to inform this stack of a pop

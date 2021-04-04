@@ -134,8 +134,8 @@ class DoubleBackPage extends StatelessWidget {
           children: [
             ElevatedButton(
               onPressed: () {
-                Routemaster.of(context).pop();
-                Routemaster.of(context).pop();
+                Routemaster.of(context).popRoute();
+                Routemaster.of(context).popRoute();
               },
               child: Text('Go back twice'),
             ),

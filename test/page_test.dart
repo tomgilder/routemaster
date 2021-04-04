@@ -34,7 +34,7 @@ void main() {
       page: MaterialPageOne(),
     );
 
-    expect(page.getCurrentPageStates().single, page);
+    expect(page.getCurrentPages().single, page);
   });
 
   test('StatelessPage createPage returns page', () {

@@ -40,7 +40,8 @@ class _IndexedPageStateProvider extends InheritedNotifier {
   }
 }
 
-class IndexedPageState with PageState, ChangeNotifier, IndexedPageStateMixIn {
+class IndexedPageState extends PageState
+    with ChangeNotifier, IndexedPageStateMixIn {
   @override
   final IndexedPage _page;
 
@@ -110,7 +111,8 @@ class _TabPageStateProvider extends InheritedNotifier {
   }
 }
 
-class TabPageState with PageState, ChangeNotifier, IndexedPageStateMixIn {
+class TabPageState extends PageState
+    with ChangeNotifier, IndexedPageStateMixIn {
   @override
   final TabPage _page;
 
@@ -235,8 +237,8 @@ class _CupertinoTabPageStateProvider extends InheritedNotifier {
   }
 }
 
-class CupertinoTabPageState
-    with PageState, ChangeNotifier, IndexedPageStateMixIn {
+class CupertinoTabPageState extends PageState
+    with ChangeNotifier, IndexedPageStateMixIn {
   @override
   final CupertinoTabPage _page;
 
@@ -295,7 +297,7 @@ mixin IndexedRouteMixIn<T> on Page<T> {
   List<String> get paths;
 }
 
-mixin IndexedPageStateMixIn on PageState, ChangeNotifier {
+mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
   late List<StackPageState?> _routes;
 
   Routemaster get _delegate;
@@ -331,7 +333,7 @@ mixin IndexedPageStateMixIn on PageState, ChangeNotifier {
 
   StackPageState? _createInitialStackState(int index) {
     final path = join(routeInfo.path, _page.paths[index]);
-    final route = _delegate._getPageState(path);
+    final route = _delegate._getPageWrapper(path);
     if (route != null) {
       return StackPageState(delegate: _delegate, routes: [route]);
     }
@@ -346,7 +348,7 @@ mixin IndexedPageStateMixIn on PageState, ChangeNotifier {
   /// If it does, it sets that stack's pages to the routes, and switches the
   /// current index to that tab.
   @override
-  bool maybeSetChildPages(Iterable<PageState> pages) {
+  bool maybeSetChildPages(Iterable<PageWrapper> pages) {
     assert(
       pages.isNotEmpty,
       "Don't call maybeSetPageStates with an empty list",
@@ -407,9 +409,9 @@ mixin IndexedPageStateMixIn on PageState, ChangeNotifier {
   }
 
   @override
-  Iterable<PageState> getCurrentPageStates() sync* {
+  Iterable<PageWrapper> getCurrentPages() sync* {
     yield this;
-    yield* _getStackForIndex(index).getCurrentPageStates();
+    yield* _getStackForIndex(index)._getCurrentPages();
   }
 }
 

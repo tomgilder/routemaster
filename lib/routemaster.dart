@@ -138,13 +138,6 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
         .delegate;
   }
 
-  /// Pop the top-most path from the router.
-  /// TODO: Remove? We already have popRoute
-  void pop() {
-    _state.stack!._didPop();
-    _markNeedsUpdate();
-  }
-
   /// Called by the [Router] when the [Router.backButtonDispatcher] reports that
   /// the operating system is requesting that the current route be popped.
   @override
@@ -228,7 +221,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
   }
 
   void _processNavigation(String path) {
-    final pages = _createAllStates(path);
+    final pages = _createAllPageWrappers(path);
     if (pages == null) {
       return;
     }
@@ -276,7 +269,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
       return;
     }
 
-    final path = _state.stack!.getCurrentPageStates().last.routeInfo.path;
+    final path = _state.stack!._getCurrentPages().last.routeInfo.path;
     print("Updated path: '$path'");
     _state.currentConfiguration = RouteData(path);
   }
@@ -302,7 +295,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
       _state.routeConfig = routesBuilder(context);
 
       final path = currentConfiguration?.path ?? '/';
-      final pageStates = _createAllStates(path);
+      final pageStates = _createAllPageWrappers(path);
 
       if (pageStates == null) {
         if (isRebuild) {
@@ -338,7 +331,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
     _isBuilding = false;
   }
 
-  PageState? _onUnknownRoute(String requestedPath) {
+  PageWrapper? _onUnknownRoute(String requestedPath) {
     print("Router couldn't find a match for path '$requestedPath''");
 
     final result = _state.routeConfig!.onUnknownRoute(
@@ -347,7 +340,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
     );
 
     if (result is Redirect) {
-      return _getPageState(
+      return _getPageWrapper(
         Uri(
           path: result.path,
           queryParameters: result.queryParameters,
@@ -360,8 +353,10 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
     return StatelessPage(routeInfo: routeInfo, page: result);
   }
 
-  List<PageState>? _createAllStates(String requestedPath,
-      {List<String>? redirects}) {
+  List<PageWrapper>? _createAllPageWrappers(
+    String requestedPath, {
+    List<String>? redirects,
+  }) {
     final routerResult = _state.routeConfig!.getAll(requestedPath);
 
     if (routerResult == null || routerResult.isEmpty) {
@@ -373,8 +368,8 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
       return [result];
     }
 
-    final currentRoutes = _state.stack?.getCurrentPageStates().toList();
-    var result = <PageState>[];
+    final currentRoutes = _state.stack?._getCurrentPages().toList();
+    var result = <PageWrapper>[];
     var i = 0;
 
     for (final routerData in routerResult.reversed) {
@@ -385,14 +380,14 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
         isLastRoute ? requestedPath : routerData.pathSegment,
       );
 
-      final current = _getOrCreatePageState(
+      final current = _getOrCreatePageWrapper(
         requestedPath,
         routeInfo,
         currentRoutes,
         routerData,
       );
 
-      if (current is _RedirectWrapperPageState) {
+      if (current is _RedirectWrapper) {
         if (isLastRoute) {
           if (kDebugMode) {
             if (redirects == null) {
@@ -406,7 +401,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
             }
           }
 
-          return _createAllStates(
+          return _createAllPageWrappers(
             current.redirectPage.absolutePath,
             redirects: redirects,
           );
@@ -435,10 +430,10 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
   /// If there's a current route matching the path in the tree, return it.
   /// Otherwise create a new one. This could possibly be made more efficient
   /// By using a map rather than iterating over all currentRoutes.
-  PageState? _getOrCreatePageState(
+  PageWrapper? _getOrCreatePageWrapper(
     String requestedPath,
     RouteInfo routeInfo,
-    List<PageState>? currentRoutes,
+    List<PageWrapper>? currentRoutes,
     RouterResult routerResult,
   ) {
     if (currentRoutes != null) {
@@ -456,7 +451,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
       print(' - No match for state, will need to create it');
     }
 
-    return _createState(
+    return _createPageWrapper(
       requestedPath: requestedPath,
       page: routerResult.builder(routeInfo),
       routeInfo: routeInfo,
@@ -465,7 +460,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
 
   /// Try to get the route for [requestedPath]. If no match, returns default path.
   /// Returns null if validation fails.
-  PageState? _getPageState(String requestedPath) {
+  PageWrapper? _getPageWrapper(String requestedPath) {
     final routerResult = _state.routeConfig!.get(requestedPath);
     if (routerResult == null) {
       return _onUnknownRoute(requestedPath);
@@ -475,17 +470,17 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
     final page = routerResult.builder(routeInfo);
 
     if (page is Redirect) {
-      return _getPageState(page.path);
+      return _getPageWrapper(page.path);
     }
 
-    return _createState(
+    return _createPageWrapper(
       requestedPath: requestedPath,
       page: page,
       routeInfo: routeInfo,
     );
   }
 
-  PageState? _createState({
+  PageWrapper? _createPageWrapper({
     required String requestedPath,
     required Page page,
     required RouteInfo routeInfo,
@@ -501,7 +496,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
           }
 
           final result = page.onValidationFailed!(routeInfo, context);
-          return _createState(
+          return _createPageWrapper(
             requestedPath: requestedPath,
             page: result,
             routeInfo: routeInfo,
@@ -517,7 +512,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
     }
 
     if (page is Redirect) {
-      return _RedirectWrapperPageState(page);
+      return _RedirectWrapper(page);
     }
 
     assert(page is! Redirect, 'Redirect has not been followed');
@@ -590,36 +585,6 @@ class _DependencyTrackerState extends State<_DependencyTracker> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     widget.delegate._didChangeDependencies(this.context);
-  }
-}
-
-/// A fake page state to wrap redirects
-class _RedirectWrapperPageState extends PageState {
-  final Redirect redirectPage;
-
-  _RedirectWrapperPageState(this.redirectPage);
-
-  @override
-  Iterable<PageState> getCurrentPageStates() {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<bool> maybePop() {
-    throw UnimplementedError();
-  }
-
-  @override
-  bool maybeSetChildPages(Iterable<PageState> pages) {
-    throw UnimplementedError();
-  }
-
-  @override
-  RouteInfo get routeInfo => throw UnimplementedError();
-
-  @override
-  Page createPage() {
-    throw UnimplementedError();
   }
 }
 

@@ -141,7 +141,7 @@ class ProfilePage extends StatelessWidget {
           children: [
             Text('Profile page'),
             CupertinoButton(
-              onPressed: () => Routemaster.of(context).pop(),
+              onPressed: () => Routemaster.of(context).popRoute(),
               child: Text('Pop'),
             ),
           ],

@@ -32,7 +32,7 @@ void main() {
     expect(find.byType(PageOne), findsNothing);
     expect(find.byType(PageTwo), findsOneWidget);
 
-    delegate.pop();
+    await delegate.popRoute();
     await tester.pump();
     await tester.pump(kTransitionDuration);
 
@@ -107,7 +107,7 @@ void main() {
     expect(find.byType(PageOne), findsNothing);
     expect(find.byType(PageTwo), findsOneWidget);
 
-    Routemaster.of(page2Key.currentContext!).pop();
+    await Routemaster.of(page2Key.currentContext!).popRoute();
     await tester.pump();
     await tester.pump(kTransitionDuration);
 
@@ -243,29 +243,6 @@ void main() {
     await tester.pump();
 
     expect(routeInfo.queryParameters['query'], 'string');
-  });
-
-  test('Stack routeInfo delegates to last child', () {
-    final delegate = Routemaster(routesBuilder: (context) {
-      return RouteMap(routes: {});
-    });
-
-    final lastRouteInfo = RouteInfo('/last');
-    final stack = StackPageState(
-      delegate: delegate,
-      routes: [
-        StatelessPage(
-          page: MaterialPageOne(),
-          routeInfo: RouteInfo('/'),
-        ),
-        StatelessPage(
-          page: MaterialPageTwo(),
-          routeInfo: lastRouteInfo,
-        ),
-      ],
-    );
-
-    expect(stack.routeInfo, lastRouteInfo);
   });
 
   test('Stack.maybePop() pops with no navigator', () async {

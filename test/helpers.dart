@@ -71,7 +71,7 @@ class PopPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: ElevatedButton(
-        onPressed: () => Routemaster.of(context).pop(),
+        onPressed: () => Routemaster.of(context).popRoute(),
         child: Text('Pop'),
       ),
     );
