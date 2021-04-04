@@ -168,14 +168,10 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
   void push(String path, {Map<String, String>? queryParameters}) {
     final getAbsolutePath = _getAbsolutePath(path, queryParameters);
 
-    if (_isBuilding) {
-      // _processNavigation(getAbsolutePath);
-    } else {
-      // Schedule request for next build. This makes sure the routing table is
-      // updated before processing the new path.
-      _state.pendingNavigation = getAbsolutePath;
-      _markNeedsUpdate();
-    }
+    // Schedule request for next build. This makes sure the routing table is
+    // updated before processing the new path.
+    _state.pendingNavigation = getAbsolutePath;
+    _markNeedsUpdate();
   }
 
   String _getAbsolutePath(String path, Map<String, String>? queryParameters) {
@@ -294,22 +290,15 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
     if (_state.routeConfig == null) {
       _state.routeConfig = routesBuilder(context);
 
-      final path = currentConfiguration?.path ?? '/';
+      final path =
+          _state.pendingNavigation ?? currentConfiguration?.path ?? '/';
       final pageStates = _createAllPageWrappers(path);
 
       if (pageStates == null) {
-        if (isRebuild) {
-          // Route map has rebuilt but there's no path match. Assume user is
-          // about to set a new path on the router that we don't know about yet
-          print(
-            "Router rebuilt but no match for '$path'. Assuming navigation is about to happen.",
-          );
-          return;
-        } else {
-          throw 'Failed to create initial state';
-        }
+        throw 'Failed to create any pages';
       }
 
+      assert(pageStates.isNotEmpty);
       _state.stack = StackPageState(delegate: this, routes: pageStates);
     }
   }

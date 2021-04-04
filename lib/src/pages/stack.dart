@@ -4,8 +4,6 @@ part of '../../routemaster.dart';
 class StackPageState {
   final navigatorKey = GlobalKey<NavigatorState>();
   final Routemaster _delegate;
-
-  // TODO: Can this be final?
   late List<PageWrapper> _routes;
 
   StackPageState({

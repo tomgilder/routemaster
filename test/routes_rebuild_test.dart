@@ -115,13 +115,13 @@ void main() {
     state.someValue = '2';
     // Navigate to '/three' which is only in routeMap2
     delegate.push('/three');
-    await tester.pump();
+
     await tester.pump(kTransitionDuration);
     expect(find.byType(PageThree), findsOneWidget);
 
-    // TODO: Need to think about when unknown route should be called in this situation
-    // expect(routeMap1UnknownRoutes.isEmpty, isTrue);
-    // expect(routeMap2UnknownRoutes.isEmpty, isTrue);
+    // Assert that onUnknownRoute has never been called
+    expect(routeMap1UnknownRoutes.isEmpty, isTrue);
+    expect(routeMap2UnknownRoutes.isEmpty, isTrue);
   });
 }
 
