@@ -2,7 +2,7 @@ part of '../../routemaster.dart';
 
 /// A page that can create a state.
 abstract class StatefulPage<T> extends Page<T> {
-  _PageState createState(Routemaster delegate, RouteInfo info);
+  PageState createState(Routemaster delegate, RouteInfo info);
 
   @override
   Route<T> createRoute(BuildContext context) {
@@ -11,25 +11,22 @@ abstract class StatefulPage<T> extends Page<T> {
   }
 }
 
-/// The state for a page. For now, this is all private, but could be opened up
-/// in future for users to make their own page subclasses.
-abstract class _PageState {
-  bool _maybePush(_PageState route);
-  Future<bool> _maybePop();
-  RouteInfo get _routeInfo;
-  Iterable<_PageState> _getCurrentPageStates();
-  bool _maybeSetPageStates(Iterable<_PageState> routes);
+abstract class PageState {
+  Future<bool> maybePop();
+  RouteInfo get routeInfo;
+  Iterable<PageState> getCurrentPageStates();
+  bool maybeSetChildPages(Iterable<PageState> pages);
 }
 
 /// A page state that can create a single page.
-mixin _PageCreator on _PageState {
-  Page _createPage();
+mixin PageCreator on PageState {
+  Page createPage();
 }
 
 /// A page that wraps other pages in order to provide more functionality.
 ///
 /// For example, [Guarded] adds validation functionality for routes.
-class ProxyPage<T> extends StatefulPage<T> {
+abstract class ProxyPage<T> extends Page<T> {
   final Page<T> child;
 
   ProxyPage({required this.child});
@@ -38,44 +35,32 @@ class ProxyPage<T> extends StatefulPage<T> {
   Route<T> createRoute(BuildContext context) {
     return child.createRoute(context);
   }
-
-  @override
-  _PageState createState(Routemaster delegate, RouteInfo info) {
-    if (child is StatefulPage) {
-      return (child as StatefulPage).createState(delegate, info);
-    }
-
-    return _StatelessPage(info, this);
-  }
 }
 
 /// A wrapper for normal, non-stateless pages that allows us to treat them like
 /// stateful ones.
-class _StatelessPage extends _PageState with _PageCreator {
-  _StatelessPage(RouteInfo routeInfo, Page page)
-      : _routeInfo = routeInfo,
-        _page = page,
-        assert(page is! Redirect);
+class StatelessPage extends PageState with PageCreator {
+  StatelessPage({
+    required this.routeInfo,
+    required this.page,
+  }) : assert(page is! Redirect);
 
-  final Page _page;
-
-  @override
-  final RouteInfo _routeInfo;
+  final Page page;
 
   @override
-  Iterable<_PageState> _getCurrentPageStates() sync* {
+  final RouteInfo routeInfo;
+
+  @override
+  Iterable<PageState> getCurrentPageStates() sync* {
     yield this;
   }
 
   @override
-  Future<bool> _maybePop() => SynchronousFuture(false);
+  Future<bool> maybePop() => SynchronousFuture(false);
 
   @override
-  bool _maybePush(_PageState route) => false;
+  bool maybeSetChildPages(Iterable<PageState> pages) => false;
 
   @override
-  bool _maybeSetPageStates(Iterable<_PageState> routes) => false;
-
-  @override
-  Page _createPage() => _page;
+  Page createPage() => page;
 }

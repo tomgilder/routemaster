@@ -3,7 +3,8 @@ class SystemNav {
     throw UnsupportedError('Only supported on web');
   }
 
-  static void replaceLocation(String location) {
+  static void replaceLocation(
+      String location, Map<String, String>? queryParameters) {
     throw UnsupportedError('Only supported on web');
   }
 }

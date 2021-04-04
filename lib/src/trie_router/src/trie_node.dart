@@ -40,3 +40,18 @@ class TrieNode<K, V> {
     return null;
   }
 }
+
+/// A Trie that associates an [Iterable] of keys, [K] with a value, [V].
+///
+/// Keys must be unique relative to their prefix. For example, for a
+/// Trie<String, String> if the following add() operations are valid:
+///
+/// ```dart
+/// add(['users', 'greg'], 'value');
+/// add(['customers', 'greg'], 'value'); // OK
+/// ```
+class Trie<K, V> {
+  final TrieNode<K?, V?> root;
+
+  Trie() : root = TrieNode<K?, V?>(null, null);
+}

@@ -2,7 +2,6 @@ import 'package:collection/collection.dart';
 import 'package:quiver/core.dart';
 import 'query_parser.dart';
 import 'trie_router/trie_router.dart';
-import '../routemaster.dart';
 
 /// Information generated from a specific path (URL).
 ///
@@ -25,15 +24,11 @@ class RouteInfo {
   ///
   final Map<String, String> queryParameters;
 
-  /// The builder used to build this route
-  final PageBuilder builder;
-
   RouteInfo.fromRouterResult(RouterResult result, this.path)
       : pathParameters = result.pathParameters,
-        queryParameters = QueryParser.parseQueryParameters(path),
-        builder = result.builder;
+        queryParameters = QueryParser.parseQueryParameters(path);
 
-  RouteInfo(this.path, this.builder, [this.pathParameters = const {}])
+  RouteInfo(this.path, [this.pathParameters = const {}])
       : queryParameters = QueryParser.parseQueryParameters(path);
 
   @override
@@ -41,15 +36,13 @@ class RouteInfo {
       other is RouteInfo &&
       path == other.path &&
       DeepCollectionEquality().equals(pathParameters, other.pathParameters) &&
-      DeepCollectionEquality().equals(queryParameters, other.queryParameters) &&
-      builder.runtimeType == other.builder.runtimeType;
+      DeepCollectionEquality().equals(queryParameters, other.queryParameters);
 
   @override
-  int get hashCode => hash4(
+  int get hashCode => hash3(
         path,
         DeepCollectionEquality().hash(pathParameters),
         DeepCollectionEquality().hash(queryParameters),
-        builder.runtimeType,
       );
 
   @override

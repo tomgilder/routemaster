@@ -1,5 +1,3 @@
-import 'package:collection/collection.dart';
-import 'package:quiver/core.dart';
 import '../../../routemaster.dart';
 
 class RouterResult {
@@ -20,18 +18,11 @@ class RouterResult {
   const RouterResult(this.builder, this.pathParameters, this.pathSegment);
 
   @override
-  int get hashCode => hash3(
-        builder.runtimeType,
-        DeepCollectionEquality().hash(pathParameters),
-        pathSegment,
-      );
+  int get hashCode => pathSegment.hashCode;
 
   @override
   bool operator ==(Object other) {
-    return other is RouterResult &&
-        builder.runtimeType == builder.runtimeType &&
-        pathSegment == pathSegment &&
-        DeepCollectionEquality().equals(pathParameters, other.pathParameters);
+    return other is RouterResult && pathSegment == other.pathSegment;
   }
 
   @override

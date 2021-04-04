@@ -4,8 +4,7 @@ import 'package:routemaster/routemaster.dart';
 import 'helpers.dart';
 
 void main() {
-  testWidgets('By default unknown route redirects to default route',
-      (tester) async {
+  testWidgets('By default unknown route shows simple 404 page', (tester) async {
     final delegate = Routemaster(
       routesBuilder: (_) => RouteMap(
         routes: {
@@ -25,7 +24,8 @@ void main() {
     await tester.pump();
     await tester.pump(Duration(seconds: 1));
 
-    expect(find.byType(PageOne), findsOneWidget);
+    expect(find.byType(DefaultUnknownRoutePage), findsOneWidget);
+    expect(find.text("Page '/unknown/nonsense' wasn't found."), findsOneWidget);
   });
 
   testWidgets('Can show 404 page', (tester) async {

@@ -3,7 +3,6 @@ import 'package:routemaster/routemaster.dart';
 import '../../query_parser.dart';
 import 'errors.dart';
 import 'router_result.dart';
-import 'trie.dart';
 import 'trie_node.dart';
 
 class TrieRouter {
@@ -21,6 +20,8 @@ class TrieRouter {
   ///
   /// It is an error to add two segments prefixed with ':' at the same index.
   bool add(String route, PageBuilder value) {
+    assert(route.isNotEmpty);
+
     var pathSegments = path.split(route);
     return addPathComponents(pathSegments, value);
   }
@@ -29,14 +30,11 @@ class TrieRouter {
   ///
   /// It is an error to add two segments prefixed with ':' at the same index.
   bool addPathComponents(Iterable<String> pathSegments, PageBuilder value) {
+    assert(pathSegments.isNotEmpty);
+
     var list = List<String>.from(pathSegments);
     TrieNode<String?, PageBuilder?>? current = _trie.root;
     var isNew = false;
-
-    // Allow an empty list of path segments to associate a value at the root
-    if (pathSegments.isEmpty) {
-      _trie.root.value = value;
-    }
 
     // Work downwards through the trie, adding nodes as needed, and keeping
     // track of whether we add any nodes.
@@ -75,24 +73,6 @@ class TrieRouter {
       current.add(null, null);
     }
     return isNew;
-  }
-
-  bool contains(Iterable<String> pathSegments) {
-    TrieNode<String?, PageBuilder?>? current = _trie.root;
-
-    for (var segment in pathSegments) {
-      if (current!.contains(segment)) {
-        current = current.get(segment);
-      } else if (current.containsWhere((k) => k!.startsWith(':'))) {
-        // If there is a segment that starts with `:`, we should match any
-        // route.
-        current = current.getWhere((k) => k!.startsWith(':'));
-      } else {
-        return false;
-      }
-    }
-
-    return current!.contains(null);
   }
 
   RouterResult? get(String route) {

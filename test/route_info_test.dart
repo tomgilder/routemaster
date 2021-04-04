@@ -69,4 +69,11 @@ void main() {
 
     expect(one == two, isTrue);
   });
+
+  test('RouteInfo.toString() is correct', () {
+    expect(
+      RouteInfo('/').toString(),
+      "RouteInfo: '/'",
+    );
+  });
 }

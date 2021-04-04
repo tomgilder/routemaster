@@ -28,16 +28,16 @@ mixin GuardedPage<T> on ProxyPage<T> {
 class Redirect extends Page<void> {
   final String path;
   final Map<String, String>? queryParameters;
+  String get absolutePath => Uri(
+        path: path,
+        queryParameters: queryParameters,
+      ).toString();
 
   Redirect(this.path, {this.queryParameters});
 
   @override
   Route createRoute(BuildContext context) {
     throw UnimplementedError('Redirect does not support building a route');
-  }
-
-  void redirect(Routemaster delegate, RouteInfo info, BuildContext context) {
-    delegate.replace(path);
   }
 }
 

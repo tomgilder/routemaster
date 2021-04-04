@@ -84,4 +84,18 @@ This is an error in your routing map.""",
     expect(find.byType(PageTwo), findsOneWidget);
     expect(delegate.currentConfiguration!.path, '/two');
   });
+
+  testWidgets('Redirect createRoute throws', (tester) async {
+    await tester.pumpWidget(
+      Builder(
+        builder: (context) {
+          expect(
+            () => Redirect('/').createRoute(context),
+            throwsA(isA<UnimplementedError>()),
+          );
+          return SizedBox();
+        },
+      ),
+    );
+  });
 }

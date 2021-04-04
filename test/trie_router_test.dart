@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:routemaster/src/trie_router/trie_router.dart';
 
+import 'helpers.dart';
+
 class TestRoute extends Page<void> {
   final String id;
 
@@ -214,5 +216,33 @@ void main() {
     expect(routes[4].pathSegment, '/product/prod1/prod2/details');
     expect(routes[4].builder(getRouteInfo(routes[4])), detailsRoute);
     expect(routes[4].pathParameters.isEmpty, isFalse);
+  });
+
+  test('Throws ConflictingPathError', () {
+    final router = TrieRouter();
+    router.add('/test/:id1', (info) => MaterialPageOne());
+
+    expect(
+      () {
+        router.add('/test/:id2', (info) => MaterialPageOne());
+      },
+      throwsA(predicate((e) =>
+          e is ConflictingPathError &&
+          e.toString() ==
+              "Attempt to add '/test/:id2' but a path containing '/test/:id1' has already been added. Adding two paths prefixed with ':' at the same index is not allowed.")),
+    );
+  });
+
+  test('RouterResult not equal with different paths', () {
+    final result1 = RouterResult((_) => MaterialPageOne(), {}, '/one');
+    final result2 = RouterResult((_) => MaterialPageTwo(), {}, '/two');
+
+    expect(result1.hashCode == result2.hashCode, isFalse);
+    expect(result1 == result2, isFalse);
+  });
+
+  test('RouterResult toString() is correct', () {
+    final result = RouterResult((_) => MaterialPageOne(), {'a': 'b'}, '/');
+    expect(result.toString(), "RouterData - path: '/',  params: '{a: b}'");
   });
 }

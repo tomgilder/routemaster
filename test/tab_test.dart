@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:routemaster/routemaster.dart';
-
 import 'helpers.dart';
 
 void main() {
@@ -91,6 +90,50 @@ void main() {
     await tester.pump(Duration(seconds: 1));
     expect(find.byType(PageThree), findsOneWidget);
   });
+
+  testWidgets('TabController syncs with page state', (tester) async {
+    final pageKey = GlobalKey();
+    final delegate = Routemaster(routesBuilder: (context) {
+      return RouteMap(routes: {
+        '/': (_) => TabPage(
+              paths: ['one', 'two'],
+              child: TabbedPage(key: pageKey),
+            ),
+        '/one': (_) => MaterialPageOne(),
+        '/two': (_) => MaterialPageTwo(),
+      });
+    });
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    final pageState = TabPage.of(pageKey.currentContext!);
+    final tabController = pageState.tabController;
+
+    expect(pageState.index, 0);
+    expect(tabController.index, 0);
+
+    pageState.index = 1;
+    expect(pageState.index, 1);
+    expect(tabController.index, 1);
+
+    tabController.index = 0;
+    expect(pageState.index, 0);
+    expect(tabController.index, 0);
+  });
+}
+
+class TabbedPage extends StatelessWidget {
+  TabbedPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox();
+  }
 }
 
 class MyTabPage extends StatelessWidget {

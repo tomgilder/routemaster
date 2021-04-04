@@ -24,11 +24,26 @@ Future<void> invokeSystemBack() {
   return WidgetsBinding.instance!.handlePopRoute();
 }
 
+Future<void> setSystemUrl(String url) {
+  // ignore: invalid_use_of_protected_member
+  return WidgetsBinding.instance!.handlePushRoute(url);
+}
+
+class MaterialPageOne extends MaterialPage<void> {
+  MaterialPageOne() : super(child: PageOne());
+}
+
 class PageOne extends StatelessWidget {
+  PageOne({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return SizedBox();
   }
+}
+
+class MaterialPageTwo extends MaterialPage<void> {
+  MaterialPageTwo() : super(child: PageTwo());
 }
 
 class PageTwo extends StatelessWidget {
@@ -38,6 +53,10 @@ class PageTwo extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox();
   }
+}
+
+class MaterialPageThree extends MaterialPage<void> {
+  MaterialPageThree() : super(child: PageThree());
 }
 
 class PageThree extends StatelessWidget {

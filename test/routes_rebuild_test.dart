@@ -64,6 +64,65 @@ void main() {
 
     expect(routeBuildCount, 2);
   });
+
+  testWidgets('Can swap route maps and navigate', (tester) async {
+    final routeMap1UnknownRoutes = <String>[];
+    final routeMap1 = RouteMap(
+      onUnknownRoute: (route, __) {
+        routeMap1UnknownRoutes.add(route);
+        return MaterialPage<void>(child: DefaultUnknownRoutePage(route: route));
+      },
+      routes: {
+        '/': (_) => MaterialPageOne(),
+        '/two': (_) => MaterialPageTwo(),
+      },
+    );
+
+    final routeMap2UnknownRoutes = <String>[];
+    final routeMap2 = RouteMap(
+      onUnknownRoute: (route, __) {
+        routeMap2UnknownRoutes.add(route);
+        return MaterialPage<void>(child: DefaultUnknownRoutePage(route: route));
+      },
+      routes: {
+        '/': (_) => MaterialPageOne(),
+        '/three': (_) => MaterialPageThree(),
+      },
+    );
+
+    final delegate = Routemaster(routesBuilder: (context) {
+      final state = StateProvider.of(context).state;
+      return state.someValue == '1' ? routeMap1 : routeMap2;
+    });
+    final state = AppState()..someValue = '1';
+
+    await tester.pumpWidget(
+      StateProvider(
+        state: state,
+        child: MaterialApp.router(
+          routeInformationParser: RoutemasterParser(),
+          routeInformationProvider: PlatformRouteInformationProvider(
+            initialRouteInformation: RouteInformation(location: '/two'),
+          ),
+          routerDelegate: delegate,
+        ),
+      ),
+    );
+
+    expect(find.byType(PageTwo), findsOneWidget);
+
+    // Change state to swap to routeMap2
+    state.someValue = '2';
+    // Navigate to '/three' which is only in routeMap2
+    delegate.push('/three');
+    await tester.pump();
+    await tester.pump(kTransitionDuration);
+    expect(find.byType(PageThree), findsOneWidget);
+
+    // TODO: Need to think about when unknown route should be called in this situation
+    // expect(routeMap1UnknownRoutes.isEmpty, isTrue);
+    // expect(routeMap2UnknownRoutes.isEmpty, isTrue);
+  });
 }
 
 class AppState extends ChangeNotifier {
