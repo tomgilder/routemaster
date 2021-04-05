@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile_app/main.dart';
 import 'package:mobile_app/pages/bottom_navigation_bar_page.dart';
@@ -50,5 +51,17 @@ void main() {
     await tester.pump(Duration(seconds: 1));
     expect(find.text('Bottom bar page 2'), findsOneWidget);
     expect(find.text('Bottom bar page 1'), findsNothing);
+  });
+
+  testWidgets('Navigating directly to tab path shows tab bar', (tester) async {
+    await tester.pumpWidget(MyApp());
+    await tester.tap(find.text('Log in'));
+    await tester.pump();
+
+    await setSystemUrl('/bottom-navigation-bar/one');
+    await tester.pump();
+
+    expect(find.text('Bottom bar page 1'), findsOneWidget);
+    expect(find.byType(BottomNavigationBar), findsOneWidget);
   });
 }

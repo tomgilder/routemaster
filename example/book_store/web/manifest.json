@@ -1,6 +1,6 @@
 {
-    "name": "book_store",
-    "short_name": "book_store",
+    "name": "Dashazon",
+    "short_name": "Dashazon",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

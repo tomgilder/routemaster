@@ -4,8 +4,6 @@ export 'src/parser.dart';
 export 'src/route_info.dart';
 export 'src/pages/guard.dart';
 
-import 'dart:async';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -209,12 +207,12 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   /// Called by the [Router] when the [Router.backButtonDispatcher] reports that
   /// the operating system is requesting that the current route be popped.
   @override
-  Future<bool> popRoute() async {
+  Future<bool> popRoute() {
     if (_state.stack == null) {
       return SynchronousFuture(false);
     }
 
-    return await _state.stack!.maybePop();
+    return _state.stack!.maybePop();
   }
 
   /// Passed to top-level [Navigator] widget, called when the navigator requests
