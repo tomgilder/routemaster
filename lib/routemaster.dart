@@ -196,6 +196,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   _RoutemasterState _state = _RoutemasterState();
   bool _isBuilding = false;
+  late BuildContext _context;
 
   RoutemasterDelegate({
     required this.routesBuilder,
@@ -305,6 +306,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   @override
   Widget build(BuildContext context) {
+    _context = context;
+
     return _DependencyTracker(
       delegate: this,
       builder: (context) {
@@ -406,7 +409,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     final result = _state.routeConfig!.onUnknownRoute(
       requestedPath,
-      _state.globalKey.currentContext!,
+      _context,
     );
 
     if (result is Redirect) {
@@ -564,15 +567,14 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }) {
     while (page is ProxyPage) {
       if (page is GuardedPage) {
-        final context = _state.globalKey.currentContext!;
-        if (!page.validate(routeInfo, context)) {
+        if (!page.validate(routeInfo, _context)) {
           print("Validation failed for '${routeInfo.path}'");
 
           if (page.onValidationFailed == null) {
             return _onUnknownRoute(routeRequest);
           }
 
-          final result = page.onValidationFailed!(routeInfo, context);
+          final result = page.onValidationFailed!(routeInfo, _context);
           return _createPageWrapper(
             routeRequest: routeRequest,
             page: result,
@@ -616,7 +618,6 @@ class _RoutemasterWidget extends InheritedWidget {
 }
 
 class _RoutemasterState {
-  final globalKey = GlobalKey(debugLabel: 'routemaster');
   final routemaster = Routemaster._();
   StackPageState? stack;
   RouteConfig? routeConfig;
@@ -632,7 +633,7 @@ class _DependencyTracker extends StatefulWidget {
   _DependencyTracker({
     required this.delegate,
     required this.builder,
-  }) : super(key: delegate._state.globalKey);
+  });
 
   @override
   _DependencyTrackerState createState() => _DependencyTrackerState();
