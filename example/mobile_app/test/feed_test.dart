@@ -213,13 +213,17 @@ void main() {
       findsOneWidget,
     );
 
-    // TODO: Check URL changes
-    unawaited(tester.binding.reassembleApplication());
-    await tester.pump();
-
     expect(
-      find.text('Profile page, ID = 1, message = null'),
-      findsOneWidget,
+      await recordUrlChanges(() async {
+        unawaited(tester.binding.reassembleApplication());
+        await tester.pump();
+
+        expect(
+          find.text('Profile page, ID = 1, message = null'),
+          findsOneWidget,
+        );
+      }),
+      [],
     );
   });
 }
