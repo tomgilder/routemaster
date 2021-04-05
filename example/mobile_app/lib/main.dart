@@ -101,8 +101,8 @@ final routeMap = RouteMap(
     '/notifications': (_) => IndexedPage(
           child: NotificationsPage(),
           paths: [
-            '/notifications/one',
-            '/notifications/two',
+            'one',
+            'two',
           ],
         ),
     '/notifications/one': (_) => MaterialPage(
@@ -118,11 +118,7 @@ final routeMap = RouteMap(
         ),
     '/bottom-navigation-bar': (_) => IndexedPage(
           child: BottomNavigationBarPage(),
-          paths: [
-            '/bottom-navigation-bar/one',
-            '/bottom-navigation-bar/two',
-            '/bottom-navigation-bar/three',
-          ],
+          paths: ['one', 'two', 'three'],
         ),
     '/bottom-navigation-bar/one': (_) => MaterialPage(
           child: BottomContentPage(),

@@ -21,3 +21,8 @@ Future<void> invokeSystemBack() {
   // ignore: invalid_use_of_protected_member
   return WidgetsBinding.instance!.handlePopRoute();
 }
+
+Future<void> setSystemUrl(String url) {
+  // ignore: invalid_use_of_protected_member
+  return WidgetsBinding.instance!.handlePushRoute(url);
+}

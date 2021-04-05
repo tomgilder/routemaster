@@ -133,9 +133,9 @@ class DoubleBackPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
-              onPressed: () {
-                Routemaster.of(context).pop();
-                Routemaster.of(context).pop();
+              onPressed: () async {
+                await Routemaster.of(context).pop();
+                await Routemaster.of(context).pop();
               },
               child: Text('Go back twice'),
             ),
