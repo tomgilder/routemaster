@@ -17,6 +17,10 @@ class SystemNav {
   }
 
   static void setPathUrlStrategy() {
+    print(
+      "Note: using path URL strategy with Routemaster is experimental, and there's a high chance of bugs.\n\n"
+      'Please file an issue at https://github.com/tomgilder/routemaster/issues if you have problems.',
+    );
     pathStrategy = PathStrategy.path;
     setUrlStrategy(RoutemasterPathUrlStrategy());
   }
