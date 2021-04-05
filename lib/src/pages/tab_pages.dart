@@ -393,16 +393,6 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
     return joinAll(splitChild.skip(splitParent.length));
   }
 
-  // @override
-  // bool maybePush(PageState route) {
-  //   final index = _getIndexForPath(route.routeInfo.path);
-  //   if (index == null) {
-  //     return false;
-  //   }
-
-  //   return _getStackForIndex(index).maybePush(route);
-  // }
-
   @override
   Future<bool> maybePop() {
     return _getStackForIndex(index).maybePop();

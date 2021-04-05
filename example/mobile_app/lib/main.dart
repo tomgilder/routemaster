@@ -11,7 +11,7 @@ import 'pages/feed_page.dart';
 import 'pages/notifications_page.dart';
 
 void main() {
-  // Routemaster.setPathUrlStrategy();
+  Routemaster.setPathUrlStrategy();
   runApp(MyApp());
 }
 
