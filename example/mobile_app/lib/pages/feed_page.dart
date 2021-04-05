@@ -38,7 +38,7 @@ class FeedPage extends StatelessWidget {
               ElevatedButton(
                 onPressed: () =>
                     Routemaster.of(context).push('/bottom-navigation-bar'),
-                child: Text('Push: Bottom Navigation Bar page'),
+                child: Text('Bottom Navigation Bar page'),
               ),
               ElevatedButton(
                 onPressed: () => Routemaster.of(context)
