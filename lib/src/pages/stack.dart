@@ -57,7 +57,7 @@ class StackPageState {
     // First try delegating the pop to the last child route.
     // Covered by several tests in feed_test.dart
     if (await _routes.last.maybePop()) {
-      return true;
+      return SynchronousFuture(true);
     }
 
     // Child wasn't interested, ask the navigator if we have a key
@@ -69,10 +69,10 @@ class StackPageState {
     if (_routes.length > 1) {
       _routes.removeLast();
       _delegate._markNeedsUpdate();
-      return true;
+      return SynchronousFuture(true);
     }
 
     // Couldn't find anything to pop
-    return false;
+    return SynchronousFuture(false);
   }
 }

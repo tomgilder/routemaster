@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:provider/provider.dart';
@@ -57,8 +55,6 @@ final loggedOutRouteMap = RouteMap(
     '/': (_) => MaterialPage(child: LoginPage()),
   },
 );
-
-Future<String>? test;
 
 // This is the real route map - used if the user is logged in.
 final routeMap = RouteMap(
