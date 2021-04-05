@@ -88,7 +88,7 @@ class ProfilePage extends StatelessWidget {
               child: Text('Photo page (custom animation)'),
             ),
             ElevatedButton(
-              onPressed: () => Routemaster.of(context).popRoute(),
+              onPressed: () => Routemaster.of(context).pop(),
               child: Text('Back'),
             ),
           ],
@@ -117,7 +117,7 @@ class PhotoPage extends StatelessWidget {
           children: [
             Text('This would be a lovely picture of user $id'),
             ElevatedButton(
-              onPressed: () => Routemaster.of(context).popRoute(),
+              onPressed: () => Routemaster.of(context).pop(),
               child: Text('Back'),
             ),
           ],

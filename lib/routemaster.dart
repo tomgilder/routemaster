@@ -117,7 +117,70 @@ class RouteMap extends DefaultRouterConfig {
   }
 }
 
-class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
+class Routemaster {
+  // This is updated in case users cache this Routemaster object
+  late RoutemasterDelegate _delegate;
+
+  Routemaster._();
+
+  static Routemaster of(BuildContext context) {
+    return context
+        .dependOnInheritedWidgetOfExactType<_RoutemasterWidget>()!
+        .routemaster;
+  }
+
+  /// Pops the current route from the router. Returns `true` if the pop was
+  /// successful, or `false` if it wasn't.
+  Future<bool> pop() {
+    return _delegate.popRoute();
+  }
+
+  /// Replaces the current route with [path].
+  ///
+  /// If the given [path] starts with a forward slash, it's treated as an
+  /// absolute path.
+  ///
+  /// If it doesn't start with a forward slash, it's treated as a relative path
+  /// to the current route.
+  ///
+  /// For example:
+  ///
+  ///   * If the current route is '/products' and you call `replace('1')`
+  ///     you'll navigate to '/products/1'.
+  ///
+  ///   * If the current route is '/products' and you call `replace('/home')`
+  ///     you'll navigate to '/home'.
+  ///
+  void replace(String path, {Map<String, String>? queryParameters}) {
+    _delegate.replace(path, queryParameters: queryParameters);
+  }
+
+  /// Pushes [path] into the navigation tree.
+  ///
+  /// If the given [path] starts with a forward slash, it's treated as an
+  /// absolute path.
+  ///
+  /// If it doesn't start with a forward slash, it's treated as a relative path
+  /// to the current route.
+  ///
+  /// For example:
+  ///
+  ///   * If the current route is '/products' and you call `replace('1')`
+  ///     you'll navigate to '/products/1'.
+  ///
+  ///   * If the current route is '/products' and you call `replace('/home')`
+  ///     you'll navigate to '/home'.
+  ///
+  void push(String path, {Map<String, String>? queryParameters}) {
+    _delegate.push(path, queryParameters: queryParameters);
+  }
+
+  /// The current route path, for example '/products/1'.
+  String get currentPath => _delegate.currentConfiguration!.path;
+}
+
+class RoutemasterDelegate extends RouterDelegate<RouteData>
+    with ChangeNotifier {
   /// Used to override how the [Navigator] builds.
   final RoutemasterBuilder? builder;
   final TransitionDelegate? transitionDelegate;
@@ -126,16 +189,12 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
   _RoutemasterState _state = _RoutemasterState();
   bool _isBuilding = false;
 
-  Routemaster({
+  RoutemasterDelegate({
     required this.routesBuilder,
     this.builder,
     this.transitionDelegate,
-  });
-
-  static Routemaster of(BuildContext context) {
-    return context
-        .dependOnInheritedWidgetOfExactType<_RoutemasterWidget>()!
-        .delegate;
+  }) {
+    _state.routemaster._delegate = this;
   }
 
   /// Called by the [Router] when the [Router.backButtonDispatcher] reports that
@@ -233,7 +292,7 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
         _isBuilding = false;
 
         return _RoutemasterWidget(
-          delegate: this,
+          routemaster: _state.routemaster,
           child: builder != null
               ? builder!(context, pages, onPopPage, _state.stack!.navigatorKey)
               : Navigator(
@@ -492,21 +551,22 @@ class Routemaster extends RouterDelegate<RouteData> with ChangeNotifier {
 
 /// Used internally so descendent widgets can use `Routemaster.of(context)`.
 class _RoutemasterWidget extends InheritedWidget {
-  final Routemaster delegate;
+  final Routemaster routemaster;
 
   const _RoutemasterWidget({
     required Widget child,
-    required this.delegate,
+    required this.routemaster,
   }) : super(child: child);
 
   @override
   bool updateShouldNotify(covariant _RoutemasterWidget oldWidget) {
-    return delegate != oldWidget.delegate;
+    return routemaster._delegate != oldWidget.routemaster._delegate;
   }
 }
 
 class _RoutemasterState {
   final globalKey = GlobalKey(debugLabel: 'routemaster');
+  final routemaster = Routemaster._();
   StackPageState? stack;
   RouteConfig? routeConfig;
   RouteData? currentConfiguration;
@@ -515,7 +575,7 @@ class _RoutemasterState {
 
 /// Widget to trigger router rebuild when dependencies change
 class _DependencyTracker extends StatefulWidget {
-  final Routemaster delegate;
+  final RoutemasterDelegate delegate;
   final Widget Function(BuildContext context) builder;
 
   _DependencyTracker({

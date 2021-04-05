@@ -7,7 +7,7 @@ import 'helpers.dart';
 void main() {
   testWidgets('Can switch indexed tab index', (tester) async {
     final pageKey = GlobalKey();
-    final delegate = Routemaster(routesBuilder: (context) {
+    final delegate = RoutemasterDelegate(routesBuilder: (context) {
       return RouteMap(routes: {
         '/': (_) => IndexedPage(
               paths: ['one', 'two'],
@@ -35,7 +35,7 @@ void main() {
   testWidgets('Switches to correct index when building child route',
       (tester) async {
     final pageKey = GlobalKey();
-    final delegate = Routemaster(routesBuilder: (context) {
+    final delegate = RoutemasterDelegate(routesBuilder: (context) {
       return RouteMap(routes: {
         '/': (_) => IndexedPage(
               paths: ['one', 'two'],
@@ -61,7 +61,7 @@ void main() {
   });
 
   testWidgets('Shows not found page within tab', (tester) async {
-    final delegate = Routemaster(routesBuilder: (context) {
+    final delegate = RoutemasterDelegate(routesBuilder: (context) {
       return RouteMap(routes: {
         '/': (_) => IndexedPage(
               paths: ['not-found', 'two'],
@@ -81,7 +81,7 @@ void main() {
   });
 
   testWidgets('Can redirect within tab', (tester) async {
-    final delegate = Routemaster(routesBuilder: (context) {
+    final delegate = RoutemasterDelegate(routesBuilder: (context) {
       return RouteMap(routes: {
         '/': (_) => IndexedPage(
               paths: ['one', 'two'],

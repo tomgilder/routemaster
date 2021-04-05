@@ -2,7 +2,7 @@ part of '../../routemaster.dart';
 
 /// A page that can create a state.
 abstract class StatefulPage<T> extends Page<T> {
-  PageState createState(Routemaster delegate, RouteInfo info);
+  PageState createState(RoutemasterDelegate delegate, RouteInfo info);
 
   @override
   Route<T> createRoute(BuildContext context) {

@@ -3,11 +3,11 @@ part of '../../routemaster.dart';
 /// The state of a stack of pages.
 class StackPageState {
   final navigatorKey = GlobalKey<NavigatorState>();
-  final Routemaster _delegate;
+  final RoutemasterDelegate _delegate;
   late List<PageWrapper> _routes;
 
   StackPageState({
-    required Routemaster delegate,
+    required RoutemasterDelegate delegate,
     List<PageWrapper>? routes,
   }) : _delegate = delegate {
     if (routes != null) {

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:provider/provider.dart';
@@ -25,7 +23,7 @@ class MyApp extends StatelessWidget {
           return MaterialApp.router(
             title: 'Routemaster Demo',
             routeInformationParser: RoutemasterParser(),
-            routerDelegate: Routemaster(
+            routerDelegate: RoutemasterDelegate(
               routesBuilder: (context) {
                 // We swap out the routing map at runtime based on app state
                 final isLoggedIn = Provider.of<AppState>(context).isLoggedIn;
@@ -57,8 +55,6 @@ final loggedOutRouteMap = RouteMap(
     '/': (_) => MaterialPage(child: LoginPage()),
   },
 );
-
-FutureOr<String>? test;
 
 // This is the real route map - used if the user is logged in.
 final routeMap = RouteMap(

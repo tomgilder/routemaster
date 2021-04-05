@@ -147,7 +147,7 @@ class _AddWishlistDialogState extends State<AddWishlistDialog> {
         username: appState.username,
       ),
     );
-    Routemaster.of(context).popRoute();
+    Routemaster.of(context).pop();
   }
 
   @override

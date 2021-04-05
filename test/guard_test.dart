@@ -5,7 +5,7 @@ import 'helpers.dart';
 
 void main() {
   testWidgets('Guard can return a different page', (tester) async {
-    final delegate = Routemaster(
+    final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (info) => Guard(
@@ -31,7 +31,7 @@ void main() {
   });
 
   testWidgets('Guard can redirect to a new page', (tester) async {
-    final delegate = Routemaster(
+    final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (info) => Guard(
@@ -57,7 +57,7 @@ void main() {
 
   testWidgets('Guard can fall back to onUnknownRoute with new page',
       (tester) async {
-    final delegate = Routemaster(
+    final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         onUnknownRoute: (route, context) => MaterialPage<void>(
           child: NotFoundPage(),
@@ -84,7 +84,7 @@ void main() {
 
   testWidgets('Guard can fall back to onUnknownRoute with redirect',
       (tester) async {
-    final delegate = Routemaster(
+    final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         onUnknownRoute: (route, context) => Redirect('/page-two'),
         routes: {
@@ -109,7 +109,7 @@ void main() {
   });
 
   testWidgets('Guard does nothing when validate returns true', (tester) async {
-    final delegate = Routemaster(
+    final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (info) => Guard(
@@ -134,8 +134,8 @@ void main() {
     var validateWasCalled = false;
     var onValidationFailedWasCalled = false;
 
-    late Routemaster delegate;
-    delegate = Routemaster(
+    late RoutemasterDelegate delegate;
+    delegate = RoutemasterDelegate(
       routesBuilder: (builderContext) => RouteMap(
         routes: {
           '/': (_) => MaterialPage<void>(child: PageOne()),
@@ -179,7 +179,7 @@ void main() {
   });
 
   testWidgets('Can use multiple guards', (tester) async {
-    final delegate = Routemaster(
+    final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (info) => Guard(

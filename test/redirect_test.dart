@@ -5,7 +5,7 @@ import 'helpers.dart';
 
 void main() {
   testWidgets('Can use redirect as a regular page', (tester) async {
-    final delegate = Routemaster(
+    final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (info) => Redirect('/two'),
@@ -29,7 +29,7 @@ void main() {
   });
 
   testWidgets('Deals with redirect loop', (tester) async {
-    final delegate = Routemaster(
+    final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (info) => Redirect('/two'),
@@ -62,7 +62,7 @@ This is an error in your routing map.""",
   });
 
   testWidgets('Can combine redirect and guard', (tester) async {
-    final delegate = Routemaster(
+    final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (info) => Guard(

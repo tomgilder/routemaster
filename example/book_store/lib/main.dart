@@ -159,7 +159,7 @@ class BookStoreApp extends StatelessWidget {
         ),
         routeInformationParser: RoutemasterParser(),
         routeInformationProvider: routeInformationProvider,
-        routerDelegate: Routemaster(
+        routerDelegate: RoutemasterDelegate(
           transitionDelegate: NoAnimationTransitionDelegate(),
           routesBuilder: (context) {
             final state = Provider.of<AppState>(context);

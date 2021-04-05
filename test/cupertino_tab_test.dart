@@ -37,7 +37,7 @@ void main() {
 
   testWidgets('CupertinoTabController syncs with page state', (tester) async {
     final pageKey = GlobalKey();
-    final delegate = Routemaster(routesBuilder: (context) {
+    final delegate = RoutemasterDelegate(routesBuilder: (context) {
       return RouteMap(routes: {
         '/': (_) => CupertinoTabPage(
               paths: ['one', 'two'],
@@ -87,7 +87,7 @@ class CupertinoApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      routerDelegate: Routemaster(routesBuilder: (_) => routes),
+      routerDelegate: RoutemasterDelegate(routesBuilder: (_) => routes),
       routeInformationParser: RoutemasterParser(),
     );
   }
@@ -141,7 +141,7 @@ class ProfilePage extends StatelessWidget {
           children: [
             Text('Profile page'),
             CupertinoButton(
-              onPressed: () => Routemaster.of(context).popRoute(),
+              onPressed: () => Routemaster.of(context).pop(),
               child: Text('Pop'),
             ),
           ],
