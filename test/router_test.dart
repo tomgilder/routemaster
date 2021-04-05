@@ -55,4 +55,44 @@ void main() {
     await tester.pump();
     expect(find.byType(PageTwo), findsOneWidget);
   });
+
+  testWidgets('currentPath is set immediately', (tester) async {
+    final key = GlobalKey();
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: RoutemasterDelegate(
+          routesBuilder: (_) => RouteMap(
+            routes: {'/': (_) => MaterialPage<void>(child: SizedBox(key: key))},
+          ),
+        ),
+      ),
+    );
+
+    expect(Routemaster.of(key.currentContext!).currentPath, '/');
+  });
+
+  testWidgets('Non-default currentPath is set immediately', (tester) async {
+    final key = GlobalKey();
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routeInformationProvider: PlatformRouteInformationProvider(
+          initialRouteInformation: RouteInformation(location: '/two'),
+        ),
+        routerDelegate: RoutemasterDelegate(
+          routesBuilder: (_) => RouteMap(
+            routes: {
+              '/': (_) => MaterialPage<void>(child: SizedBox()),
+              '/two': (_) => MaterialPage<void>(child: SizedBox(key: key)),
+            },
+          ),
+        ),
+      ),
+    );
+
+    expect(Routemaster.of(key.currentContext!).currentPath, '/two');
+  });
 }

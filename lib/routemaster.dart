@@ -123,6 +123,8 @@ class Routemaster {
   // This is updated in case users cache this Routemaster object
   late RoutemasterDelegate _delegate;
 
+  Routemaster._();
+
   static Routemaster of(BuildContext context) {
     return context
         .dependOnInheritedWidgetOfExactType<_RoutemasterWidget>()!
@@ -566,7 +568,7 @@ class _RoutemasterWidget extends InheritedWidget {
 
 class _RoutemasterState {
   final globalKey = GlobalKey(debugLabel: 'routemaster');
-  final routemaster = Routemaster();
+  final routemaster = Routemaster._();
   StackPageState? stack;
   RouteConfig? routeConfig;
   RouteData? currentConfiguration;
