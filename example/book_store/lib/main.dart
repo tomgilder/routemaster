@@ -147,6 +147,7 @@ class BookStoreApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => AppState(username: username),
       child: MaterialApp.router(
+        title: 'Dashazon',
         theme: ThemeData(
           primaryColor: Color(0xFF131921),
           elevatedButtonTheme: ElevatedButtonThemeData(
