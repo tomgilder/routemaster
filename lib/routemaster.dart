@@ -125,6 +125,12 @@ class Routemaster {
 
   Routemaster._();
 
+  static void setPathUrlStrategy() {
+    if (kIsWeb) {
+      SystemNav.setPathUrlStrategy();
+    }
+  }
+
   static Routemaster of(BuildContext context) {
     return context
         .dependOnInheritedWidgetOfExactType<_RoutemasterWidget>()!
@@ -216,22 +222,37 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return _state.stack!.onPopPage(route, result);
   }
 
+  static bool shouldReplaceNextPush = false;
+
   /// Replaces the current route with [path].
   void replace(String path, {Map<String, String>? queryParameters}) {
-    if (kIsWeb) {
-      SystemNav.replaceLocation(path, queryParameters);
-    } else {
-      push(path, queryParameters: queryParameters);
+    if (kIsWeb && SystemNav.pathStrategy == PathStrategy.hash) {
+      // If we're using the default hash path strategy, we can do a simple
+      // replace on the location hash.
+      SystemNav.setHash(path, queryParameters);
+      return;
     }
+
+    // Otherwise we do a convoluted dance which uses a custom UrlStrategy that
+    // supports replacing the URL.
+    final absolutePath = _getAbsolutePath(path, queryParameters);
+    _state.pendingNavigation = _RouteRequest(
+      path: absolutePath,
+      isReplacement: true,
+    );
+    _markNeedsUpdate();
   }
 
   /// Pushes [path] into the navigation tree.
   void push(String path, {Map<String, String>? queryParameters}) {
-    final getAbsolutePath = _getAbsolutePath(path, queryParameters);
+    final absolutePath = _getAbsolutePath(path, queryParameters);
 
     // Schedule request for next build. This makes sure the routing table is
     // updated before processing the new path.
-    _state.pendingNavigation = getAbsolutePath;
+    _state.pendingNavigation = _RouteRequest(
+      path: absolutePath,
+      isReplacement: false,
+    );
     _markNeedsUpdate();
   }
 
@@ -277,7 +298,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     }
   }
 
-  void _processNavigation(String path) {
+  void _processNavigation(_RouteRequest path) {
     final pages = _createAllPageWrappers(path);
     _state.stack = StackPageState(delegate: this, routes: pages);
   }
@@ -322,9 +343,12 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       return;
     }
 
-    final path = _state.stack!._getCurrentPages().last.routeInfo.path;
-    print("Updated path: '$path'");
-    _state.currentConfiguration = RouteData(path);
+    final routeInfo = _state.stack!._getCurrentPages().last.routeInfo;
+    print("Updated path: '${routeInfo.path}'");
+    _state.currentConfiguration = RouteData(
+      routeInfo.path,
+      isReplacement: routeInfo.isReplacement,
+    );
   }
 
   // Called when a new URL is set. The RouteInformationParser will parse the
@@ -347,9 +371,12 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     if (_state.routeConfig == null) {
       _state.routeConfig = routesBuilder(context);
 
-      final path =
-          _state.pendingNavigation ?? currentConfiguration?.path ?? '/';
-      final pageStates = _createAllPageWrappers(path);
+      final routeRequest = _state.pendingNavigation ??
+          _RouteRequest(
+            path: currentConfiguration?.path ?? '/',
+          );
+
+      final pageStates = _createAllPageWrappers(routeRequest);
 
       assert(pageStates.isNotEmpty);
       _state.stack = StackPageState(delegate: this, routes: pageStates);
@@ -373,7 +400,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     _isBuilding = false;
   }
 
-  PageWrapper _onUnknownRoute(String requestedPath) {
+  PageWrapper _onUnknownRoute(_RouteRequest routeRequest) {
+    final requestedPath = routeRequest.path;
     print("Router couldn't find a match for path '$requestedPath''");
 
     final result = _state.routeConfig!.onUnknownRoute(
@@ -383,26 +411,33 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     if (result is Redirect) {
       return _getPageWrapper(
-        Uri(
-          path: result.path,
-          queryParameters: result.queryParameters,
-        ).toString(),
+        _RouteRequest(
+          path: Uri(
+            path: result.path,
+            queryParameters: result.queryParameters,
+          ).toString(),
+          isReplacement: routeRequest.isReplacement,
+        ),
       );
     }
 
     // Return 404 page
-    final routeInfo = RouteInfo(requestedPath);
+    final routeInfo = RouteInfo(
+      requestedPath,
+      isReplacement: routeRequest.isReplacement,
+    );
     return StatelessPage(routeInfo: routeInfo, page: result);
   }
 
   List<PageWrapper> _createAllPageWrappers(
-    String requestedPath, {
+    _RouteRequest routeRequest, {
     List<String>? redirects,
   }) {
+    final requestedPath = routeRequest.path;
     final routerResult = _state.routeConfig!.getAll(requestedPath);
 
     if (routerResult == null || routerResult.isEmpty) {
-      return [_onUnknownRoute(requestedPath)];
+      return [_onUnknownRoute(routeRequest)];
     }
 
     final currentRoutes = _state.stack?._getCurrentPages().toList();
@@ -415,14 +450,17 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         routerData,
         // Only the last route gets query parameters
         isLastRoute ? requestedPath : routerData.pathSegment,
+        isReplacement: routeRequest.isReplacement,
       );
 
       final current = _getOrCreatePageWrapper(
-        requestedPath,
+        routeRequest,
         routeInfo,
         currentRoutes,
         routerData,
       );
+
+      // If it's an Alias, we need to create another page
 
       if (current is _RedirectWrapper) {
         if (isLastRoute) {
@@ -439,7 +477,10 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           }
 
           return _createAllPageWrappers(
-            current.redirectPage.absolutePath,
+            _RouteRequest(
+              path: current.redirectPage.absolutePath,
+              isReplacement: routeRequest.isReplacement,
+            ),
             redirects: redirects,
           );
         } else {
@@ -464,7 +505,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   /// Otherwise create a new one. This could possibly be made more efficient
   /// By using a map rather than iterating over all currentRoutes.
   PageWrapper _getOrCreatePageWrapper(
-    String requestedPath,
+    _RouteRequest routeRequest,
     RouteInfo routeInfo,
     List<PageWrapper>? currentRoutes,
     RouterResult routerResult,
@@ -480,7 +521,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     }
 
     return _createPageWrapper(
-      requestedPath: requestedPath,
+      routeRequest: routeRequest,
       page: routerResult.builder(routeInfo),
       routeInfo: routeInfo,
     );
@@ -488,28 +529,36 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   /// Try to get the route for [requestedPath]. If no match, returns default path.
   /// Returns null if validation fails.
-  PageWrapper _getPageWrapper(String requestedPath) {
+  PageWrapper _getPageWrapper(_RouteRequest routeRequest) {
+    final requestedPath = routeRequest.path;
     final routerResult = _state.routeConfig!.get(requestedPath);
     if (routerResult == null) {
-      return _onUnknownRoute(requestedPath);
+      return _onUnknownRoute(routeRequest);
     }
 
-    final routeInfo = RouteInfo.fromRouterResult(routerResult, requestedPath);
+    final routeInfo = RouteInfo.fromRouterResult(
+      routerResult,
+      requestedPath,
+      isReplacement: routeRequest.isReplacement,
+    );
     final page = routerResult.builder(routeInfo);
 
     if (page is Redirect) {
-      return _getPageWrapper(page.path);
+      return _getPageWrapper(_RouteRequest(
+        path: page.path,
+        isReplacement: routeRequest.isReplacement,
+      ));
     }
 
     return _createPageWrapper(
-      requestedPath: requestedPath,
+      routeRequest: routeRequest,
       page: page,
       routeInfo: routeInfo,
     );
   }
 
   PageWrapper _createPageWrapper({
-    required String requestedPath,
+    required _RouteRequest routeRequest,
     required Page page,
     required RouteInfo routeInfo,
   }) {
@@ -520,12 +569,12 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           print("Validation failed for '${routeInfo.path}'");
 
           if (page.onValidationFailed == null) {
-            return _onUnknownRoute(requestedPath);
+            return _onUnknownRoute(routeRequest);
           }
 
           final result = page.onValidationFailed!(routeInfo, context);
           return _createPageWrapper(
-            requestedPath: requestedPath,
+            routeRequest: routeRequest,
             page: result,
             routeInfo: routeInfo,
           );
@@ -572,7 +621,7 @@ class _RoutemasterState {
   StackPageState? stack;
   RouteConfig? routeConfig;
   RouteData? currentConfiguration;
-  String? pendingNavigation;
+  _RouteRequest? pendingNavigation;
 }
 
 /// Widget to trigger router rebuild when dependencies change
@@ -632,4 +681,14 @@ class RedirectLoopError extends Error {
             .join('\n') +
         '\n\nThis is an error in your routing map.';
   }
+}
+
+class _RouteRequest {
+  final String path;
+  final bool isReplacement;
+
+  _RouteRequest({
+    required this.path,
+    this.isReplacement = false,
+  });
 }

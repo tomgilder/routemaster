@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:provider/provider.dart';
@@ -12,6 +11,7 @@ import 'pages/feed_page.dart';
 import 'pages/notifications_page.dart';
 
 void main() {
+  // Routemaster.setPathUrlStrategy();
   runApp(MyApp());
 }
 
@@ -104,10 +104,7 @@ final routeMap = RouteMap(
     // This gets really complicated to test out tested scenarios!
     '/notifications': (_) => IndexedPage(
           child: NotificationsPage(),
-          paths: [
-            '/notifications/one',
-            '/notifications/two',
-          ],
+          paths: ['one', 'two'],
         ),
     '/notifications/one': (_) => MaterialPage(
           child: NotificationsContentPage(
@@ -120,13 +117,12 @@ final routeMap = RouteMap(
     '/notifications/pushed': (_) => MaterialPage(
           child: MessagePage(message: 'Pushed notifications'),
         ),
+    '/bottom-navigation-bar-replace': (_) => MaterialPage(
+          child: BottomNavigationBarReplacementPage(),
+        ),
     '/bottom-navigation-bar': (_) => IndexedPage(
           child: BottomNavigationBarPage(),
-          paths: [
-            '/bottom-navigation-bar/one',
-            '/bottom-navigation-bar/two',
-            '/bottom-navigation-bar/three',
-          ],
+          paths: ['one', 'two', 'three'],
         ),
     '/bottom-navigation-bar/one': (_) => MaterialPage(
           child: BottomContentPage(),
