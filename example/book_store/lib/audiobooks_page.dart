@@ -1,7 +1,6 @@
 import 'package:book_store/page_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
-
 import 'book_card.dart';
 import 'models.dart';
 
@@ -15,9 +14,10 @@ class AudiobookPage extends StatelessWidget {
       body: ListView(
         children: [
           Container(
-            color: Colors.blue,
+            color: Color(0xff202f3f),
             height: 70,
             child: TabBar(
+              indicatorWeight: 6,
               controller: tabState.tabController,
               tabs: [
                 Tab(icon: Icon(Icons.list), text: 'All Audiobooks'),
