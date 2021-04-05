@@ -7,7 +7,7 @@ void main() {
   testWidgets("Doesn't rebuild routes by default", (tester) async {
     var routeBuildCount = 0;
 
-    final delegate = Routemaster(routesBuilder: (context) {
+    final delegate = RoutemasterDelegate(routesBuilder: (context) {
       routeBuildCount++;
       return RouteMap(routes: {
         '/': (_) => MaterialPage<void>(child: PageOne()),
@@ -34,7 +34,7 @@ void main() {
   testWidgets('Rebuilds route map when dependencies change', (tester) async {
     var routeBuildCount = 0;
 
-    final delegate = Routemaster(routesBuilder: (context) {
+    final delegate = RoutemasterDelegate(routesBuilder: (context) {
       routeBuildCount++;
       final state = StateProvider.of(context).state;
 
@@ -90,7 +90,7 @@ void main() {
       },
     );
 
-    final delegate = Routemaster(routesBuilder: (context) {
+    final delegate = RoutemasterDelegate(routesBuilder: (context) {
       final state = StateProvider.of(context).state;
       return state.someValue == '1' ? routeMap1 : routeMap2;
     });

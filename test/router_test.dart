@@ -7,7 +7,7 @@ import 'helpers.dart';
 void main() {
   testWidgets('Can use custom navigator', (tester) async {
     final key = Key('custom');
-    final delegate = Routemaster(
+    final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (_) => MaterialPageOne(),
@@ -40,7 +40,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp.router(
         routeInformationParser: RoutemasterParser(),
-        routerDelegate: Routemaster(
+        routerDelegate: RoutemasterDelegate(
           routesBuilder: (_) => RouteMap(
             routes: {
               '/': (_) => MaterialPageOne(),

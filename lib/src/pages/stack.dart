@@ -3,11 +3,11 @@ part of '../../routemaster.dart';
 /// The state of a stack of pages.
 class StackPageState {
   final navigatorKey = GlobalKey<NavigatorState>();
-  final Routemaster _delegate;
+  final RoutemasterDelegate _delegate;
   late List<PageWrapper> _routes;
 
   StackPageState({
-    required Routemaster delegate,
+    required RoutemasterDelegate delegate,
     List<PageWrapper>? routes,
   }) : _delegate = delegate {
     if (routes != null) {
@@ -57,7 +57,7 @@ class StackPageState {
     // First try delegating the pop to the last child route.
     // Covered by several tests in feed_test.dart
     if (await _routes.last.maybePop()) {
-      return SynchronousFuture(true);
+      return true;
     }
 
     // Child wasn't interested, ask the navigator if we have a key
@@ -69,10 +69,10 @@ class StackPageState {
     if (_routes.length > 1) {
       _routes.removeLast();
       _delegate._markNeedsUpdate();
-      return SynchronousFuture(true);
+      return true;
     }
 
     // Couldn't find anything to pop
-    return SynchronousFuture(false);
+    return false;
   }
 }

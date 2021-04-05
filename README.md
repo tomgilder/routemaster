@@ -18,7 +18,7 @@ final routes = RouteMap(routes: {
 void main() {
   runApp(
       MaterialApp.router(
-        routerDelegate: Routemaster(routesBuilder: (context) => routes),
+        routerDelegate: RoutemasterDelegate(routesBuilder: (context) => routes),
         routeInformationParser: RoutemasterParser(),
       ),
     );

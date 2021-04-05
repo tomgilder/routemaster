@@ -5,7 +5,7 @@ import 'helpers.dart';
 
 void main() {
   testWidgets('Can set page states on tabs', (tester) async {
-    final delegate = Routemaster(
+    final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (_) => MaterialPage<void>(child: Container()),
@@ -32,7 +32,7 @@ void main() {
 
   testWidgets('Can set page states on with parameters and query string',
       (tester) async {
-    final delegate = Routemaster(
+    final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (_) => MaterialPage<void>(child: Container()),
@@ -60,7 +60,7 @@ void main() {
 
   testWidgets('Can push page on to tabs with route beginning with tab route',
       (tester) async {
-    final delegate = Routemaster(
+    final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (_) => MaterialPage<void>(child: Container()),
@@ -93,7 +93,7 @@ void main() {
 
   testWidgets('TabController syncs with page state', (tester) async {
     final pageKey = GlobalKey();
-    final delegate = Routemaster(routesBuilder: (context) {
+    final delegate = RoutemasterDelegate(routesBuilder: (context) {
       return RouteMap(routes: {
         '/': (_) => TabPage(
               paths: ['one', 'two'],

@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
           return MaterialApp.router(
             title: 'Routemaster Demo',
             routeInformationParser: RoutemasterParser(),
-            routerDelegate: Routemaster(
+            routerDelegate: RoutemasterDelegate(
               routesBuilder: (context) {
                 // We swap out the routing map at runtime based on app state
                 final isLoggedIn = Provider.of<AppState>(context).isLoggedIn;
@@ -58,7 +58,7 @@ final loggedOutRouteMap = RouteMap(
   },
 );
 
-FutureOr<String>? test;
+Future<String>? test;
 
 // This is the real route map - used if the user is logged in.
 final routeMap = RouteMap(

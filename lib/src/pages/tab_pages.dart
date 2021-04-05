@@ -12,7 +12,7 @@ class IndexedPage extends StatefulPage<void> with IndexedRouteMixIn {
   });
 
   @override
-  PageState createState(Routemaster delegate, RouteInfo routeInfo) {
+  PageState createState(RoutemasterDelegate delegate, RouteInfo routeInfo) {
     return IndexedPageState(this, delegate, routeInfo);
   }
 
@@ -46,7 +46,7 @@ class IndexedPageState extends PageState
   final IndexedPage _page;
 
   @override
-  final Routemaster _delegate;
+  final RoutemasterDelegate _delegate;
 
   @override
   final RouteInfo routeInfo;
@@ -83,7 +83,7 @@ class TabPage extends StatefulPage<void> with IndexedRouteMixIn {
   });
 
   @override
-  PageState createState(Routemaster delegate, RouteInfo routeInfo) {
+  PageState createState(RoutemasterDelegate delegate, RouteInfo routeInfo) {
     return TabPageState(this, delegate, routeInfo);
   }
 
@@ -117,7 +117,7 @@ class TabPageState extends PageState
   final TabPage _page;
 
   @override
-  final Routemaster _delegate;
+  final RoutemasterDelegate _delegate;
 
   @override
   final RouteInfo routeInfo;
@@ -210,7 +210,7 @@ class CupertinoTabPage extends StatefulPage<void> with IndexedRouteMixIn {
   });
 
   @override
-  PageState createState(Routemaster delegate, RouteInfo routeInfo) {
+  PageState createState(RoutemasterDelegate delegate, RouteInfo routeInfo) {
     return CupertinoTabPageState(this, delegate, routeInfo);
   }
 
@@ -244,7 +244,7 @@ class CupertinoTabPageState extends PageState
   final CupertinoTabPage _page;
 
   @override
-  final Routemaster _delegate;
+  final RoutemasterDelegate _delegate;
 
   @override
   final RouteInfo routeInfo;
@@ -302,7 +302,7 @@ mixin IndexedRouteMixIn<T> on Page<T> {
 mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
   late List<StackPageState?> _routes;
 
-  Routemaster get _delegate;
+  RoutemasterDelegate get _delegate;
 
   @override
   RouteInfo get routeInfo;
