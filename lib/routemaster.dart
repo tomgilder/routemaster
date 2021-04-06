@@ -118,7 +118,7 @@ class RouteMap extends DefaultRouterConfig {
 }
 
 class Routemaster {
-  // This is updated in case users cache this Routemaster object
+  // The current router delegate. This can change if the delegate is recreated.
   late RoutemasterDelegate _delegate;
 
   Routemaster._();
@@ -326,7 +326,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     _context = context;
 
-    return _DependencyTracker(
+    return _RoutemasterStateTracker(
       delegate: this,
       builder: (context) {
         _isBuilding = true;
@@ -414,8 +414,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       return;
     }
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) => _markNeedsUpdate());
-
     // Reset state
     _state.routeConfig = null;
     _state.stack = null;
@@ -423,6 +421,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     _isBuilding = true;
     _init(context, isRebuild: true);
     _isBuilding = false;
+
+    WidgetsBinding.instance?.addPostFrameCallback((_) => _markNeedsUpdate());
   }
 
   PageWrapper _onUnknownRoute(_RouteRequest routeRequest) {
@@ -639,6 +639,8 @@ class _RoutemasterWidget extends InheritedWidget {
   }
 }
 
+/// Maintains the router's state so [RoutemasterDelegate] can be replaced but
+/// still maintain its state.
 class _RoutemasterState {
   final routemaster = Routemaster._();
   StackPageState? stack;
@@ -647,54 +649,50 @@ class _RoutemasterState {
   _RouteRequest? pendingNavigation;
 }
 
-/// Widget to trigger router rebuild when dependencies change
-class _DependencyTracker extends StatefulWidget {
+class _RoutemasterStateTracker extends StatefulWidget {
   final RoutemasterDelegate delegate;
   final Widget Function(BuildContext context) builder;
 
-  _DependencyTracker({
+  _RoutemasterStateTracker({
     required this.delegate,
     required this.builder,
   });
 
   @override
-  _DependencyTrackerState createState() => _DependencyTrackerState();
+  _RoutemasterStateTrackerState createState() =>
+      _RoutemasterStateTrackerState();
 }
 
-class _DependencyTrackerState extends State<_DependencyTracker> {
-  late _RoutemasterState _delegateState;
-
+class _RoutemasterStateTrackerState extends State<_RoutemasterStateTracker> {
   @override
   Widget build(BuildContext context) {
     return widget.builder(context);
   }
 
   @override
-  void initState() {
-    super.initState();
-    _delegateState = widget.delegate._state;
-    widget.delegate._state = _delegateState;
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    widget.delegate._didChangeDependencies(this.context);
   }
 
   @override
-  void didUpdateWidget(_DependencyTracker oldWidget) {
+  void didUpdateWidget(_RoutemasterStateTracker oldWidget) {
     super.didUpdateWidget(oldWidget);
-    widget.delegate._state = _delegateState;
 
-    if (_delegateState.routemaster._delegate != widget.delegate) {
-      final oldDelegate = _delegateState.routemaster._delegate;
-      _delegateState.routemaster._delegate = widget.delegate;
+    final oldDelegate = oldWidget.delegate;
+    final newDelegate = widget.delegate;
+
+    // Check if delegate has been recreated
+    if (oldDelegate != newDelegate) {
+      // Update new delegate's state from old delegate's state
+      newDelegate._state = oldDelegate._state;
+      newDelegate._state.routemaster._delegate = newDelegate;
+
       WidgetsBinding.instance!.addPostFrameCallback((_) {
         // Dispose after this frame to allow child widgets to unsubscribe
         oldDelegate.dispose();
       });
     }
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    widget.delegate._didChangeDependencies(this.context);
   }
 }
 
