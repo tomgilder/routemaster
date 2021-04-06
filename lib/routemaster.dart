@@ -194,6 +194,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   _RoutemasterState _state = _RoutemasterState();
   bool _isBuilding = false;
+  bool _isDisposed = false;
   late BuildContext _context;
 
   RoutemasterDelegate({
@@ -204,10 +205,18 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     _state.routemaster._delegate = this;
   }
 
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
+
   /// Called by the [Router] when the [Router.backButtonDispatcher] reports that
   /// the operating system is requesting that the current route be popped.
   @override
   Future<bool> popRoute() {
+    assert(!_isDisposed);
+
     if (_state.stack == null) {
       return SynchronousFuture(false);
     }
@@ -218,6 +227,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   /// Passed to top-level [Navigator] widget, called when the navigator requests
   /// that it wants to pop a page.
   bool onPopPage(Route<dynamic> route, dynamic result) {
+    assert(!_isDisposed);
     return _state.stack!.onPopPage(route, result);
   }
 
@@ -225,6 +235,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   /// Replaces the current route with [path].
   void replace(String path, {Map<String, String>? queryParameters}) {
+    assert(!_isDisposed);
+
     if (kIsWeb && SystemNav.pathStrategy == PathStrategy.hash) {
       // If we're using the default hash path strategy, we can do a simple
       // replace on the location hash.
@@ -244,6 +256,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   /// Pushes [path] into the navigation tree.
   void push(String path, {Map<String, String>? queryParameters}) {
+    assert(!_isDisposed);
+
     final absolutePath = _getAbsolutePath(path, queryParameters);
 
     // Schedule request for next build. This makes sure the routing table is
@@ -268,6 +282,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   /// Generates all pages and sub-pages.
   List<Page> createPages(BuildContext context) {
+    assert(!_isDisposed);
+
     assert(_state.stack != null,
         'Stack must have been created when createPages() is called');
     final pages = _state.stack!.createPages();
@@ -283,6 +299,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }
 
   void _markNeedsUpdate() {
+    assert(!_isDisposed);
+
     _updateCurrentConfiguration();
 
     if (!_isBuilding) {
@@ -304,6 +322,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   @override
   Widget build(BuildContext context) {
+    assert(!_isDisposed);
+
     _context = context;
 
     return _DependencyTracker(
@@ -358,12 +378,16 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   // This method then modifies the state based on that information.
   @override
   Future<void> setNewRoutePath(RouteData routeData) {
+    assert(!_isDisposed);
+
     push(routeData.path);
     return SynchronousFuture(null);
   }
 
   @override
   Future<void> setInitialRoutePath(RouteData configuration) {
+    assert(!_isDisposed);
+
     _state.currentConfiguration = RouteData(configuration.path);
     return SynchronousFuture(null);
   }
@@ -585,7 +609,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     }
 
     if (page is StatefulPage) {
-      return page.createState(this, routeInfo);
+      return page.createState(_state.routemaster, routeInfo);
     }
 
     if (page is Redirect) {
@@ -656,6 +680,15 @@ class _DependencyTrackerState extends State<_DependencyTracker> {
   void didUpdateWidget(_DependencyTracker oldWidget) {
     super.didUpdateWidget(oldWidget);
     widget.delegate._state = _delegateState;
+
+    if (_delegateState.routemaster._delegate != widget.delegate) {
+      final oldDelegate = _delegateState.routemaster._delegate;
+      _delegateState.routemaster._delegate = widget.delegate;
+      WidgetsBinding.instance!.addPostFrameCallback((_) {
+        // Dispose after this frame to allow child widgets to unsubscribe
+        oldDelegate.dispose();
+      });
+    }
   }
 
   @override
