@@ -231,8 +231,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return _state.stack!.onPopPage(route, result);
   }
 
-  static bool shouldReplaceNextPush = false;
-
   /// Replaces the current route with [path].
   void replace(String path, {Map<String, String>? queryParameters}) {
     assert(!_isDisposed);
