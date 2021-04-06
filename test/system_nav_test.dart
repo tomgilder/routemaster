@@ -20,35 +20,27 @@ void main() {
     expect(isReplacementNavigation({'state': null}), isFalse);
 
     expect(
+      isReplacementNavigation({'state': null}),
+      isFalse,
+    );
+
+    expect(
       isReplacementNavigation({
-        'state': {'state': null}
+        'state': {'isReplacement': null}
       }),
       isFalse,
     );
 
     expect(
       isReplacementNavigation({
-        'state': {
-          'state': {'isReplacement': null}
-        }
+        'state': {'isReplacement': false}
       }),
       isFalse,
     );
 
     expect(
       isReplacementNavigation({
-        'state': {
-          'state': {'isReplacement': false}
-        }
-      }),
-      isFalse,
-    );
-
-    expect(
-      isReplacementNavigation({
-        'state': {
-          'state': {'isReplacement': true}
-        }
+        'state': {'isReplacement': true}
       }),
       isTrue,
     );

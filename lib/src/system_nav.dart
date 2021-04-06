@@ -5,12 +5,9 @@ enum PathStrategy { hash, path }
 bool isReplacementNavigation(Object state) {
   if (state is Map) {
     if (state['state'] is Map) {
-      final dynamic routemasterState = state['state']['state'];
-      if (routemasterState is Map) {
-        final dynamic isReplacement = routemasterState['isReplacement'];
-        if (isReplacement is bool) {
-          return isReplacement;
-        }
+      final dynamic isReplacement = state['state']['isReplacement'];
+      if (isReplacement is bool) {
+        return isReplacement;
       }
     }
   }
