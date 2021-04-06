@@ -226,4 +226,19 @@ void main() {
       [],
     );
   });
+
+  testWidgets('Can navigate after hot reload', (tester) async {
+    await pumpFeedPage(tester);
+    unawaited(tester.binding.reassembleApplication());
+    await tester.pump();
+
+    expect(
+      await recordUrlChanges(() async {
+        await tester.tap(find.text('Push profile page with ID 1'));
+        await tester.pump();
+        await tester.pump(Duration(seconds: 1));
+      }),
+      ['/feed/profile/1'],
+    );
+  });
 }
