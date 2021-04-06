@@ -1,10 +1,12 @@
-// TODO: Do we need this? Can we just use a string?
-// Will this play a part in state restoration?
 class RouteData {
-  const RouteData(this.path);
-
-  /// The pattern used to parse the route string. e.g. "/users/:id"
   final String path;
+
+  final bool isReplacement;
+
+  const RouteData(
+    this.path, {
+    this.isReplacement = false,
+  });
 
   @override
   bool operator ==(Object other) => other is RouteData && path == other.path;

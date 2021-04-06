@@ -24,7 +24,6 @@ class StackPageState {
 
   bool maybeSetChildPages(Iterable<PageWrapper> pages) {
     _routes = pages.toList();
-    _delegate._markNeedsUpdate();
     return true;
   }
 

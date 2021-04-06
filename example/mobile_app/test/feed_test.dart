@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile_app/main.dart';
 import 'package:mobile_app/pages/feed_page.dart';
+import 'package:pedantic/pedantic.dart';
 import 'helpers.dart';
 
 Future pumpFeedPage(WidgetTester tester) async {
@@ -190,5 +191,54 @@ void main() {
     );
 
     expect(find.text('Non-Page route'), findsNothing);
+  });
+
+  testWidgets('Hot reload stays on route', (tester) async {
+    await pumpFeedPage(tester);
+
+    expect(find.byType(CupertinoTabBar), findsOneWidget);
+
+    // Go to profile page
+    expect(
+      await recordUrlChanges(() async {
+        await tester.tap(find.text('Push profile page with ID 1'));
+        await tester.pump();
+        await tester.pump(Duration(seconds: 1));
+      }),
+      ['/feed/profile/1'],
+    );
+
+    expect(
+      find.text('Profile page, ID = 1, message = null'),
+      findsOneWidget,
+    );
+
+    expect(
+      await recordUrlChanges(() async {
+        unawaited(tester.binding.reassembleApplication());
+        await tester.pump();
+
+        expect(
+          find.text('Profile page, ID = 1, message = null'),
+          findsOneWidget,
+        );
+      }),
+      [],
+    );
+  });
+
+  testWidgets('Can navigate after hot reload', (tester) async {
+    await pumpFeedPage(tester);
+    unawaited(tester.binding.reassembleApplication());
+    await tester.pump();
+
+    expect(
+      await recordUrlChanges(() async {
+        await tester.tap(find.text('Push profile page with ID 1'));
+        await tester.pump();
+        await tester.pump(Duration(seconds: 1));
+      }),
+      ['/feed/profile/1'],
+    );
   });
 }

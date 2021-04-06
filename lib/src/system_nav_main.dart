@@ -1,10 +1,15 @@
+import 'system_nav.dart';
+
 class SystemNav {
-  static void back() {
+  static void setHash(String location, Map<String, String>? queryParameters) {
     throw UnsupportedError('Only supported on web');
   }
 
-  static void replaceLocation(
-      String location, Map<String, String>? queryParameters) {
+  static void setPathUrlStrategy() {
+    throw UnsupportedError('Only supported on web');
+  }
+
+  static PathStrategy get pathStrategy {
     throw UnsupportedError('Only supported on web');
   }
 }

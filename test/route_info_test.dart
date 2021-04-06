@@ -53,13 +53,6 @@ void main() {
 
     expect(one == two, isTrue);
   });
-  test('Route info with  different path params are not equal', () {
-    final one =
-        RouteInfo.fromRouterResult(RouterResult(builder, {'a': 'b'}, '/'), '/');
-    final two = RouteInfo.fromRouterResult(RouterResult(builder, {}, '/'), '/');
-
-    expect(one == two, isFalse);
-  });
 
   test('Route info with same path params are equal', () {
     final one =

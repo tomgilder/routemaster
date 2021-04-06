@@ -54,7 +54,7 @@ class MockProxyPage extends ProxyPage<void> {
 
 class MockStatefulPage extends StatefulPage<void> {
   @override
-  PageState createState(RoutemasterDelegate delegate, RouteInfo info) {
+  PageState createState(Routemaster routemaster, RouteInfo info) {
     throw UnimplementedError();
   }
 }

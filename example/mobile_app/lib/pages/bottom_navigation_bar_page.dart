@@ -2,6 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:routemaster/routemaster.dart';
 
+class BottomNavigationBarReplacementPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Bottom Navigation Bar')),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () =>
+              Routemaster.of(context).replace('/bottom-navigation-bar'),
+          child: Text('Replace: Bottom Navigation Bar page'),
+        ),
+      ),
+    );
+  }
+}
+
 class BottomNavigationBarPage extends StatefulWidget {
   @override
   _BottomNavigationBarPageState createState() =>

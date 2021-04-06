@@ -10,9 +10,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  quiver: ^3.0.0
+  flutter_web_plugins:
+    sdk: flutter
   path: ^1.8.0
-  collection: ^1.15.0
 
 dev_dependencies:
   flutter_test:

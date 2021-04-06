@@ -1,5 +1,3 @@
-import 'package:collection/collection.dart';
-import 'package:quiver/core.dart';
 import 'query_parser.dart';
 import 'trie_router/trie_router.dart';
 
@@ -24,26 +22,26 @@ class RouteInfo {
   ///
   final Map<String, String> queryParameters;
 
-  RouteInfo.fromRouterResult(RouterResult result, this.path)
-      : pathParameters = result.pathParameters,
+  final bool isReplacement;
+
+  RouteInfo.fromRouterResult(
+    RouterResult result,
+    this.path, {
+    this.isReplacement = false,
+  })  : pathParameters = result.pathParameters,
         queryParameters = QueryParser.parseQueryParameters(path);
 
-  RouteInfo(this.path, [this.pathParameters = const {}])
-      : queryParameters = QueryParser.parseQueryParameters(path);
+  RouteInfo(
+    this.path, {
+    this.pathParameters = const {},
+    this.isReplacement = false,
+  }) : queryParameters = QueryParser.parseQueryParameters(path);
 
   @override
-  bool operator ==(Object other) =>
-      other is RouteInfo &&
-      path == other.path &&
-      DeepCollectionEquality().equals(pathParameters, other.pathParameters) &&
-      DeepCollectionEquality().equals(queryParameters, other.queryParameters);
+  bool operator ==(Object other) => other is RouteInfo && path == other.path;
 
   @override
-  int get hashCode => hash3(
-        path,
-        DeepCollectionEquality().hash(pathParameters),
-        DeepCollectionEquality().hash(queryParameters),
-      );
+  int get hashCode => path.hashCode;
 
   @override
   String toString() => "RouteInfo: '$path'";

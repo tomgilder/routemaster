@@ -168,7 +168,6 @@ void main() {
     expect(routes[1].builder(getRouteInfo(routes[1])), productRoute);
     expect(routes[1].pathParameters.isEmpty, isTrue);
 
-    // Wrong here - Actual: '/product/myProduct/details'
     expect(routes[2].pathSegment, '/product/myProduct');
     expect(routes[2].builder(getRouteInfo(routes[2])), productIdRoute);
     expect(routes[2].pathParameters.isEmpty, isFalse);
@@ -204,7 +203,6 @@ void main() {
     expect(routes[1].builder(getRouteInfo(routes[1])), productRoute);
     expect(routes[1].pathParameters.isEmpty, isTrue);
 
-    // Wrong here - Actual: '/product/myProduct/details'
     expect(routes[2].pathSegment, '/product/prod1');
     expect(routes[2].builder(getRouteInfo(routes[2])), productId1Route);
     expect(routes[2].pathParameters.isEmpty, isFalse);

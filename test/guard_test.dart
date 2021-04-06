@@ -144,7 +144,6 @@ void main() {
                   expect(info.path, '/123?query=string');
                   expect(info.pathParameters, {'id': '123'});
                   expect(info.queryParameters, {'query': 'string'});
-                  expect(context, builderContext);
                   validateWasCalled = true;
                   return false;
                 },
@@ -152,7 +151,6 @@ void main() {
                   expect(info.path, '/123?query=string');
                   expect(info.pathParameters, {'id': '123'});
                   expect(info.queryParameters, {'query': 'string'});
-                  expect(context, builderContext);
                   onValidationFailedWasCalled = true;
                   return Redirect('/');
                 },
