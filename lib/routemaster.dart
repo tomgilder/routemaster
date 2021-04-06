@@ -483,8 +483,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         routerData,
       );
 
-      // If it's an Alias, we need to create another page
-
       if (current is _RedirectWrapper) {
         if (isLastRoute) {
           if (kDebugMode) {
