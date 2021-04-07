@@ -15,7 +15,7 @@ mixin GuardedPage<T> on ProxyPage<T> {
   /// Callback to check if the route is valid. If this returns false,
   /// [onValidationFailed] is called.
   ///
-  /// By default this redirects to the default path.
+  /// If [onValidationFailed] is null, `onUnknownRoute` is called.
   ValidateCallback get validate;
 
   /// Callback, called when the [validate] returns false.

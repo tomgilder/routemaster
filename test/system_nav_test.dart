@@ -14,6 +14,13 @@ void main() {
     );
   });
 
+  test('SystemNav.setPathUrlStrategy() throws when not on web', () {
+    expect(
+      () => SystemNav.setPathUrlStrategy(),
+      throwsA(isA<UnsupportedError>()),
+    );
+  });
+
   test('isReplacement returns correct values', () {
     expect(isReplacementNavigation('blah'), isFalse);
 

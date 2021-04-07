@@ -345,7 +345,7 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
 
   PageStack _createInitialStackState(int index) {
     final path = join(routeInfo.path, page.paths[index]);
-    final route = routemaster._delegate._getPageWrapper(
+    final route = routemaster._delegate._getPageForTab(
       _RouteRequest(
         path: path,
         isReplacement: routeInfo.isReplacement,
@@ -424,4 +424,14 @@ class StackList {
 
   PageStack operator [](int index) =>
       _indexedPageState._getStackForIndex(index);
+}
+
+class _TabNotFoundPage extends StatelessPage {
+  _TabNotFoundPage(String path)
+      : super(
+          routeInfo: RouteInfo(path),
+          page: MaterialPage<void>(
+            child: DefaultUnknownRoutePage(route: path),
+          ),
+        );
 }

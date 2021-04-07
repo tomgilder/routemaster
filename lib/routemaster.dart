@@ -428,32 +428,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     WidgetsBinding.instance?.addPostFrameCallback((_) => _markNeedsUpdate());
   }
 
-  PageWrapper _onUnknownRoute(_RouteRequest routeRequest) {
-    final requestedPath = routeRequest.path;
-    print("Router couldn't find a match for path '$requestedPath''");
-
-    final result = _state.routeConfig!.onUnknownRoute(
-      requestedPath,
-      _context,
-    );
-
-    if (result is Redirect) {
-      return _getPageWrapper(
-        _RouteRequest(
-          path: result.redirectPath,
-          isReplacement: routeRequest.isReplacement,
-        ),
-      );
-    }
-
-    // Return 404 page
-    final routeInfo = RouteInfo(
-      requestedPath,
-      isReplacement: routeRequest.isReplacement,
-    );
-    return StatelessPage(routeInfo: routeInfo, page: result);
-  }
-
   List<PageWrapper> _createAllPageWrappers(
     _RouteRequest routeRequest, {
     List<PageWrapper>? currentRoutes,
@@ -463,14 +437,15 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     final routerResult = _state.routeConfig!.getAll(requestedPath);
 
     if (routerResult == null || routerResult.isEmpty) {
-      return [_onUnknownRoute(routeRequest)];
+      return _onUnknownRoute(routeRequest);
     }
 
     var result = <PageWrapper>[];
     var i = 0;
 
     for (final routerData in routerResult.reversed) {
-      final isLastRoute = i == 0;
+      final isLastRoute = i++ == 0;
+
       final routeInfo = RouteInfo.fromRouterResult(
         routerData,
         // Only the last route gets query parameters
@@ -479,39 +454,44 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       );
 
       final current = _getOrCreatePageWrapper(
-        routeRequest,
-        routeInfo,
-        currentRoutes,
-        routerData,
+        routeRequest: routeRequest,
+        routeInfo: routeInfo,
+        currentRoutes: currentRoutes,
+        routerResult: routerData,
       );
 
-      if (current is _RedirectWrapper) {
-        if (!isLastRoute) {
-          // Redirect isn't the last route, continue building
-          continue;
+      if (current is _PageWrapperResult) {
+        final page = current.pageWrapper;
+        if (result.isNotEmpty && page.maybeSetChildPages(result)) {
+          result = [page];
         } else {
-          if (kDebugMode) {
-            redirects = _debugCheckRedirectLoop(redirects, requestedPath);
-          }
-
-          return _createAllPageWrappers(
-            _RouteRequest(
-              path: current.redirectPage.redirectPath,
-              isReplacement: routeRequest.isReplacement,
-            ),
-            currentRoutes: currentRoutes,
-            redirects: redirects,
-          );
+          result.insert(0, page);
         }
       }
 
-      if (result.isNotEmpty && current.maybeSetChildPages(result)) {
-        result = [current];
-      } else {
-        result.insert(0, current);
+      if (!isLastRoute) {
+        // We only follow redirects and not found for the last route
+        continue;
       }
 
-      i++;
+      if (current is _NotFoundResult) {
+        return _onUnknownRoute(routeRequest);
+      }
+
+      if (current is _RedirectResult) {
+        if (kDebugMode) {
+          redirects = _debugCheckRedirectLoop(redirects, requestedPath);
+        }
+
+        return _createAllPageWrappers(
+          _RouteRequest(
+            path: current.redirectPath,
+            isReplacement: routeRequest.isReplacement,
+          ),
+          currentRoutes: currentRoutes,
+          redirects: redirects,
+        );
+      }
     }
 
     assert(result.isNotEmpty, "_createAllStates can't return empty list");
@@ -521,22 +501,24 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   /// If there's a current route matching the path in the tree, return it.
   /// Otherwise create a new one. This could possibly be made more efficient
   /// By using a map rather than iterating over all currentRoutes.
-  PageWrapper _getOrCreatePageWrapper(
-    _RouteRequest routeRequest,
-    RouteInfo routeInfo,
-    List<PageWrapper>? currentRoutes,
-    RouterResult routerResult,
-  ) {
+  _PageResult _getOrCreatePageWrapper({
+    required _RouteRequest routeRequest,
+    required RouteInfo routeInfo,
+    required List<PageWrapper>? currentRoutes,
+    required RouterResult routerResult,
+  }) {
     if (currentRoutes != null) {
+      // See if we have a current route matching the routeInfo
       final currentState = currentRoutes.firstWhereOrNull(
         ((element) => element.routeInfo == routeInfo),
       );
 
       if (currentState != null) {
-        return currentState;
+        return _PageWrapperResult(currentState);
       }
     }
 
+    // No current route, create a new one
     return _createPageWrapper(
       routeRequest: routeRequest,
       page: routerResult.builder(routeInfo),
@@ -544,39 +526,37 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     );
   }
 
-  /// Try to get the route for [requestedPath]. If no match, returns default path.
-  /// Returns null if validation fails.
-  PageWrapper _getPageWrapper(_RouteRequest routeRequest) {
+  /// Called by tab pages to lazily generate their initial routes
+  PageWrapper _getPageForTab(_RouteRequest routeRequest) {
     final requestedPath = routeRequest.path;
     final routerResult = _state.routeConfig!.get(requestedPath);
-    if (routerResult == null) {
-      return _onUnknownRoute(routeRequest);
-    }
+    if (routerResult != null) {
+      final routeInfo = RouteInfo.fromRouterResult(routerResult, requestedPath);
 
-    final routeInfo = RouteInfo.fromRouterResult(
-      routerResult,
-      requestedPath,
-      isReplacement: routeRequest.isReplacement,
-    );
-    final page = routerResult.builder(routeInfo);
-
-    if (page is Redirect) {
-      return _getPageWrapper(
-        _RouteRequest(
-          path: page.path,
-          isReplacement: routeRequest.isReplacement,
-        ),
+      final wrapper = _createPageWrapper(
+        routeRequest: routeRequest,
+        page: routerResult.builder(routeInfo),
+        routeInfo: routeInfo,
       );
+
+      if (wrapper is _PageWrapperResult) {
+        return wrapper.pageWrapper;
+      }
+
+      if (wrapper is _RedirectResult) {
+        return _getPageForTab(
+          _RouteRequest(
+            path: wrapper.redirectPath,
+            isReplacement: routeRequest.isReplacement,
+          ),
+        );
+      }
     }
 
-    return _createPageWrapper(
-      routeRequest: routeRequest,
-      page: page,
-      routeInfo: routeInfo,
-    );
+    return _TabNotFoundPage(routeRequest.path);
   }
 
-  PageWrapper _createPageWrapper({
+  _PageResult _createPageWrapper({
     required _RouteRequest routeRequest,
     required Page page,
     required RouteInfo routeInfo,
@@ -587,7 +567,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           print("Validation failed for '${routeInfo.path}'");
 
           if (page.onValidationFailed == null) {
-            return _onUnknownRoute(routeRequest);
+            return _NotFoundResult();
           }
 
           final result = page.onValidationFailed!(routeInfo, _context);
@@ -603,18 +583,46 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     }
 
     if (page is Redirect) {
-      return _RedirectWrapper(page);
+      return _RedirectResult(page.redirectPath);
     }
 
     if (page is StatefulPage) {
-      return page.createState(_state.routemaster, routeInfo);
+      return _PageWrapperResult(
+        page.createState(_state.routemaster, routeInfo),
+      );
     }
 
     assert(page is! Redirect, 'Redirect has not been followed');
     assert(page is! ProxyPage, 'ProxyPage has not been unwrapped');
 
     // Page is just a standard Flutter page, create a wrapper for it
-    return StatelessPage(routeInfo: routeInfo, page: page);
+    return _PageWrapperResult(StatelessPage(routeInfo: routeInfo, page: page));
+  }
+
+  List<PageWrapper> _onUnknownRoute(_RouteRequest routeRequest) {
+    final requestedPath = routeRequest.path;
+    print("Router couldn't find a match for path '$requestedPath'");
+
+    final result = _state.routeConfig!.onUnknownRoute(
+      requestedPath,
+      _context,
+    );
+
+    if (result is Redirect) {
+      return _createAllPageWrappers(
+        _RouteRequest(
+          path: result.redirectPath,
+          isReplacement: routeRequest.isReplacement,
+        ),
+      );
+    }
+
+    // Return 404 page
+    final routeInfo = RouteInfo(
+      requestedPath,
+      isReplacement: routeRequest.isReplacement,
+    );
+    return [StatelessPage(routeInfo: routeInfo, page: result)];
   }
 
   List<String> _debugCheckRedirectLoop(
@@ -631,6 +639,22 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     return redirects;
   }
+}
+
+abstract class _PageResult {}
+
+class _PageWrapperResult extends _PageResult {
+  final PageWrapper pageWrapper;
+
+  _PageWrapperResult(this.pageWrapper);
+}
+
+class _NotFoundResult extends _PageResult {}
+
+class _RedirectResult extends _PageResult {
+  final String redirectPath;
+
+  _RedirectResult(this.redirectPath);
 }
 
 /// Used internally so descendent widgets can use `Routemaster.of(context)`.

@@ -88,6 +88,48 @@ void main() {
       ['/not-found'],
     );
   });
+
+  testWidgets('Can redirect to 404 stack', (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        onUnknownRoute: (path, context) => Redirect('/not-found/sub-page'),
+        routes: {
+          '/': (_) => MaterialPage<void>(child: PageOne()),
+          '/not-found': (_) => MaterialPage<void>(child: PageTwo()),
+          '/not-found/sub-page': (_) =>
+              MaterialPage<void>(child: NotFoundPage()),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    expect(
+      await recordUrlChanges(() async {
+        delegate.push('/unknown/nonsense');
+        await tester.pump();
+        await tester.pump(Duration(seconds: 1));
+
+        expect(find.byType(NotFoundPage), findsOneWidget);
+      }),
+      ['/not-found/sub-page'],
+    );
+
+    expect(
+      await recordUrlChanges(() async {
+        await delegate.popRoute();
+        await tester.pump();
+        await tester.pump(Duration(seconds: 1));
+        expect(find.byType(PageTwo), findsOneWidget);
+      }),
+      ['/not-found'],
+    );
+  });
 }
 
 class NotFoundPage extends StatelessWidget {

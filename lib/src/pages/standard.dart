@@ -77,33 +77,3 @@ class StatelessPage extends PageWrapper {
   @override
   Page createPage() => page;
 }
-
-/// A fake page state to wrap redirects
-class _RedirectWrapper extends PageWrapper {
-  final Redirect redirectPage;
-
-  _RedirectWrapper(this.redirectPage);
-
-  @override
-  Iterable<PageWrapper> getCurrentPages() {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<bool> maybePop() {
-    throw UnimplementedError();
-  }
-
-  @override
-  bool maybeSetChildPages(Iterable<PageWrapper> pages) {
-    throw UnimplementedError();
-  }
-
-  @override
-  RouteInfo get routeInfo => throw UnimplementedError();
-
-  @override
-  Page createPage() {
-    throw UnimplementedError();
-  }
-}
