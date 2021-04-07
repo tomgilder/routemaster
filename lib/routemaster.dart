@@ -456,7 +456,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   List<PageWrapper> _createAllPageWrappers(
     _RouteRequest routeRequest, {
-    required List<PageWrapper>? currentRoutes,
+    List<PageWrapper>? currentRoutes,
     List<String>? redirects,
   }) {
     final requestedPath = routeRequest.path;
@@ -486,17 +486,12 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       );
 
       if (current is _RedirectWrapper) {
-        if (isLastRoute) {
+        if (!isLastRoute) {
+          // Redirect isn't the last route, continue building
+          continue;
+        } else {
           if (kDebugMode) {
-            if (redirects == null) {
-              redirects = [requestedPath];
-            } else {
-              if (redirects.contains(requestedPath)) {
-                redirects.add(requestedPath);
-                throw RedirectLoopError(redirects);
-              }
-              redirects.add(requestedPath);
-            }
+            redirects = _debugCheckRedirectLoop(redirects, requestedPath);
           }
 
           return _createAllPageWrappers(
@@ -507,8 +502,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
             currentRoutes: currentRoutes,
             redirects: redirects,
           );
-        } else {
-          continue;
         }
       }
 
@@ -622,6 +615,21 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     // Page is just a standard Flutter page, create a wrapper for it
     return StatelessPage(routeInfo: routeInfo, page: page);
+  }
+
+  List<String> _debugCheckRedirectLoop(
+      List<String>? redirects, String requestedPath) {
+    if (redirects == null) {
+      return [requestedPath];
+    }
+
+    if (redirects.contains(requestedPath)) {
+      redirects.add(requestedPath);
+      throw RedirectLoopError(redirects);
+    }
+    redirects.add(requestedPath);
+
+    return redirects;
   }
 }
 
