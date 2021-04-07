@@ -240,5 +240,38 @@ void main() {
       }),
       ['/feed/profile/1'],
     );
+
+    expect(
+      find.text('Profile page, ID = 1, message = null'),
+      findsOneWidget,
+    );
+
+    expect(
+      await recordUrlChanges(() async {
+        await tester.tap(find.byType(BackButton));
+        await tester.pump();
+        await tester.pump(Duration(seconds: 1));
+      }),
+      ['/feed'],
+    );
+
+    expect(
+      find.text('Profile page, ID = 1, message = null'),
+      findsNothing,
+    );
+
+    expect(
+      await recordUrlChanges(() async {
+        await tester.tap(find.text('Push profile page with ID 1'));
+        await tester.pump();
+        await tester.pump(Duration(seconds: 1));
+      }),
+      ['/feed/profile/1'],
+    );
+
+    expect(
+      find.text('Profile page, ID = 1, message = null'),
+      findsOneWidget,
+    );
   });
 }
