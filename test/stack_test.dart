@@ -247,13 +247,8 @@ void main() {
   });
 
   test('Stack.maybePop() pops with no navigator', () async {
-    final delegate = RoutemasterDelegate(routesBuilder: (context) {
-      return RouteMap(routes: {});
-    });
-
     final lastRouteInfo = RouteInfo('/last');
-    final stack = StackPageState(
-      delegate: delegate,
+    final stack = PageStack(
       routes: [
         StatelessPage(
           page: MaterialPageOne(),
@@ -270,12 +265,7 @@ void main() {
   });
 
   test('Stack.maybePop() returns false with one child', () async {
-    final delegate = RoutemasterDelegate(routesBuilder: (context) {
-      return RouteMap(routes: {});
-    });
-
-    final stack = StackPageState(
-      delegate: delegate,
+    final stack = PageStack(
       routes: [
         StatelessPage(page: MaterialPageOne(), routeInfo: RouteInfo('/')),
       ],

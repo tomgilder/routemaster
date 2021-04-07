@@ -16,7 +16,7 @@ import 'src/system_nav.dart';
 import 'src/trie_router/trie_router.dart';
 import 'src/route_info.dart';
 
-part 'src/pages/stack.dart';
+part 'src/pages/page_stack.dart';
 part 'src/pages/tab_pages.dart';
 part 'src/pages/standard.dart';
 
@@ -314,8 +314,11 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }
 
   void _processNavigation(_RouteRequest path) {
-    final pages = _createAllPageWrappers(path);
-    _state.stack = StackPageState(delegate: this, routes: pages);
+    final pages = _createAllPageWrappers(
+      path,
+      currentRoutes: _state.stack?._getCurrentPages().toList(),
+    );
+    _state.stack = PageStack(routes: pages);
   }
 
   @override
@@ -399,10 +402,12 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
             path: currentConfiguration?.path ?? '/',
           );
 
-      final pageStates = _createAllPageWrappers(routeRequest);
-
+      final pageStates = _createAllPageWrappers(
+        routeRequest,
+        currentRoutes: null,
+      );
       assert(pageStates.isNotEmpty);
-      _state.stack = StackPageState(delegate: this, routes: pageStates);
+      _state.stack = PageStack(routes: pageStates);
     }
   }
 
@@ -435,10 +440,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     if (result is Redirect) {
       return _getPageWrapper(
         _RouteRequest(
-          path: Uri(
-            path: result.path,
-            queryParameters: result.queryParameters,
-          ).toString(),
+          path: result.redirectPath,
           isReplacement: routeRequest.isReplacement,
         ),
       );
@@ -454,6 +456,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   List<PageWrapper> _createAllPageWrappers(
     _RouteRequest routeRequest, {
+    required List<PageWrapper>? currentRoutes,
     List<String>? redirects,
   }) {
     final requestedPath = routeRequest.path;
@@ -463,7 +466,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       return [_onUnknownRoute(routeRequest)];
     }
 
-    final currentRoutes = _state.stack?._getCurrentPages().toList();
     var result = <PageWrapper>[];
     var i = 0;
 
@@ -499,9 +501,10 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
           return _createAllPageWrappers(
             _RouteRequest(
-              path: current.redirectPage.absolutePath,
+              path: current.redirectPage.redirectPath,
               isReplacement: routeRequest.isReplacement,
             ),
+            currentRoutes: currentRoutes,
             redirects: redirects,
           );
         } else {
@@ -565,10 +568,12 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     final page = routerResult.builder(routeInfo);
 
     if (page is Redirect) {
-      return _getPageWrapper(_RouteRequest(
-        path: page.path,
-        isReplacement: routeRequest.isReplacement,
-      ));
+      return _getPageWrapper(
+        _RouteRequest(
+          path: page.path,
+          isReplacement: routeRequest.isReplacement,
+        ),
+      );
     }
 
     return _createPageWrapper(
@@ -604,12 +609,12 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       page = page.child;
     }
 
-    if (page is StatefulPage) {
-      return page.createState(_state.routemaster, routeInfo);
-    }
-
     if (page is Redirect) {
       return _RedirectWrapper(page);
+    }
+
+    if (page is StatefulPage) {
+      return page.createState(_state.routemaster, routeInfo);
     }
 
     assert(page is! Redirect, 'Redirect has not been followed');
@@ -639,10 +644,31 @@ class _RoutemasterWidget extends InheritedWidget {
 /// still maintain its state.
 class _RoutemasterState {
   final routemaster = Routemaster._();
-  StackPageState? stack;
   RouteConfig? routeConfig;
   RouteData? currentConfiguration;
   _RouteRequest? pendingNavigation;
+
+  PageStack? _stack;
+  PageStack? get stack => _stack;
+  set stack(PageStack? newStack) {
+    if (newStack == _stack) {
+      return;
+    }
+
+    if (_stack != null) {
+      _stack!.removeListener(_onStackChanged);
+    }
+
+    if (newStack != null) {
+      newStack.addListener(_onStackChanged);
+    }
+
+    _stack = newStack;
+  }
+
+  void _onStackChanged() {
+    routemaster._delegate._markNeedsUpdate();
+  }
 }
 
 class _RoutemasterStateTracker extends StatefulWidget {

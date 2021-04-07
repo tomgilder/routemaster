@@ -24,16 +24,14 @@ class IndexedPage extends StatefulPage<void> with IndexedRouteMixIn {
 }
 
 class _IndexedPageStateProvider extends InheritedNotifier {
-  final Routemaster routemaster;
   final IndexedPageState pageState;
 
   _IndexedPageStateProvider({
     required Widget child,
-    required this.routemaster,
     required this.pageState,
   }) : super(
           child: child,
-          notifier: routemaster._delegate,
+          notifier: pageState,
         );
 
   @override
@@ -66,7 +64,6 @@ class IndexedPageState extends PageState
     return MaterialPage<void>(
       child: Builder(builder: (context) {
         return _IndexedPageStateProvider(
-          routemaster: Routemaster.of(context),
           pageState: this,
           child: page.child,
         );
@@ -100,16 +97,14 @@ class TabPage extends StatefulPage<void> with IndexedRouteMixIn {
 }
 
 class _TabPageStateProvider extends InheritedNotifier {
-  final Routemaster routemaster;
   final TabPageState pageState;
 
   _TabPageStateProvider({
     required Widget child,
-    required this.routemaster,
     required this.pageState,
   }) : super(
           child: child,
-          notifier: routemaster._delegate,
+          notifier: pageState,
         );
 
   @override
@@ -152,7 +147,6 @@ class TabPageState extends PageState
         child: Builder(
           builder: (context) {
             return _TabPageStateProvider(
-              routemaster: Routemaster.of(context),
               pageState: this,
               child: Builder(builder: (_) => page.child),
             );
@@ -234,16 +228,14 @@ class CupertinoTabPage extends StatefulPage<void> with IndexedRouteMixIn {
 }
 
 class _CupertinoTabPageStateProvider extends InheritedNotifier {
-  final Routemaster routemaster;
   final CupertinoTabPageState pageState;
 
   _CupertinoTabPageStateProvider({
     required Widget child,
-    required this.routemaster,
     required this.pageState,
   }) : super(
           child: child,
-          notifier: routemaster._delegate,
+          notifier: pageState,
         );
 
   @override
@@ -290,7 +282,6 @@ class CupertinoTabPageState extends PageState
       child: Builder(
         builder: (context) {
           return _CupertinoTabPageStateProvider(
-            routemaster: Routemaster.of(context),
             pageState: this,
             child: page.child,
           );
@@ -319,9 +310,8 @@ mixin IndexedRouteMixIn<T> on Page<T> {
 }
 
 mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
-  late List<StackPageState?> _routes;
-
   Routemaster get routemaster;
+  late List<PageStack?> _routes;
 
   @override
   RouteInfo get routeInfo;
@@ -331,7 +321,7 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
   StackList? _stacks;
   StackList get stacks => _stacks ??= StackList(this);
 
-  StackPageState get currentStack => _getStackForIndex(index);
+  PageStack get currentStack => _getStackForIndex(index);
 
   int _index = 0;
   int get index => _index;
@@ -340,25 +330,28 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
       _index = value;
 
       notifyListeners();
-      routemaster._delegate._markNeedsUpdate();
     }
   }
 
-  StackPageState _getStackForIndex(int index) {
+  PageStack _getStackForIndex(int index) {
     if (_routes[index] == null) {
-      _routes[index] = _createInitialStackState(index);
+      final stack = _createInitialStackState(index);
+      stack.addListener(notifyListeners);
+      _routes[index] = stack;
     }
 
     return _routes[index]!;
   }
 
-  StackPageState? _createInitialStackState(int index) {
+  PageStack _createInitialStackState(int index) {
     final path = join(routeInfo.path, page.paths[index]);
-    final route = routemaster._delegate._getPageWrapper(_RouteRequest(
-      path: path,
-      isReplacement: routeInfo.isReplacement,
-    ));
-    return StackPageState(delegate: routemaster._delegate, routes: [route]);
+    final route = routemaster._delegate._getPageWrapper(
+      _RouteRequest(
+        path: path,
+        isReplacement: routeInfo.isReplacement,
+      ),
+    );
+    return PageStack(routes: [route]);
   }
 
   /// Attempts to handle a list of child pages.
@@ -429,6 +422,6 @@ class StackList {
 
   StackList(this._indexedPageState);
 
-  StackPageState operator [](int index) =>
+  PageStack operator [](int index) =>
       _indexedPageState._getStackForIndex(index);
 }

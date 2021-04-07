@@ -1,18 +1,31 @@
 part of '../../routemaster.dart';
 
-/// The state of a stack of pages.
-class StackPageState {
-  final navigatorKey = GlobalKey<NavigatorState>();
-  final RoutemasterDelegate _delegate;
-  late List<PageWrapper> _routes;
+class PageStack extends ChangeNotifier {
+  final navigatorKey = GlobalKey<NavigatorState>(debugLabel: 'PageStack');
 
-  StackPageState({
-    required RoutemasterDelegate delegate,
-    List<PageWrapper>? routes,
-  }) : _delegate = delegate {
-    if (routes != null) {
-      _routes = routes;
+  List<PageWrapper>? __routes;
+  List<PageWrapper> get _routes => __routes!;
+  set _routes(List<PageWrapper> newRoutes) {
+    if (newRoutes == __routes) {
+      return;
     }
+
+    _listenedToRoutes.forEach((route) {
+      route.removeListener(notifyListeners);
+    });
+
+    _listenedToRoutes = newRoutes.whereType<Listenable>().toList()
+      ..forEach((route) {
+        route.addListener(notifyListeners);
+      });
+
+    __routes = newRoutes;
+  }
+
+  List<Listenable> _listenedToRoutes = [];
+
+  PageStack({List<PageWrapper>? routes}) {
+    _routes = routes ?? [];
   }
 
   List<Page> createPages() {
@@ -28,7 +41,9 @@ class StackPageState {
   }
 
   Iterable<PageWrapper> _getCurrentPages() sync* {
-    yield* _routes.last.getCurrentPages();
+    if (_routes.isNotEmpty) {
+      yield* _routes.last.getCurrentPages();
+    }
   }
 
   /// Passed to [Navigator] widgets for them to inform this stack of a pop
@@ -48,7 +63,7 @@ class StackPageState {
 
     if (_routes.length > 1) {
       _routes.removeLast();
-      _delegate._markNeedsUpdate();
+      notifyListeners();
     }
   }
 
@@ -67,7 +82,7 @@ class StackPageState {
     // No navigator attached, but we can pop the stack anyway
     if (_routes.length > 1) {
       _routes.removeLast();
-      _delegate._markNeedsUpdate();
+      notifyListeners();
       return SynchronousFuture(true);
     }
 

@@ -28,7 +28,8 @@ mixin GuardedPage<T> on ProxyPage<T> {
 class Redirect extends Page<void> {
   final String path;
   final Map<String, String>? queryParameters;
-  String get absolutePath => Uri(
+
+  String get redirectPath => Uri(
         path: path,
         queryParameters: queryParameters,
       ).toString();
