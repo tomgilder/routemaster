@@ -357,6 +357,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   @override
   RouteData? get currentConfiguration {
+    assert(!_isDisposed);
+
     return _state.currentConfiguration;
   }
 

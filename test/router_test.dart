@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:routemaster/routemaster.dart';
+import 'package:routemaster/src/route_dart.dart';
 
 import 'helpers.dart';
 
@@ -94,5 +95,27 @@ void main() {
     );
 
     expect(Routemaster.of(key.currentContext!).currentPath, '/two');
+  });
+
+  test('Throws after dispose', () {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {},
+      ),
+    );
+    delegate.dispose();
+
+    expect(() => delegate.currentConfiguration, throwsAssertionError);
+    expect(
+      () => delegate.setInitialRoutePath(RouteData('')),
+      throwsAssertionError,
+    );
+    expect(
+      () => delegate.setNewRoutePath(RouteData('path')),
+      throwsAssertionError,
+    );
+    expect(() => delegate.push(''), throwsAssertionError);
+    expect(() => delegate.replace(''), throwsAssertionError);
+    expect(() => delegate.popRoute(), throwsAssertionError);
   });
 }
