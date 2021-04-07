@@ -1,0 +1,156 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:pedantic/pedantic.dart';
+import 'package:routemaster/routemaster.dart';
+import 'helpers.dart';
+
+void main() {
+  testWidgets('Hot reload stays on route', (tester) async {
+    await tester.pumpWidget(MyApp());
+
+    expect(find.byType(CupertinoTabBar), findsOneWidget);
+
+    // Go to profile page
+    expect(
+      await recordUrlChanges(() async {
+        await tester.tap(find.text('Push page'));
+        await tester.pump();
+        await tester.pump(Duration(seconds: 1));
+      }),
+      ['/feed/profile'],
+    );
+
+    expect(
+      find.byType(ProfilePage),
+      findsOneWidget,
+    );
+
+    expect(
+      await recordUrlChanges(() async {
+        unawaited(tester.binding.reassembleApplication());
+        await tester.pump();
+
+        expect(
+          find.byType(ProfilePage),
+          findsOneWidget,
+        );
+      }),
+      <String>[],
+    );
+  });
+
+  testWidgets('Can navigate after hot reload', (tester) async {
+    await tester.pumpWidget(MyApp());
+    unawaited(tester.binding.reassembleApplication());
+    await tester.pump();
+
+    expect(
+      await recordUrlChanges(() async {
+        await tester.tap(find.text('Push page'));
+        await tester.pump();
+        await tester.pump(Duration(seconds: 1));
+      }),
+      ['/feed/profile'],
+    );
+
+    expect(find.byType(ProfilePage), findsOneWidget);
+
+    expect(
+      await recordUrlChanges(() async {
+        await tester.tap(find.byType(BackButton));
+        await tester.pump();
+        await tester.pump(Duration(seconds: 1));
+      }),
+      ['/feed'],
+    );
+
+    expect(find.byType(ProfilePage), findsNothing);
+
+    expect(
+      await recordUrlChanges(() async {
+        await tester.tap(find.text('Push page'));
+        await tester.pump();
+        await tester.pump(Duration(seconds: 1));
+      }),
+      ['/feed/profile'],
+    );
+
+    expect(find.byType(ProfilePage), findsOneWidget);
+  });
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp.router(
+      routeInformationParser: RoutemasterParser(),
+      routerDelegate: RoutemasterDelegate(
+        routesBuilder: (context) => routeMap,
+      ),
+    );
+  }
+}
+
+// This is the real route map - used if the user is logged in.
+final routeMap = RouteMap(routes: {
+  '/': (_) => CupertinoTabPage(
+        child: HomePage(),
+        paths: ['feed'],
+      ),
+  '/feed': (_) => MaterialPage<void>(child: FeedPage()),
+  '/feed/profile': (info) => MaterialPage<void>(
+        child: ProfilePage(),
+      )
+});
+
+class FeedPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: ElevatedButton(
+        onPressed: () => Routemaster.of(context).push('profile'),
+        child: Text('Push page'),
+      ),
+    );
+  }
+}
+
+class ProfilePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(appBar: AppBar());
+  }
+}
+
+class HomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final tabState = CupertinoTabPage.of(context);
+
+    return CupertinoTabScaffold(
+      controller: tabState.tabController,
+      tabBar: CupertinoTabBar(
+        items: <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            label: '1',
+            icon: Icon(CupertinoIcons.list_bullet),
+          ),
+          BottomNavigationBarItem(
+            label: '2',
+            icon: Icon(CupertinoIcons.search),
+          ),
+        ],
+      ),
+      tabBuilder: (BuildContext context, int index) {
+        final stack = tabState.stacks[index];
+
+        return Navigator(
+          key: stack.navigatorKey,
+          onPopPage: stack.onPopPage,
+          pages: stack.createPages(),
+        );
+      },
+    );
+  }
+}
