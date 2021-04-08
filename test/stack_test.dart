@@ -333,6 +333,47 @@ void main() {
     expect(find.byType(PageOne), findsNothing);
     expect(find.byType(PageTwo), findsOneWidget);
   });
+
+  test('Removes listener from routes on replace', () {
+    final page1 = TestPageWrapper();
+    final page2 = TestPageWrapper();
+    final stack = PageStack(routes: [page1]);
+
+    // ignore: invalid_use_of_protected_member
+    expect(page1.hasListeners, isTrue);
+    stack.maybeSetChildPages([page2]);
+
+    // ignore: invalid_use_of_protected_member
+    expect(page1.hasListeners, isFalse);
+    // ignore: invalid_use_of_protected_member
+    expect(page2.hasListeners, isTrue);
+  });
+}
+
+class TestPageWrapper extends PageWrapper with ChangeNotifier {
+  @override
+  Page createPage() {
+    throw UnimplementedError();
+  }
+
+  @override
+  Iterable<PageWrapper> getCurrentPages() {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool> maybePop() {
+    throw UnimplementedError();
+  }
+
+  @override
+  bool maybeSetChildPages(Iterable<PageWrapper> pages) {
+    throw UnimplementedError();
+  }
+
+  @override
+  // TODO: implement routeInfo
+  RouteInfo get routeInfo => throw UnimplementedError();
 }
 
 class MyTabPage extends StatelessWidget {

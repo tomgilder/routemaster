@@ -9,6 +9,7 @@
 .history
 .svn/
 .fvm/
+/coverage/
 
 # IntelliJ related
 *.iml

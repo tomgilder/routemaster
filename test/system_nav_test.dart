@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:routemaster/routemaster.dart';
 import 'package:routemaster/src/system_nav.dart';
 import 'package:routemaster/src/system_nav_main.dart';
 
@@ -19,6 +20,10 @@ void main() {
       () => SystemNav.setPathUrlStrategy(),
       throwsA(isA<UnsupportedError>()),
     );
+  });
+
+  test('Routemaster.setPathUrlStrategy() does nothing when not on web', () {
+    Routemaster.setPathUrlStrategy();
   });
 
   test('isReplacement returns correct values', () {
