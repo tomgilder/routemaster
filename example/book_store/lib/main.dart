@@ -29,13 +29,13 @@ bool _isValidBookId(String? id) {
 }
 
 final routeMap = RouteMap(
-  onUnknownRoute: (routeInfo, context) {
+  onUnknownRoute: (path, context) {
     return MaterialPage(
       child: PageScaffold(
         title: 'Page not found',
         body: Center(
           child: Text(
-            "Couldn't find page '$routeInfo'",
+            "Couldn't find page '$path'",
             style: Theme.of(context).textTheme.headline3,
           ),
         ),

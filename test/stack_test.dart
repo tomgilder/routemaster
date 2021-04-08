@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:routemaster/routemaster.dart';
-import 'package:routemaster/src/route_dart.dart';
 import 'helpers.dart';
 
 void main() {
@@ -222,12 +221,12 @@ void main() {
   });
 
   testWidgets('Can push a page with query string', (tester) async {
-    late RouteInfo routeInfo;
+    late RouteData routeData;
     final delegate = RoutemasterDelegate(routesBuilder: (context) {
       return RouteMap(routes: {
         '/': (_) => MaterialPage<void>(child: PageOne()),
         '/two': (info) {
-          routeInfo = info;
+          routeData = info;
           return MaterialPage<void>(child: PageTwo());
         },
       });
@@ -243,20 +242,20 @@ void main() {
     delegate.push('two', queryParameters: {'query': 'string'});
     await tester.pump();
 
-    expect(routeInfo.queryParameters['query'], 'string');
+    expect(routeData.queryParameters['query'], 'string');
   });
 
   test('Stack.maybePop() pops with no navigator', () async {
-    final lastRouteInfo = RouteInfo('/last');
+    final lastRouteData = RouteData('/last');
     final stack = PageStack(
       routes: [
         StatelessPage(
           page: MaterialPageOne(),
-          routeInfo: RouteInfo('/'),
+          routeData: RouteData('/'),
         ),
         StatelessPage(
           page: MaterialPageTwo(),
-          routeInfo: lastRouteInfo,
+          routeData: lastRouteData,
         ),
       ],
     );
@@ -267,7 +266,7 @@ void main() {
   test('Stack.maybePop() returns false with one child', () async {
     final stack = PageStack(
       routes: [
-        StatelessPage(page: MaterialPageOne(), routeInfo: RouteInfo('/')),
+        StatelessPage(page: MaterialPageOne(), routeData: RouteData('/')),
       ],
     );
 
@@ -372,8 +371,7 @@ class TestPageWrapper extends PageWrapper with ChangeNotifier {
   }
 
   @override
-  // TODO: implement routeInfo
-  RouteInfo get routeInfo => throw UnimplementedError();
+  RouteData get routeData => throw UnimplementedError();
 }
 
 class MyTabPage extends StatelessWidget {

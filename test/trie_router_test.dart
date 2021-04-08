@@ -21,8 +21,8 @@ class TestRoute extends Page<void> {
   }
 }
 
-RouteInfo getRouteInfo(RouterResult routerResult) {
-  return RouteInfo.fromRouterResult(routerResult, '/');
+RouteData getRouteData(RouterResult routerResult) {
+  return RouteData.fromRouterResult(routerResult, '/');
 }
 
 void main() {
@@ -38,17 +38,17 @@ void main() {
 
     final dataRoot = router.get('/')!;
     expect(dataRoot.pathSegment, '/');
-    expect(dataRoot.builder(getRouteInfo(dataRoot)), rootRoute);
+    expect(dataRoot.builder(getRouteData(dataRoot)), rootRoute);
     expect(dataRoot.pathParameters.isEmpty, isTrue);
 
     final data1 = router.get('/one')!;
     expect(data1.pathSegment, '/one');
-    expect(data1.builder(getRouteInfo(data1)), route1);
+    expect(data1.builder(getRouteData(data1)), route1);
     expect(data1.pathParameters.isEmpty, isTrue);
 
     final data2 = router.get('/one/two')!;
     expect(data2.pathSegment, '/one/two');
-    expect(data2.builder(getRouteInfo(data2)), route2);
+    expect(data2.builder(getRouteData(data2)), route2);
     expect(data2.pathParameters.isEmpty, isTrue);
   });
 
@@ -64,15 +64,15 @@ void main() {
 
     final routes = router.getAll('/one/two')!;
     expect(routes[0].pathSegment, '/');
-    expect(routes[0].builder(getRouteInfo(routes[0])), rootRoute);
+    expect(routes[0].builder(getRouteData(routes[0])), rootRoute);
     expect(routes[0].pathParameters.isEmpty, isTrue);
 
     expect(routes[1].pathSegment, '/one');
-    expect(routes[1].builder(getRouteInfo(routes[1])), route1);
+    expect(routes[1].builder(getRouteData(routes[1])), route1);
     expect(routes[1].pathParameters.isEmpty, isTrue);
 
     expect(routes[2].pathSegment, '/one/two');
-    expect(routes[2].builder(getRouteInfo(routes[2])), route2);
+    expect(routes[2].builder(getRouteData(routes[2])), route2);
     expect(routes[2].pathParameters.isEmpty, isTrue);
   });
 
@@ -88,11 +88,11 @@ void main() {
     expect(routes.length, 2);
 
     expect(routes[0].pathSegment, '/');
-    expect(routes[0].builder(getRouteInfo(routes[0])), rootRoute);
+    expect(routes[0].builder(getRouteData(routes[0])), rootRoute);
     expect(routes[0].pathParameters.isEmpty, isTrue);
 
     expect(routes[1].pathSegment, '/myId/one'); // actual '/myId'
-    expect(routes[1].builder(getRouteInfo(routes[1])), route1);
+    expect(routes[1].builder(getRouteData(routes[1])), route1);
     expect(routes[1].pathParameters.isEmpty, isFalse);
   });
 
@@ -110,19 +110,19 @@ void main() {
 
     final routes = router.getAll('/prod1/prod2/final')!;
     expect(routes[0].pathSegment, '/');
-    expect(routes[0].builder(getRouteInfo(routes[0])), rootRoute);
+    expect(routes[0].builder(getRouteData(routes[0])), rootRoute);
     expect(routes[0].pathParameters.isEmpty, isTrue);
 
     expect(routes[1].pathSegment, '/prod1');
-    expect(routes[1].builder(getRouteInfo(routes[1])), idRoute1);
+    expect(routes[1].builder(getRouteData(routes[1])), idRoute1);
     expect(routes[1].pathParameters.isEmpty, isFalse);
 
     expect(routes[2].pathSegment, '/prod1/prod2');
-    expect(routes[2].builder(getRouteInfo(routes[2])), idRoute2);
+    expect(routes[2].builder(getRouteData(routes[2])), idRoute2);
     expect(routes[2].pathParameters.isEmpty, isFalse);
 
     expect(routes[3].pathSegment, '/prod1/prod2/final');
-    expect(routes[3].builder(getRouteInfo(routes[3])), finalRoute);
+    expect(routes[3].builder(getRouteData(routes[3])), finalRoute);
     expect(routes[3].pathParameters.isEmpty, isFalse);
   });
 
@@ -136,11 +136,11 @@ void main() {
 
     final routes = router.getAll('/prod1/prod2/final')!;
     expect(routes[0].pathSegment, '/');
-    expect(routes[0].builder(getRouteInfo(routes[0])), rootRoute);
+    expect(routes[0].builder(getRouteData(routes[0])), rootRoute);
     expect(routes[0].pathParameters.isEmpty, isTrue);
 
     expect(routes[1].pathSegment, '/prod1/prod2/final');
-    expect(routes[1].builder(getRouteInfo(routes[1])), finalRoute);
+    expect(routes[1].builder(getRouteData(routes[1])), finalRoute);
     expect(routes[1].pathParameters.isEmpty, isFalse);
   });
 
@@ -161,19 +161,19 @@ void main() {
     expect(routes.length, 4);
 
     expect(routes[0].pathSegment, '/');
-    expect(routes[0].builder(getRouteInfo(routes[0])), rootRoute);
+    expect(routes[0].builder(getRouteData(routes[0])), rootRoute);
     expect(routes[0].pathParameters.isEmpty, isTrue);
 
     expect(routes[1].pathSegment, '/product');
-    expect(routes[1].builder(getRouteInfo(routes[1])), productRoute);
+    expect(routes[1].builder(getRouteData(routes[1])), productRoute);
     expect(routes[1].pathParameters.isEmpty, isTrue);
 
     expect(routes[2].pathSegment, '/product/myProduct');
-    expect(routes[2].builder(getRouteInfo(routes[2])), productIdRoute);
+    expect(routes[2].builder(getRouteData(routes[2])), productIdRoute);
     expect(routes[2].pathParameters.isEmpty, isFalse);
 
     expect(routes[3].pathSegment, '/product/myProduct/details');
-    expect(routes[3].builder(getRouteInfo(routes[3])), detailsRoute);
+    expect(routes[3].builder(getRouteData(routes[3])), detailsRoute);
     expect(routes[3].pathParameters.isEmpty, isFalse);
   });
 
@@ -196,23 +196,23 @@ void main() {
     expect(routes.length, 5);
 
     expect(routes[0].pathSegment, '/');
-    expect(routes[0].builder(getRouteInfo(routes[0])), rootRoute);
+    expect(routes[0].builder(getRouteData(routes[0])), rootRoute);
     expect(routes[0].pathParameters.isEmpty, isTrue);
 
     expect(routes[1].pathSegment, '/product');
-    expect(routes[1].builder(getRouteInfo(routes[1])), productRoute);
+    expect(routes[1].builder(getRouteData(routes[1])), productRoute);
     expect(routes[1].pathParameters.isEmpty, isTrue);
 
     expect(routes[2].pathSegment, '/product/prod1');
-    expect(routes[2].builder(getRouteInfo(routes[2])), productId1Route);
+    expect(routes[2].builder(getRouteData(routes[2])), productId1Route);
     expect(routes[2].pathParameters.isEmpty, isFalse);
 
     expect(routes[3].pathSegment, '/product/prod1/prod2');
-    expect(routes[3].builder(getRouteInfo(routes[3])), productId2Route);
+    expect(routes[3].builder(getRouteData(routes[3])), productId2Route);
     expect(routes[3].pathParameters.isEmpty, isFalse);
 
     expect(routes[4].pathSegment, '/product/prod1/prod2/details');
-    expect(routes[4].builder(getRouteInfo(routes[4])), detailsRoute);
+    expect(routes[4].builder(getRouteData(routes[4])), detailsRoute);
     expect(routes[4].pathParameters.isEmpty, isFalse);
   });
 

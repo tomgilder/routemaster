@@ -2,7 +2,7 @@ part of '../../routemaster.dart';
 
 /// A page that can create a state.
 abstract class StatefulPage<T> extends Page<T> {
-  PageState createState(Routemaster routemaster, RouteInfo info);
+  PageState createState(Routemaster routemaster, RouteData info);
 
   @override
   Route<T> createRoute(BuildContext context) {
@@ -14,7 +14,7 @@ abstract class StatefulPage<T> extends Page<T> {
 /// A wrapper around a page object.
 abstract class PageWrapper {
   /// Information about the current route.
-  RouteInfo get routeInfo;
+  RouteData get routeData;
 
   /// Called when popping a route stack. Returns `true` if this page wrapper
   /// has been able to pop a page, otherwise `false`.
@@ -54,14 +54,14 @@ abstract class ProxyPage<T> extends Page<T> {
 /// stateful ones.
 class StatelessPage extends PageWrapper {
   StatelessPage({
-    required this.routeInfo,
+    required this.routeData,
     required this.page,
   }) : assert(page is! Redirect);
 
   final Page page;
 
   @override
-  final RouteInfo routeInfo;
+  final RouteData routeData;
 
   @override
   Iterable<PageWrapper> getCurrentPages() sync* {
