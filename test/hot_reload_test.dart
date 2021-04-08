@@ -92,16 +92,10 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// This is the real route map - used if the user is logged in.
 final routeMap = RouteMap(routes: {
-  '/': (_) => CupertinoTabPage(
-        child: HomePage(),
-        paths: ['feed'],
-      ),
+  '/': (_) => CupertinoTabPage(child: HomePage(), paths: ['feed']),
   '/feed': (_) => MaterialPage<void>(child: FeedPage()),
-  '/feed/profile': (info) => MaterialPage<void>(
-        child: ProfilePage(),
-      )
+  '/feed/profile': (info) => MaterialPage<void>(child: ProfilePage())
 });
 
 class FeedPage extends StatelessWidget {
