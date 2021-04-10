@@ -5,7 +5,7 @@ import 'trie_router/trie_router.dart';
 ///
 /// This object has value equality - objects are equal if the path,
 /// queryParameters and pathParameters all match.
-class RouteInfo {
+class RouteData {
   /// The full path that generated this route.
   final String path;
 
@@ -24,25 +24,25 @@ class RouteInfo {
 
   final bool isReplacement;
 
-  RouteInfo.fromRouterResult(
+  RouteData.fromRouterResult(
     RouterResult result,
     this.path, {
     this.isReplacement = false,
   })  : pathParameters = result.pathParameters,
         queryParameters = QueryParser.parseQueryParameters(path);
 
-  RouteInfo(
+  RouteData(
     this.path, {
     this.pathParameters = const {},
     this.isReplacement = false,
   }) : queryParameters = QueryParser.parseQueryParameters(path);
 
   @override
-  bool operator ==(Object other) => other is RouteInfo && path == other.path;
+  bool operator ==(Object other) => other is RouteData && path == other.path;
 
   @override
   int get hashCode => path.hashCode;
 
   @override
-  String toString() => "RouteInfo: '$path'";
+  String toString() => "RouteData: '$path'";
 }

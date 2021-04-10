@@ -30,7 +30,7 @@ void main() {
 
   test('StatelessPage getCurrentPageStates returns itself', () {
     final page = StatelessPage(
-      routeInfo: RouteInfo(''),
+      routeData: RouteData(''),
       page: MaterialPageOne(),
     );
 
@@ -40,7 +40,7 @@ void main() {
   test('StatelessPage createPage returns page', () {
     final page = MaterialPageOne();
     final statelessPage = StatelessPage(
-      routeInfo: RouteInfo(''),
+      routeData: RouteData(''),
       page: page,
     );
 
@@ -54,7 +54,7 @@ class MockProxyPage extends ProxyPage<void> {
 
 class MockStatefulPage extends StatefulPage<void> {
   @override
-  PageState createState(Routemaster routemaster, RouteInfo info) {
+  PageState createState(Routemaster routemaster, RouteData info) {
     throw UnimplementedError();
   }
 }

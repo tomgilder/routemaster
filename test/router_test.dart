@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:routemaster/routemaster.dart';
-import 'package:routemaster/src/route_dart.dart';
 
 import 'helpers.dart';
 

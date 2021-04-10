@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'route_dart.dart';
+import 'route_data.dart';
 
 class RoutemasterParser extends RouteInformationParser<RouteData> {
   const RoutemasterParser();

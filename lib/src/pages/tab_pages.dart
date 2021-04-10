@@ -12,8 +12,8 @@ class IndexedPage extends StatefulPage<void> with IndexedRouteMixIn {
   });
 
   @override
-  PageState createState(Routemaster routemaster, RouteInfo routeInfo) {
-    return IndexedPageState(this, routemaster, routeInfo);
+  PageState createState(Routemaster routemaster, RouteData routeData) {
+    return IndexedPageState(this, routemaster, routeData);
   }
 
   static IndexedPageState of(BuildContext context) {
@@ -49,12 +49,12 @@ class IndexedPageState extends PageState
   final Routemaster routemaster;
 
   @override
-  final RouteInfo routeInfo;
+  final RouteData routeData;
 
   IndexedPageState(
     this.page,
     this.routemaster,
-    this.routeInfo,
+    this.routeData,
   ) {
     _routes = List.filled(page.paths.length, null);
   }
@@ -68,7 +68,7 @@ class IndexedPageState extends PageState
           child: page.child,
         );
       }),
-      key: ValueKey(routeInfo),
+      key: ValueKey(routeData),
     );
   }
 }
@@ -85,8 +85,8 @@ class TabPage extends StatefulPage<void> with IndexedRouteMixIn {
   });
 
   @override
-  PageState createState(Routemaster routemaster, RouteInfo routeInfo) {
-    return TabPageState(this, routemaster, routeInfo);
+  PageState createState(Routemaster routemaster, RouteData routeData) {
+    return TabPageState(this, routemaster, routeData);
   }
 
   static TabPageState of(BuildContext context) {
@@ -122,9 +122,9 @@ class TabPageState extends PageState
   final Routemaster routemaster;
 
   @override
-  final RouteInfo routeInfo;
+  final RouteData routeData;
 
-  TabPageState(this.page, this.routemaster, this.routeInfo) {
+  TabPageState(this.page, this.routemaster, this.routeData) {
     _routes = List.filled(page.paths.length, null);
   }
 
@@ -141,7 +141,7 @@ class TabPageState extends PageState
   Page createPage() {
     // TODO: Provide a way for user to specify something other than MaterialPage
     return MaterialPage<void>(
-      key: ValueKey(routeInfo),
+      key: ValueKey(routeData),
       child: _TabControllerProvider(
         pageState: this,
         child: Builder(
@@ -216,8 +216,8 @@ class CupertinoTabPage extends StatefulPage<void> with IndexedRouteMixIn {
   });
 
   @override
-  PageState createState(Routemaster routemaster, RouteInfo routeInfo) {
-    return CupertinoTabPageState(this, routemaster, routeInfo);
+  PageState createState(Routemaster routemaster, RouteData routeData) {
+    return CupertinoTabPageState(this, routemaster, routeData);
   }
 
   static CupertinoTabPageState of(BuildContext context) {
@@ -253,14 +253,14 @@ class CupertinoTabPageState extends PageState
   final Routemaster routemaster;
 
   @override
-  final RouteInfo routeInfo;
+  final RouteData routeData;
 
   final CupertinoTabController tabController = CupertinoTabController();
 
   CupertinoTabPageState(
     this.page,
     this.routemaster,
-    this.routeInfo,
+    this.routeData,
   ) {
     _routes = List.filled(page.paths.length, null);
 
@@ -286,7 +286,7 @@ class CupertinoTabPageState extends PageState
             child: page.child,
           );
         },
-        key: ValueKey(routeInfo),
+        key: ValueKey(routeData),
       ),
     );
   }
@@ -314,7 +314,7 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
   late List<PageStack?> _routes;
 
   @override
-  RouteInfo get routeInfo;
+  RouteData get routeData;
 
   IndexedRouteMixIn get page;
 
@@ -344,11 +344,11 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
   }
 
   PageStack _createInitialStackState(int index) {
-    final path = join(routeInfo.path, page.paths[index]);
+    final path = join(routeData.path, page.paths[index]);
     final route = routemaster._delegate._getPageForTab(
       _RouteRequest(
         path: path,
-        isReplacement: routeInfo.isReplacement,
+        isReplacement: routeData.isReplacement,
       ),
     );
     return PageStack(routes: [route]);
@@ -366,8 +366,8 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
       "Don't call maybeSetPageStates with an empty list",
     );
 
-    final tabPagePath = routeInfo.path;
-    final subPagePath = pages.first.routeInfo.path;
+    final tabPagePath = routeData.path;
+    final subPagePath = pages.first.routeData.path;
 
     if (!isWithin(tabPagePath, subPagePath)) {
       // subPagePath is not a path beneath the tab page's path.
@@ -429,9 +429,9 @@ class StackList {
 class _TabNotFoundPage extends StatelessPage {
   _TabNotFoundPage(String path)
       : super(
-          routeInfo: RouteInfo(path),
+          routeData: RouteData(path),
           page: MaterialPage<void>(
-            child: DefaultUnknownRoutePage(route: path),
+            child: DefaultUnknownRoutePage(path: path),
           ),
         );
 }

@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import '../../routemaster.dart';
 
 typedef ValidateCallback = bool Function(
-  RouteInfo info,
+  RouteData info,
   BuildContext context,
 );
 
 typedef ValidationFailedCallback = Page Function(
-  RouteInfo info,
+  RouteData info,
   BuildContext context,
 );
 

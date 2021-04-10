@@ -1,7 +1,7 @@
 library routemaster;
 
 export 'src/parser.dart';
-export 'src/route_info.dart';
+export 'src/route_data.dart';
 export 'src/pages/guard.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -11,10 +11,9 @@ import 'package:flutter/widgets.dart';
 import 'package:path/path.dart';
 import 'package:collection/collection.dart';
 import 'src/pages/guard.dart';
-import 'src/route_dart.dart';
 import 'src/system_nav.dart';
 import 'src/trie_router/trie_router.dart';
-import 'src/route_info.dart';
+import 'src/route_data.dart';
 
 part 'src/pages/page_stack.dart';
 part 'src/pages/tab_pages.dart';
@@ -27,22 +26,22 @@ typedef RoutemasterBuilder = Widget Function(
   GlobalKey<NavigatorState> navigatorKey,
 );
 
-typedef PageBuilder = Page Function(RouteInfo info);
+typedef PageBuilder = Page Function(RouteData route);
 
 typedef UnknownRouteCallback = Page Function(
-  String route,
+  String path,
   BuildContext context,
 );
 
 class DefaultUnknownRoutePage extends StatelessWidget {
-  final String route;
+  final String path;
 
-  DefaultUnknownRoutePage({required this.route});
+  DefaultUnknownRoutePage({required this.path});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Text("Page '$route' wasn't found."),
+      body: Text("Page '$path' wasn't found."),
     );
   }
 }
@@ -61,9 +60,9 @@ abstract class RouteConfig {
   ///   2. Use the routing delegate to, for instance, redirect to another route
   ///      and return null.
   ///
-  Page onUnknownRoute(String route, BuildContext context) {
+  Page onUnknownRoute(String path, BuildContext context) {
     return MaterialPage<void>(
-      child: DefaultUnknownRoutePage(route: route),
+      child: DefaultUnknownRoutePage(path: path),
     );
   }
 
@@ -108,12 +107,12 @@ class RouteMap extends DefaultRouterConfig {
   }) : _onUnknownRoute = onUnknownRoute;
 
   @override
-  Page onUnknownRoute(String route, BuildContext context) {
+  Page onUnknownRoute(String path, BuildContext context) {
     if (_onUnknownRoute != null) {
-      return _onUnknownRoute!(route, context);
+      return _onUnknownRoute!(path, context);
     }
 
-    return super.onUnknownRoute(route, context);
+    return super.onUnknownRoute(path, context);
   }
 }
 
@@ -367,11 +366,11 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       return;
     }
 
-    final routeInfo = _state.stack!._getCurrentPages().last.routeInfo;
-    print("Updated path: '${routeInfo.path}'");
+    final routeData = _state.stack!._getCurrentPages().last.routeData;
+    print("Updated path: '${routeData.path}'");
     _state.currentConfiguration = RouteData(
-      routeInfo.path,
-      isReplacement: routeInfo.isReplacement,
+      routeData.path,
+      isReplacement: routeData.isReplacement,
     );
   }
 
@@ -448,7 +447,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     for (final routerData in routerResult.reversed) {
       final isLastRoute = i++ == 0;
 
-      final routeInfo = RouteInfo.fromRouterResult(
+      final routeData = RouteData.fromRouterResult(
         routerData,
         // Only the last route gets query parameters
         isLastRoute ? requestedPath : routerData.pathSegment,
@@ -457,7 +456,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
       final current = _getOrCreatePageWrapper(
         routeRequest: routeRequest,
-        routeInfo: routeInfo,
+        routeData: routeData,
         currentRoutes: currentRoutes,
         routerResult: routerData,
       );
@@ -505,14 +504,14 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   /// By using a map rather than iterating over all currentRoutes.
   _PageResult _getOrCreatePageWrapper({
     required _RouteRequest routeRequest,
-    required RouteInfo routeInfo,
+    required RouteData routeData,
     required List<PageWrapper>? currentRoutes,
     required RouterResult routerResult,
   }) {
     if (currentRoutes != null) {
-      // See if we have a current route matching the routeInfo
+      // See if we have a current route matching the routeData
       final currentState = currentRoutes.firstWhereOrNull(
-        ((element) => element.routeInfo == routeInfo),
+        ((element) => element.routeData == routeData),
       );
 
       if (currentState != null) {
@@ -523,8 +522,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     // No current route, create a new one
     return _createPageWrapper(
       routeRequest: routeRequest,
-      page: routerResult.builder(routeInfo),
-      routeInfo: routeInfo,
+      page: routerResult.builder(routeData),
+      routeData: routeData,
     );
   }
 
@@ -533,12 +532,12 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     final requestedPath = routeRequest.path;
     final routerResult = _state.routeConfig!.get(requestedPath);
     if (routerResult != null) {
-      final routeInfo = RouteInfo.fromRouterResult(routerResult, requestedPath);
+      final routeData = RouteData.fromRouterResult(routerResult, requestedPath);
 
       final wrapper = _createPageWrapper(
         routeRequest: routeRequest,
-        page: routerResult.builder(routeInfo),
-        routeInfo: routeInfo,
+        page: routerResult.builder(routeData),
+        routeData: routeData,
       );
 
       if (wrapper is _PageWrapperResult) {
@@ -561,22 +560,22 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   _PageResult _createPageWrapper({
     required _RouteRequest routeRequest,
     required Page page,
-    required RouteInfo routeInfo,
+    required RouteData routeData,
   }) {
     while (page is ProxyPage) {
       if (page is GuardedPage) {
-        if (!page.validate(routeInfo, _context)) {
-          print("Validation failed for '${routeInfo.path}'");
+        if (!page.validate(routeData, _context)) {
+          print("Validation failed for '${routeData.path}'");
 
           if (page.onValidationFailed == null) {
             return _NotFoundResult();
           }
 
-          final result = page.onValidationFailed!(routeInfo, _context);
+          final result = page.onValidationFailed!(routeData, _context);
           return _createPageWrapper(
             routeRequest: routeRequest,
             page: result,
-            routeInfo: routeInfo,
+            routeData: routeData,
           );
         }
       }
@@ -590,7 +589,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     if (page is StatefulPage) {
       return _PageWrapperResult(
-        page.createState(_state.routemaster, routeInfo),
+        page.createState(_state.routemaster, routeData),
       );
     }
 
@@ -598,7 +597,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     assert(page is! ProxyPage, 'ProxyPage has not been unwrapped');
 
     // Page is just a standard Flutter page, create a wrapper for it
-    return _PageWrapperResult(StatelessPage(routeInfo: routeInfo, page: page));
+    return _PageWrapperResult(StatelessPage(routeData: routeData, page: page));
   }
 
   List<PageWrapper> _onUnknownRoute(_RouteRequest routeRequest) {
@@ -620,11 +619,11 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     }
 
     // Return 404 page
-    final routeInfo = RouteInfo(
+    final routeData = RouteData(
       requestedPath,
       isReplacement: routeRequest.isReplacement,
     );
-    return [StatelessPage(routeInfo: routeInfo, page: result)];
+    return [StatelessPage(routeData: routeData, page: result)];
   }
 
   List<String> _debugCheckRedirectLoop(
