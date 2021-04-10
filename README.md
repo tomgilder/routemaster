@@ -2,6 +2,13 @@
 
 Hello! Routemaster is an easy-to-use router for Flutter, which wraps over Navigator 2.0.
 
+## Features
+
+* Simple declarative mapping from a URLs to pages
+* Easy-to-use API: just `Routemaster.of(context).push('/page')`
+* Really easy nested navigation support for tabs
+* Multiple route maps: for example one for a logged in user, another for logged out
+
 Here's the entire routing setup needed for an app featuring tabs and pushed routes:
 
 ```dart
@@ -39,7 +46,7 @@ I would love any feedback you have! Please create an issue for API feedback.
 
 Please don't report bugs yet; it's way too early. There are almost no tests, so there will be bugs 😁 
 
-# Design goals
+## Design goals
 
 * Integrated: work with the Flutter Navigator 2.0 API, don't try to replace it. Try to have a very Flutter-like API.
 * Usable: design around user scenarios/stories, such as the ones in [the Flutter storyboard](https://github.com/flutter/uxr/files/5953028/PUBLIC.Flutter.Navigator.API.Scenarios.-.Storyboards.pdf) - [see here for examples](https://github.com/tomgilder/routemaster/wiki/Routemaster-Flutter-scenarios).
@@ -48,7 +55,7 @@ Please don't report bugs yet; it's way too early. There are almost no tests, so 
 
 This project builds on [page_router](https://github.com/johnpryan/page_router).
 
-# Name
+## Name
 
 Named after the original Routemaster:
 
