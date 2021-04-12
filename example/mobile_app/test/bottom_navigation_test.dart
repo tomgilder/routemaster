@@ -60,6 +60,7 @@ void main() {
 
     await setSystemUrl('/bottom-navigation-bar/one');
     await tester.pump();
+    await tester.pump(Duration(seconds: 1));
 
     expect(find.text('Bottom bar page 1'), findsOneWidget);
     expect(find.byType(BottomNavigationBar), findsOneWidget);

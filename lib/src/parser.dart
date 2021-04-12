@@ -13,11 +13,6 @@ class RoutemasterParser extends RouteInformationParser<RouteData> {
   /// Route object -> RouteInformation (URL)
   @override
   RouteInformation restoreRouteInformation(RouteData routeData) {
-    return RouteInformation(
-      location: routeData.path,
-      state: {
-        'isReplacement': routeData.isReplacement,
-      },
-    );
+    return routeData.toRouteInformation();
   }
 }

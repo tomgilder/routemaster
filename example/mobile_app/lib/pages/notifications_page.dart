@@ -59,12 +59,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
         final tabPageState = IndexedPage.of(context);
         final stack = tabPageState.stacks[index];
 
-        return Navigator(
-          // observers: [HeroController()],
-          key: stack.navigatorKey,
-          onPopPage: stack.onPopPage,
-          pages: stack.createPages(),
-        );
+        return StackNavigator(stack: stack);
       },
     );
   }

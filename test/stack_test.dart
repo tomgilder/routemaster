@@ -327,7 +327,6 @@ void main() {
     routemaster.replace('two');
     await tester.pump();
     await tester.pump(kTransitionDuration);
-    expect(routemaster.currentPath, '/two');
 
     expect(find.byType(PageOne), findsNothing);
     expect(find.byType(PageTwo), findsOneWidget);
@@ -377,15 +376,11 @@ class TestPageWrapper extends PageWrapper with ChangeNotifier {
 class MyTabPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final tab = TabPage.of(context).stacks[0];
+    final stack = TabPage.of(context).stacks[0];
 
     return Container(
       height: 300,
-      child: Navigator(
-        pages: tab.createPages(),
-        onPopPage: tab.onPopPage,
-        key: tab.navigatorKey,
-      ),
+      child: StackNavigator(stack: stack),
     );
   }
 }

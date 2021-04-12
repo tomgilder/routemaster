@@ -125,11 +125,7 @@ class BasicTabPage extends StatelessWidget {
     final stack = IndexedPage.of(context).currentStack;
 
     return Scaffold(
-      body: Navigator(
-        pages: stack.createPages(),
-        key: stack.navigatorKey,
-        onPopPage: stack.onPopPage,
-      ),
+      body: StackNavigator(stack: stack),
     );
   }
 }

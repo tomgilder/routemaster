@@ -20,9 +20,18 @@ class PageStack extends ChangeNotifier {
       });
 
     __routes = newRoutes;
+    notifyListeners();
+
+    if (navigatorKey.currentContext != null) {
+      Routemaster.of(navigatorKey.currentContext!)._delegate._markNeedsUpdate();
+    }
   }
 
   List<Listenable> _listenedToRoutes = [];
+
+  /// A map so we can keep track of each page's route data. This can be used by
+  /// users to get the current page's [RouteData] via `RouteData.of(context)`.
+  Map<Page, RouteData> _routeMap = {};
 
   PageStack({List<PageWrapper>? routes}) {
     _routes = routes ?? [];
@@ -30,7 +39,12 @@ class PageStack extends ChangeNotifier {
 
   List<Page> createPages() {
     assert(_routes.isNotEmpty, "Can't generate pages with no routes");
-    final pages = _routes.map((pageState) => pageState.createPage()).toList();
+    _routeMap = {};
+    final pages = _routes.map((pageState) {
+      final page = pageState.createPage();
+      _routeMap[page] = pageState.routeData;
+      return page;
+    }).toList();
     assert(pages.isNotEmpty, 'Returned pages list must not be empty');
     return pages;
   }
@@ -49,22 +63,13 @@ class PageStack extends ChangeNotifier {
   /// Passed to [Navigator] widgets for them to inform this stack of a pop
   bool onPopPage(Route<dynamic> route, dynamic result) {
     if (route.didPop(result)) {
-      _didPop();
+      _routes.removeLast();
+      Routemaster.of(navigatorKey.currentContext!)._delegate._markNeedsUpdate();
+      // We don't need to notify listeners, the Navigator will rebuild itself
       return true;
     }
 
     return false;
-  }
-
-  void _didPop() async {
-    if (await _routes.last.maybePop()) {
-      return;
-    }
-
-    if (_routes.length > 1) {
-      _routes.removeLast();
-      notifyListeners();
-    }
   }
 
   Future<bool> maybePop() async {

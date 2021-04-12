@@ -12,11 +12,18 @@ class SearchPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Hero(tag: 'my-hero', child: Text('Hero text')),
             ElevatedButton(
               onPressed: () => Routemaster.of(context).push('hero'),
-              child: Text(
-                  "Test hero animations work\n\n(spoiler alert: they don't)"),
+              child: Text('Test hero animations work'),
+            ),
+            SizedBox(height: 20),
+            Hero(
+              tag: 'my-hero',
+              child: Container(
+                color: Colors.red,
+                width: 50,
+                height: 50,
+              ),
             ),
           ],
         ),
@@ -32,14 +39,20 @@ class HeroPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('Search'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(height: 300),
-            Hero(tag: 'my-hero', child: Text('Hero text')),
-          ],
-        ),
+      body: ListView(
+        children: [
+          SizedBox(height: 300),
+          Center(
+            child: Hero(
+              tag: 'my-hero',
+              child: Container(
+                color: Colors.red,
+                width: 100,
+                height: 100,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
