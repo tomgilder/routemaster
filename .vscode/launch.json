@@ -1,0 +1,23 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Book store",
+            "type": "dart",
+            "request": "launch",
+            "program": "example/book_store/lib/main.dart"
+        },
+        {
+            "name": "Mobile app",
+            "type": "dart",
+            "request": "launch",
+            "program": "example/mobile_app/lib/main.dart"
+        },
+        {
+            "name": "Simple example",
+            "type": "dart",
+            "request": "launch",
+            "program": "example/simple_example/lib/main.dart"
+        }
+    ]
+  }
