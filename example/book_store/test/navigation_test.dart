@@ -26,8 +26,6 @@ void main() {
       ['/book/2'],
     );
 
-    debugDumpApp();
-
     expect(
       find.byWidgetPredicate(
         (widget) => widget is BookPage && widget.id == '2',
