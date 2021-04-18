@@ -19,31 +19,32 @@ class TrieRouter {
   /// Throws a [ConflictingPathError] if there is a conflict.
   ///
   /// It is an error to add two segments prefixed with ':' at the same index.
-  bool add(String route, PageBuilder value) {
+  void add(String route, PageBuilder value) {
     assert(route.isNotEmpty);
 
+    print("Adding route '$route'...");
     var pathSegments = path.split(route);
-    return addPathComponents(pathSegments, value);
+    addPathComponents(pathSegments, value);
+    print('\n');
   }
 
   /// Throws a [ConflictingPathError] if there is a conflict.
   ///
   /// It is an error to add two segments prefixed with ':' at the same index.
-  bool addPathComponents(Iterable<String> pathSegments, PageBuilder value) {
+  void addPathComponents(Iterable<String> pathSegments, PageBuilder value) {
     assert(pathSegments.isNotEmpty);
 
     var list = List<String>.from(pathSegments);
-    TrieNode<String?, PageBuilder?>? current = _trie.root;
-    var isNew = false;
+    var current = _trie.root;
 
     // Work downwards through the trie, adding nodes as needed, and keeping
     // track of whether we add any nodes.
     for (var i = 0; i < list.length; i++) {
-      var pathSegment = list[i];
+      final pathSegment = list[i];
 
       // Throw an error when two segments start with ':' at the same index.
       if (pathSegment.startsWith(':') &&
-          current!.containsWhere((k) => k!.startsWith(':')) &&
+          current.containsWhere((k) => k!.startsWith(':')) &&
           !current.containsWhere((k) => k == pathSegment)) {
         throw ConflictingPathError(
             list,
@@ -51,28 +52,34 @@ class TrieRouter {
               ..add(current.getWhere((k) => k!.startsWith(':'))!.key));
       }
 
-      if (!current!.contains(pathSegment)) {
-        isNew = true;
+      final isLastSegment = i == list.length - 1;
 
-        final isLastSegment = i == list.length - 1;
+      if (current.contains(pathSegment)) {
         if (isLastSegment) {
+          // A child node has already been created, need to update it so it
+          // points at the right value
+          current.get(pathSegment)!.value = value;
+        }
+      } else {
+        // No matching node for path, we need to create one
+        if (isLastSegment) {
+          // Last segment, add a node pointing at the value
           current.add(pathSegment, value);
         } else {
+          // Not the last segment, add null node
           current.add(pathSegment, null);
         }
       }
 
-      current = current.get(pathSegment);
+      current = current.get(pathSegment)!;
     }
 
     // Explicitly mark the end of a list of path segments. Otherwise, we might
     // say a path segment is present if it is a prefix of a different, longer
     // word that was added earlier.
-    if (!current!.contains(null)) {
-      isNew = true;
+    if (!current.contains(null)) {
       current.add(null, null);
     }
-    return isNew;
   }
 
   RouterResult? get(String route) {
@@ -115,7 +122,6 @@ class TrieRouter {
     }
 
     TrieNode<String?, PageBuilder?>? current = _trie.root;
-
     var i = 0;
 
     for (var segment in pathSegments) {

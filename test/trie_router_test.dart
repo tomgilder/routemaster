@@ -52,6 +52,51 @@ void main() {
     expect(data2.pathParameters.isEmpty, isTrue);
   });
 
+  test('Can add and get single routes without root', () {
+    final router = TrieRouter();
+    final route1 = TestRoute('one');
+    final route2 = TestRoute('two');
+
+    router.add('/one/two', (_) => route2);
+    router.add('/one', (_) => route1);
+
+    final data1 = router.get('/one')!;
+    expect(data1.pathSegment, '/one');
+    expect(data1.builder(getRouteData(data1)), route1);
+    expect(data1.pathParameters.isEmpty, isTrue);
+
+    final data2 = router.get('/one/two')!;
+    expect(data2.pathSegment, '/one/two');
+    expect(data2.builder(getRouteData(data2)), route2);
+    expect(data2.pathParameters.isEmpty, isTrue);
+  });
+
+  test('Can add and get single routes in reverse order', () {
+    final router = TrieRouter();
+    final rootRoute = TestRoute('root');
+    final route1 = TestRoute('one');
+    final route2 = TestRoute('two');
+
+    router.add('/one/two', (_) => route2);
+    router.add('/one', (_) => route1);
+    router.add('/', (_) => rootRoute);
+
+    final dataRoot = router.get('/')!;
+    expect(dataRoot.pathSegment, '/');
+    expect(dataRoot.builder(getRouteData(dataRoot)), rootRoute);
+    expect(dataRoot.pathParameters.isEmpty, isTrue);
+
+    final data1 = router.get('/one')!;
+    expect(data1.pathSegment, '/one');
+    expect(data1.builder(getRouteData(data1)), route1);
+    expect(data1.pathParameters.isEmpty, isTrue);
+
+    final data2 = router.get('/one/two')!;
+    expect(data2.pathSegment, '/one/two');
+    expect(data2.builder(getRouteData(data2)), route2);
+    expect(data2.pathParameters.isEmpty, isTrue);
+  });
+
   test('Can add and get all routes', () {
     final router = TrieRouter();
     final rootRoute = TestRoute('root');
@@ -74,6 +119,59 @@ void main() {
     expect(routes[2].pathSegment, '/one/two');
     expect(routes[2].builder(getRouteData(routes[2])), route2);
     expect(routes[2].pathParameters.isEmpty, isTrue);
+  });
+
+  test('Can add and get all routes in reverse order', () {
+    final workingRouter = TrieRouter();
+
+    final router = TrieRouter();
+    final rootRoute = TestRoute('root');
+    final route1 = TestRoute('one');
+    final route2 = TestRoute('two');
+
+    print('\n\nWorking router:');
+    workingRouter.add('/', (_) => rootRoute);
+    workingRouter.add('/one', (_) => route1);
+    workingRouter.add('/one/two', (_) => route2);
+
+    print('\nBroken router:');
+    router.add('/one/two', (_) => route2);
+    router.add('/one', (_) => route1);
+    router.add('/', (_) => rootRoute);
+
+    final routes = router.getAll('/one/two')!;
+    expect(routes.length, 3);
+
+    expect(routes[0].pathSegment, '/');
+    expect(routes[0].builder(getRouteData(routes[0])), rootRoute);
+    expect(routes[0].pathParameters.isEmpty, isTrue);
+
+    expect(routes[1].pathSegment, '/one');
+    expect(routes[1].builder(getRouteData(routes[1])), route1);
+    expect(routes[1].pathParameters.isEmpty, isTrue);
+
+    expect(routes[2].pathSegment, '/one/two');
+    expect(routes[2].builder(getRouteData(routes[2])), route2);
+    expect(routes[2].pathParameters.isEmpty, isTrue);
+  });
+
+  test('Can add and get all routes without root', () {
+    final router = TrieRouter();
+    final route1 = TestRoute('one');
+    final route2 = TestRoute('two');
+
+    router.add('/one/two', (_) => route2);
+    router.add('/one', (_) => route1);
+
+    final routes = router.getAll('/one/two')!;
+
+    expect(routes[0].pathSegment, '/one');
+    expect(routes[0].builder(getRouteData(routes[0])), route1);
+    expect(routes[0].pathParameters.isEmpty, isTrue);
+
+    expect(routes[1].pathSegment, '/one/two');
+    expect(routes[1].builder(getRouteData(routes[1])), route2);
+    expect(routes[1].pathParameters.isEmpty, isTrue);
   });
 
   test('Can get route which starts with parameter', () {
