@@ -122,19 +122,11 @@ void main() {
   });
 
   test('Can add and get all routes in reverse order', () {
-    final workingRouter = TrieRouter();
-
     final router = TrieRouter();
     final rootRoute = TestRoute('root');
     final route1 = TestRoute('one');
     final route2 = TestRoute('two');
 
-    print('\n\nWorking router:');
-    workingRouter.add('/', (_) => rootRoute);
-    workingRouter.add('/one', (_) => route1);
-    workingRouter.add('/one/two', (_) => route2);
-
-    print('\nBroken router:');
     router.add('/one/two', (_) => route2);
     router.add('/one', (_) => route1);
     router.add('/', (_) => rootRoute);
