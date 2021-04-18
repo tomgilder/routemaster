@@ -792,6 +792,8 @@ class StackNavigator extends StatefulWidget {
 
 class StackNavigatorState extends State<StackNavigator> {
   late Navigator _navigator;
+  final HeroController _heroController =
+      MaterialApp.createMaterialHeroController();
 
   @override
   void initState() {
@@ -830,13 +832,15 @@ class StackNavigatorState extends State<StackNavigator> {
       onPopPage: widget.stack.onPopPage,
       transitionDelegate: widget.transitionDelegate,
       pages: widget.stack.createPages(),
-      observers: [HeroController()],
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return _navigator;
+    return HeroControllerScope(
+      controller: _heroController,
+      child: _navigator,
+    );
   }
 
   RouteData? routeDataFor(Page page) {
