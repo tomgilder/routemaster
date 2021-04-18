@@ -30,16 +30,8 @@ class AudiobookPage extends StatelessWidget {
             child: TabBarView(
               controller: tabState.tabController,
               children: <Widget>[
-                Navigator(
-                  pages: tabState.stacks[0].createPages(),
-                  onPopPage: tabState.stacks[0].onPopPage,
-                  key: tabState.stacks[0].navigatorKey,
-                ),
-                Navigator(
-                  pages: tabState.stacks[1].createPages(),
-                  onPopPage: tabState.stacks[1].onPopPage,
-                  key: tabState.stacks[1].navigatorKey,
-                ),
+                StackNavigator(stack: tabState.stacks[0]),
+                StackNavigator(stack: tabState.stacks[1]),
               ],
             ),
           ),

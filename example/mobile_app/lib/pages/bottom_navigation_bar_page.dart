@@ -30,14 +30,12 @@ class _BottomNavigationBarPageState extends State<BottomNavigationBarPage> {
     final pageState = IndexedPage.of(context);
     final selectedIndex = pageState.index;
     final stack = pageState.stacks[selectedIndex];
-    final pages = stack.createPages();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Bottom Navigation Bar')),
-      body: Navigator(
+      body: StackNavigator(
         key: ValueKey(selectedIndex),
-        onPopPage: stack.onPopPage,
-        pages: pages,
+        stack: stack,
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: selectedIndex,

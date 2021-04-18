@@ -148,7 +148,7 @@ class _PageScaffoldState extends State<PageScaffold> {
                         Routemaster.of(context).push(
                           '/login',
                           queryParameters: {
-                            'redirectTo': Routemaster.of(context).currentPath
+                            'redirectTo': RouteData.of(context).path,
                           },
                         );
                       },
@@ -208,7 +208,7 @@ class _PageScaffoldState extends State<PageScaffold> {
       ),
       NavigationLink(
         title: 'Audiobooks',
-        path: '/audiobooks/all',
+        path: '/audiobooks',
         inDrawer: inDrawer,
       ),
       NavigationLink(
@@ -233,8 +233,8 @@ class NavigationLink extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final route = Routemaster.of(context).currentPath;
-    final isCurrent = route.startsWith(path);
+    final currentPath = RouteData.of(context).path;
+    final isCurrent = currentPath.startsWith(path);
 
     return Container(
       color: isCurrent ? Color(0xff068597) : Colors.transparent,

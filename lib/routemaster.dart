@@ -17,7 +17,7 @@ import 'src/route_data.dart';
 
 part 'src/pages/page_stack.dart';
 part 'src/pages/tab_pages.dart';
-part 'src/pages/standard.dart';
+part 'src/pages/basic_pages.dart';
 
 typedef RoutemasterBuilder = Widget Function(
   BuildContext context,
@@ -129,9 +129,11 @@ class Routemaster {
   }
 
   static Routemaster of(BuildContext context) {
-    return context
-        .dependOnInheritedWidgetOfExactType<_RoutemasterWidget>()!
-        .routemaster;
+    final element =
+        context.getElementForInheritedWidgetOfExactType<_RoutemasterWidget>();
+
+    assert(element != null);
+    return (element!.widget as _RoutemasterWidget).routemaster;
   }
 
   /// Pops the current route from the router. Returns `true` if the pop was
@@ -179,15 +181,10 @@ class Routemaster {
   void push(String path, {Map<String, String>? queryParameters}) {
     _delegate.push(path, queryParameters: queryParameters);
   }
-
-  /// The current route path, for example '/products/1'.
-  String get currentPath => _delegate.currentConfiguration!.path;
 }
 
 class RoutemasterDelegate extends RouterDelegate<RouteData>
     with ChangeNotifier {
-  /// Used to override how the [Navigator] builds.
-  final RoutemasterBuilder? builder;
   final TransitionDelegate? transitionDelegate;
   final RouteConfig Function(BuildContext context) routesBuilder;
 
@@ -198,7 +195,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   RoutemasterDelegate({
     required this.routesBuilder,
-    this.builder,
     this.transitionDelegate,
   }) {
     _state.routemaster._delegate = this;
@@ -213,14 +209,18 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   /// Called by the [Router] when the [Router.backButtonDispatcher] reports that
   /// the operating system is requesting that the current route be popped.
   @override
-  Future<bool> popRoute() {
+  Future<bool> popRoute() async {
     assert(!_isDisposed);
 
     if (_state.stack == null) {
       return SynchronousFuture(false);
     }
 
-    return _state.stack!.maybePop();
+    final result = await _state.stack!.maybePop();
+    if (result) {
+      _markNeedsUpdate();
+    }
+    return result;
   }
 
   /// Passed to top-level [Navigator] widget, called when the navigator requests
@@ -277,24 +277,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return Uri(path: absolutePath, queryParameters: queryParameters).toString();
   }
 
-  /// Generates all pages and sub-pages.
-  List<Page> createPages(BuildContext context) {
-    assert(!_isDisposed);
-
-    assert(_state.stack != null,
-        'Stack must have been created when createPages() is called');
-    final pages = _state.stack!.createPages();
-    assert(pages.isNotEmpty, 'Returned pages list must not be empty');
-    _updateCurrentConfiguration();
-
-    assert(
-      pages.none((page) => page is Redirect),
-      'Returned pages list must not have redirect',
-    );
-
-    return pages;
-  }
-
   void _markNeedsUpdate() {
     assert(!_isDisposed);
 
@@ -306,8 +288,10 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }
 
   void _processPendingNavigation() {
-    if (_state.pendingNavigation != null) {
-      _processNavigation(_state.pendingNavigation!);
+    final pendingNavigation = _state.pendingNavigation;
+
+    if (pendingNavigation != null) {
+      _processNavigation(pendingNavigation);
       _state.pendingNavigation = null;
     }
   }
@@ -317,7 +301,14 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       path,
       currentRoutes: _state.stack?._getCurrentPages().toList(),
     );
-    _state.stack = PageStack(routes: pages);
+
+    if (_state.stack == null) {
+      _state.stack = PageStack(routes: pages);
+    } else {
+      _state.stack!._routes = pages;
+    }
+
+    _updateCurrentConfiguration();
   }
 
   @override
@@ -332,20 +323,15 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         _isBuilding = true;
         _init(context);
         _processPendingNavigation();
-        final pages = createPages(context);
         _isBuilding = false;
 
         return _RoutemasterWidget(
           routemaster: _state.routemaster,
-          child: builder != null
-              ? builder!(context, pages, onPopPage, _state.stack!.navigatorKey)
-              : Navigator(
-                  pages: pages,
-                  onPopPage: onPopPage,
-                  key: _state.stack!.navigatorKey,
-                  transitionDelegate: transitionDelegate ??
-                      const DefaultTransitionDelegate<dynamic>(),
-                ),
+          child: StackNavigator(
+            stack: _state.stack!,
+            transitionDelegate: transitionDelegate ??
+                const DefaultTransitionDelegate<dynamic>(),
+          ),
         );
       },
     );
@@ -413,6 +399,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }
 
   /// Called when dependencies of the [routesBuilder] changed.
+  ///
+  /// This triggers a full rebuild of the routes.
   void _didChangeDependencies(BuildContext context) {
     if (currentConfiguration == null) {
       return;
@@ -426,6 +414,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     _init(context, isRebuild: true);
     _isBuilding = false;
 
+    // Already building; schedule rebuild for next frame
     WidgetsBinding.instance?.addPostFrameCallback((_) => _markNeedsUpdate());
   }
 
@@ -669,7 +658,7 @@ class _RoutemasterWidget extends InheritedWidget {
 
   @override
   bool updateShouldNotify(covariant _RoutemasterWidget oldWidget) {
-    return routemaster._delegate != oldWidget.routemaster._delegate;
+    return false;
   }
 }
 
@@ -700,7 +689,9 @@ class _RoutemasterState {
   }
 
   void _onStackChanged() {
-    routemaster._delegate._markNeedsUpdate();
+    WidgetsBinding.instance?.addPostFrameCallback(
+      (_) => routemaster._delegate._markNeedsUpdate(),
+    );
   }
 }
 
@@ -776,4 +767,84 @@ class _RouteRequest {
     required this.path,
     this.isReplacement = false,
   });
+}
+
+/// Provides a [Navigator] that shows pages from a [PageStack].
+///
+/// This widget listens to that stack, and updates the navigator when the pages
+/// change.
+class StackNavigator extends StatefulWidget {
+  final PageStack stack;
+  final TransitionDelegate transitionDelegate;
+
+  StackNavigator({
+    Key? key,
+    required this.stack,
+    this.transitionDelegate = const DefaultTransitionDelegate<dynamic>(),
+  }) : super(key: key);
+
+  @override
+  StackNavigatorState createState() => StackNavigatorState();
+
+  static StackNavigatorState of(BuildContext context) {
+    return context.findAncestorStateOfType<StackNavigatorState>()!;
+  }
+}
+
+class StackNavigatorState extends State<StackNavigator> {
+  late Navigator _navigator;
+  final HeroController _heroController =
+      MaterialApp.createMaterialHeroController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    widget.stack.addListener(_onStackChanged);
+    _updateNavigator();
+  }
+
+  @override
+  void didUpdateWidget(StackNavigator oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.stack != widget.stack) {
+      oldWidget.stack.removeListener(_onStackChanged);
+      widget.stack.addListener(_onStackChanged);
+      _updateNavigator();
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.stack.removeListener(_onStackChanged);
+    super.dispose();
+  }
+
+  void _onStackChanged() {
+    setState(() {
+      _updateNavigator();
+    });
+  }
+
+  void _updateNavigator() {
+    _navigator = Navigator(
+      key: widget.stack.navigatorKey,
+      onPopPage: widget.stack.onPopPage,
+      transitionDelegate: widget.transitionDelegate,
+      pages: widget.stack.createPages(),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return HeroControllerScope(
+      controller: _heroController,
+      child: _navigator,
+    );
+  }
+
+  RouteData? routeDataFor(Page page) {
+    return widget.stack._routeMap[page];
+  }
 }

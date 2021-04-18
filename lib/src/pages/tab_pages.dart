@@ -58,17 +58,18 @@ class IndexedPageState extends PageState
   ) {
     _routes = List.filled(page.paths.length, null);
   }
+
   @override
   Page createPage() {
     // TODO: Provide a way for user to specify something other than MaterialPage
     return MaterialPage<void>(
+      key: ValueKey(routeData),
       child: Builder(builder: (context) {
         return _IndexedPageStateProvider(
           pageState: this,
           child: page.child,
         );
       }),
-      key: ValueKey(routeData),
     );
   }
 }
@@ -176,21 +177,30 @@ class _TabControllerProvider extends StatefulWidget {
 
 class _TabControllerProviderState extends State<_TabControllerProvider>
     with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
   @override
   void initState() {
     super.initState();
 
-    final tabController = TabController(
+    _tabController = TabController(
       length: widget.pageState._routes.length,
       initialIndex: widget.pageState.index,
       vsync: this,
     );
 
-    tabController.addListener(() {
-      widget.pageState.index = tabController.index;
+    _tabController.addListener(() {
+      widget.pageState.index = _tabController.index;
     });
 
-    widget.pageState._tabController = tabController;
+    widget.pageState._tabController = _tabController;
+  }
+
+  @override
+  void didUpdateWidget(_TabControllerProvider oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    widget.pageState._tabController = _tabController;
   }
 
   @override
@@ -240,7 +250,8 @@ class _CupertinoTabPageStateProvider extends InheritedNotifier {
 
   @override
   bool updateShouldNotify(covariant _CupertinoTabPageStateProvider oldWidget) {
-    return pageState != oldWidget.pageState;
+    return pageState != oldWidget.pageState ||
+        pageState.index != oldWidget.pageState.index;
   }
 }
 
@@ -279,6 +290,7 @@ class CupertinoTabPageState extends PageState
   Page createPage() {
     // TODO: Provide a way for user to specify something other than MaterialPage
     return MaterialPage<void>(
+      key: ValueKey(routeData),
       child: Builder(
         builder: (context) {
           return _CupertinoTabPageStateProvider(
@@ -286,22 +298,12 @@ class CupertinoTabPageState extends PageState
             child: page.child,
           );
         },
-        key: ValueKey(routeData),
       ),
     );
   }
 
   Widget tabBuilder(BuildContext context, int index) {
-    final stack = _getStackForIndex(index);
-    final pages = stack.createPages();
-
-    assert(pages.isNotEmpty, 'Pages must not be empty');
-
-    return Navigator(
-      key: stack.navigatorKey,
-      onPopPage: stack.onPopPage,
-      pages: pages,
-    );
+    return StackNavigator(stack: _getStackForIndex(index));
   }
 }
 
@@ -330,13 +332,13 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
       _index = value;
 
       notifyListeners();
+      routemaster._delegate._markNeedsUpdate();
     }
   }
 
   PageStack _getStackForIndex(int index) {
     if (_routes[index] == null) {
       final stack = _createInitialStackState(index);
-      stack.addListener(notifyListeners);
       _routes[index] = stack;
     }
 

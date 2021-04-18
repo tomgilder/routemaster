@@ -1,3 +1,6 @@
+import 'package:flutter/widgets.dart';
+import 'package:routemaster/routemaster.dart';
+
 import 'query_parser.dart';
 import 'trie_router/trie_router.dart';
 
@@ -45,4 +48,33 @@ class RouteData {
 
   @override
   String toString() => "RouteData: '$path'";
+
+  RouteInformation toRouteInformation() {
+    return RouteInformation(
+      location: path,
+      state: {
+        'isReplacement': isReplacement,
+      },
+    );
+  }
+
+  static RouteData of(BuildContext context) {
+    final modalRoute = ModalRoute.of(context);
+    assert(modalRoute != null, "Couldn't get modal route");
+    assert(modalRoute!.settings is Page, "Modal route isn't a page route");
+
+    final page = modalRoute!.settings as Page;
+
+    assert(() {
+      final modalRouteNavigator = ModalRoute.of(context)!.navigator!;
+      final stack = StackNavigator.of(context).widget.stack;
+      final stackNavigator = stack.navigatorKey.currentState;
+      return modalRouteNavigator == stackNavigator;
+    }(), 'Navigators do not match');
+
+    final routeData = StackNavigator.of(context).routeDataFor(page);
+    assert(routeData != null, "Couldn't match page to route data");
+
+    return routeData!;
+  }
 }

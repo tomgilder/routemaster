@@ -69,4 +69,39 @@ void main() {
       "RouteData: '/'",
     );
   });
+
+  testWidgets('Can get RouteData from context', (tester) async {
+    final pageKey1 = GlobalKey();
+    final pageKey2 = GlobalKey();
+
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (context) {
+        return RouteMap(
+          routes: {
+            '/': (_) => MaterialPage<void>(child: Container(key: pageKey1)),
+            '/two/:id': (_) => MaterialPage<void>(
+                  child: Container(key: pageKey2),
+                ),
+          },
+        );
+      },
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    expect(RouteData.of(pageKey1.currentContext!).path, '/');
+
+    delegate.push('/two/myId?query=param');
+    await tester.pump();
+
+    final page2RouteData = RouteData.of(pageKey2.currentContext!);
+    expect(page2RouteData.path, '/two/myId?query=param');
+    expect(page2RouteData.pathParameters['id'], 'myId');
+    expect(page2RouteData.queryParameters['query'], 'param');
+  });
 }

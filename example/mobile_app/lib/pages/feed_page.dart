@@ -88,6 +88,8 @@ class ProfilePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text('Profile page, ID = $id, message = $message'),
+            Text('Profile page - ' +
+                RouteData.of(context).pathParameters['id']!),
             ElevatedButton(
               onPressed: () => Routemaster.of(context).push('photo'),
               child: Text('Photo page (custom animation)'),
