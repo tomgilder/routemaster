@@ -185,8 +185,6 @@ class Routemaster {
 
 class RoutemasterDelegate extends RouterDelegate<RouteData>
     with ChangeNotifier {
-  /// Used to override how the [Navigator] builds.
-  final RoutemasterBuilder? builder;
   final TransitionDelegate? transitionDelegate;
   final RouteConfig Function(BuildContext context) routesBuilder;
 
@@ -197,7 +195,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   RoutemasterDelegate({
     required this.routesBuilder,
-    this.builder,
     this.transitionDelegate,
   }) {
     _state.routemaster._delegate = this;
