@@ -235,13 +235,6 @@ class CupertinoTabPage extends StatefulPage<void> with IndexedRouteMixIn {
         .dependOnInheritedWidgetOfExactType<_CupertinoTabPageStateProvider>()!
         .pageState;
   }
-
-  static CupertinoTabPageState of2(BuildContext context) {
-    final result = context.getElementForInheritedWidgetOfExactType<
-        _CupertinoTabPageStateProvider>();
-
-    return (result!.widget as _CupertinoTabPageStateProvider).pageState;
-  }
 }
 
 class _CupertinoTabPageStateProvider extends InheritedNotifier {

@@ -661,7 +661,7 @@ class _RoutemasterWidget extends InheritedWidget {
 
   @override
   bool updateShouldNotify(covariant _RoutemasterWidget oldWidget) {
-    return true; //routemaster._delegate != oldWidget.routemaster._delegate;
+    return false;
   }
 }
 
@@ -772,6 +772,10 @@ class _RouteRequest {
   });
 }
 
+/// Provides a [Navigator] that shows pages from a [PageStack].
+///
+/// This widget listens to that stack, and updates the navigator when the pages
+/// change.
 class StackNavigator extends StatefulWidget {
   final PageStack stack;
   final TransitionDelegate transitionDelegate;
@@ -784,10 +788,6 @@ class StackNavigator extends StatefulWidget {
 
   @override
   StackNavigatorState createState() => StackNavigatorState();
-
-  static StackNavigatorState of(BuildContext context) {
-    return context.findAncestorStateOfType<StackNavigatorState>()!;
-  }
 }
 
 class StackNavigatorState extends State<StackNavigator> {
