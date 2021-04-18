@@ -788,6 +788,10 @@ class StackNavigator extends StatefulWidget {
 
   @override
   StackNavigatorState createState() => StackNavigatorState();
+
+  static StackNavigatorState of(BuildContext context) {
+    return context.findAncestorStateOfType<StackNavigatorState>()!;
+  }
 }
 
 class StackNavigatorState extends State<StackNavigator> {
