@@ -12,49 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'helpers.dart';
 
-class InheritedHome extends StatefulWidget {
-  static final GlobalKey globalKey = GlobalKey();
-
-  InheritedHome({Key? key}) : super(key: key);
-
-  @override
-  _InheritedHomeState createState() => _InheritedHomeState();
-}
-
-class _InheritedHomeState extends State<InheritedHome> {
-  late Widget container;
-
-  @override
-  void initState() {
-    super.initState();
-    container = Container(
-      child: InheritedUser(),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return InheritedThing(child: container);
-  }
-}
-
-class InheritedUser extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    context.dependOnInheritedWidgetOfExactType<InheritedThing>();
-    return Container();
-  }
-}
-
-class InheritedThing extends InheritedWidget {
-  InheritedThing({required Widget child}) : super(child: child);
-
-  @override
-  bool updateShouldNotify(covariant InheritedWidget oldWidget) {
-    return true;
-  }
-}
-
 void main() {
   testWidgets('Can navigate to book by tapping', (tester) async {
     // Scenario #1: Deep Linking - Path Parameters
