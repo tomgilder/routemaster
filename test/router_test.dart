@@ -48,4 +48,16 @@ void main() {
     expect(() => delegate.replace(''), throwsAssertionError);
     expect(() => delegate.popRoute(), throwsAssertionError);
   });
+
+  testWidgets('Asserts when no RoutemasterWidget found', (tester) async {
+    late BuildContext context;
+    await tester.pumpWidget(Builder(
+      builder: (c) {
+        context = c;
+        return SizedBox();
+      },
+    ));
+
+    expect(() => Routemaster.of(context), throwsAssertionError);
+  });
 }

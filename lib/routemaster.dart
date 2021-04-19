@@ -132,7 +132,11 @@ class Routemaster {
     final element =
         context.getElementForInheritedWidgetOfExactType<_RoutemasterWidget>();
 
-    assert(element != null);
+    assert(
+      element != null,
+      "Couldn't get a Routemaster object from the given context.",
+    );
+
     return (element!.widget as _RoutemasterWidget).routemaster;
   }
 
@@ -221,13 +225,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       _markNeedsUpdate();
     }
     return result;
-  }
-
-  /// Passed to top-level [Navigator] widget, called when the navigator requests
-  /// that it wants to pop a page.
-  bool onPopPage(Route<dynamic> route, dynamic result) {
-    assert(!_isDisposed);
-    return _state.stack!.onPopPage(route, result);
   }
 
   /// Replaces the current route with [path].
