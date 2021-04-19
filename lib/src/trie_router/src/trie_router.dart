@@ -22,10 +22,8 @@ class TrieRouter {
   void add(String route, PageBuilder value) {
     assert(route.isNotEmpty);
 
-    print("Adding route '$route'...");
     var pathSegments = path.split(route);
     addPathComponents(pathSegments, value);
-    print('\n');
   }
 
   /// Throws a [ConflictingPathError] if there is a conflict.
