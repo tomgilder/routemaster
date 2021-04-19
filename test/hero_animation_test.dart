@@ -69,7 +69,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tabState = CupertinoTabPage.of(context);
-    print('build');
+
     return CupertinoTabScaffold(
       controller: tabState.tabController,
       tabBar: CupertinoTabBar(
