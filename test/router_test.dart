@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:routemaster/routemaster.dart';
+import 'package:routemaster/src/system_nav.dart';
 
 import 'helpers.dart';
 
@@ -64,5 +65,37 @@ void main() {
             e is AssertionError &&
             e.message ==
                 "Couldn't get a Routemaster object from the given context.")));
+  });
+
+  test('isReplacement returns correct values', () {
+    expect(isReplacementNavigation('blah'), isFalse);
+
+    expect(isReplacementNavigation({'state': null}), isFalse);
+
+    expect(
+      isReplacementNavigation({'state': null}),
+      isFalse,
+    );
+
+    expect(
+      isReplacementNavigation({
+        'state': {'isReplacement': null}
+      }),
+      isFalse,
+    );
+
+    expect(
+      isReplacementNavigation({
+        'state': {'isReplacement': false}
+      }),
+      isFalse,
+    );
+
+    expect(
+      isReplacementNavigation({
+        'state': {'isReplacement': true}
+      }),
+      isTrue,
+    );
   });
 }
