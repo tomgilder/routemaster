@@ -33,7 +33,7 @@ void main() {
         routerDelegate: RoutemasterDelegate(routesBuilder: (context) => routes),
         routeInformationParser: RoutemasterParser(),
       ),
-    );
+  );
 }
 ```
 
