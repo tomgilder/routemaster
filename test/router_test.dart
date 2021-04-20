@@ -58,6 +58,11 @@ void main() {
       },
     ));
 
-    expect(() => Routemaster.of(context), throwsAssertionError);
+    expect(
+        () => Routemaster.of(context),
+        throwsA(predicate((e) =>
+            e is AssertionError &&
+            e.message ==
+                "Couldn't get a Routemaster object from the given context.")));
   });
 }
