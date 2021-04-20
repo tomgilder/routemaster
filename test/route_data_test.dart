@@ -105,7 +105,7 @@ void main() {
     expect(page2RouteData.queryParameters['query'], 'param');
   });
 
-  testWidgets('Assets if unable to get modal route', (tester) async {
+  testWidgets('Asserts if unable to get modal route', (tester) async {
     late BuildContext context;
     await tester.pumpWidget(Builder(builder: (c) {
       context = c;
