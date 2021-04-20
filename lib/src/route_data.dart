@@ -72,9 +72,6 @@ class RouteData {
       return modalRouteNavigator == stackNavigator;
     }(), 'Navigators do not match');
 
-    final routeData = StackNavigator.of(context).routeDataFor(page);
-    assert(routeData != null, "Couldn't match page to route data");
-
-    return routeData!;
+    return StackNavigator.of(context).routeDataFor(page)!;
   }
 }

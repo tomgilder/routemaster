@@ -132,7 +132,11 @@ class Routemaster {
     final element =
         context.getElementForInheritedWidgetOfExactType<_RoutemasterWidget>();
 
-    assert(element != null);
+    assert(
+      element != null,
+      "Couldn't get a Routemaster object from the given context.",
+    );
+
     return (element!.widget as _RoutemasterWidget).routemaster;
   }
 
@@ -223,13 +227,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return result;
   }
 
-  /// Passed to top-level [Navigator] widget, called when the navigator requests
-  /// that it wants to pop a page.
-  bool onPopPage(Route<dynamic> route, dynamic result) {
-    assert(!_isDisposed);
-    return _state.stack!.onPopPage(route, result);
-  }
-
   /// Replaces the current route with [path].
   void replace(String path, {Map<String, String>? queryParameters}) {
     assert(!_isDisposed);
@@ -287,30 +284,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     }
   }
 
-  void _processPendingNavigation() {
-    final pendingNavigation = _state.pendingNavigation;
-
-    if (pendingNavigation != null) {
-      _processNavigation(pendingNavigation);
-      _state.pendingNavigation = null;
-    }
-  }
-
-  void _processNavigation(_RouteRequest path) {
-    final pages = _createAllPageWrappers(
-      path,
-      currentRoutes: _state.stack?._getCurrentPages().toList(),
-    );
-
-    if (_state.stack == null) {
-      _state.stack = PageStack(routes: pages);
-    } else {
-      _state.stack!._routes = pages;
-    }
-
-    _updateCurrentConfiguration();
-  }
-
   @override
   Widget build(BuildContext context) {
     assert(!_isDisposed);
@@ -321,7 +294,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       delegate: this,
       builder: (context) {
         _isBuilding = true;
-        _init(context);
+        _initRouter(context);
         _processPendingNavigation();
         _isBuilding = false;
 
@@ -380,22 +353,51 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return SynchronousFuture(null);
   }
 
-  void _init(BuildContext context, {bool isRebuild = false}) {
-    if (_state.routeConfig == null) {
+  void _initRouter(BuildContext context, {bool isRebuild = false}) {
+    final routerNeedsBuilding = _state.routeConfig == null;
+
+    if (routerNeedsBuilding) {
       _state.routeConfig = routesBuilder(context);
 
-      final routeRequest = _state.pendingNavigation ??
-          _RouteRequest(
-            path: currentConfiguration?.path ?? '/',
-          );
-
-      final pageStates = _createAllPageWrappers(
-        routeRequest,
+      _processNavigation(
+        routeRequest: _state.pendingNavigation ??
+            _RouteRequest(path: currentConfiguration?.path ?? '/'),
         currentRoutes: null,
       );
-      assert(pageStates.isNotEmpty);
-      _state.stack = PageStack(routes: pageStates);
+
+      _state.pendingNavigation = null;
     }
+  }
+
+  void _processPendingNavigation() {
+    final pendingNavigation = _state.pendingNavigation;
+
+    if (pendingNavigation != null) {
+      _processNavigation(
+        routeRequest: pendingNavigation,
+        currentRoutes: _state.stack?._getCurrentPages().toList(),
+      );
+      _state.pendingNavigation = null;
+    }
+  }
+
+  void _processNavigation({
+    required _RouteRequest routeRequest,
+    required List<PageWrapper>? currentRoutes,
+  }) {
+    final pages = _createAllPageWrappers(
+      routeRequest,
+      currentRoutes: currentRoutes,
+    );
+    assert(pages.isNotEmpty);
+
+    if (_state.stack == null) {
+      _state.stack = PageStack(routes: pages);
+    } else {
+      _state.stack!._routes = pages;
+    }
+
+    _updateCurrentConfiguration();
   }
 
   /// Called when dependencies of the [routesBuilder] changed.
@@ -411,7 +413,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     _state.stack = null;
 
     _isBuilding = true;
-    _init(context, isRebuild: true);
+    _initRouter(context, isRebuild: true);
     _isBuilding = false;
 
     // Already building; schedule rebuild for next frame
@@ -787,7 +789,9 @@ class StackNavigator extends StatefulWidget {
   StackNavigatorState createState() => StackNavigatorState();
 
   static StackNavigatorState of(BuildContext context) {
-    return context.findAncestorStateOfType<StackNavigatorState>()!;
+    final state = context.findAncestorStateOfType<StackNavigatorState>();
+    assert(state != null, "Couldn't find a StackNavigatorState");
+    return state!;
   }
 }
 

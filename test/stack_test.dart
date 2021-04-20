@@ -346,6 +346,23 @@ void main() {
     // ignore: invalid_use_of_protected_member
     expect(page2.hasListeners, isTrue);
   });
+
+  testWidgets('Asserts if unable to find StackNavigationState', (tester) async {
+    late BuildContext context;
+    await tester.pumpWidget(
+      Builder(builder: (c) {
+        context = c;
+        return SizedBox();
+      }),
+    );
+
+    expect(
+      () => StackNavigator.of(context),
+      throwsA(predicate((e) =>
+          e is AssertionError &&
+          e.message == "Couldn't find a StackNavigatorState")),
+    );
+  });
 }
 
 class TestPageWrapper extends PageWrapper with ChangeNotifier {

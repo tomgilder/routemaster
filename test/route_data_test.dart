@@ -104,4 +104,18 @@ void main() {
     expect(page2RouteData.pathParameters['id'], 'myId');
     expect(page2RouteData.queryParameters['query'], 'param');
   });
+
+  testWidgets('Asserts if unable to get modal route', (tester) async {
+    late BuildContext context;
+    await tester.pumpWidget(Builder(builder: (c) {
+      context = c;
+      return SizedBox();
+    }));
+
+    expect(
+      () => RouteData.of(context),
+      throwsA(predicate((e) =>
+          e is AssertionError && e.message == "Couldn't get modal route")),
+    );
+  });
 }
