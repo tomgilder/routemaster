@@ -17,9 +17,9 @@ final routes = RouteMap(routes: {
         child: HomePage(),
         paths: ['feed', 'settings'],
       ),
-  '/feed': (_) => MaterialPage<void>(child: FeedPage()),
-  '/feed/profile/:id': (info) => MaterialPage<void>(child: ProfilePage(id: info['id'])),
-  '/settings': (_) => MaterialPage<void>(child: SettingsPage()),
+  '/feed': (_) => MaterialPage(child: FeedPage()),
+  '/feed/profile/:id': (info) => MaterialPage(child: ProfilePage(id: info.pathParameters['id'])),
+  '/settings': (_) => MaterialPage(child: SettingsPage()),
 };
 
 void main() {
