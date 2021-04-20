@@ -1,3 +1,9 @@
+## [0.3.0] - 20 April 2021
+
+* Added `StackNavigator` to simplify API
+* Support for non-hash URLs on web - `Routemaster.setPathUrlStrategy()`
+* Support for hero animations in nested navigators
+
 ## [0.2.0] - 3 April 2021
 
 * Re-work guards and redirects to make API simpler
