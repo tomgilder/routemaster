@@ -12,15 +12,20 @@ Hello! Routemaster is an easy-to-use router for Flutter, which wraps over Naviga
 Here's the entire routing setup needed for an app featuring tabs and pushed routes:
 
 ```dart
-final routes = RouteMap(routes: {
-  '/': (_) => CupertinoTabPage(
-        child: HomePage(),
-        paths: ['feed', 'settings'],
-      ),
-  '/feed': (_) => MaterialPage(child: FeedPage()),
-  '/feed/profile/:id': (info) => MaterialPage(child: ProfilePage(id: info.pathParameters['id'])),
-  '/settings': (_) => MaterialPage(child: SettingsPage()),
-};
+final routes = RouteMap(
+  routes: {
+    '/': (_) => CupertinoTabPage(
+          child: HomePage(),
+          paths: ['feed', 'settings'],
+        ),
+
+    '/feed': (_) => MaterialPage(child: FeedPage()),
+    '/settings': (_) => MaterialPage(child: SettingsPage()),
+    '/feed/profile/:id': (info) => MaterialPage(
+      child: ProfilePage(id: info.pathParameters['id'])
+    ),
+  }
+);
 
 void main() {
   runApp(
