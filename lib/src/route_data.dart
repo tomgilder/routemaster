@@ -64,14 +64,6 @@ class RouteData {
     assert(modalRoute!.settings is Page, "Modal route isn't a page route");
 
     final page = modalRoute!.settings as Page;
-
-    assert(() {
-      final modalRouteNavigator = ModalRoute.of(context)!.navigator!;
-      final stack = StackNavigator.of(context).widget.stack;
-      final stackNavigator = stack.navigatorKey.currentState;
-      return modalRouteNavigator == stackNavigator;
-    }(), 'Navigators do not match');
-
     return StackNavigator.of(context).routeDataFor(page)!;
   }
 }

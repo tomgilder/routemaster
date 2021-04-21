@@ -1,7 +1,7 @@
 part of '../../routemaster.dart';
 
 class PageStack extends ChangeNotifier {
-  final navigatorKey = GlobalKey<NavigatorState>(debugLabel: 'PageStack');
+  GlobalKey<NavigatorState>? _attachedNavigatorKey;
 
   List<PageWrapper>? __routes;
   List<PageWrapper> get _routes => __routes!;
@@ -21,10 +21,6 @@ class PageStack extends ChangeNotifier {
 
     __routes = newRoutes;
     notifyListeners();
-
-    if (navigatorKey.currentContext != null) {
-      Routemaster.of(navigatorKey.currentContext!)._delegate._markNeedsUpdate();
-    }
   }
 
   List<Listenable> _listenedToRoutes = [];
@@ -64,7 +60,6 @@ class PageStack extends ChangeNotifier {
   bool onPopPage(Route<dynamic> route, dynamic result) {
     if (route.didPop(result)) {
       _routes.removeLast();
-      Routemaster.of(navigatorKey.currentContext!)._delegate._markNeedsUpdate();
       // We don't need to notify listeners, the Navigator will rebuild itself
       return true;
     }
@@ -74,13 +69,12 @@ class PageStack extends ChangeNotifier {
 
   Future<bool> maybePop() async {
     // First try delegating the pop to the last child route.
-    // Covered by several tests in feed_test.dart
     if (await _routes.last.maybePop()) {
       return SynchronousFuture(true);
     }
 
     // Child wasn't interested, ask the navigator if we have a key
-    if (await navigatorKey.currentState?.maybePop() == true) {
+    if (await _attachedNavigatorKey?.currentState?.maybePop() == true) {
       return SynchronousFuture(true);
     }
 

@@ -1,3 +1,7 @@
+## [0.3.1] - 21 April 2021
+
+* Bug fix for reusing stacks in multiple navigators
+
 ## [0.3.0] - 20 April 2021
 
 * Added `StackNavigator` to simplify API

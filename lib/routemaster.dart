@@ -796,6 +796,7 @@ class StackNavigator extends StatefulWidget {
 }
 
 class StackNavigatorState extends State<StackNavigator> {
+  final _navigatorKey = GlobalKey<NavigatorState>(debugLabel: 'PageStack');
   late Navigator _navigator;
   final HeroController _heroController =
       MaterialApp.createMaterialHeroController();
@@ -831,13 +832,25 @@ class StackNavigatorState extends State<StackNavigator> {
     });
   }
 
+  void _updateDelegate() {
+    Routemaster.of(this.context)._delegate._markNeedsUpdate();
+  }
+
   void _updateNavigator() {
     _navigator = Navigator(
-      key: widget.stack.navigatorKey,
-      onPopPage: widget.stack.onPopPage,
+      key: _navigatorKey,
+      onPopPage: (route, dynamic result) {
+        final didPop = widget.stack.onPopPage(route, result);
+        if (didPop) {
+          _updateDelegate();
+        }
+        return didPop;
+      },
       transitionDelegate: widget.transitionDelegate,
       pages: widget.stack.createPages(),
     );
+
+    widget.stack._attachedNavigatorKey = _navigatorKey;
   }
 
   @override

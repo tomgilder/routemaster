@@ -116,6 +116,7 @@ void main() {
     // Navigate to '/three' which is only in routeMap2
     delegate.push('/three');
 
+    await tester.pump();
     await tester.pump(kTransitionDuration);
     expect(find.byType(PageThree), findsOneWidget);
 
