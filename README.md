@@ -49,8 +49,6 @@ There's also a [more advanced example](https://github.com/tomgilder/routemaster/
 
 I would love any feedback you have! Please create an issue for API feedback.
 
-Please don't report bugs yet; it's way too early. There are almost no tests, so there will be bugs 😁 
-
 ## Design goals
 
 * Integrated: work with the Flutter Navigator 2.0 API, don't try to replace it. Try to have a very Flutter-like API.
