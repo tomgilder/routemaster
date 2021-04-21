@@ -320,6 +320,7 @@ void main() {
       await recordUrlChanges(() async {
         await tester.tap(find.text('Add wishlist'));
         await tester.pump();
+        await tester.pump(Duration(seconds: 1));
         expect(find.byType(AddWishlistDialog), findsNothing);
       }),
       ['/wishlist'],
