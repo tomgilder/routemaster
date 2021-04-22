@@ -18,6 +18,7 @@ import 'src/route_data.dart';
 part 'src/pages/page_stack.dart';
 part 'src/pages/tab_pages.dart';
 part 'src/pages/basic_pages.dart';
+part 'src/observers.dart';
 
 typedef RoutemasterBuilder = Widget Function(
   BuildContext context,
@@ -196,10 +197,12 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   bool _isBuilding = false;
   bool _isDisposed = false;
   late BuildContext _context;
+  final List<RoutemasterObserver> observers;
 
   RoutemasterDelegate({
     required this.routesBuilder,
     this.transitionDelegate,
+    this.observers = const [],
   }) {
     _state.routemaster._delegate = this;
   }
@@ -327,10 +330,18 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     final routeData = _state.stack!._getCurrentPages().last.routeData;
     print("Updated path: '${routeData.path}'");
-    _state.currentConfiguration = RouteData(
-      routeData.path,
-      isReplacement: routeData.isReplacement,
-    );
+
+    if (_state.currentConfiguration!.path != routeData.path) {
+      _state.currentConfiguration = RouteData(
+        routeData.path,
+        isReplacement: routeData.isReplacement,
+        pathTemplate: routeData.pathTemplate,
+      );
+
+      for (final observer in observers) {
+        observer.didChangeRoute(routeData);
+      }
+    }
   }
 
   // Called when a new URL is set. The RouteInformationParser will parse the
@@ -349,7 +360,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   Future<void> setInitialRoutePath(RouteData configuration) {
     assert(!_isDisposed);
 
-    _state.currentConfiguration = RouteData(configuration.path);
+    _state.currentConfiguration = configuration;
     return SynchronousFuture(null);
   }
 
@@ -778,11 +789,13 @@ class _RouteRequest {
 class StackNavigator extends StatefulWidget {
   final PageStack stack;
   final TransitionDelegate transitionDelegate;
+  final List<NavigatorObserver> observers;
 
   StackNavigator({
     Key? key,
     required this.stack,
     this.transitionDelegate = const DefaultTransitionDelegate<dynamic>(),
+    this.observers = const [],
   }) : super(key: key);
 
   @override
@@ -798,14 +811,19 @@ class StackNavigator extends StatefulWidget {
 class StackNavigatorState extends State<StackNavigator> {
   final _navigatorKey = GlobalKey<NavigatorState>(debugLabel: 'PageStack');
   late Navigator _navigator;
+  late Routemaster _routemaster;
   final HeroController _heroController =
       MaterialApp.createMaterialHeroController();
+  late _RelayingNavigatorObserver _proxyNavigationObserver;
 
   @override
   void initState() {
     super.initState();
 
     widget.stack.addListener(_onStackChanged);
+    _proxyNavigationObserver = _RelayingNavigatorObserver(
+      () => _routemaster._delegate.observers,
+    );
     _updateNavigator();
   }
 
@@ -818,12 +836,22 @@ class StackNavigatorState extends State<StackNavigator> {
       widget.stack.addListener(_onStackChanged);
       _updateNavigator();
     }
+
+    if (oldWidget.observers != widget.observers) {
+      _updateNavigator();
+    }
   }
 
   @override
   void dispose() {
     widget.stack.removeListener(_onStackChanged);
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _routemaster = Routemaster.of(this.context);
   }
 
   void _onStackChanged() {
@@ -833,7 +861,7 @@ class StackNavigatorState extends State<StackNavigator> {
   }
 
   void _updateDelegate() {
-    Routemaster.of(this.context)._delegate._markNeedsUpdate();
+    _routemaster._delegate._markNeedsUpdate();
   }
 
   void _updateNavigator() {
@@ -848,6 +876,7 @@ class StackNavigatorState extends State<StackNavigator> {
       },
       transitionDelegate: widget.transitionDelegate,
       pages: widget.stack.createPages(),
+      observers: [_proxyNavigationObserver, ...widget.observers],
     );
 
     widget.stack._attachedNavigatorKey = _navigatorKey;

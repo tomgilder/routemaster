@@ -37,7 +37,7 @@ class PageStack extends ChangeNotifier {
     assert(_routes.isNotEmpty, "Can't generate pages with no routes");
     _routeMap = {};
     final pages = _routes.map((pageState) {
-      final page = pageState.createPage();
+      final page = pageState.page;
       _routeMap[page] = pageState.routeData;
       return page;
     }).toList();

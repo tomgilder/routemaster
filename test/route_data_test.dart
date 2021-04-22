@@ -10,55 +10,135 @@ MaterialPage<void> builder(RouteData info) {
 
 void main() {
   test('Provides correct path without query string', () {
-    final data =
-        RouteData.fromRouterResult(RouterResult(builder, {}, '/path'), '/path');
+    final data = RouteData.fromRouterResult(
+      RouterResult(
+        builder: builder,
+        pathParameters: {},
+        pathSegment: '/path',
+        pathTemplate: '/template',
+      ),
+      '/path',
+    );
     expect(data.path, '/path');
   });
 
   test('Provides correct path with query string', () {
     final data = RouteData.fromRouterResult(
-        RouterResult(builder, {}, '/path'), '/path?hello=world');
+      RouterResult(
+        builder: builder,
+        pathParameters: {},
+        pathSegment: '/path',
+        pathTemplate: '/template',
+      ),
+      '/path?hello=world',
+    );
     expect(data.path, '/path?hello=world');
   });
 
   test('Route info with different paths are not equal', () {
     final one = RouteData.fromRouterResult(
-        RouterResult(builder, {}, '/one'), '/one/two');
-    final two =
-        RouteData.fromRouterResult(RouterResult(builder, {}, '/two'), '/one');
+      RouterResult(
+        builder: builder,
+        pathParameters: {},
+        pathSegment: '/one',
+        pathTemplate: '/template',
+      ),
+      '/one/two',
+    );
+    final two = RouteData.fromRouterResult(
+      RouterResult(
+        builder: builder,
+        pathParameters: {},
+        pathSegment: '/two',
+        pathTemplate: '/template',
+      ),
+      '/one',
+    );
 
     expect(one == two, isFalse);
   });
 
   test('Route info with same paths are equal', () {
-    final one = RouteData.fromRouterResult(RouterResult(builder, {}, '/'), '/');
-    final two = RouteData.fromRouterResult(RouterResult(builder, {}, '/'), '/');
+    final one = RouteData.fromRouterResult(
+      RouterResult(
+        builder: builder,
+        pathParameters: {},
+        pathSegment: '/',
+        pathTemplate: '/',
+      ),
+      '/',
+    );
+    final two = RouteData.fromRouterResult(
+        RouterResult(
+          builder: builder,
+          pathParameters: {},
+          pathSegment: '/',
+          pathTemplate: '/',
+        ),
+        '/');
 
     expect(one == two, isTrue);
   });
 
   test('Route info with different query strings are not equal', () {
-    final one =
-        RouteData.fromRouterResult(RouterResult(builder, {}, '/'), '/?a=b');
-    final two = RouteData.fromRouterResult(RouterResult(builder, {}, '/'), '/');
+    final one = RouteData.fromRouterResult(
+        RouterResult(
+          builder: builder,
+          pathParameters: {},
+          pathSegment: '/',
+          pathTemplate: '/',
+        ),
+        '/?a=b');
+    final two = RouteData.fromRouterResult(
+        RouterResult(
+          builder: builder,
+          pathParameters: {},
+          pathSegment: '/',
+          pathTemplate: '/',
+        ),
+        '/');
 
     expect(one == two, isFalse);
   });
 
   test('Route info with same query strings are equal', () {
-    final one =
-        RouteData.fromRouterResult(RouterResult(builder, {}, '/'), '/?a=b');
-    final two =
-        RouteData.fromRouterResult(RouterResult(builder, {}, '/'), '/?a=b');
+    final one = RouteData.fromRouterResult(
+        RouterResult(
+          builder: builder,
+          pathParameters: {},
+          pathSegment: '/',
+          pathTemplate: '/',
+        ),
+        '/?a=b');
+    final two = RouteData.fromRouterResult(
+        RouterResult(
+          builder: builder,
+          pathParameters: {},
+          pathSegment: '/',
+          pathTemplate: '/',
+        ),
+        '/?a=b');
 
     expect(one == two, isTrue);
   });
 
   test('Route info with same path params are equal', () {
-    final one =
-        RouteData.fromRouterResult(RouterResult(builder, {'a': 'b'}, '/'), '/');
-    final two =
-        RouteData.fromRouterResult(RouterResult(builder, {'a': 'b'}, '/'), '/');
+    final one = RouteData.fromRouterResult(
+        RouterResult(
+          builder: builder,
+          pathParameters: {'a': 'b'},
+          pathSegment: '/',
+          pathTemplate: '/',
+        ),
+        '/');
+    final two = RouteData.fromRouterResult(
+        RouterResult(
+          builder: builder,
+          pathParameters: {'a': 'b'},
+          pathSegment: '/',
+          pathTemplate: '/',
+        ),
+        '/');
 
     expect(one == two, isTrue);
   });

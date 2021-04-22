@@ -431,7 +431,7 @@ class StackList {
 class _TabNotFoundPage extends StatelessPage {
   _TabNotFoundPage(String path)
       : super(
-          routeData: RouteData(path),
+          routeData: RouteData(path, pathTemplate: null),
           page: MaterialPage<void>(
             child: DefaultUnknownRoutePage(path: path),
           ),
