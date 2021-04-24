@@ -39,10 +39,7 @@ class HomePage extends StatelessWidget {
         ],
       ),
       tabBuilder: (BuildContext context, int index) {
-        return StackNavigator(
-          // key: ValueKey(appState.showBonusTab.toString()),
-          stack: tabState.stacks[index],
-        );
+        return StackNavigator(stack: tabState.stacks[index]);
       },
     );
   }
