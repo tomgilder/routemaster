@@ -198,7 +198,7 @@ class _HomePageState extends State<HomePage> {
     final tabState = CupertinoTabPage.of(context);
 
     return CupertinoTabScaffold(
-      controller: tabState.tabController,
+      controller: tabState.controller,
       tabBuilder: (BuildContext context, int index) {
         final stack = tabState.stacks[index];
         return StackNavigator(

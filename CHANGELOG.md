@@ -2,6 +2,7 @@
 
 * Added support for `RoutemasterObserver` in `RoutemasterDelegate`
 * Added support for `NavigatorObserver` in `StackNavigator`
+* Renamed `tabController` to `controller`
 
 ## [0.3.1] - 21 April 2021
 

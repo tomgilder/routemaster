@@ -112,7 +112,7 @@ void main() {
     );
 
     final pageState = TabPage.of(pageKey.currentContext!);
-    final tabController = pageState.tabController;
+    final tabController = pageState.controller;
 
     expect(pageState.index, 0);
     expect(tabController.index, 0);
@@ -131,14 +131,15 @@ void main() {
     TabController? controller;
 
     final page = TabPage(
-        child: Builder(
-          builder: (BuildContext context) {
-            buildCount++;
-            controller = TabPage.of(context).tabController;
-            return Container();
-          },
-        ),
-        paths: ['path']);
+      child: Builder(
+        builder: (BuildContext context) {
+          buildCount++;
+          controller = TabPage.of(context).controller;
+          return Container();
+        },
+      ),
+      paths: ['path'],
+    );
 
     final state1 = TabPageState(page, StubRoutemaster(), RouteData('root'));
     final state2 = TabPageState(page, StubRoutemaster(), RouteData('root'));
@@ -150,6 +151,7 @@ void main() {
     expect(buildCount, 1);
     expect(controller, isNotNull);
 
+    // This causes _TabControllerProvider.didUpdateWidget to be called
     await tester.pumpWidget(page2.child);
     expect(buildCount, 2);
     expect(controller, isNotNull);

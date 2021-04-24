@@ -50,6 +50,10 @@ class FeedPage extends StatelessWidget {
                 child: Text('Jump to settings tab'),
               ),
               ElevatedButton(
+                onPressed: () => Routemaster.of(context).push('/tab-bar'),
+                child: Text('Tab bar page'),
+              ),
+              ElevatedButton(
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) {
                     return Scaffold(

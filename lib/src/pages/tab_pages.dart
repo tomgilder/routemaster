@@ -38,20 +38,18 @@ class _IndexedPageStateProvider extends InheritedNotifier {
 class IndexedPageState extends PageState
     with ChangeNotifier, IndexedPageStateMixIn {
   @override
-  final IndexedPage page;
-
-  @override
-  final Routemaster routemaster;
+  final IndexedPage _tabPage;
 
   @override
   final RouteData routeData;
 
   IndexedPageState(
-    this.page,
-    this.routemaster,
+    this._tabPage,
+    Routemaster routemaster,
     this.routeData,
   ) {
-    _routes = List.filled(page.paths.length, null);
+    _routemaster = routemaster;
+    _routes = List.filled(_tabPage.paths.length, null);
   }
 
   @override
@@ -60,7 +58,7 @@ class IndexedPageState extends PageState
     return MaterialPage<void>(
       child: _IndexedPageStateProvider(
         pageState: this,
-        child: page.child,
+        child: _tabPage.child,
       ),
     );
   }
@@ -104,22 +102,20 @@ class _TabPageStateProvider extends InheritedNotifier {
 class TabPageState extends PageState
     with ChangeNotifier, IndexedPageStateMixIn {
   @override
-  final TabPage page;
-
-  @override
-  final Routemaster routemaster;
+  final TabPage _tabPage;
 
   @override
   final RouteData routeData;
 
-  TabPageState(this.page, this.routemaster, this.routeData) {
-    _routes = List.filled(page.paths.length, null);
+  TabPageState(this._tabPage, Routemaster routemaster, this.routeData) {
+    _routemaster = routemaster;
+    _routes = List.filled(_tabPage.paths.length, null);
   }
 
   @override
   set index(int value) {
-    if (_tabController != null) {
-      _tabController!.index = value;
+    if (_controller != null) {
+      _controller!.index = value;
     }
 
     super.index = value;
@@ -133,14 +129,14 @@ class TabPageState extends PageState
         pageState: this,
         child: _TabPageStateProvider(
           pageState: this,
-          child: page.child,
+          child: _tabPage.child,
         ),
       ),
     );
   }
 
-  TabController? _tabController;
-  TabController get tabController => _tabController!;
+  TabController? _controller;
+  TabController get controller => _controller!;
 }
 
 /// Creates a [TabController] for [TabPageState]
@@ -159,34 +155,34 @@ class _TabControllerProvider extends StatefulWidget {
 
 class _TabControllerProviderState extends State<_TabControllerProvider>
     with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+  late TabController _controller;
 
   @override
   void initState() {
     super.initState();
 
-    _tabController = TabController(
+    _controller = TabController(
       length: widget.pageState._routes.length,
       initialIndex: widget.pageState.index,
       vsync: this,
     );
 
-    _tabController.addListener(() {
-      widget.pageState.index = _tabController.index;
+    _controller.addListener(() {
+      widget.pageState.index = _controller.index;
     });
 
-    widget.pageState._tabController = _tabController;
+    widget.pageState._controller = _controller;
   }
 
   @override
   void didUpdateWidget(_TabControllerProvider oldWidget) {
     super.didUpdateWidget(oldWidget);
-    widget.pageState._tabController = _tabController;
+    widget.pageState._controller = _controller;
   }
 
   @override
   void dispose() {
-    _tabController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -232,31 +228,29 @@ class _CupertinoTabPageStateProvider extends InheritedNotifier {
 class CupertinoTabPageState extends PageState
     with ChangeNotifier, IndexedPageStateMixIn {
   @override
-  final CupertinoTabPage page;
-
-  @override
-  final Routemaster routemaster;
+  final CupertinoTabPage _tabPage;
 
   @override
   final RouteData routeData;
 
-  final CupertinoTabController tabController = CupertinoTabController();
+  final CupertinoTabController controller = CupertinoTabController();
 
   CupertinoTabPageState(
-    this.page,
-    this.routemaster,
+    this._tabPage,
+    Routemaster routemaster,
     this.routeData,
   ) {
-    _routes = List.filled(page.paths.length, null);
+    _routemaster = routemaster;
+    _routes = List.filled(_tabPage.paths.length, null);
 
     addListener(() {
-      if (index != tabController.index) {
-        tabController.index = index;
+      if (index != controller.index) {
+        controller.index = index;
       }
     });
 
-    tabController.addListener(() {
-      index = tabController.index;
+    controller.addListener(() {
+      index = controller.index;
     });
   }
 
@@ -266,13 +260,13 @@ class CupertinoTabPageState extends PageState
     return MaterialPage<void>(
       child: _CupertinoTabPageStateProvider(
         pageState: this,
-        child: page.child,
+        child: _tabPage.child,
       ),
     );
   }
 
   Widget tabBuilder(BuildContext context, int index) {
-    return StackNavigator(stack: _getStackForIndex(index));
+    return StackNavigator(stack: stacks[index]);
   }
 }
 
@@ -281,18 +275,21 @@ mixin IndexedRouteMixIn<T> on Page<T> {
 }
 
 mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
-  Routemaster get routemaster;
-  late List<PageStack?> _routes;
+  late final Routemaster _routemaster;
+  late final List<PageStack?> _routes;
 
   @override
   RouteData get routeData;
 
-  IndexedRouteMixIn get page;
+  IndexedRouteMixIn get _tabPage;
 
-  StackList? _stacks;
-  StackList get stacks => _stacks ??= StackList(this);
+  List<PageStack>? _stacks;
+  List<PageStack> get stacks {
+    return _stacks ??=
+        _tabPage.paths.map((e) => _createInitialStackState(e)).toList();
+  }
 
-  PageStack get currentStack => _getStackForIndex(index);
+  PageStack get currentStack => stacks[index];
 
   int _index = 0;
   int get index => _index;
@@ -301,22 +298,13 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
       _index = value;
 
       notifyListeners();
-      routemaster._delegate._markNeedsUpdate();
+      _routemaster._delegate._markNeedsUpdate();
     }
   }
 
-  PageStack _getStackForIndex(int index) {
-    if (_routes[index] == null) {
-      final stack = _createInitialStackState(index);
-      _routes[index] = stack;
-    }
-
-    return _routes[index]!;
-  }
-
-  PageStack _createInitialStackState(int index) {
-    final path = join(routeData.path, page.paths[index]);
-    final route = routemaster._delegate._getPageForTab(
+  PageStack _createInitialStackState(String stackPath) {
+    final path = join(routeData.path, stackPath);
+    final route = _routemaster._delegate._getPageForTab(
       _RouteRequest(
         path: path,
         isReplacement: routeData.isReplacement,
@@ -353,14 +341,14 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
     }
 
     // Handle route
-    _getStackForIndex(index).maybeSetChildPages(pages.toList());
+    stacks[index].maybeSetChildPages(pages.toList());
     this.index = index;
     return true;
   }
 
   int? _getIndexForPath(String path) {
     var i = 0;
-    for (final initialPath in page.paths) {
+    for (final initialPath in _tabPage.paths) {
       if (path.startsWith(initialPath)) {
         return i;
       }
@@ -378,23 +366,14 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
 
   @override
   Future<bool> maybePop() {
-    return _getStackForIndex(index).maybePop();
+    return stacks[index].maybePop();
   }
 
   @override
   Iterable<PageWrapper> getCurrentPages() sync* {
     yield this;
-    yield* _getStackForIndex(index)._getCurrentPages();
+    yield* stacks[index]._getCurrentPages();
   }
-}
-
-class StackList {
-  final IndexedPageStateMixIn _indexedPageState;
-
-  const StackList(this._indexedPageState);
-
-  PageStack operator [](int index) =>
-      _indexedPageState._getStackForIndex(index);
 }
 
 class _TabNotFoundPage extends StatelessPage {
