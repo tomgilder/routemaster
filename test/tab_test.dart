@@ -140,8 +140,8 @@ void main() {
         ),
         paths: ['path']);
 
-    final state1 = TabPageState(page, MockRoutemaster(), RouteData('root'));
-    final state2 = TabPageState(page, MockRoutemaster(), RouteData('root'));
+    final state1 = TabPageState(page, StubRoutemaster(), RouteData('root'));
+    final state2 = TabPageState(page, StubRoutemaster(), RouteData('root'));
 
     final page1 = state1.createPage() as MaterialPage;
     final page2 = state2.createPage() as MaterialPage;
@@ -156,7 +156,7 @@ void main() {
   });
 }
 
-class MockRoutemaster implements Routemaster {
+class StubRoutemaster implements Routemaster {
   @override
   Future<bool> pop() {
     throw UnimplementedError();
