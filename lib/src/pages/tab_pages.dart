@@ -6,7 +6,7 @@ class IndexedPage extends StatefulPage<void> with IndexedRouteMixIn {
   @override
   final List<String> paths;
 
-  IndexedPage({
+  const IndexedPage({
     required this.child,
     required this.paths,
   });
@@ -26,7 +26,7 @@ class IndexedPage extends StatefulPage<void> with IndexedRouteMixIn {
 class _IndexedPageStateProvider extends InheritedNotifier {
   final IndexedPageState pageState;
 
-  _IndexedPageStateProvider({
+  const _IndexedPageStateProvider({
     required Widget child,
     required this.pageState,
   }) : super(
@@ -72,7 +72,7 @@ class TabPage extends StatefulPage<void> with IndexedRouteMixIn {
   @override
   final List<String> paths;
 
-  TabPage({
+  const TabPage({
     required this.child,
     required this.paths,
   });
@@ -92,7 +92,7 @@ class TabPage extends StatefulPage<void> with IndexedRouteMixIn {
 class _TabPageStateProvider extends InheritedNotifier {
   final TabPageState pageState;
 
-  _TabPageStateProvider({
+  const _TabPageStateProvider({
     required Widget child,
     required this.pageState,
   }) : super(
@@ -148,7 +148,7 @@ class _TabControllerProvider extends StatefulWidget {
   final Widget child;
   final TabPageState pageState;
 
-  _TabControllerProvider({
+  const _TabControllerProvider({
     required this.child,
     required this.pageState,
   });
@@ -195,7 +195,7 @@ class CupertinoTabPage extends StatefulPage<void> with IndexedRouteMixIn {
   @override
   final List<String> paths;
 
-  CupertinoTabPage({
+  const CupertinoTabPage({
     required this.child,
     required this.paths,
   });
@@ -215,7 +215,7 @@ class CupertinoTabPage extends StatefulPage<void> with IndexedRouteMixIn {
 class _CupertinoTabPageStateProvider extends InheritedNotifier {
   final CupertinoTabPageState pageState;
 
-  _CupertinoTabPageStateProvider({
+  const _CupertinoTabPageStateProvider({
     required Widget child,
     required this.pageState,
   }) : super(
@@ -386,7 +386,7 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
 class StackList {
   final IndexedPageStateMixIn _indexedPageState;
 
-  StackList(this._indexedPageState);
+  const StackList(this._indexedPageState);
 
   PageStack operator [](int index) =>
       _indexedPageState._getStackForIndex(index);

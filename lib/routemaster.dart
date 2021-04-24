@@ -37,7 +37,7 @@ typedef UnknownRouteCallback = Page Function(
 class DefaultUnknownRoutePage extends StatelessWidget {
   final String path;
 
-  DefaultUnknownRoutePage({required this.path});
+  const DefaultUnknownRoutePage({required this.path});
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +48,10 @@ class DefaultUnknownRoutePage extends StatelessWidget {
 }
 
 /// An abstract class that can provide a map of routes
+@immutable
 abstract class RouteConfig {
+  const RouteConfig();
+
   /// Called when there's no match for a route. By default this returns
   /// [DefaultUnknownRoutePage], a simple page not found page.
   ///
@@ -94,6 +97,7 @@ abstract class DefaultRouterConfig extends RouteConfig {
 }
 
 /// A standard simple routing table which takes a map of routes.
+@immutable
 class RouteMap extends DefaultRouterConfig {
   /// A map of paths and [PageBuilder] delegates that return [Page] objects to
   /// build.
@@ -645,6 +649,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }
 }
 
+@immutable
 abstract class _PageResult {}
 
 class _PageWrapperResult extends _PageResult {
@@ -792,7 +797,7 @@ class StackNavigator extends StatefulWidget {
   final TransitionDelegate transitionDelegate;
   final List<NavigatorObserver> observers;
 
-  StackNavigator({
+  const StackNavigator({
     Key? key,
     required this.stack,
     this.transitionDelegate = const DefaultTransitionDelegate<dynamic>(),

@@ -2,6 +2,8 @@ part of '../../routemaster.dart';
 
 /// A page that can create a state.
 abstract class StatefulPage<T> extends Page<T> {
+  const StatefulPage();
+
   PageState createState(Routemaster routemaster, RouteData info);
 
   @override
@@ -49,7 +51,7 @@ abstract class PageState extends PageWrapper {}
 abstract class ProxyPage<T> extends Page<T> {
   final Page<T> child;
 
-  ProxyPage({required this.child});
+  const ProxyPage({required this.child});
 
   @override
   Route<T> createRoute(BuildContext context) {

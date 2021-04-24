@@ -1,9 +1,16 @@
 part of '../routemaster.dart';
 
+/// An observer of changes in navigation.
+///
+/// This is a [NavigatorObserver] with one extra method: [didChangeRoute].
+///
+/// It will relay all navigation events from all [StackNavigator] widgets.
 abstract class RoutemasterObserver extends NavigatorObserver {
+  /// The router's current route changed.
   void didChangeRoute(RouteData routeData, Page page);
 }
 
+/// Passes on navigation events to a list of [NavigatorObserver] objects.
 class _RelayingNavigatorObserver extends NavigatorObserver {
   final List<NavigatorObserver> Function() getObservers;
 
