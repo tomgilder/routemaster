@@ -322,15 +322,31 @@ void main() {
   });
 
   test('RouterResult not equal with different paths', () {
-    final result1 = RouterResult((_) => MaterialPageOne(), {}, '/one');
-    final result2 = RouterResult((_) => MaterialPageTwo(), {}, '/two');
+    final result1 = RouterResult(
+      builder: (_) => MaterialPageOne(),
+      pathParameters: {},
+      pathSegment: '/one',
+      pathTemplate: '/one',
+    );
+
+    final result2 = RouterResult(
+      builder: (_) => MaterialPageTwo(),
+      pathParameters: {},
+      pathSegment: '/two',
+      pathTemplate: '/two',
+    );
 
     expect(result1.hashCode == result2.hashCode, isFalse);
     expect(result1 == result2, isFalse);
   });
 
   test('RouterResult toString() is correct', () {
-    final result = RouterResult((_) => MaterialPageOne(), {'a': 'b'}, '/');
+    final result = RouterResult(
+      builder: (_) => MaterialPageOne(),
+      pathParameters: {'a': 'b'},
+      pathSegment: '/',
+      pathTemplate: '/',
+    );
     expect(result.toString(), "RouterData - path: '/',  params: '{a: b}'");
   });
 }

@@ -8,6 +8,7 @@ Hello! Routemaster is an easy-to-use router for Flutter, which wraps over Naviga
 * Easy-to-use API: just `Routemaster.of(context).push('/page')`
 * Really easy nested navigation support for tabs
 * Multiple route maps: for example one for a logged in user, another for logged out
+* Observers to easily listen to route changes
 
 Here's the entire routing setup needed for an app featuring tabs and pushed routes:
 

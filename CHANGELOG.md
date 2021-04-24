@@ -1,3 +1,8 @@
+## [0.4.0] - 24 April 2021
+
+* Added support for `RoutemasterObserver` in `RoutemasterDelegate`
+* Added support for `NavigatorObserver` in `StackNavigator`
+
 ## [0.3.1] - 21 April 2021
 
 * Bug fix for reusing stacks in multiple navigators

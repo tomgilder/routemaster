@@ -1,6 +1,8 @@
 import '../../../routemaster.dart';
 
 class RouterResult {
+  final String pathTemplate;
+
   /// The builder matching the path
   final PageBuilder builder;
 
@@ -15,7 +17,12 @@ class RouterResult {
   ///         3. /blah/test
   final String pathSegment;
 
-  const RouterResult(this.builder, this.pathParameters, this.pathSegment);
+  const RouterResult({
+    required this.builder,
+    required this.pathParameters,
+    required this.pathSegment,
+    required this.pathTemplate,
+  });
 
   @override
   int get hashCode => pathSegment.hashCode;

@@ -6,8 +6,7 @@ import 'trie_router/trie_router.dart';
 
 /// Information generated from a specific path (URL).
 ///
-/// This object has value equality - objects are equal if the path,
-/// queryParameters and pathParameters all match.
+/// This object has value equality - objects are equal if the paths match.
 class RouteData {
   /// The full path that generated this route.
   final String path;
@@ -27,17 +26,21 @@ class RouteData {
 
   final bool isReplacement;
 
+  final String? pathTemplate;
+
   RouteData.fromRouterResult(
     RouterResult result,
     this.path, {
     this.isReplacement = false,
   })  : pathParameters = result.pathParameters,
-        queryParameters = QueryParser.parseQueryParameters(path);
+        queryParameters = QueryParser.parseQueryParameters(path),
+        pathTemplate = result.pathTemplate;
 
   RouteData(
     this.path, {
     this.pathParameters = const {},
     this.isReplacement = false,
+    this.pathTemplate,
   }) : queryParameters = QueryParser.parseQueryParameters(path);
 
   @override

@@ -34,7 +34,7 @@ class Redirect extends Page<void> {
         queryParameters: queryParameters,
       ).toString();
 
-  Redirect(this.path, {this.queryParameters});
+  const Redirect(this.path, {this.queryParameters});
 
   @override
   Route createRoute(BuildContext context) {
@@ -49,7 +49,7 @@ class Guard extends ProxyPage<void> with GuardedPage<void> {
   @override
   final ValidationFailedCallback? onValidationFailed;
 
-  Guard({
+  const Guard({
     required Page child,
     required this.validate,
     this.onValidationFailed,

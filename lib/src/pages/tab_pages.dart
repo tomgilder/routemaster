@@ -6,7 +6,7 @@ class IndexedPage extends StatefulPage<void> with IndexedRouteMixIn {
   @override
   final List<String> paths;
 
-  IndexedPage({
+  const IndexedPage({
     required this.child,
     required this.paths,
   });
@@ -26,18 +26,13 @@ class IndexedPage extends StatefulPage<void> with IndexedRouteMixIn {
 class _IndexedPageStateProvider extends InheritedNotifier {
   final IndexedPageState pageState;
 
-  _IndexedPageStateProvider({
+  const _IndexedPageStateProvider({
     required Widget child,
     required this.pageState,
   }) : super(
           child: child,
           notifier: pageState,
         );
-
-  @override
-  bool updateShouldNotify(covariant _IndexedPageStateProvider oldWidget) {
-    return pageState != oldWidget.pageState;
-  }
 }
 
 class IndexedPageState extends PageState
@@ -63,13 +58,10 @@ class IndexedPageState extends PageState
   Page createPage() {
     // TODO: Provide a way for user to specify something other than MaterialPage
     return MaterialPage<void>(
-      key: ValueKey(routeData),
-      child: Builder(builder: (context) {
-        return _IndexedPageStateProvider(
-          pageState: this,
-          child: page.child,
-        );
-      }),
+      child: _IndexedPageStateProvider(
+        pageState: this,
+        child: page.child,
+      ),
     );
   }
 }
@@ -80,7 +72,7 @@ class TabPage extends StatefulPage<void> with IndexedRouteMixIn {
   @override
   final List<String> paths;
 
-  TabPage({
+  const TabPage({
     required this.child,
     required this.paths,
   });
@@ -100,18 +92,13 @@ class TabPage extends StatefulPage<void> with IndexedRouteMixIn {
 class _TabPageStateProvider extends InheritedNotifier {
   final TabPageState pageState;
 
-  _TabPageStateProvider({
+  const _TabPageStateProvider({
     required Widget child,
     required this.pageState,
   }) : super(
           child: child,
           notifier: pageState,
         );
-
-  @override
-  bool updateShouldNotify(covariant _TabPageStateProvider oldWidget) {
-    return pageState != oldWidget.pageState;
-  }
 }
 
 class TabPageState extends PageState
@@ -142,16 +129,11 @@ class TabPageState extends PageState
   Page createPage() {
     // TODO: Provide a way for user to specify something other than MaterialPage
     return MaterialPage<void>(
-      key: ValueKey(routeData),
       child: _TabControllerProvider(
         pageState: this,
-        child: Builder(
-          builder: (context) {
-            return _TabPageStateProvider(
-              pageState: this,
-              child: Builder(builder: (_) => page.child),
-            );
-          },
+        child: _TabPageStateProvider(
+          pageState: this,
+          child: page.child,
         ),
       ),
     );
@@ -166,7 +148,7 @@ class _TabControllerProvider extends StatefulWidget {
   final Widget child;
   final TabPageState pageState;
 
-  _TabControllerProvider({
+  const _TabControllerProvider({
     required this.child,
     required this.pageState,
   });
@@ -197,13 +179,6 @@ class _TabControllerProviderState extends State<_TabControllerProvider>
   }
 
   @override
-  void didUpdateWidget(_TabControllerProvider oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    widget.pageState._tabController = _tabController;
-  }
-
-  @override
   void dispose() {
     widget.pageState._tabController?.dispose();
     widget.pageState._tabController = null;
@@ -220,7 +195,7 @@ class CupertinoTabPage extends StatefulPage<void> with IndexedRouteMixIn {
   @override
   final List<String> paths;
 
-  CupertinoTabPage({
+  const CupertinoTabPage({
     required this.child,
     required this.paths,
   });
@@ -240,19 +215,13 @@ class CupertinoTabPage extends StatefulPage<void> with IndexedRouteMixIn {
 class _CupertinoTabPageStateProvider extends InheritedNotifier {
   final CupertinoTabPageState pageState;
 
-  _CupertinoTabPageStateProvider({
+  const _CupertinoTabPageStateProvider({
     required Widget child,
     required this.pageState,
   }) : super(
           child: child,
           notifier: pageState,
         );
-
-  @override
-  bool updateShouldNotify(covariant _CupertinoTabPageStateProvider oldWidget) {
-    return pageState != oldWidget.pageState ||
-        pageState.index != oldWidget.pageState.index;
-  }
 }
 
 class CupertinoTabPageState extends PageState
@@ -290,14 +259,9 @@ class CupertinoTabPageState extends PageState
   Page createPage() {
     // TODO: Provide a way for user to specify something other than MaterialPage
     return MaterialPage<void>(
-      key: ValueKey(routeData),
-      child: Builder(
-        builder: (context) {
-          return _CupertinoTabPageStateProvider(
-            pageState: this,
-            child: page.child,
-          );
-        },
+      child: _CupertinoTabPageStateProvider(
+        pageState: this,
+        child: page.child,
       ),
     );
   }
@@ -422,7 +386,7 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
 class StackList {
   final IndexedPageStateMixIn _indexedPageState;
 
-  StackList(this._indexedPageState);
+  const StackList(this._indexedPageState);
 
   PageStack operator [](int index) =>
       _indexedPageState._getStackForIndex(index);
@@ -431,7 +395,7 @@ class StackList {
 class _TabNotFoundPage extends StatelessPage {
   _TabNotFoundPage(String path)
       : super(
-          routeData: RouteData(path),
+          routeData: RouteData(path, pathTemplate: null),
           page: MaterialPage<void>(
             child: DefaultUnknownRoutePage(path: path),
           ),

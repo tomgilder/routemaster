@@ -100,7 +100,12 @@ class TrieRouter {
       }
     }
 
-    return RouterResult(current!.value!, parameters, route);
+    return RouterResult(
+      builder: current!.value!,
+      pathParameters: parameters,
+      pathSegment: route,
+      pathTemplate: current.key!,
+    );
   }
 
   List<RouterResult>? getAll(String route) {
@@ -112,9 +117,10 @@ class TrieRouter {
       final p = path.joinAll(pathSegments.take(index));
       result.add(
         RouterResult(
-          node.value!,
-          Map.unmodifiable(parameters),
-          p,
+          builder: node.value!,
+          pathParameters: Map.unmodifiable(parameters),
+          pathSegment: p,
+          pathTemplate: node.key!,
         ),
       );
     }
