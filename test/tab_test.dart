@@ -134,7 +134,7 @@ void main() {
         child: Builder(
           builder: (BuildContext context) {
             buildCount++;
-            controller = TabPage.of(context).tabController;
+            controller = TabPage.of(context).controller;
             return Container();
           },
         ),

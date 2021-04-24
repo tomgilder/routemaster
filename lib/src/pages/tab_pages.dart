@@ -177,7 +177,7 @@ class _TabControllerProviderState extends State<_TabControllerProvider>
   @override
   void didUpdateWidget(_TabControllerProvider oldWidget) {
     super.didUpdateWidget(oldWidget);
-    widget.pageState._tabController = _tabController;
+    widget.pageState._controller = _controller;
   }
 
   @override
