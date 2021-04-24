@@ -30,6 +30,12 @@ abstract class PageWrapper {
 
   /// Gets the actual Flutter [Page] object for passing to a [Navigator].
   Page createPage();
+
+  Page? _page;
+  Page _getOrCreatePage() {
+    _page ??= createPage();
+    return _page!;
+  }
 }
 
 /// A page's state, similar to [State] for a [StatefulWidget]. For instance,
