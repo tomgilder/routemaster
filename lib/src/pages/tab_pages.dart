@@ -33,11 +33,6 @@ class _IndexedPageStateProvider extends InheritedNotifier {
           child: child,
           notifier: pageState,
         );
-
-  @override
-  bool updateShouldNotify(covariant _IndexedPageStateProvider oldWidget) {
-    return pageState != oldWidget.pageState;
-  }
 }
 
 class IndexedPageState extends PageState
@@ -63,12 +58,10 @@ class IndexedPageState extends PageState
   Page createPage() {
     // TODO: Provide a way for user to specify something other than MaterialPage
     return MaterialPage<void>(
-      child: Builder(builder: (context) {
-        return _IndexedPageStateProvider(
-          pageState: this,
-          child: page.child,
-        );
-      }),
+      child: _IndexedPageStateProvider(
+        pageState: this,
+        child: page.child,
+      ),
     );
   }
 }
@@ -106,11 +99,6 @@ class _TabPageStateProvider extends InheritedNotifier {
           child: child,
           notifier: pageState,
         );
-
-  @override
-  bool updateShouldNotify(covariant _TabPageStateProvider oldWidget) {
-    return pageState != oldWidget.pageState;
-  }
 }
 
 class TabPageState extends PageState
@@ -143,13 +131,9 @@ class TabPageState extends PageState
     return MaterialPage<void>(
       child: _TabControllerProvider(
         pageState: this,
-        child: Builder(
-          builder: (context) {
-            return _TabPageStateProvider(
-              pageState: this,
-              child: Builder(builder: (_) => page.child),
-            );
-          },
+        child: _TabPageStateProvider(
+          pageState: this,
+          child: page.child,
         ),
       ),
     );
@@ -190,13 +174,6 @@ class _TabControllerProviderState extends State<_TabControllerProvider>
     _tabController.addListener(() {
       widget.pageState.index = _tabController.index;
     });
-
-    widget.pageState._tabController = _tabController;
-  }
-
-  @override
-  void didUpdateWidget(_TabControllerProvider oldWidget) {
-    super.didUpdateWidget(oldWidget);
 
     widget.pageState._tabController = _tabController;
   }
@@ -245,12 +222,6 @@ class _CupertinoTabPageStateProvider extends InheritedNotifier {
           child: child,
           notifier: pageState,
         );
-
-  @override
-  bool updateShouldNotify(covariant _CupertinoTabPageStateProvider oldWidget) {
-    return pageState != oldWidget.pageState ||
-        pageState.index != oldWidget.pageState.index;
-  }
 }
 
 class CupertinoTabPageState extends PageState
@@ -288,13 +259,9 @@ class CupertinoTabPageState extends PageState
   Page createPage() {
     // TODO: Provide a way for user to specify something other than MaterialPage
     return MaterialPage<void>(
-      child: Builder(
-        builder: (context) {
-          return _CupertinoTabPageStateProvider(
-            pageState: this,
-            child: page.child,
-          );
-        },
+      child: _CupertinoTabPageStateProvider(
+        pageState: this,
+        child: page.child,
       ),
     );
   }

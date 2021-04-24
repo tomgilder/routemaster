@@ -56,6 +56,7 @@ void main() {
     );
 
     expect(one == two, isFalse);
+    expect(one.hashCode == two.hashCode, isFalse);
   });
 
   test('Route info with same paths are equal', () {
@@ -78,6 +79,7 @@ void main() {
         '/');
 
     expect(one == two, isTrue);
+    expect(one.hashCode == two.hashCode, isTrue);
   });
 
   test('Route info with different query strings are not equal', () {
@@ -99,6 +101,7 @@ void main() {
         '/');
 
     expect(one == two, isFalse);
+    expect(one.hashCode == two.hashCode, isFalse);
   });
 
   test('Route info with same query strings are equal', () {
@@ -120,6 +123,7 @@ void main() {
         '/?a=b');
 
     expect(one == two, isTrue);
+    expect(one.hashCode == two.hashCode, isTrue);
   });
 
   test('Route info with same path params are equal', () {
@@ -141,6 +145,7 @@ void main() {
         '/');
 
     expect(one == two, isTrue);
+    expect(one.hashCode == two.hashCode, isTrue);
   });
 
   test('RouteData.toString() is correct', () {
