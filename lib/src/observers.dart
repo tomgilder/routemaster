@@ -1,7 +1,7 @@
 part of '../routemaster.dart';
 
 abstract class RoutemasterObserver extends NavigatorObserver {
-  void didChangeRoute(RouteData routeData);
+  void didChangeRoute(RouteData routeData, Page page);
 }
 
 class _RelayingNavigatorObserver extends NavigatorObserver {

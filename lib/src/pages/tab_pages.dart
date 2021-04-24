@@ -63,7 +63,6 @@ class IndexedPageState extends PageState
   Page createPage() {
     // TODO: Provide a way for user to specify something other than MaterialPage
     return MaterialPage<void>(
-      key: ValueKey(routeData),
       child: Builder(builder: (context) {
         return _IndexedPageStateProvider(
           pageState: this,
@@ -142,7 +141,6 @@ class TabPageState extends PageState
   Page createPage() {
     // TODO: Provide a way for user to specify something other than MaterialPage
     return MaterialPage<void>(
-      key: ValueKey(routeData),
       child: _TabControllerProvider(
         pageState: this,
         child: Builder(
@@ -290,7 +288,6 @@ class CupertinoTabPageState extends PageState
   Page createPage() {
     // TODO: Provide a way for user to specify something other than MaterialPage
     return MaterialPage<void>(
-      key: ValueKey(routeData),
       child: Builder(
         builder: (context) {
           return _CupertinoTabPageStateProvider(

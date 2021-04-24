@@ -328,7 +328,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       return;
     }
 
-    final routeData = _state.stack!._getCurrentPages().last.routeData;
+    final pageWrapper = _state.stack!._getCurrentPages().last;
+    final routeData = pageWrapper.routeData;
     print("Updated path: '${routeData.path}'");
 
     if (_state.currentConfiguration!.path != routeData.path) {
@@ -339,7 +340,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       );
 
       for (final observer in observers) {
-        observer.didChangeRoute(routeData);
+        observer.didChangeRoute(routeData, pageWrapper._getOrCreatePage());
       }
     }
   }

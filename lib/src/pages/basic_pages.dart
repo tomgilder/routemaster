@@ -29,12 +29,13 @@ abstract class PageWrapper {
   bool maybeSetChildPages(Iterable<PageWrapper> pages);
 
   /// Gets the actual Flutter [Page] object for passing to a [Navigator].
+  ///
+  /// This will only be called once per [PageWrapper], and the result cached.
   Page createPage();
 
   Page? _page;
   Page _getOrCreatePage() {
-    _page ??= createPage();
-    return _page!;
+    return _page ??= createPage();
   }
 }
 

@@ -314,8 +314,8 @@ class LoggingObserver extends RoutemasterObserver {
   }
 
   @override
-  void didChangeRoute(RouteData routeData) {
-    log.add(DidChangeRoute(routeData: routeData));
+  void didChangeRoute(RouteData routeData, Page page) {
+    log.add(DidChangeRoute(routeData: routeData, page: page));
   }
 }
 
@@ -360,8 +360,9 @@ class DidStopUserGesture extends ObserverLog {}
 
 class DidChangeRoute extends ObserverLog {
   final RouteData routeData;
+  final Page page;
 
-  DidChangeRoute({required this.routeData});
+  DidChangeRoute({required this.routeData, required this.page});
 }
 
 IsPush isPush({String? name}) => IsPush(name);
