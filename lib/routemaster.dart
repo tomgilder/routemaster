@@ -808,21 +808,16 @@ class StackNavigator extends StatefulWidget {
 }
 
 class StackNavigatorState extends State<StackNavigator> {
-  final _navigatorKey = GlobalKey<NavigatorState>(debugLabel: 'PageStack');
-  late Navigator _navigator;
+  late HeroControllerScope _widget;
   late Routemaster _routemaster;
   final HeroController _heroController =
       MaterialApp.createMaterialHeroController();
-  late _RelayingNavigatorObserver _proxyNavigationObserver;
 
   @override
   void initState() {
     super.initState();
 
-    widget.stack.addListener(_onStackChanged);
-    _proxyNavigationObserver = _RelayingNavigatorObserver(
-      () => _routemaster._delegate.observers,
-    );
+    _didUpdateStack(null, widget.stack);
     _updateNavigator();
   }
 
@@ -831,14 +826,20 @@ class StackNavigatorState extends State<StackNavigator> {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.stack != widget.stack) {
-      oldWidget.stack.removeListener(_onStackChanged);
-      widget.stack.addListener(_onStackChanged);
+      _didUpdateStack(oldWidget.stack, widget.stack);
       _updateNavigator();
+    }
+  }
+
+  void _didUpdateStack(PageStack? oldStack, PageStack newStack) {
+    if (oldStack != null) {
+      oldStack.removeListener(_onStackChanged);
     }
 
-    if (oldWidget.observers != widget.observers) {
-      _updateNavigator();
-    }
+    newStack.addListener(_onStackChanged);
+    newStack._attachedNavigatorKey = GlobalKey<NavigatorState>(
+      debugLabel: 'StackNavigator',
+    );
   }
 
   @override
@@ -864,29 +865,31 @@ class StackNavigatorState extends State<StackNavigator> {
   }
 
   void _updateNavigator() {
-    _navigator = Navigator(
-      key: _navigatorKey,
-      onPopPage: (route, dynamic result) {
-        final didPop = widget.stack.onPopPage(route, result);
-        if (didPop) {
-          _updateDelegate();
-        }
-        return didPop;
-      },
-      transitionDelegate: widget.transitionDelegate,
-      pages: widget.stack.createPages(),
-      observers: [_proxyNavigationObserver, ...widget.observers],
+    _widget = HeroControllerScope(
+      controller: _heroController,
+      child: Navigator(
+        key: widget.stack._attachedNavigatorKey,
+        onPopPage: (route, dynamic result) {
+          final didPop = widget.stack.onPopPage(route, result);
+          if (didPop) {
+            _updateDelegate();
+          }
+          return didPop;
+        },
+        transitionDelegate: widget.transitionDelegate,
+        pages: widget.stack.createPages(),
+        observers: [
+          _RelayingNavigatorObserver(
+            () => widget.observers + _routemaster._delegate.observers,
+          )
+        ],
+      ),
     );
-
-    widget.stack._attachedNavigatorKey = _navigatorKey;
   }
 
   @override
   Widget build(BuildContext context) {
-    return HeroControllerScope(
-      controller: _heroController,
-      child: _navigator,
-    );
+    return _widget;
   }
 
   RouteData? routeDataFor(Page page) {

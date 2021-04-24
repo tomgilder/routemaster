@@ -19,13 +19,13 @@ void main() {
     );
 
     // Verify initial routes updates
+    expect(navigatorObserver.log.length, 1);
+    expect(navigatorObserver.log[0], isPush(name: 'FeedPage'));
+
     expect(delegateObserver.log.length, 3);
     expect(delegateObserver.log[0], isDidChangeRoute(path: '/feed'));
     expect(delegateObserver.log[1], isPush(name: null));
     expect(delegateObserver.log[2], isPush(name: 'FeedPage'));
-
-    expect(navigatorObserver.log.length, 1);
-    expect(navigatorObserver.log[0], isPush(name: 'FeedPage'));
 
     // Push page
     await tester.tap(find.text('Profile page'));
@@ -33,12 +33,12 @@ void main() {
     await tester.pump(kTransitionDuration);
 
     // Verify push updates
+    expect(navigatorObserver.log.length, 2);
+    expect(navigatorObserver.log[1], isPush(name: 'ProfilePage'));
+
     expect(delegateObserver.log.length, 5);
     expect(delegateObserver.log[3], isDidChangeRoute(path: '/feed/profile/1'));
     expect(delegateObserver.log[4], isPush(name: 'ProfilePage'));
-
-    expect(navigatorObserver.log.length, 2);
-    expect(navigatorObserver.log[1], isPush(name: 'ProfilePage'));
 
     // Pop page
     await tester.tap(find.text('Pop'));
@@ -46,12 +46,12 @@ void main() {
     await tester.pump(kTransitionDuration);
 
     // Verify pop updates
+    expect(navigatorObserver.log.length, 3);
+    expect(navigatorObserver.log[2], isPop(name: 'ProfilePage'));
+
     expect(delegateObserver.log.length, 7);
     expect(delegateObserver.log[5], isDidChangeRoute(path: '/feed'));
     expect(delegateObserver.log[6], isPop(name: 'ProfilePage'));
-
-    expect(navigatorObserver.log.length, 3);
-    expect(navigatorObserver.log[2], isPop(name: 'ProfilePage'));
   });
 
   testWidgets('Can switch RouterDelegate observers', (tester) async {

@@ -1,12 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:mobile_app/main.dart';
+import 'package:provider/provider.dart';
 import 'package:routemaster/routemaster.dart';
 
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tabState = CupertinoTabPage.of(context);
+    final appState = Provider.of<AppState>(context);
 
     return CupertinoTabScaffold(
       controller: tabState.tabController,
@@ -20,6 +23,11 @@ class HomePage extends StatelessWidget {
             label: 'Search',
             icon: Icon(CupertinoIcons.search),
           ),
+          if (appState.showBonusTab)
+            BottomNavigationBarItem(
+              label: 'Bonus!',
+              icon: Icon(CupertinoIcons.exclamationmark),
+            ),
           BottomNavigationBarItem(
             label: 'Notifications',
             icon: Icon(CupertinoIcons.bell),
@@ -31,7 +39,10 @@ class HomePage extends StatelessWidget {
         ],
       ),
       tabBuilder: (BuildContext context, int index) {
-        return StackNavigator(stack: tabState.stacks[index]);
+        return StackNavigator(
+          // key: ValueKey(appState.showBonusTab.toString()),
+          stack: tabState.stacks[index],
+        );
       },
     );
   }

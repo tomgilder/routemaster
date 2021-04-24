@@ -180,8 +180,7 @@ class _TabControllerProviderState extends State<_TabControllerProvider>
 
   @override
   void dispose() {
-    widget.pageState._tabController?.dispose();
-    widget.pageState._tabController = null;
+    _tabController.dispose();
     super.dispose();
   }
 
