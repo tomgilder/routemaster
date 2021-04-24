@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/main.dart';
 import 'package:provider/provider.dart';
-import 'package:routemaster/routemaster.dart';
 
 class SettingsPage extends StatelessWidget {
   @override

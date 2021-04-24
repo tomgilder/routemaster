@@ -112,7 +112,7 @@ void main() {
     );
 
     final pageState = TabPage.of(pageKey.currentContext!);
-    final tabController = pageState.tabController;
+    final tabController = pageState.controller;
 
     expect(pageState.index, 0);
     expect(tabController.index, 0);

@@ -8,6 +8,7 @@ import 'pages/settings_page.dart';
 import 'pages/search_page.dart';
 import 'pages/feed_page.dart';
 import 'pages/notifications_page.dart';
+import 'pages/tab_bar_page.dart';
 
 void main() {
   Routemaster.setPathUrlStrategy();
@@ -129,6 +130,19 @@ RouteMap _buildRouteMap(AppState appState) {
       '/notifications/pushed': (_) => MaterialPage(
             child: MessagePage(message: 'Pushed notifications'),
           ),
+      '/tab-bar': (_) => TabPage(
+            child: TabBarPage(),
+            paths: [
+              'one',
+              if (appState.showBonusTab) 'bonus',
+              'settings',
+            ],
+          ),
+      '/tab-bar/one': (_) => MaterialPage(child: MessagePage(message: 'One')),
+      '/tab-bar/bonus': (_) => MaterialPage(
+            child: MessagePage(message: 'BONUS!!'),
+          ),
+      '/tab-bar/settings': (_) => MaterialPage(child: SettingsPage()),
       '/bottom-navigation-bar-replace': (_) => MaterialPage(
             child: BottomNavigationBarReplacementPage(),
           ),

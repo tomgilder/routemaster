@@ -12,7 +12,7 @@ class HomePage extends StatelessWidget {
     final appState = Provider.of<AppState>(context);
 
     return CupertinoTabScaffold(
-      controller: tabState.tabController,
+      controller: tabState.controller,
       tabBar: CupertinoTabBar(
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(

@@ -18,7 +18,7 @@ class AudiobookPage extends StatelessWidget {
             height: 70,
             child: TabBar(
               indicatorWeight: 6,
-              controller: tabState.tabController,
+              controller: tabState.controller,
               tabs: [
                 Tab(icon: Icon(Icons.list), text: 'All Audiobooks'),
                 Tab(icon: Icon(Icons.star), text: 'Staff picks'),
@@ -28,7 +28,7 @@ class AudiobookPage extends StatelessWidget {
           Container(
             height: 500,
             child: TabBarView(
-              controller: tabState.tabController,
+              controller: tabState.controller,
               children: <Widget>[
                 StackNavigator(stack: tabState.stacks[0]),
                 StackNavigator(stack: tabState.stacks[1]),

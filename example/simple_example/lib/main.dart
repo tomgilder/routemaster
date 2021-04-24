@@ -32,7 +32,7 @@ class HomePage extends StatelessWidget {
     final tabState = CupertinoTabPage.of(context);
 
     return CupertinoTabScaffold(
-      controller: tabState.tabController,
+      controller: tabState.controller,
       tabBuilder: tabState.tabBuilder,
       tabBar: CupertinoTabBar(
         items: [
