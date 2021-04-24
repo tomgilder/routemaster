@@ -334,7 +334,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     final pageWrapper = _state.stack!._getCurrentPages().last;
     final routeData = pageWrapper.routeData;
-    print("Updated path: '${routeData.path}'");
 
     if (_state.currentConfiguration!.path != routeData.path) {
       _state.currentConfiguration = RouteData(
@@ -570,21 +569,17 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     required RouteData routeData,
   }) {
     while (page is ProxyPage) {
-      if (page is GuardedPage) {
-        if (!page.validate(routeData, _context)) {
-          print("Validation failed for '${routeData.path}'");
-
-          if (page.onValidationFailed == null) {
-            return _NotFoundResult();
-          }
-
-          final result = page.onValidationFailed!(routeData, _context);
-          return _createPageWrapper(
-            routeRequest: routeRequest,
-            page: result,
-            routeData: routeData,
-          );
+      if (page is GuardedPage && !page.validate(routeData, _context)) {
+        if (page.onValidationFailed == null) {
+          return _NotFoundResult();
         }
+
+        final result = page.onValidationFailed!(routeData, _context);
+        return _createPageWrapper(
+          routeRequest: routeRequest,
+          page: result,
+          routeData: routeData,
+        );
       }
 
       page = page.child;
@@ -609,8 +604,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   List<PageWrapper> _onUnknownRoute(_RouteRequest routeRequest) {
     final requestedPath = routeRequest.path;
-    print("Router couldn't find a match for path '$requestedPath'");
-
     final result = _state.routeConfig!.onUnknownRoute(
       requestedPath,
       _context,
