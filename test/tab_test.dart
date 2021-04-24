@@ -125,6 +125,48 @@ void main() {
     expect(pageState.index, 0);
     expect(tabController.index, 0);
   });
+
+  testWidgets('Tab controller gets set on widget update', (tester) async {
+    var buildCount = 0;
+    TabController? controller;
+
+    final page = TabPage(
+        child: Builder(
+          builder: (BuildContext context) {
+            buildCount++;
+            controller = TabPage.of(context).tabController;
+            return Container();
+          },
+        ),
+        paths: ['path']);
+
+    final state1 = TabPageState(page, StubRoutemaster(), RouteData('root'));
+    final state2 = TabPageState(page, StubRoutemaster(), RouteData('root'));
+
+    final page1 = state1.createPage() as MaterialPage;
+    final page2 = state2.createPage() as MaterialPage;
+
+    await tester.pumpWidget(page1.child);
+    expect(buildCount, 1);
+    expect(controller, isNotNull);
+
+    await tester.pumpWidget(page2.child);
+    expect(buildCount, 2);
+    expect(controller, isNotNull);
+  });
+}
+
+class StubRoutemaster implements Routemaster {
+  @override
+  Future<bool> pop() {
+    throw UnimplementedError();
+  }
+
+  @override
+  void push(String path, {Map<String, String>? queryParameters}) {}
+
+  @override
+  void replace(String path, {Map<String, String>? queryParameters}) {}
 }
 
 class TabbedPage extends StatelessWidget {
