@@ -425,7 +425,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     // Reset state
     _state.routeConfig = null;
-    _state.stack = null;
 
     _isBuilding = true;
     _initRouter(context, isRebuild: true);
