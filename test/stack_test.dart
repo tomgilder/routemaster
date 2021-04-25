@@ -182,16 +182,6 @@ void main() {
     expect(find.byType(PageTwo), findsOneWidget);
   });
 
-  test('popRoute returns false before stack built', () async {
-    final delegate = RoutemasterDelegate(routesBuilder: (context) {
-      return RouteMap(routes: {
-        '/': (_) => MaterialPage<void>(child: PageOne()),
-      });
-    });
-
-    expect(await delegate.popRoute(), isFalse);
-  });
-
   testWidgets('Can push a page with query string', (tester) async {
     late RouteData routeData;
     final delegate = RoutemasterDelegate(routesBuilder: (context) {

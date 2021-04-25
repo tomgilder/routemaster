@@ -223,11 +223,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   Future<bool> popRoute() async {
     assert(!_isDisposed);
 
-    if (_state.stack == null) {
-      return SynchronousFuture(false);
-    }
-
-    final result = await _state.stack!.maybePop();
+    final result = await _state.stack.maybePop();
     if (result) {
       _markNeedsUpdate();
     }
@@ -308,7 +304,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         return _RoutemasterWidget(
           routemaster: _state.routemaster,
           child: StackNavigator(
-            stack: _state.stack!,
+            stack: _state.stack,
             transitionDelegate: transitionDelegate ??
                 const DefaultTransitionDelegate<dynamic>(),
           ),
@@ -328,22 +324,22 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }
 
   void _updateCurrentConfiguration() {
-    if (_state.stack == null) {
-      return;
-    }
+    final currentPages = _state.stack._getCurrentPages();
 
-    final pageWrapper = _state.stack!._getCurrentPages().last;
-    final routeData = pageWrapper.routeData;
+    if (currentPages.isNotEmpty) {
+      final pageWrapper = currentPages.last;
+      final routeData = pageWrapper.routeData;
 
-    if (_state.currentConfiguration!.path != routeData.path) {
-      _state.currentConfiguration = RouteData(
-        routeData.path,
-        isReplacement: routeData.isReplacement,
-        pathTemplate: routeData.pathTemplate,
-      );
+      if (_state.currentConfiguration!.path != routeData.path) {
+        _state.currentConfiguration = RouteData(
+          routeData.path,
+          isReplacement: routeData.isReplacement,
+          pathTemplate: routeData.pathTemplate,
+        );
 
-      for (final observer in observers) {
-        observer.didChangeRoute(routeData, pageWrapper._getOrCreatePage());
+        for (final observer in observers) {
+          observer.didChangeRoute(routeData, pageWrapper._getOrCreatePage());
+        }
       }
     }
   }
@@ -390,7 +386,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     if (pendingNavigation != null) {
       _processNavigation(
         routeRequest: pendingNavigation,
-        currentRoutes: _state.stack?._getCurrentPages().toList(),
+        currentRoutes: _state.stack._getCurrentPages().toList(),
       );
       _state.pendingNavigation = null;
     }
@@ -406,12 +402,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     );
     assert(pages.isNotEmpty);
 
-    if (_state.stack == null) {
-      _state.stack = PageStack(routes: pages);
-    } else {
-      _state.stack!._routes = pages;
-    }
-
+    _state.stack._routes = pages;
     _updateCurrentConfiguration();
   }
 
@@ -425,7 +416,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     // Reset state
     _state.routeConfig = null;
-    _state.stack = null;
 
     _isBuilding = true;
     _initRouter(context, isRebuild: true);
@@ -678,33 +668,10 @@ class _RoutemasterWidget extends InheritedWidget {
 /// still maintain its state.
 class _RoutemasterState {
   final routemaster = Routemaster._();
+  final stack = PageStack();
   RouteConfig? routeConfig;
   RouteData? currentConfiguration;
   _RouteRequest? pendingNavigation;
-
-  PageStack? _stack;
-  PageStack? get stack => _stack;
-  set stack(PageStack? newStack) {
-    if (newStack == _stack) {
-      return;
-    }
-
-    if (_stack != null) {
-      _stack!.removeListener(_onStackChanged);
-    }
-
-    if (newStack != null) {
-      newStack.addListener(_onStackChanged);
-    }
-
-    _stack = newStack;
-  }
-
-  void _onStackChanged() {
-    WidgetsBinding.instance?.addPostFrameCallback(
-      (_) => routemaster._delegate._markNeedsUpdate(),
-    );
-  }
 }
 
 class _RoutemasterStateTracker extends StatefulWidget {
@@ -717,8 +684,9 @@ class _RoutemasterStateTracker extends StatefulWidget {
   });
 
   @override
-  _RoutemasterStateTrackerState createState() =>
-      _RoutemasterStateTrackerState();
+  _RoutemasterStateTrackerState createState() {
+    return _RoutemasterStateTrackerState();
+  }
 }
 
 class _RoutemasterStateTrackerState extends State<_RoutemasterStateTracker> {
