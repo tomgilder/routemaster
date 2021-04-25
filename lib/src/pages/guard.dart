@@ -11,7 +11,7 @@ typedef ValidationFailedCallback = Page Function(
   BuildContext context,
 );
 
-mixin GuardedPage<T> on ProxyPage<T> {
+mixin GuardedPage on ProxyPage {
   /// Callback to check if the route is valid. If this returns false,
   /// [onValidationFailed] is called.
   ///
@@ -25,7 +25,7 @@ mixin GuardedPage<T> on ProxyPage<T> {
 }
 
 /// A page results which tells the router to redirect to another page.
-class Redirect extends Page<void> {
+class Redirect extends Page<dynamic> {
   final String path;
   final Map<String, String>? queryParameters;
 
@@ -42,7 +42,7 @@ class Redirect extends Page<void> {
   }
 }
 
-class Guard extends ProxyPage<void> with GuardedPage<void> {
+class Guard extends ProxyPage with GuardedPage {
   @override
   final ValidateCallback validate;
 

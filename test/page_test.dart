@@ -48,7 +48,7 @@ void main() {
   });
 }
 
-class MockProxyPage extends ProxyPage<void> {
+class MockProxyPage extends ProxyPage {
   MockProxyPage({required Page page}) : super(child: page);
 }
 
