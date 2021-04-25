@@ -54,6 +54,16 @@ I would love any feedback you have! Please create an issue for API feedback.
 
 # Quick start API tour
 
+* [Routing](#routing)
+* [Tabs](#tabs)
+* [Cupertino tabs](#cupertino-tabs)
+* [Guarded routes](#guarded-routes)
+* [404 Page](#404-page)
+* [Redirect](#redirect)
+* [Swap routing map](#swap-routing-map)
+* [Navigation observers](#navigation-observers)
+* [Navigate without a context](#navigate-without-a-context)
+  
 ## Routing
 
 Basic app routing setup:
