@@ -265,7 +265,9 @@ RouteMap(routes: {
 
 ## Swap routing map
 
-Swap the entire routing map depending on whether or not the user is logged in:
+You can swap the entire routing map at runtime.
+
+This is particularly useful for different pages depending on whether the user is logged in:
 
 ```dart
 final loggedOutMap = RouteMap(
@@ -277,7 +279,7 @@ final loggedOutMap = RouteMap(
 
 final loggedInMap = RouteMap(
   routes: {
-		// Regular app routes
+    // Regular app routes
   },
 );
 
