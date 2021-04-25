@@ -156,6 +156,46 @@ void main() {
     expect(buildCount, 2);
     expect(controller, isNotNull);
   });
+
+  test("CupertinoTabPage.of asserts if it can't find widget", () {
+    expect(
+      () => CupertinoTabPage.of(FakeBuildContext()),
+      throwsA(predicate((e) =>
+          e is AssertionError &&
+          e.message ==
+              "Couldn't find a CupertinoTabPageState from the given context.")),
+    );
+  });
+
+  test("IndexedPage.of asserts if it can't find widget", () {
+    expect(
+      () => IndexedPage.of(FakeBuildContext()),
+      throwsA(predicate((e) =>
+          e is AssertionError &&
+          e.message ==
+              "Couldn't find an IndexedPageState from the given context.")),
+    );
+  });
+
+  test("TabPage.of asserts if it can't find widget", () {
+    expect(
+      () => TabPage.of(FakeBuildContext()),
+      throwsA(predicate((e) =>
+          e is AssertionError &&
+          e.message == "Couldn't find a TabPageState from the given context.")),
+    );
+  });
+}
+
+class FakeBuildContext implements BuildContext {
+  @override
+  T? dependOnInheritedWidgetOfExactType<T extends InheritedWidget>(
+      {Object? aspect}) {
+    return null;
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) {}
 }
 
 class StubRoutemaster implements Routemaster {
