@@ -298,6 +298,61 @@ void main() {
           e.message == "Couldn't find a StackNavigatorState")),
     );
   });
+
+  testWidgets('Can update StackNavigator with a new stack', (tester) async {
+    final delegate = RoutemasterDelegate(routesBuilder: (context) {
+      return RouteMap(routes: {
+        '/': (_) => MaterialPage<void>(child: StackSwapPage()),
+      });
+    });
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    expect(find.text('Stack 1'), findsOneWidget);
+    final state =
+        tester.state(find.byType(StackSwapPage)) as StackSwapPageState;
+    state._swapNavigators();
+    await tester.pump();
+    expect(find.text('Stack 2'), findsOneWidget);
+  });
+}
+
+class StackSwapPage extends StatefulWidget {
+  @override
+  StackSwapPageState createState() => StackSwapPageState();
+}
+
+class StackSwapPageState extends State<StackSwapPage> {
+  bool _firstNavigator = true;
+  void _swapNavigators() {
+    setState(() {
+      _firstNavigator = false;
+    });
+  }
+
+  final _stack1 = PageStack(routes: [
+    StatelessPage(
+      page: MaterialPage<void>(child: Text('Stack 1')),
+      routeData: RouteData('/'),
+    )
+  ]);
+
+  final _stack2 = PageStack(routes: [
+    StatelessPage(
+      page: MaterialPage<void>(child: Text('Stack 2')),
+      routeData: RouteData('/'),
+    )
+  ]);
+
+  @override
+  Widget build(BuildContext context) {
+    return StackNavigator(stack: _firstNavigator ? _stack1 : _stack2);
+  }
 }
 
 class TestPageWrapper extends PageWrapper with ChangeNotifier {
