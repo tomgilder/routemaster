@@ -52,7 +52,284 @@ There's also a [more advanced example](https://github.com/tomgilder/routemaster/
 
 I would love any feedback you have! Please create an issue for API feedback.
 
-## Design goals
+# Quick start API tour
+
+## Routing
+
+Basic app routing setup:
+
+```dart
+MaterialApp.router(
+  routerDelegate: RoutemasterDelegate(
+    routesBuilder: (context) => RouteMap(routes: {
+      '/': (routeData) => MaterialPage(child: PageOne()),
+      '/two': (routeData) => MaterialPage(child: PageTwo()),
+    }),
+  ),
+  routeInformationParser: const RoutemasterParser(),
+)
+```
+
+Navigate from within pages:
+
+```dart
+Routemaster.of(context).push('relative-path');
+Routemaster.of(context).push('/absolute-path');
+
+Routemaster.of(context).replace('relative-path');
+Routemaster.of(context).replace('/absolute-path');
+```
+
+Path parameters:
+
+```dart
+// Path '/products/123' will result in ProductPage(id: '123')
+RouteMap(routes: {
+  '/products/:id': (route) => MaterialPage(
+        child: ProductPage(id: route.pathParameters['id']),
+      ),
+})
+```
+
+Query parameters:
+
+```dart
+// Path '/search?query=hello' results in SearchPage(query: 'hello')
+RouteMap(routes: {
+  '/search': (route) => MaterialPage(
+        child: SearchPage(query: route.queryParameters['query']),
+      ),
+})
+```
+
+Get current path info within a widget:
+
+```dart
+RouteData.of(context).path; // Full path: '/product/123?query=param'
+RouteData.of(context).pathParameters; // Map: {'id': '123'}
+RouteData.of(context).queryParameters; // Map: {'query': 'param'}
+```
+
+## Tabs
+
+Setup:
+
+```dart
+RouteMap(
+  routes: {
+    '/': (route) => TabPage(
+          child: HomePage(),
+          paths: ['feed', 'settings'],
+        ),
+    '/feed': (route) => MaterialPage(child: FeedPage()),
+    '/settings': (route) => MaterialPage(child: SettingsPage()),
+  },
+)
+```
+
+Main page:
+
+```dart
+class TabBarPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final tabPage = TabPage.of(context);
+
+    return Scaffold(
+      appBar: AppBar(
+        bottom: TabBar(
+          controller: tabPage.controller,
+          tabs: [
+            Tab(text: 'Feed'),
+            Tab(text: 'Settings'),
+          ],
+        ),
+      ),
+      body: TabBarView(
+        controller: tabPage.controller,
+        children: [
+          for (final stack in tabPage.stacks) StackNavigator(stack: stack),
+        ],
+      ),
+    );
+  }
+}
+```
+
+## Cupertino tabs
+
+Setup:
+
+```dart
+RouteMap(
+  routes: {
+    '/': (route) => CupertinoTabPage(
+          child: HomePage(),
+          paths: ['feed', 'settings'],
+        ),
+    '/feed': (route) => MaterialPage(child: FeedPage()),
+    '/settings': (route) => MaterialPage(child: SettingsPage()),
+  },
+)
+```
+
+Main page:
+
+```dart
+class HomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final tabState = CupertinoTabPage.of(context);
+
+    return CupertinoTabScaffold(
+      controller: tabState.controller,
+      tabBuilder: tabState.tabBuilder,
+      tabBar: CupertinoTabBar(
+        items: [
+          BottomNavigationBarItem(
+            label: 'Feed',
+            icon: Icon(CupertinoIcons.list_bullet),
+          ),
+          BottomNavigationBarItem(
+            label: 'Settings',
+            icon: Icon(CupertinoIcons.search),
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+## Guarded routes
+
+Redirect to another page if validation fails (changes URL):
+
+```dart
+'/protected-route': (route) => Guard(
+    validate: (route, context) => canUserAccessPage(),
+    onValidationFailed: (info, context) => Redirect('/no-access'),
+    child: MaterialPage(child: ProtectedPage()),
+)
+```
+
+Show another page if validation fails (doesn't change URL): 
+
+```dart
+'/protected-route': (route) => Guard(
+    validate: (route, context) => canUserAccessPage(),
+    onValidationFailed: (info, context) => NoAccessPage(),
+    child: MaterialPage(child: ProtectedPage()),
+)
+```
+
+## 404 Page
+
+Default page to shown on unknown URL:
+
+```dart
+RouteMap(
+    onUnknownRoute: (route, context) {
+        return MaterialPage(child: NotFoundPage());
+    },
+    routes: {
+        '/': (_) => MaterialPage(child: HomePage()),
+    },
+)
+```
+
+## Redirect
+
+Redirect one route to another:
+
+```dart
+RouteMap(routes: {
+    '/one': (routeData) => MaterialPage(child: PageOne()),
+    '/two': (routeData) => Redirect('/one'),
+})
+```
+
+## Swap routing map
+
+Swap the entire routing map depending on whether or not the user is logged in:
+
+```dart
+final loggedOutMap = RouteMap(
+  onUnknownRoute: (route, context) => Redirect('/'),
+  routes: {
+    '/': (_) => MaterialPage(child: LoginPage()),
+  },
+);
+
+final loggedInMap = RouteMap(
+  routes: {
+		// Regular app routes
+  },
+);
+
+MaterialApp.router(
+  routerDelegate: const RoutemasterDelegate(
+    routesBuilder: (context) {
+			// This will rebuild when AppState changes
+      final appState = Provider.of<AppState>(context);
+      return appState.isLoggedIn ? loggedInMap : loggedOutMap;
+    },
+  ),
+  routeInformationParser: RoutemasterParser(),
+);
+```
+
+## Navigation observers
+
+```dart
+class MyObserver extends RoutemasterObserver {
+	// RoutemasterObserver extends NavigatorObserver and
+	// receives all nested Navigator events
+  @override
+  void didPop(Route route, Route? previousRoute) {
+    print('Popped a route');
+  }
+
+	// Routemaster-specific observer method
+  @override
+  void didChangeRoute(RouteData routeData, Page page) {
+    print('New route: ${routeData.path}');
+  }
+}
+
+MaterialApp.router(
+  routerDelegate: RoutemasterDelegate(
+    observers: [MyObserver()],
+    routesBuilder: (_) => routeMap,
+  ),
+  routeInformationParser: const RoutemasterParser(),
+);
+```
+
+## Navigate without a context
+
+app.dart
+```dart
+final routemaster = RoutemasterDelegate(
+  routesBuilder: (context) => routeMap,
+);
+
+MaterialApp.router(
+  routerDelegate: routemaster,
+  routeInformationParser: const RoutemasterParser(),
+)
+```
+
+my_widget.dart
+```dart
+import 'app.dart';
+
+void onTap() {
+  routemaster.push('/blah');
+}
+```
+
+# Design goals
 
 * Integrated: work with the Flutter Navigator 2.0 API, don't try to replace it. Try to have a very Flutter-like API.
 * Usable: design around user scenarios/stories, such as the ones in [the Flutter storyboard](https://github.com/flutter/uxr/files/5953028/PUBLIC.Flutter.Navigator.API.Scenarios.-.Storyboards.pdf) - [see here for examples](https://github.com/tomgilder/routemaster/wiki/Routemaster-Flutter-scenarios).
@@ -61,7 +338,7 @@ I would love any feedback you have! Please create an issue for API feedback.
 
 This project builds on [page_router](https://github.com/johnpryan/page_router).
 
-## Name
+# Name
 
 Named after the original Routemaster:
 
