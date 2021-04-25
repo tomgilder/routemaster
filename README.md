@@ -52,6 +52,10 @@ There's also a [more advanced example](https://github.com/tomgilder/routemaster/
 
 I would love any feedback you have! Please create an issue for API feedback.
 
+___
+
+<img src="https://openclipart.org/download/286938/Double-Decker-Bus.svg" width="80"> 
+
 # Quick start API tour
 
 * [Routing](#routing)
