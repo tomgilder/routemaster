@@ -17,9 +17,15 @@ class IndexedPage extends StatefulPage<void> with IndexedRouteMixIn {
   }
 
   static IndexedPageState of(BuildContext context) {
-    return context
-        .dependOnInheritedWidgetOfExactType<_IndexedPageStateProvider>()!
-        .pageState;
+    final provider =
+        context.dependOnInheritedWidgetOfExactType<_IndexedPageStateProvider>();
+
+    assert(
+      provider != null,
+      "Couldn't find an IndexedPageState from the given context.",
+    );
+
+    return provider!.pageState;
   }
 }
 
@@ -81,9 +87,15 @@ class TabPage extends StatefulPage<void> with IndexedRouteMixIn {
   }
 
   static TabPageState of(BuildContext context) {
-    return context
-        .dependOnInheritedWidgetOfExactType<_TabPageStateProvider>()!
-        .pageState;
+    final provider =
+        context.dependOnInheritedWidgetOfExactType<_TabPageStateProvider>();
+
+    assert(
+      provider != null,
+      "Couldn't find a TabPageState from the given context.",
+    );
+
+    return provider!.pageState;
   }
 }
 
@@ -207,9 +219,15 @@ class CupertinoTabPage extends StatefulPage<void> with IndexedRouteMixIn {
   }
 
   static CupertinoTabPageState of(BuildContext context) {
-    return context
-        .dependOnInheritedWidgetOfExactType<_CupertinoTabPageStateProvider>()!
-        .pageState;
+    final provider = context
+        .dependOnInheritedWidgetOfExactType<_CupertinoTabPageStateProvider>();
+
+    assert(
+      provider != null,
+      "Couldn't find a CupertinoTabPageState from the given context.",
+    );
+
+    return provider!.pageState;
   }
 }
 
