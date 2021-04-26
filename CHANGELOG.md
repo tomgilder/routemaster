@@ -1,3 +1,9 @@
+## [0.5.0] - 26 April 2021
+
+* Fixed an issue where the root navigator would rebuild unnecessarily
+* Added more useful assert errors
+* Added default body for `RoutemasterObserver.didChangeRoute` so you're not forced to override it
+
 ## [0.4.0] - 24 April 2021
 
 * Added support for `RoutemasterObserver` in `RoutemasterDelegate`
