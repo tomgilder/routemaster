@@ -3,6 +3,7 @@
 Hello! Routemaster is an easy-to-use router for Flutter, which wraps over Navigator 2.0.
 
 [![Build](https://github.com/tomgilder/routemaster/actions/workflows/build.yaml/badge.svg)](https://github.com/tomgilder/routemaster/actions/workflows/build.yaml) [![codecov](https://codecov.io/gh/tomgilder/routemaster/branch/main/graph/badge.svg?token=JNF2NV7W09)](https://codecov.io/gh/tomgilder/routemaster)
+[![pub](https://img.shields.io/pub/v/routemaster.svg?color=success)](https://pub.dev/packages/routemaster)
 
 ## Features
 
