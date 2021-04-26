@@ -42,7 +42,7 @@ class DefaultUnknownRoutePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Text("Page '$path' wasn't found."),
+      body: SafeArea(child: Text("Page '$path' wasn't found.")),
     );
   }
 }
