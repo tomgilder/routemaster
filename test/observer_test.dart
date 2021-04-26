@@ -315,6 +315,7 @@ class LoggingObserver extends RoutemasterObserver {
 
   @override
   void didChangeRoute(RouteData routeData, Page page) {
+    super.didChangeRoute(routeData, page);
     log.add(DidChangeRoute(routeData: routeData, page: page));
   }
 }
