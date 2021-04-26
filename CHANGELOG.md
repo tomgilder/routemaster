@@ -1,3 +1,9 @@
+## [0.6.0] - 26 April 2021
+
+* Added `SafeArea` to default 404 page
+* Fixed an issue navigating with relative paths and query strings
+* Fixed an issue where the controller didn't update when tab length changed
+
 ## [0.5.0] - 26 April 2021
 
 * Fixed an issue where the root navigator would rebuild unnecessarily
