@@ -1,4 +1,6 @@
-class QueryParser {
+import 'package:path/path.dart' as path;
+
+class PathParser {
   static Map<String, String> parseQueryParameters(String path) {
     final queryStringStart = path.indexOf('?');
     if (queryStringStart == -1 || path.length < queryStringStart) {
@@ -18,5 +20,24 @@ class QueryParser {
     }
 
     return path.substring(0, indexOfQuery);
+  }
+
+  static String getAbsolutePath({
+    required String currentPath,
+    required String newPath,
+    Map<String, String>? queryParameters,
+  }) {
+    final absolutePath = path.isAbsolute(newPath)
+        ? newPath
+        : path.join(
+            stripQueryString(currentPath),
+            newPath,
+          );
+
+    if (queryParameters == null) {
+      return absolutePath;
+    }
+
+    return Uri(path: absolutePath, queryParameters: queryParameters).toString();
   }
 }

@@ -11,6 +11,7 @@ import 'package:flutter/widgets.dart';
 import 'package:path/path.dart';
 import 'package:collection/collection.dart';
 import 'src/pages/guard.dart';
+import 'src/path_parser.dart';
 import 'src/system_nav.dart';
 import 'src/trie_router/trie_router.dart';
 import 'src/route_data.dart';
@@ -243,38 +244,43 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     // Otherwise we do a convoluted dance which uses a custom UrlStrategy that
     // supports replacing the URL.
-    final absolutePath = _getAbsolutePath(path, queryParameters);
-    _state.pendingNavigation = _RouteRequest(
-      path: absolutePath,
+    _doPendingNavigation(
+      path,
+      queryParameters: queryParameters,
       isReplacement: true,
     );
-    _markNeedsUpdate();
   }
 
   /// Pushes [path] into the navigation tree.
   void push(String path, {Map<String, String>? queryParameters}) {
     assert(!_isDisposed);
 
-    final absolutePath = _getAbsolutePath(path, queryParameters);
+    _doPendingNavigation(
+      path,
+      queryParameters: queryParameters,
+      isReplacement: false,
+    );
+  }
+
+  void _doPendingNavigation(
+    String path, {
+    Map<String, String>? queryParameters,
+    required bool isReplacement,
+  }) {
+    final absolutePath = PathParser.getAbsolutePath(
+      currentPath: currentConfiguration!.path,
+      newPath: path,
+      queryParameters: queryParameters,
+    );
 
     // Schedule request for next build. This makes sure the routing table is
     // updated before processing the new path.
     _state.pendingNavigation = _RouteRequest(
       path: absolutePath,
-      isReplacement: false,
+      isReplacement: isReplacement,
     );
+
     _markNeedsUpdate();
-  }
-
-  String _getAbsolutePath(String path, Map<String, String>? queryParameters) {
-    final absolutePath =
-        isAbsolute(path) ? path : join(currentConfiguration!.path, path);
-
-    if (queryParameters == null) {
-      return absolutePath;
-    }
-
-    return Uri(path: absolutePath, queryParameters: queryParameters).toString();
   }
 
   void _markNeedsUpdate() {

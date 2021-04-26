@@ -1,14 +1,14 @@
 import 'package:flutter/widgets.dart';
 import 'package:routemaster/routemaster.dart';
 
-import 'query_parser.dart';
+import 'path_parser.dart';
 import 'trie_router/trie_router.dart';
 
 /// Information generated from a specific path (URL).
 ///
 /// This object has value equality - objects are equal if the paths match.
 class RouteData {
-  /// The full path that generated this route.
+  /// The full path that generated this route, including query string.
   final String path;
 
   /// Query parameters from the path.
@@ -33,7 +33,7 @@ class RouteData {
     this.path, {
     this.isReplacement = false,
   })  : pathParameters = result.pathParameters,
-        queryParameters = QueryParser.parseQueryParameters(path),
+        queryParameters = PathParser.parseQueryParameters(path),
         pathTemplate = result.pathTemplate;
 
   RouteData(
@@ -41,7 +41,7 @@ class RouteData {
     this.pathParameters = const {},
     this.isReplacement = false,
     this.pathTemplate,
-  }) : queryParameters = QueryParser.parseQueryParameters(path);
+  }) : queryParameters = PathParser.parseQueryParameters(path);
 
   @override
   bool operator ==(Object other) => other is RouteData && path == other.path;
