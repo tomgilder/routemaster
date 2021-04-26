@@ -150,11 +150,43 @@ void main() {
     await tester.pumpWidget(page1.child);
     expect(buildCount, 1);
     expect(controller, isNotNull);
+    final oldController = controller;
 
     // This causes _TabControllerProvider.didUpdateWidget to be called
     await tester.pumpWidget(page2.child);
     expect(buildCount, 2);
-    expect(controller, isNotNull);
+    expect(oldController, controller);
+  });
+
+  testWidgets('Tab controller gets recreated when tab length changes',
+      (tester) async {
+    var buildCount = 0;
+    TabController? controller;
+
+    Widget builder(BuildContext context) {
+      buildCount++;
+      controller = TabPage.of(context).controller;
+      return Container();
+    }
+
+    final tabPage1 = TabPage(child: Builder(builder: builder), paths: ['path']);
+    final tabPage2 =
+        TabPage(child: Builder(builder: builder), paths: ['1', '2']);
+
+    final state1 = TabPageState(tabPage1, StubRoutemaster(), RouteData('root'));
+    final state2 = TabPageState(tabPage2, StubRoutemaster(), RouteData('root'));
+
+    final page1 = state1.createPage() as MaterialPage;
+    final page2 = state2.createPage() as MaterialPage;
+
+    await tester.pumpWidget(page1.child);
+    expect(buildCount, 1);
+    expect(controller!.length, 1);
+
+    // This causes _TabControllerProvider.didUpdateWidget to be called
+    await tester.pumpWidget(page2.child);
+    expect(buildCount, 2);
+    expect(controller!.length, 2);
   });
 
   test("CupertinoTabPage.of asserts if it can't find widget", () {

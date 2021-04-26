@@ -166,35 +166,41 @@ class _TabControllerProvider extends StatefulWidget {
 }
 
 class _TabControllerProviderState extends State<_TabControllerProvider>
-    with SingleTickerProviderStateMixin {
-  late TabController _controller;
+    with TickerProviderStateMixin {
+  TabController? _controller;
 
   @override
   void initState() {
     super.initState();
-
-    _controller = TabController(
-      length: widget.pageState._routes.length,
-      initialIndex: widget.pageState.index,
-      vsync: this,
-    );
-
-    _controller.addListener(() {
-      widget.pageState.index = _controller.index;
-    });
-
+    _updateController();
     widget.pageState._controller = _controller;
   }
 
   @override
   void didUpdateWidget(_TabControllerProvider oldWidget) {
     super.didUpdateWidget(oldWidget);
+
+    if (widget.pageState._routes.length != _controller!.length) {
+      _updateController();
+    }
+
     widget.pageState._controller = _controller;
+  }
+
+  void _updateController() {
+    _controller?.dispose();
+    _controller = TabController(
+      length: widget.pageState._routes.length,
+      initialIndex: widget.pageState.index,
+      vsync: this,
+    )..addListener(() {
+        widget.pageState.index = _controller!.index;
+      });
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
@@ -262,9 +268,7 @@ class CupertinoTabPageState extends PageState
     _routes = List.filled(_tabPage.paths.length, null);
 
     addListener(() {
-      if (index != controller.index) {
-        controller.index = index;
-      }
+      controller.index = index;
     });
 
     controller.addListener(() {
