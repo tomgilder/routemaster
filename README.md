@@ -144,7 +144,7 @@ RouteMap(
 Main page:
 
 ```dart
-class TabBarPage extends StatelessWidget {
+class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tabPage = TabPage.of(context);
