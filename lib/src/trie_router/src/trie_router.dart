@@ -1,6 +1,6 @@
 import 'package:path/path.dart' as path;
 import 'package:routemaster/routemaster.dart';
-import '../../query_parser.dart';
+import '../../path_parser.dart';
 import 'errors.dart';
 import 'router_result.dart';
 import 'trie_node.dart';
@@ -81,7 +81,7 @@ class TrieRouter {
   }
 
   RouterResult? get(String route) {
-    var pathSegments = path.split(QueryParser.stripQueryString(route));
+    var pathSegments = path.split(PathParser.stripQueryString(route));
     var parameters = <String, String>{};
     TrieNode<String?, PageBuilder?>? current = _trie.root;
 
@@ -109,7 +109,7 @@ class TrieRouter {
   }
 
   List<RouterResult>? getAll(String route) {
-    var pathSegments = path.split(QueryParser.stripQueryString(route));
+    var pathSegments = path.split(PathParser.stripQueryString(route));
     var parameters = <String, String>{};
     final result = <RouterResult>[];
 

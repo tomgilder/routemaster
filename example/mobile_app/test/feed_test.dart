@@ -105,6 +105,16 @@ void main() {
       find.text('Profile page, ID = 2, message = hello'),
       findsOneWidget,
     );
+
+    // Go to photo page
+    expect(
+      await recordUrlChanges(() async {
+        await tester.tap(find.text('Photo page (custom animation)'));
+        await tester.pump();
+        await tester.pump(Duration(seconds: 1));
+      }),
+      ['/feed/profile/2/photo'],
+    );
   });
 
   testWidgets('Test skipping stacks', (tester) async {
