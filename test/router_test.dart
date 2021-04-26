@@ -98,4 +98,116 @@ void main() {
       isTrue,
     );
   });
+
+  testWidgets('Can push relative path when current page has query string',
+      (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (_) => MaterialPageOne(),
+          '/two': (_) => MaterialPageTwo(),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    delegate.push('/?query=string');
+    await tester.pump();
+    await tester.pump(kTransitionDuration);
+    expect(find.byType(PageOne), findsOneWidget);
+
+    delegate.push('two');
+    await tester.pump();
+    await tester.pump(kTransitionDuration);
+    expect(find.byType(PageTwo), findsOneWidget);
+  });
+
+  testWidgets('Can replace relative path when current page has query string',
+      (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (_) => MaterialPageOne(),
+          '/two': (_) => MaterialPageTwo(),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    delegate.replace('/?query=string');
+    await tester.pump();
+    await tester.pump(kTransitionDuration);
+    expect(find.byType(PageOne), findsOneWidget);
+
+    delegate.replace('two');
+    await tester.pump();
+    await tester.pump(kTransitionDuration);
+    expect(find.byType(PageTwo), findsOneWidget);
+  });
+
+  testWidgets('Can push just a query string', (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (_) => MaterialPageOne(),
+          '/two': (_) => MaterialPageTwo(),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    expect(
+      await recordUrlChanges(() async {
+        delegate.push('?query=string');
+        await tester.pump();
+        await tester.pump(kTransitionDuration);
+      }),
+      ['/?query=string'],
+    );
+  });
+
+  testWidgets('Can replace just a query string', (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (_) => MaterialPageOne(),
+          '/two': (_) => MaterialPageTwo(),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    expect(
+      await recordUrlChanges(() async {
+        delegate.replace('?query=string');
+        await tester.pump();
+        await tester.pump(kTransitionDuration);
+      }),
+      ['/?query=string'],
+    );
+  });
 }
