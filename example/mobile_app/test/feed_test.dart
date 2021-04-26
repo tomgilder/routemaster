@@ -106,17 +106,6 @@ void main() {
       findsOneWidget,
     );
 
-    expect(
-      await recordUrlChanges(() async {
-        await tester.tap(
-          find.text('Push profile page with ID 2 and query string'),
-        );
-        await tester.pump();
-        await tester.pump(Duration(seconds: 1));
-      }),
-      ['/feed/profile/2?message=hello'],
-    );
-
     // Go to photo page
     expect(
       await recordUrlChanges(() async {
