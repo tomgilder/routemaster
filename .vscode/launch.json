@@ -18,6 +18,12 @@
             "type": "dart",
             "request": "launch",
             "program": "example/simple_example/lib/main.dart"
+        },
+        {
+            "name": "Deep linking",
+            "type": "dart",
+            "request": "launch",
+            "program": "example/deep_linking/lib/main.dart"
         }
     ]
-  }
+}
