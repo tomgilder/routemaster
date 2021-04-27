@@ -59,6 +59,23 @@ abstract class ProxyPage extends Page<dynamic> {
   }
 }
 
+/// A page that wraps other pages in order to provide more functionality.
+///
+/// Similar to [ProxyPage] but uses a builder method so the page doesn't build
+/// until the route is required.
+///
+/// For example, [Guarded] adds validation functionality for routes.
+abstract class ProxyBuilderPage extends Page<dynamic> {
+  final Page Function() pageBuilder;
+
+  const ProxyBuilderPage({required this.pageBuilder});
+
+  @override
+  Route createRoute(BuildContext context) {
+    return pageBuilder().createRoute(context);
+  }
+}
+
 /// A wrapper for normal, non-stateless pages that allows us to treat them like
 /// stateful ones.
 class StatelessPage extends PageWrapper {

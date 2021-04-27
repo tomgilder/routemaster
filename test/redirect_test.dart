@@ -11,7 +11,7 @@ void main() {
           '/': (info) => Redirect('/two'),
           '/two': (info) => Guard(
                 validate: (info, context) => true,
-                child: MaterialPage<void>(child: PageTwo()),
+                pageBuilder: () => MaterialPage<void>(child: PageTwo()),
               ),
         },
       ),
@@ -67,7 +67,7 @@ This is an error in your routing map.""",
         routes: {
           '/': (info) => Guard(
                 validate: (_, __) => true,
-                child: Redirect('/two'),
+                pageBuilder: () => Redirect('/two'),
               ),
           '/two': (info) => MaterialPage<void>(child: PageTwo()),
         },

@@ -564,7 +564,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     required Page page,
     required RouteData routeData,
   }) {
-    while (page is ProxyPage) {
+    while (page is ProxyPage || page is ProxyBuilderPage) {
       if (page is GuardedPage && !page.validate(routeData, _context)) {
         if (page.onValidationFailed == null) {
           return _NotFoundResult();
@@ -578,7 +578,11 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         );
       }
 
-      page = page.child;
+      if (page is ProxyPage) {
+        page = page.child;
+      } else if (page is ProxyBuilderPage) {
+        page = page.pageBuilder();
+      }
     }
 
     if (page is Redirect) {

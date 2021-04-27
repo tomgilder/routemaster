@@ -11,7 +11,7 @@ typedef ValidationFailedCallback = Page Function(
   BuildContext context,
 );
 
-mixin GuardedPage on ProxyPage {
+mixin GuardedPage on ProxyBuilderPage {
   /// Callback to check if the route is valid. If this returns false,
   /// [onValidationFailed] is called.
   ///
@@ -42,7 +42,7 @@ class Redirect extends Page<dynamic> {
   }
 }
 
-class Guard extends ProxyPage with GuardedPage {
+class Guard extends ProxyBuilderPage with GuardedPage {
   @override
   final ValidateCallback validate;
 
@@ -50,8 +50,8 @@ class Guard extends ProxyPage with GuardedPage {
   final ValidationFailedCallback? onValidationFailed;
 
   const Guard({
-    required Page child,
+    required Page Function() pageBuilder,
     required this.validate,
     this.onValidationFailed,
-  }) : super(child: child);
+  }) : super(pageBuilder: pageBuilder);
 }
