@@ -14,6 +14,13 @@ jobs:
 
       - run: flutter pub get
       - run: flutter test --coverage
+      - run: flutter test --platform chrome
+      
+      - run: flutter channel master
+      - run: flutter upgrade
+      - run: flutter test
+      - run: flutter test --platform chrome
+      
       - uses: codecov/codecov-action@v1.0.2
         with:
           token: ${{secrets.CODECOV_TOKEN}}
