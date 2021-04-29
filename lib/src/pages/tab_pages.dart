@@ -374,19 +374,18 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
   }
 
   int? _getIndexForPath(String path) {
-    final requiredAbsolutePath = PathParser.getAbsolutePath(
-      basePath: routeData.path,
-      path: path,
-    );
+    String _getAbsoluteTabPath(String subpath) {
+      return PathParser.stripQueryString(
+        PathParser.getAbsolutePath(basePath: routeData.path, path: subpath),
+      );
+    }
+
+    final requiredAbsolutePath = _getAbsoluteTabPath(path);
 
     var i = 0;
     for (final initialPath in _tabPage.paths) {
-      final absoluteChildPath = PathParser.getAbsolutePath(
-        basePath: routeData.path,
-        path: initialPath,
-      );
-
-      if (requiredAbsolutePath.startsWith(absoluteChildPath)) {
+      final childAbsolutePath = _getAbsoluteTabPath(initialPath);
+      if (requiredAbsolutePath.startsWith(childAbsolutePath)) {
         return i;
       }
 
