@@ -45,32 +45,32 @@ void main() {
   test('Returns absolute path for absolute paths', () {
     expect(
       PathParser.getAbsolutePath(
-        currentPath: '/old',
-        newPath: '/new',
+        basePath: '/old',
+        path: '/new',
       ),
       '/new',
     );
 
     expect(
       PathParser.getAbsolutePath(
-        currentPath: '/old?query=string',
-        newPath: '/new',
+        basePath: '/old?query=string',
+        path: '/new',
       ),
       '/new',
     );
 
     expect(
       PathParser.getAbsolutePath(
-        currentPath: '/old/blah',
-        newPath: '/new/blah',
+        basePath: '/old/blah',
+        path: '/new/blah',
       ),
       '/new/blah',
     );
 
     expect(
       PathParser.getAbsolutePath(
-        currentPath: '/old',
-        newPath: '/new',
+        basePath: '/old',
+        path: '/new',
         queryParameters: {'query': 'param'},
       ),
       '/new?query=param',
@@ -80,32 +80,32 @@ void main() {
   test('Returns absolute path for relative paths', () {
     expect(
       PathParser.getAbsolutePath(
-        currentPath: '/one',
-        newPath: 'two',
+        basePath: '/one',
+        path: 'two',
       ),
       '/one/two',
     );
 
     expect(
       PathParser.getAbsolutePath(
-        currentPath: '/one?query=string',
-        newPath: 'two',
+        basePath: '/one?query=string',
+        path: 'two',
       ),
       '/one/two',
     );
 
     expect(
       PathParser.getAbsolutePath(
-        currentPath: '/one/two',
-        newPath: 'three/four',
+        basePath: '/one/two',
+        path: 'three/four',
       ),
       '/one/two/three/four',
     );
 
     expect(
       PathParser.getAbsolutePath(
-        currentPath: '/one/two',
-        newPath: 'three/four',
+        basePath: '/one/two',
+        path: 'three/four',
         queryParameters: {'query': 'param'},
       ),
       '/one/two/three/four?query=param',

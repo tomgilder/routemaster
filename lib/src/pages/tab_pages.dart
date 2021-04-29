@@ -325,13 +325,18 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
   }
 
   PageStack _createInitialStackState(String stackPath) {
-    final path = join(routeData.path, stackPath);
+    final path = PathParser.getAbsolutePath(
+      basePath: routeData.path,
+      path: stackPath,
+    );
+
     final route = _routemaster._delegate._getPageForTab(
       _RouteRequest(
         path: path,
         isReplacement: routeData.isReplacement,
       ),
     );
+
     return PageStack(routes: [route]);
   }
 
@@ -355,7 +360,7 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
       return false;
     }
 
-    final index = _getIndexForPath(_stripPath(tabPagePath, subPagePath));
+    final index = _getIndexForPath(subPagePath);
     if (index == null) {
       // First route didn't match any of our child paths, so this isn't a route
       // that we can handle.
@@ -369,21 +374,26 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
   }
 
   int? _getIndexForPath(String path) {
+    final requiredAbsolutePath = PathParser.getAbsolutePath(
+      basePath: routeData.path,
+      path: path,
+    );
+
     var i = 0;
     for (final initialPath in _tabPage.paths) {
-      if (path.startsWith(initialPath)) {
+      final absoluteChildPath = PathParser.getAbsolutePath(
+        basePath: routeData.path,
+        path: initialPath,
+      );
+
+      if (requiredAbsolutePath.startsWith(absoluteChildPath)) {
         return i;
       }
+
       i++;
     }
 
     return null;
-  }
-
-  static String _stripPath(String parent, String child) {
-    final splitParent = split(parent);
-    final splitChild = split(child);
-    return joinAll(splitChild.skip(splitParent.length));
   }
 
   @override
