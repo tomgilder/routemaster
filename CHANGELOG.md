@@ -1,3 +1,7 @@
+# 0.6.1
+
+* Fixed building against Flutter master branch
+
 # 0.6.0
 
 * Added `SafeArea` to default 404 page
