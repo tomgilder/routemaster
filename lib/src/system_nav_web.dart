@@ -35,8 +35,10 @@ class RoutemasterPathUrlStrategy extends PathUrlStrategy {
   void pushState(dynamic state, String title, String url) {
     if (state != null && isReplacementNavigation(state)) {
       replaceState(state as Object, title, url);
+    } else if (state is Object) {
+      super.pushState(state, title, url);
     } else {
-      super.pushState(state ?? state as Object, title, url);
+      super.pushState(Object(), title, url);
     }
   }
 }
