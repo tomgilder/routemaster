@@ -31,11 +31,12 @@ class SystemNav {
 /// A custom URL strategy which supports replacing URLs.
 class RoutemasterPathUrlStrategy extends PathUrlStrategy {
   @override
-  void pushState(Object state, String title, String url) {
-    if (isReplacementNavigation(state)) {
-      replaceState(state, title, url);
+  // Uses dynamic to be compatible with different Flutter versions
+  void pushState(dynamic state, String title, String url) {
+    if (state != null && isReplacementNavigation(state)) {
+      replaceState(state as Object, title, url);
     } else {
-      super.pushState(state, title, url);
+      super.pushState(state ?? state as Object, title, url);
     }
   }
 }
