@@ -130,6 +130,8 @@ void main() {
 
   testWidgets('Can replace relative path when current page has query string',
       (tester) async {
+    SystemNav.setFakePathUrlStrategy();
+
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         routes: {
@@ -185,6 +187,8 @@ void main() {
   });
 
   testWidgets('Can replace just a query string', (tester) async {
+    SystemNav.setFakePathUrlStrategy();
+
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         routes: {
