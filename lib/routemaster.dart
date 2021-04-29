@@ -268,8 +268,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     required bool isReplacement,
   }) {
     final absolutePath = PathParser.getAbsolutePath(
-      currentPath: currentConfiguration!.path,
-      newPath: path,
+      basePath: currentConfiguration!.path,
+      path: path,
       queryParameters: queryParameters,
     );
 

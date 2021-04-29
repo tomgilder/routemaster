@@ -30,7 +30,142 @@ void main() {
     expect(find.byType(PageOne), findsOneWidget);
   });
 
-  testWidgets('Can set page states on with parameters and query string',
+  testWidgets('Can set page states on tabs with absolute paths',
+      (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (_) => MaterialPage<void>(child: Container()),
+          '/tabs': (_) => TabPage(child: MyTabPage(), paths: [
+                '/tabs/one',
+                '/tabs/two',
+              ]),
+          '/tabs/one': (_) => MaterialPage<void>(child: PageOne()),
+          '/tabs/two': (_) => MaterialPage<void>(child: PageTwo()),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+    delegate.push('/tabs/one');
+    await tester.pump();
+    await tester.pump(Duration(seconds: 1));
+
+    expect(find.byType(MyTabPage), findsOneWidget);
+    expect(find.byType(PageOne), findsOneWidget);
+  });
+
+  testWidgets('Can navigate from a tab with a query string', (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (_) => MaterialPage<void>(child: Container()),
+          '/tabs': (_) => TabPage(child: MyTabPage(), paths: [
+                '/tabs/one',
+                '/tabs/two',
+              ]),
+          '/tabs/one': (_) => MaterialPage<void>(child: PageOne()),
+          '/tabs/two': (_) => MaterialPage<void>(child: PageTwo()),
+          '/tabs/one/subpage': (_) => MaterialPage<void>(child: PageThree()),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+    delegate.push('/tabs/one?query=string');
+    await tester.pump();
+    await tester.pump(Duration(seconds: 1));
+
+    expect(find.byType(MyTabPage), findsOneWidget);
+    expect(find.byType(PageOne), findsOneWidget);
+
+    delegate.push('subpage');
+    await tester.pump();
+    await tester.pump(Duration(seconds: 1));
+    expect(find.byType(PageThree), findsOneWidget);
+  });
+
+  testWidgets('Can use relative tab paths with query strings', (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (_) => MaterialPage<void>(child: Container()),
+          '/tabs': (_) => TabPage(child: MyTabPage(), paths: [
+                '/tabs/one?a=b',
+                '/tabs/two?c=d',
+              ]),
+          '/tabs/one': (_) => MaterialPage<void>(child: PageOne()),
+          '/tabs/two': (_) => MaterialPage<void>(child: PageTwo()),
+          '/tabs/one/subpage': (_) => MaterialPage<void>(child: PageThree()),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+    delegate.push('/tabs/one?query=string');
+    await tester.pump();
+    await tester.pump(Duration(seconds: 1));
+
+    expect(find.byType(MyTabPage), findsOneWidget);
+    expect(find.byType(PageOne), findsOneWidget);
+
+    delegate.push('subpage');
+    await tester.pump();
+    await tester.pump(Duration(seconds: 1));
+    expect(find.byType(PageThree), findsOneWidget);
+  });
+
+  testWidgets('Can use absolute tab paths with query strings', (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (_) => MaterialPage<void>(child: Container()),
+          '/tabs': (_) => TabPage(child: MyTabPage(), paths: [
+                '/tabs/one?a=b',
+                '/tabs/two?c=d',
+              ]),
+          '/tabs/one': (_) => MaterialPage<void>(child: PageOne()),
+          '/tabs/two': (_) => MaterialPage<void>(child: PageTwo()),
+          '/tabs/one/subpage': (_) => MaterialPage<void>(child: PageThree()),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+    delegate.push('/tabs/one?query=string');
+    await tester.pump();
+    await tester.pump(Duration(seconds: 1));
+
+    expect(find.byType(MyTabPage), findsOneWidget);
+    expect(find.byType(PageOne), findsOneWidget);
+
+    delegate.push('subpage');
+    await tester.pump();
+    await tester.pump(Duration(seconds: 1));
+    expect(find.byType(PageThree), findsOneWidget);
+  });
+
+  testWidgets('Can set page states on tabs with parameters and query string',
       (tester) async {
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
@@ -58,6 +193,40 @@ void main() {
     expect(find.byType(PageOne), findsOneWidget);
   });
 
+  testWidgets(
+      'Can set page states on tabs with absolute path, parameters and query string',
+      (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (_) => MaterialPage<void>(child: Container()),
+          '/:id/tabs': (routeData) {
+            final id = routeData.pathParameters['id'];
+            return TabPage(
+              child: MyTabPage(),
+              paths: ['/$id/tabs/one', '/$id/tabs/two'],
+            );
+          },
+          '/:id/tabs/one': (_) => MaterialPage<void>(child: PageOne()),
+          '/:id/tabs/two': (_) => MaterialPage<void>(child: PageTwo()),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+    delegate.push('/myId/tabs/one?query=string');
+    await tester.pump();
+    await tester.pump(Duration(seconds: 1));
+
+    expect(find.byType(MyTabPage), findsOneWidget);
+    expect(find.byType(PageOne), findsOneWidget);
+  });
+
   testWidgets('Can push page on to tabs with route beginning with tab route',
       (tester) async {
     final delegate = RoutemasterDelegate(
@@ -65,6 +234,41 @@ void main() {
         routes: {
           '/': (_) => MaterialPage<void>(child: Container()),
           '/tabs': (_) => TabPage(child: MyTabPage(), paths: ['one', 'two']),
+          '/tabs/one': (_) => MaterialPage<void>(child: PageOne()),
+          '/tabs/two': (_) => MaterialPage<void>(child: PageTwo()),
+          '/tabs/onepagethree': (_) => MaterialPage<void>(child: PageThree()),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+    delegate.push('/tabs/one');
+    await tester.pump();
+    await tester.pump(Duration(seconds: 1));
+
+    expect(find.byType(MyTabPage), findsOneWidget);
+    expect(find.byType(PageOne), findsOneWidget);
+
+    delegate.push('/tabs/onepagethree');
+    await tester.pump();
+    await tester.pump(Duration(seconds: 1));
+    expect(find.byType(PageThree), findsOneWidget);
+  });
+
+  testWidgets(
+      'Can push page on to tabs with route beginning with tab route, plus absolute paths',
+      (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (_) => MaterialPage<void>(child: Container()),
+          '/tabs': (_) =>
+              TabPage(child: MyTabPage(), paths: ['/tabs/one', '/tabs/two']),
           '/tabs/one': (_) => MaterialPage<void>(child: PageOne()),
           '/tabs/two': (_) => MaterialPage<void>(child: PageTwo()),
           '/tabs/onepagethree': (_) => MaterialPage<void>(child: PageThree()),
