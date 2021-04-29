@@ -1,3 +1,7 @@
+# 0.6.2
+
+* Support for absolute paths in tab child routes
+
 # 0.6.1
 
 * Fixed building against Flutter master branch
