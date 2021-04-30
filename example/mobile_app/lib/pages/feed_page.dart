@@ -15,9 +15,10 @@ class FeedPage extends StatelessWidget {
             children: [
               ElevatedButton(
                 onPressed: () async {
-                  final result =
-                      Routemaster.of(context).push<String>('profile/1');
-                  print(await result.value);
+                  final result = await Routemaster.of(context)
+                      .push<String?>('profile/1')
+                      .result;
+                  print(result);
                 },
                 child: Text('Push profile page with ID 1'),
               ),

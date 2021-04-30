@@ -197,7 +197,7 @@ class Routemaster {
 }
 
 class NavigationResult<T extends Object?> {
-  Future<T> get value => _completer.future;
+  Future<T> get result => _completer.future;
   final Completer<T> _completer = Completer<T>();
 }
 
