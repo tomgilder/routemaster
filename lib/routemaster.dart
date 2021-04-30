@@ -4,6 +4,8 @@ export 'src/parser.dart';
 export 'src/route_data.dart';
 export 'src/pages/guard.dart';
 
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -148,8 +150,8 @@ class Routemaster {
 
   /// Pops the current route from the router. Returns `true` if the pop was
   /// successful, or `false` if it wasn't.
-  Future<bool> pop() {
-    return _delegate.popRoute();
+  Future<bool> pop<T extends Object>([T? value]) {
+    return _delegate.pop(value);
   }
 
   /// Replaces the current route with [path].
@@ -188,9 +190,15 @@ class Routemaster {
   ///   * If the current route is '/products' and you call `replace('/home')`
   ///     you'll navigate to '/home'.
   ///
-  void push(String path, {Map<String, String>? queryParameters}) {
-    _delegate.push(path, queryParameters: queryParameters);
+  NavigationResult<T> push<T extends Object>(String path,
+      {Map<String, String>? queryParameters}) {
+    return _delegate.push<T>(path, queryParameters: queryParameters);
   }
+}
+
+class NavigationResult<T> {
+  Future<T> get value => _completer.future;
+  final Completer<T> _completer = Completer<T>();
 }
 
 class RoutemasterDelegate extends RouterDelegate<RouteData>
@@ -223,12 +231,17 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   @override
   Future<bool> popRoute() async {
     assert(!_isDisposed);
+    return pop();
+  }
 
-    final result = await _state.stack.maybePop();
-    if (result) {
+  Future<bool> pop<T extends Object>([T? result]) async {
+    assert(!_isDisposed);
+
+    final popResult = await _state.stack.maybePop<T>(result);
+    if (popResult) {
       _markNeedsUpdate();
     }
-    return result;
+    return popResult;
   }
 
   /// Replaces the current route with [path].
@@ -252,20 +265,25 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }
 
   /// Pushes [path] into the navigation tree.
-  void push(String path, {Map<String, String>? queryParameters}) {
+  NavigationResult<T> push<T extends Object>(String path,
+      {Map<String, String>? queryParameters}) {
     assert(!_isDisposed);
 
+    final result = NavigationResult<T>();
     _doPendingNavigation(
       path,
       queryParameters: queryParameters,
       isReplacement: false,
+      result: result,
     );
+    return result;
   }
 
   void _doPendingNavigation(
     String path, {
     Map<String, String>? queryParameters,
     required bool isReplacement,
+    NavigationResult? result,
   }) {
     final absolutePath = PathParser.getAbsolutePath(
       basePath: currentConfiguration!.path,
@@ -278,6 +296,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     _state.pendingNavigation = _RouteRequest(
       path: absolutePath,
       isReplacement: isReplacement,
+      result: result,
     );
 
     _markNeedsUpdate();
@@ -465,6 +484,11 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
       if (current is _PageWrapperResult) {
         final page = current.pageWrapper;
+
+        if (isLastRoute) {
+          page.result = routeRequest.result;
+        }
+
         if (result.isNotEmpty && page.maybeSetChildPages(result)) {
           result = [page];
         } else {
@@ -498,6 +522,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     }
 
     assert(result.isNotEmpty, "_createAllStates can't return empty list");
+
     return result;
   }
 
@@ -748,10 +773,12 @@ class RedirectLoopError extends Error {
 class _RouteRequest {
   final String path;
   final bool isReplacement;
+  final NavigationResult? result;
 
   _RouteRequest({
     required this.path,
     this.isReplacement = false,
+    this.result,
   });
 }
 

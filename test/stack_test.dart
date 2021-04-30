@@ -367,7 +367,7 @@ class TestPageWrapper extends PageWrapper with ChangeNotifier {
   }
 
   @override
-  Future<bool> maybePop() {
+  Future<bool> maybePop<T extends Object>([T? result]) {
     throw UnimplementedError();
   }
 

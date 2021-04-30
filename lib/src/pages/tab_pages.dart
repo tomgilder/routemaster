@@ -396,8 +396,8 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
   }
 
   @override
-  Future<bool> maybePop() {
-    return stacks[index].maybePop();
+  Future<bool> maybePop<T extends Object>([T? result]) {
+    return stacks[index].maybePop(result);
   }
 
   @override
