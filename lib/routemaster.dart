@@ -150,6 +150,7 @@ class Routemaster {
 
   /// Pops the current route from the router. Returns `true` if the pop was
   /// successful, or `false` if it wasn't.
+  @optionalTypeArgs
   Future<bool> pop<T extends Object?>([T? value]) {
     return _delegate.pop(value);
   }
@@ -190,6 +191,7 @@ class Routemaster {
   ///   * If the current route is '/products' and you call `replace('/home')`
   ///     you'll navigate to '/home'.
   ///
+  @optionalTypeArgs
   NavigationResult<T> push<T extends Object?>(String path,
       {Map<String, String>? queryParameters}) {
     return _delegate.push<T>(path, queryParameters: queryParameters);
@@ -234,6 +236,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return pop();
   }
 
+  @optionalTypeArgs
   Future<bool> pop<T extends Object?>([T? result]) async {
     assert(!_isDisposed);
 
@@ -265,6 +268,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }
 
   /// Pushes [path] into the navigation tree.
+  @optionalTypeArgs
   NavigationResult<T> push<T extends Object?>(String path,
       {Map<String, String>? queryParameters}) {
     assert(!_isDisposed);
