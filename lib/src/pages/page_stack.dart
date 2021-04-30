@@ -61,7 +61,11 @@ class PageStack extends ChangeNotifier {
     if (route.didPop(result)) {
       final removed = _routes.removeLast();
 
-      removed.result?._completer.complete(result);
+      if (result != null) {
+        removed.result?._completer.complete(result);
+      } else {
+        removed.result?._completer.complete();
+      }
 
       // We don't need to notify listeners, the Navigator will rebuild itself
       return true;
@@ -70,7 +74,7 @@ class PageStack extends ChangeNotifier {
     return false;
   }
 
-  Future<bool> maybePop<T extends Object>([T? result]) async {
+  Future<bool> maybePop<T extends Object?>([T? result]) async {
     // First try delegating the pop to the last child route.
     if (await _routes.last.maybePop(result)) {
       return SynchronousFuture(true);

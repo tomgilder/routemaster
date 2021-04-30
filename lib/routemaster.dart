@@ -150,7 +150,7 @@ class Routemaster {
 
   /// Pops the current route from the router. Returns `true` if the pop was
   /// successful, or `false` if it wasn't.
-  Future<bool> pop<T extends Object>([T? value]) {
+  Future<bool> pop<T extends Object?>([T? value]) {
     return _delegate.pop(value);
   }
 
@@ -190,13 +190,13 @@ class Routemaster {
   ///   * If the current route is '/products' and you call `replace('/home')`
   ///     you'll navigate to '/home'.
   ///
-  NavigationResult<T> push<T extends Object>(String path,
+  NavigationResult<T> push<T extends Object?>(String path,
       {Map<String, String>? queryParameters}) {
     return _delegate.push<T>(path, queryParameters: queryParameters);
   }
 }
 
-class NavigationResult<T> {
+class NavigationResult<T extends Object?> {
   Future<T> get value => _completer.future;
   final Completer<T> _completer = Completer<T>();
 }
@@ -234,7 +234,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return pop();
   }
 
-  Future<bool> pop<T extends Object>([T? result]) async {
+  Future<bool> pop<T extends Object?>([T? result]) async {
     assert(!_isDisposed);
 
     final popResult = await _state.stack.maybePop<T>(result);
@@ -265,7 +265,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }
 
   /// Pushes [path] into the navigation tree.
-  NavigationResult<T> push<T extends Object>(String path,
+  NavigationResult<T> push<T extends Object?>(String path,
       {Map<String, String>? queryParameters}) {
     assert(!_isDisposed);
 

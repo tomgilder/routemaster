@@ -15,7 +15,8 @@ class FeedPage extends StatelessWidget {
             children: [
               ElevatedButton(
                 onPressed: () async {
-                  final result = Routemaster.of(context).push('profile/1');
+                  final result =
+                      Routemaster.of(context).push<String>('profile/1');
                   print(await result.value);
                 },
                 child: Text('Push profile page with ID 1'),
@@ -112,6 +113,14 @@ class ProfilePage extends StatelessWidget {
             ElevatedButton(
               onPressed: () => Routemaster.of(context).pop('hello!'),
               child: Text('Return Routemaster value'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(null),
+              child: Text('Return null Navigator value'),
+            ),
+            ElevatedButton(
+              onPressed: () => Routemaster.of(context).pop(null),
+              child: Text('Return null Routemaster value'),
             ),
           ],
         ),
