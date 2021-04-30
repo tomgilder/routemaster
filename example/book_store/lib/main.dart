@@ -53,14 +53,14 @@ final routeMap = RouteMap(
           validate: (info, context) => booksDatabase.books.any(
             (book) => book.id == info.pathParameters['id'],
           ),
-          pageBuilder: () => MaterialPage(
+          builder: () => MaterialPage(
             child: BookPage(id: route.pathParameters['id']!),
           ),
         ),
     '/category/:category': (route) => Guard(
           validate: (info, context) =>
               _isValidCategory(route.pathParameters['category']),
-          pageBuilder: () => MaterialPage(
+          builder: () => MaterialPage(
             child: CategoryPage(
               category: BookCategory.values.firstWhere(
                 (e) => e.queryParam == route.pathParameters['category'],
@@ -72,7 +72,7 @@ final routeMap = RouteMap(
           validate: (info, context) =>
               _isValidCategory(route.pathParameters['category']) &&
               _isValidBookId(route.pathParameters['id']),
-          pageBuilder: () => MaterialPage(
+          builder: () => MaterialPage(
             child: BookPage(id: route.pathParameters['id']!),
           ),
         ),
@@ -89,7 +89,7 @@ final routeMap = RouteMap(
     '/audiobooks/book/:id': (route) {
       return Guard(
         validate: (info, context) => _isValidBookId(route.pathParameters['id']),
-        pageBuilder: () => MaterialPage(
+        builder: () => MaterialPage(
           child: BookPage(id: route.pathParameters['id']!),
         ),
       );
@@ -117,7 +117,7 @@ final routeMap = RouteMap(
             queryParameters: {'redirectTo': route.path},
           );
         },
-        pageBuilder: () => MaterialPage(
+        builder: () => MaterialPage(
           child: WishlistPage(id: route.pathParameters['id']),
         ),
       );

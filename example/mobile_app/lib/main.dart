@@ -90,7 +90,7 @@ RouteMap _buildRouteMap(AppState appState) {
                 info.pathParameters['id'] == '2';
           },
           onValidationFailed: (info, context) => Redirect('/feed'),
-          pageBuilder: () => MaterialPage(
+          builder: () => MaterialPage(
             child: ProfilePage(
               id: info.pathParameters['id'],
               message: info.queryParameters['message'],
