@@ -50,8 +50,8 @@ class Guard extends ProxyBuilderPage with GuardedPage {
   final ValidationFailedCallback? onValidationFailed;
 
   const Guard({
-    required Page Function() pageBuilder,
+    required Page Function() builder,
     required this.validate,
     this.onValidationFailed,
-  }) : super(pageBuilder: pageBuilder);
+  }) : super(pageBuilder: builder);
 }
