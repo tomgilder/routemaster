@@ -46,8 +46,6 @@ abstract class PageWrapper {
 abstract class PageState extends PageWrapper {}
 
 /// A page that wraps other pages in order to provide more functionality.
-///
-/// For example, [Guarded] adds validation functionality for routes.
 abstract class ProxyPage extends Page<dynamic> {
   final Page child;
 
@@ -66,13 +64,13 @@ abstract class ProxyPage extends Page<dynamic> {
 ///
 /// For example, [Guarded] adds validation functionality for routes.
 abstract class ProxyBuilderPage extends Page<dynamic> {
-  final Page Function() pageBuilder;
+  final Page Function() builder;
 
-  const ProxyBuilderPage({required this.pageBuilder});
+  const ProxyBuilderPage({required this.builder});
 
   @override
   Route createRoute(BuildContext context) {
-    return pageBuilder().createRoute(context);
+    return builder().createRoute(context);
   }
 }
 

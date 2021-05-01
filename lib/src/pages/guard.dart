@@ -53,5 +53,5 @@ class Guard extends ProxyBuilderPage with GuardedPage {
     required Page Function() builder,
     required this.validate,
     this.onValidationFailed,
-  }) : super(pageBuilder: builder);
+  }) : super(builder: builder);
 }
