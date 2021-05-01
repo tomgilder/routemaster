@@ -564,8 +564,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     required Page page,
     required RouteData routeData,
   }) {
-    while (page is ProxyPage || page is ProxyBuilderPage) {
-      if (page is GuardedPage && !page.validate(routeData, _context)) {
+    while (page is Guard) {
+      if (!page.validate(routeData, _context)) {
         if (page.onValidationFailed == null) {
           return _NotFoundResult();
         }
@@ -578,11 +578,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         );
       }
 
-      if (page is ProxyPage) {
-        page = page.child;
-      } else if (page is ProxyBuilderPage) {
-        page = page.builder();
-      }
+      page = page.builder();
     }
 
     if (page is Redirect) {
@@ -594,11 +590,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         page.createState(_state.routemaster, routeData),
       );
     }
-
-    assert(page is! Redirect, 'Redirect has not been followed');
-    assert(page is! ProxyPage, 'ProxyPage has not been unwrapped');
-    assert(
-        page is! ProxyBuilderPage, 'ProxyBuilderPage has not been unwrapped');
 
     // Page is just a standard Flutter page, create a wrapper for it
     return _PageWrapperResult(StatelessPage(routeData: routeData, page: page));

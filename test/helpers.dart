@@ -90,3 +90,14 @@ class NotFoundPage extends StatelessWidget {
     return SizedBox();
   }
 }
+
+class FakeBuildContext implements BuildContext {
+  @override
+  T? dependOnInheritedWidgetOfExactType<T extends InheritedWidget>(
+      {Object? aspect}) {
+    return null;
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) {}
+}

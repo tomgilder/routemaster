@@ -45,35 +45,6 @@ abstract class PageWrapper {
 /// maintains the current index for a tabbed page.
 abstract class PageState extends PageWrapper {}
 
-/// A page that wraps other pages in order to provide more functionality.
-abstract class ProxyPage extends Page<dynamic> {
-  final Page child;
-
-  const ProxyPage({required this.child});
-
-  @override
-  Route createRoute(BuildContext context) {
-    return child.createRoute(context);
-  }
-}
-
-/// A page that wraps other pages in order to provide more functionality.
-///
-/// Similar to [ProxyPage] but uses a builder method so the page doesn't build
-/// until the route is required.
-///
-/// For example, [Guarded] adds validation functionality for routes.
-abstract class ProxyBuilderPage extends Page<dynamic> {
-  final Page Function() builder;
-
-  const ProxyBuilderPage({required this.builder});
-
-  @override
-  Route createRoute(BuildContext context) {
-    return builder().createRoute(context);
-  }
-}
-
 /// A wrapper for normal, non-stateless pages that allows us to treat them like
 /// stateful ones.
 class StatelessPage extends PageWrapper {
