@@ -244,7 +244,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     // Otherwise we do a convoluted dance which uses a custom UrlStrategy that
     // supports replacing the URL.
-    _doPendingNavigation(
+    _setPendingNavigation(
       path,
       queryParameters: queryParameters,
       isReplacement: true,
@@ -255,14 +255,14 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   void push(String path, {Map<String, String>? queryParameters}) {
     assert(!_isDisposed);
 
-    _doPendingNavigation(
+    _setPendingNavigation(
       path,
       queryParameters: queryParameters,
       isReplacement: false,
     );
   }
 
-  void _doPendingNavigation(
+  void _setPendingNavigation(
     String path, {
     Map<String, String>? queryParameters,
     required bool isReplacement,
