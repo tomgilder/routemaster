@@ -610,7 +610,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       if (page is ProxyPage) {
         page = page.child;
       } else if (page is ProxyBuilderPage) {
-        page = page.pageBuilder();
+        page = page.builder();
       }
     }
 
