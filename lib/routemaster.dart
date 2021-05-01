@@ -626,6 +626,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     assert(page is! Redirect, 'Redirect has not been followed');
     assert(page is! ProxyPage, 'ProxyPage has not been unwrapped');
+    assert(
+        page is! ProxyBuilderPage, 'ProxyBuilderPage has not been unwrapped');
 
     // Page is just a standard Flutter page, create a wrapper for it
     return _PageWrapperResult(StatelessPage(routeData: routeData, page: page));
