@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'system_nav.dart';
 
 class SystemNav {
@@ -12,4 +13,7 @@ class SystemNav {
   static PathStrategy get pathStrategy {
     throw UnsupportedError('Only supported on web');
   }
+
+  @visibleForTesting
+  static void setFakePathUrlStrategy() {}
 }

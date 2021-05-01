@@ -20,7 +20,7 @@ final routes = RouteMap(
   routes: {
     '/': (_) => CupertinoTabPage(
           child: HomePage(),
-          paths: ['feed', 'settings'],
+          paths: ['/feed', '/settings'],
         ),
 
     '/feed': (_) => MaterialPage(child: FeedPage()),
@@ -134,7 +134,7 @@ RouteMap(
   routes: {
     '/': (route) => TabPage(
           child: HomePage(),
-          paths: ['feed', 'settings'],
+          paths: ['/feed', '/settings'],
         ),
     '/feed': (route) => MaterialPage(child: FeedPage()),
     '/settings': (route) => MaterialPage(child: SettingsPage()),
@@ -180,7 +180,7 @@ RouteMap(
   routes: {
     '/': (route) => CupertinoTabPage(
           child: HomePage(),
-          paths: ['feed', 'settings'],
+          paths: ['/feed', '/settings'],
         ),
     '/feed': (route) => MaterialPage(child: FeedPage()),
     '/settings': (route) => MaterialPage(child: SettingsPage()),

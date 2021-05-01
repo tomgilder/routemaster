@@ -75,11 +75,11 @@ RouteMap _buildRouteMap(AppState appState) {
       '/': (_) => CupertinoTabPage(
             child: HomePage(),
             paths: [
-              'feed',
-              'search',
-              if (appState.showBonusTab) 'bonus',
-              'notifications',
-              'settings',
+              '/feed',
+              '/search',
+              if (appState.showBonusTab) '/bonus',
+              '/notifications',
+              '/settings',
             ],
           ),
       '/feed': (_) => MaterialPage(child: FeedPage()),

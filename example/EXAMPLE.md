@@ -13,7 +13,7 @@ final routes = RouteMap(
   routes: {
     '/': (_) => CupertinoTabPage(
           child: HomePage(),
-          paths: ['feed', 'settings'],
+          paths: ['/feed', '/settings'],
         ),
     '/feed': (_) => MaterialPage(child: FeedPage()),
     '/feed/profile/:id': (_) => MaterialPage(child: ProfilePage()),

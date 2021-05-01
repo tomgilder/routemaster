@@ -1,4 +1,4 @@
-import 'package:path/path.dart' as path;
+import 'package:path/path.dart' as p;
 
 class PathParser {
   static Map<String, String> parseQueryParameters(String path) {
@@ -22,16 +22,20 @@ class PathParser {
     return path.substring(0, indexOfQuery);
   }
 
+  /// Returns an absolute path for [path].
+  ///
+  /// If [path] is already an absolute path, return that path.
+  /// Otherwise return the joining of [basePath] and [path].
   static String getAbsolutePath({
-    required String currentPath,
-    required String newPath,
+    required String basePath,
+    required String path,
     Map<String, String>? queryParameters,
   }) {
-    final absolutePath = path.isAbsolute(newPath)
-        ? newPath
-        : path.join(
-            stripQueryString(currentPath),
-            newPath,
+    final absolutePath = p.isAbsolute(path)
+        ? path
+        : p.join(
+            stripQueryString(basePath),
+            path,
           );
 
     if (queryParameters == null) {
