@@ -1,6 +1,6 @@
 name: routemaster
 description: Easy-to-use URL-based router for Flutter web, mobile and desktop that uses Navigator 2.0. Simple navigation of nested routes and tabs.
-version: 0.6.0
+version: 0.7.0
 homepage: https://github.com/tomgilder/routemaster
 
 environment:
