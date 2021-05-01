@@ -1,21 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:routemaster/routemaster.dart';
-
 import 'helpers.dart';
 
 void main() {
-  testWidgets('Proxy page returns child', (tester) async {
-    await tester.pumpWidget(Builder(
-      builder: (context) {
-        final childPage = MaterialPage<void>(child: SizedBox());
-        final proxyPage = MockProxyPage(page: childPage);
-        expect(proxyPage.createRoute(context).settings, childPage);
-        return SizedBox();
-      },
-    ));
-  });
-
   testWidgets('StatefulPage createRoute throws', (tester) async {
     await tester.pumpWidget(Builder(
       builder: (context) {
@@ -46,10 +34,6 @@ void main() {
 
     expect(statelessPage.createPage(), page);
   });
-}
-
-class MockProxyPage extends ProxyPage {
-  MockProxyPage({required Page page}) : super(child: page);
 }
 
 class MockStatefulPage extends StatefulPage<void> {

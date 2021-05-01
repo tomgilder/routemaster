@@ -13,7 +13,7 @@ void main() {
                 onValidationFailed: (info, context) {
                   return MaterialPage<void>(child: NotFoundPage());
                 },
-                child: MaterialPage<void>(child: PageOne()),
+                builder: () => MaterialPage<void>(child: PageOne()),
               ),
         },
       ),
@@ -37,7 +37,7 @@ void main() {
           '/': (info) => Guard(
                 validate: (info, context) => false,
                 onValidationFailed: (info, context) => Redirect('/page-two'),
-                child: MaterialPage<void>(child: PageOne()),
+                builder: () => MaterialPage<void>(child: PageOne()),
               ),
           '/page-two': (info) => MaterialPage<void>(child: PageTwo()),
         },
@@ -65,7 +65,7 @@ void main() {
         routes: {
           '/': (info) => Guard(
                 validate: (info, context) => false,
-                child: MaterialPage<void>(child: PageOne()),
+                builder: () => MaterialPage<void>(child: PageOne()),
               ),
         },
       ),
@@ -90,7 +90,7 @@ void main() {
         routes: {
           '/': (info) => Guard(
                 validate: (info, context) => false,
-                child: MaterialPage<void>(child: PageOne()),
+                builder: () => MaterialPage<void>(child: PageOne()),
               ),
           '/page-two': (info) => MaterialPage<void>(child: PageTwo()),
         },
@@ -114,7 +114,7 @@ void main() {
         routes: {
           '/': (info) => Guard(
                 validate: (info, context) => true,
-                child: MaterialPage<void>(child: PageOne()),
+                builder: () => MaterialPage<void>(child: PageOne()),
               ),
         },
       ),
@@ -154,7 +154,7 @@ void main() {
                   onValidationFailedWasCalled = true;
                   return Redirect('/');
                 },
-                child: MaterialPage<void>(child: PageOne()),
+                builder: () => MaterialPage<void>(child: PageOne()),
               ),
         },
       ),
@@ -182,9 +182,9 @@ void main() {
         routes: {
           '/': (info) => Guard(
                 validate: (_, __) => true,
-                child: Guard(
+                builder: () => Guard(
                   validate: (_, __) => true,
-                  child: MaterialPage<void>(child: PageOne()),
+                  builder: () => MaterialPage<void>(child: PageOne()),
                 ),
               ),
         },
@@ -199,5 +199,17 @@ void main() {
     );
 
     expect(find.byType(PageOne), findsOneWidget);
+  });
+
+  test('Guard createRoute throws', () {
+    final guard = Guard(
+      validate: (_, __) => false,
+      builder: () => MaterialPageOne(),
+    );
+
+    expect(
+      () => guard.createRoute(FakeBuildContext()),
+      throwsA(isA<UnsupportedError>()),
+    );
   });
 }

@@ -423,17 +423,6 @@ void main() {
   });
 }
 
-class FakeBuildContext implements BuildContext {
-  @override
-  T? dependOnInheritedWidgetOfExactType<T extends InheritedWidget>(
-      {Object? aspect}) {
-    return null;
-  }
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) {}
-}
-
 class StubRoutemaster implements Routemaster {
   @override
   Future<bool> pop() {

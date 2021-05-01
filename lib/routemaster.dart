@@ -244,7 +244,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     // Otherwise we do a convoluted dance which uses a custom UrlStrategy that
     // supports replacing the URL.
-    _doPendingNavigation(
+    _setPendingNavigation(
       path,
       queryParameters: queryParameters,
       isReplacement: true,
@@ -255,14 +255,14 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   void push(String path, {Map<String, String>? queryParameters}) {
     assert(!_isDisposed);
 
-    _doPendingNavigation(
+    _setPendingNavigation(
       path,
       queryParameters: queryParameters,
       isReplacement: false,
     );
   }
 
-  void _doPendingNavigation(
+  void _setPendingNavigation(
     String path, {
     Map<String, String>? queryParameters,
     required bool isReplacement,
@@ -564,8 +564,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     required Page page,
     required RouteData routeData,
   }) {
-    while (page is ProxyPage) {
-      if (page is GuardedPage && !page.validate(routeData, _context)) {
+    while (page is Guard) {
+      if (!page.validate(routeData, _context)) {
         if (page.onValidationFailed == null) {
           return _NotFoundResult();
         }
@@ -578,7 +578,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         );
       }
 
-      page = page.child;
+      page = page.builder();
     }
 
     if (page is Redirect) {
@@ -590,9 +590,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         page.createState(_state.routemaster, routeData),
       );
     }
-
-    assert(page is! Redirect, 'Redirect has not been followed');
-    assert(page is! ProxyPage, 'ProxyPage has not been unwrapped');
 
     // Page is just a standard Flutter page, create a wrapper for it
     return _PageWrapperResult(StatelessPage(routeData: routeData, page: page));
