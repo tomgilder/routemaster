@@ -1,3 +1,7 @@
+# 0.7.0
+
+* Breaking change: `Guard` now takes a `builder` method instead of a `child` property
+
 # 0.6.2
 
 * Support for absolute paths in tab child routes
