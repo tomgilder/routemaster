@@ -127,4 +127,28 @@ void main() {
     await tester.pump();
     expect(await result.route, ModalRoute.of(key.currentContext!));
   });
+
+  testWidgets('Can get route when pushing multiple new pages', (tester) async {
+    final key = GlobalKey();
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (_) => MaterialPageOne(),
+          '/two': (_) => MaterialPageTwo(),
+          '/two/three': (_) => MaterialPage<void>(child: Container(key: key)),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    final result = delegate.push<String>('/two/three');
+    await tester.pump();
+    expect(await result.route, ModalRoute.of(key.currentContext!));
+  });
 }
