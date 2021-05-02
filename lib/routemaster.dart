@@ -10,7 +10,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:path/path.dart';
+import 'package:path/path.dart' as p;
 import 'package:collection/collection.dart';
 import 'src/pages/guard.dart';
 import 'src/path_parser.dart';
@@ -293,7 +293,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       isReplacement: false,
       result: result,
     );
-
     return result;
   }
 
@@ -607,8 +606,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     required Page page,
     required RouteData routeData,
   }) {
-    while (page is ProxyPage || page is ProxyBuilderPage) {
-      if (page is GuardedPage && !page.validate(routeData, _context)) {
+    while (page is Guard) {
+      if (!page.validate(routeData, _context)) {
         if (page.onValidationFailed == null) {
           return _NotFoundResult();
         }
@@ -621,11 +620,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         );
       }
 
-      if (page is ProxyPage) {
-        page = page.child;
-      } else if (page is ProxyBuilderPage) {
-        page = page.builder();
-      }
+      page = page.builder();
     }
 
     if (page is Redirect) {
@@ -637,11 +632,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         page.createState(_state.routemaster, routeData),
       );
     }
-
-    assert(page is! Redirect, 'Redirect has not been followed');
-    assert(page is! ProxyPage, 'ProxyPage has not been unwrapped');
-    assert(
-        page is! ProxyBuilderPage, 'ProxyBuilderPage has not been unwrapped');
 
     // Page is just a standard Flutter page, create a wrapper for it
     return _PageWrapperResult(StatelessPage(routeData: routeData, page: page));
@@ -777,7 +767,7 @@ class _RoutemasterStateTrackerState extends State<_RoutemasterStateTracker> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    widget.delegate._didChangeDependencies(this.context);
+    widget.delegate._didChangeDependencies(context);
   }
 
   @override
@@ -900,7 +890,7 @@ class StackNavigatorState extends State<StackNavigator> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _routemaster = Routemaster.of(this.context);
+    _routemaster = Routemaster.of(context);
   }
 
   void _onStackChanged() {

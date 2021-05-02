@@ -257,6 +257,7 @@ void main() {
     delegate.push('/tabs/onepagethree');
     await tester.pump();
     await tester.pump(Duration(seconds: 1));
+    expect(find.byType(MyTabPage), findsNothing);
     expect(find.byType(PageThree), findsOneWidget);
   });
 
@@ -421,17 +422,6 @@ void main() {
           e.message == "Couldn't find a TabPageState from the given context.")),
     );
   });
-}
-
-class FakeBuildContext implements BuildContext {
-  @override
-  T? dependOnInheritedWidgetOfExactType<T extends InheritedWidget>(
-      {Object? aspect}) {
-    return null;
-  }
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) {}
 }
 
 class StubRoutemaster implements Routemaster {

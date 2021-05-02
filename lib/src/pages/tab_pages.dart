@@ -355,7 +355,7 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
     final tabPagePath = routeData.path;
     final subPagePath = pages.first.routeData.path;
 
-    if (!isWithin(tabPagePath, subPagePath)) {
+    if (!p.isWithin(tabPagePath, subPagePath)) {
       // subPagePath is not a path beneath the tab page's path.
       return false;
     }
@@ -373,6 +373,9 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
     return true;
   }
 
+  /// Returns an index if the given [path] can be pushed into one of the tabs.
+  ///
+  /// Otherwise, returns null.
   int? _getIndexForPath(String path) {
     String _getAbsoluteTabPath(String subpath) {
       return PathParser.stripQueryString(
@@ -384,8 +387,9 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
 
     var i = 0;
     for (final initialPath in _tabPage.paths) {
-      final childAbsolutePath = _getAbsoluteTabPath(initialPath);
-      if (requiredAbsolutePath.startsWith(childAbsolutePath)) {
+      final tabRootAbsolutePath = _getAbsoluteTabPath(initialPath);
+      if (p.equals(tabRootAbsolutePath, requiredAbsolutePath) ||
+          p.isWithin(tabRootAbsolutePath, requiredAbsolutePath)) {
         return i;
       }
 

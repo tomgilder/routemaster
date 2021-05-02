@@ -11,17 +11,36 @@ typedef ValidationFailedCallback = Page Function(
   BuildContext context,
 );
 
-mixin GuardedPage on ProxyBuilderPage {
+/// A page that wraps other pages in order to provide more functionality.
+///
+/// Similar to [ProxyPage] but uses a builder method so the page doesn't build
+/// until the route is required.
+///
+/// For example, [Guarded] adds validation functionality for routes.
+class Guard extends Page<dynamic> {
+  final Page Function() builder;
+
   /// Callback to check if the route is valid. If this returns false,
   /// [onValidationFailed] is called.
   ///
   /// If [onValidationFailed] is null, `onUnknownRoute` is called.
-  ValidateCallback get validate;
+  final ValidateCallback validate;
 
   /// Callback, called when the [validate] returns false.
   ///
   /// By default this redirects to the default path.
-  ValidationFailedCallback? get onValidationFailed;
+  final ValidationFailedCallback? onValidationFailed;
+
+  const Guard({
+    required this.builder,
+    required this.validate,
+    this.onValidationFailed,
+  });
+
+  @override
+  Route createRoute(BuildContext context) {
+    throw UnsupportedError('Guards must be unwrapped');
+  }
 }
 
 /// A page results which tells the router to redirect to another page.
@@ -40,18 +59,4 @@ class Redirect extends Page<dynamic> {
   Route createRoute(BuildContext context) {
     throw UnimplementedError('Redirect does not support building a route');
   }
-}
-
-class Guard extends ProxyBuilderPage with GuardedPage {
-  @override
-  final ValidateCallback validate;
-
-  @override
-  final ValidationFailedCallback? onValidationFailed;
-
-  const Guard({
-    required Page Function() builder,
-    required this.validate,
-    this.onValidationFailed,
-  }) : super(builder: builder);
 }

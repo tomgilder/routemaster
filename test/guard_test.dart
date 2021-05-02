@@ -200,4 +200,16 @@ void main() {
 
     expect(find.byType(PageOne), findsOneWidget);
   });
+
+  test('Guard createRoute throws', () {
+    final guard = Guard(
+      validate: (_, __) => false,
+      builder: () => MaterialPageOne(),
+    );
+
+    expect(
+      () => guard.createRoute(FakeBuildContext()),
+      throwsA(isA<UnsupportedError>()),
+    );
+  });
 }
