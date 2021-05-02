@@ -59,13 +59,7 @@ class PageStack extends ChangeNotifier {
   /// Passed to [Navigator] widgets for them to inform this stack of a pop
   bool onPopPage(Route<dynamic> route, dynamic result) {
     if (route.didPop(result)) {
-      final removed = _routes.removeLast();
-
-      if (result != null) {
-        removed.result?._completer.complete(result);
-      } else {
-        removed.result?._completer.complete();
-      }
+      _routes.removeLast();
 
       // We don't need to notify listeners, the Navigator will rebuild itself
       return true;

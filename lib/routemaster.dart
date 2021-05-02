@@ -199,8 +199,21 @@ class Routemaster {
 }
 
 class NavigationResult<T extends Object?> {
-  Future<T> get result => _completer.future;
-  final Completer<T> _completer = Completer<T>();
+  /// Returns the top-most route that was created as a result of the navigation.
+  Future<Route> get route => _routeCompleter.future;
+  final Completer<Route> _routeCompleter = Completer<Route>();
+
+  /// Used to get the return value from a route.
+  ///
+  /// Return values are passed back when popping a route, for example:
+  ///
+  ///   `Navigator.of(context).pop('Return value')`
+  ///
+  Future<T?> get result async {
+    final route = await _routeCompleter.future;
+    final result = await route.popped as T?;
+    return result;
+  }
 }
 
 class RoutemasterDelegate extends RouterDelegate<RouteData>
@@ -280,6 +293,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       isReplacement: false,
       result: result,
     );
+
     return result;
   }
 
@@ -671,6 +685,18 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     return redirects;
   }
+
+  void didPush(Route route) {
+    final page = route.settings;
+    final current = _state.stack
+        ._getCurrentPages()
+        .firstWhereOrNull((e) => e._getOrCreatePage() == page);
+
+    final completer = current?.result?._routeCompleter;
+    if (completer != null && !completer.isCompleted) {
+      completer.complete(route);
+    }
+  }
 }
 
 @immutable
@@ -688,6 +714,17 @@ class _RedirectResult extends _PageResult {
   final String redirectPath;
 
   _RedirectResult(this.redirectPath);
+}
+
+class _PushObserver extends NavigatorObserver {
+  final Routemaster routemaster;
+
+  _PushObserver(this.routemaster);
+
+  @override
+  void didPush(Route route, Route? previousRoute) {
+    routemaster._delegate.didPush(route);
+  }
 }
 
 /// Used internally so descendent widgets can use `Routemaster.of(context)`.
@@ -713,6 +750,7 @@ class _RoutemasterState {
   RouteConfig? routeConfig;
   RouteData? currentConfiguration;
   _RouteRequest? pendingNavigation;
+  late _PushObserver pushObserver = _PushObserver(routemaster);
 }
 
 class _RoutemasterStateTracker extends StatefulWidget {
@@ -891,7 +929,11 @@ class StackNavigatorState extends State<StackNavigator> {
         pages: widget.stack.createPages(),
         observers: [
           _RelayingNavigatorObserver(
-            () => widget.observers + _routemaster._delegate.observers,
+            () sync* {
+              yield* widget.observers;
+              yield* _routemaster._delegate.observers;
+              yield _routemaster._delegate._state.pushObserver;
+            },
           )
         ],
       ),
