@@ -1,6 +1,7 @@
 # 0.7.0
 
 * Breaking change: `Guard` now takes a `builder` method instead of a `child` property
+* Fixed an issue where subpages wouldn't push on top of a tab page
 
 # 0.6.2
 
