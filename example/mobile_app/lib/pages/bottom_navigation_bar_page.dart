@@ -74,7 +74,8 @@ class BottomContentPage extends StatelessWidget {
             Text('Bottom bar page 1'),
             ElevatedButton(
               onPressed: () {
-                Routemaster.of(context).push('/bottom-navigation-bar/sub-page');
+                Routemaster.of(context)
+                    .push('/bottom-navigation-bar/threepage');
               },
               child: Text('Push page Android-style'),
             ),
@@ -96,7 +97,7 @@ class BottomContentPage2 extends StatelessWidget {
             Text('Bottom bar page 2'),
             ElevatedButton(
               onPressed: () => Routemaster.of(context)
-                  .push('/bottom-navigation-bar/sub-page'),
+                  .push('/bottom-navigation-bar/threepage'),
               child: Text('Page 2: push page'),
             ),
           ],

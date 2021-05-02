@@ -159,7 +159,7 @@ RouteMap _buildRouteMap(AppState appState) {
       '/bottom-navigation-bar/three': (_) => MaterialPage(
             child: MessagePage(message: 'Page three'),
           ),
-      '/bottom-navigation-bar/sub-page': (_) => MaterialPage(
+      '/bottom-navigation-bar/threepage': (_) => MaterialPage(
             child: DoubleBackPage(),
           ),
       '/bottom-navigation-bar/replaced': (_) => MaterialPage(

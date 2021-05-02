@@ -8,7 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:path/path.dart';
+import 'package:path/path.dart' as p;
 import 'package:collection/collection.dart';
 import 'src/pages/guard.dart';
 import 'src/path_parser.dart';
@@ -701,7 +701,7 @@ class _RoutemasterStateTrackerState extends State<_RoutemasterStateTracker> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    widget.delegate._didChangeDependencies(this.context);
+    widget.delegate._didChangeDependencies(context);
   }
 
   @override
@@ -822,7 +822,7 @@ class StackNavigatorState extends State<StackNavigator> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _routemaster = Routemaster.of(this.context);
+    _routemaster = Routemaster.of(context);
   }
 
   void _onStackChanged() {
