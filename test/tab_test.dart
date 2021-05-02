@@ -257,6 +257,7 @@ void main() {
     delegate.push('/tabs/onepagethree');
     await tester.pump();
     await tester.pump(Duration(seconds: 1));
+    expect(find.byType(MyTabPage), findsNothing);
     expect(find.byType(PageThree), findsOneWidget);
   });
 

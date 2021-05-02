@@ -385,7 +385,8 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
     var i = 0;
     for (final initialPath in _tabPage.paths) {
       final childAbsolutePath = _getAbsoluteTabPath(initialPath);
-      if (requiredAbsolutePath.startsWith(childAbsolutePath)) {
+      if (childAbsolutePath == requiredAbsolutePath ||
+          isWithin(childAbsolutePath, requiredAbsolutePath)) {
         return i;
       }
 
