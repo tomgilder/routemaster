@@ -14,7 +14,12 @@ class FeedPage extends StatelessWidget {
           Column(
             children: [
               ElevatedButton(
-                onPressed: () => Routemaster.of(context).push('profile/1'),
+                onPressed: () async {
+                  final result = await Routemaster.of(context)
+                      .push<String?>('profile/1')
+                      .result;
+                  print(result);
+                },
                 child: Text('Push profile page with ID 1'),
               ),
               ElevatedButton(
@@ -101,6 +106,22 @@ class ProfilePage extends StatelessWidget {
             ElevatedButton(
               onPressed: () => Routemaster.of(context).pop(),
               child: Text('Back'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop('hello!'),
+              child: Text('Return Navigator value'),
+            ),
+            ElevatedButton(
+              onPressed: () => Routemaster.of(context).pop('hello!'),
+              child: Text('Return Routemaster value'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(null),
+              child: Text('Return null Navigator value'),
+            ),
+            ElevatedButton(
+              onPressed: () => Routemaster.of(context).pop(null),
+              child: Text('Return null Routemaster value'),
             ),
           ],
         ),
