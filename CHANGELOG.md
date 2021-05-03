@@ -1,8 +1,9 @@
 # 0.7.0
 
+* Breaking change: `RouteData.path` no longer returns the full path with query string, to match Dart's `Uri` object. Use `RouteData.toString()` or `RouteData.fullPath` for the entire path including query string.
+* Breaking change: `Guard` now takes a `builder` method instead of a `child` property
 * Added support for return values via `pop('Result')`
 * Added support for getting the `Route` object when pushing a new path
-* Breaking change: `Guard` now takes a `builder` method instead of a `child` property
 * Fixed an issue where subpages wouldn't push on top of a tab page
 * Fixed an issue where query string values were lost after using the back button
 

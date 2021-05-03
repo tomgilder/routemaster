@@ -303,7 +303,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     NavigationResult? result,
   }) {
     final absolutePath = PathParser.getAbsolutePath(
-      basePath: currentConfiguration!.path,
+      basePath: currentConfiguration!.fullPath,
       path: path,
       queryParameters: queryParameters,
     );
@@ -372,9 +372,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       final pageWrapper = currentPages.last;
       final routeData = pageWrapper.routeData;
 
-      if (_state.currentConfiguration!.path != routeData.path) {
+      if (_state.currentConfiguration!.fullPath != routeData.fullPath) {
         _state.currentConfiguration = RouteData(
-          routeData.path,
+          routeData.fullPath,
           isReplacement: routeData.isReplacement,
           pathTemplate: routeData.pathTemplate,
         );
@@ -394,7 +394,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   Future<void> setNewRoutePath(RouteData routeData) {
     assert(!_isDisposed);
 
-    push(routeData.path);
+    push(routeData.fullPath);
     return SynchronousFuture(null);
   }
 
@@ -414,7 +414,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
       _processNavigation(
         routeRequest: _state.pendingNavigation ??
-            _RouteRequest(path: currentConfiguration?.path ?? '/'),
+            _RouteRequest(path: currentConfiguration?.fullPath ?? '/'),
         currentRoutes: null,
       );
 
@@ -560,9 +560,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }) {
     if (currentRoutes != null) {
       final currentState = currentRoutes.firstWhereOrNull(
-        ((element) =>
-            PathParser.stripQueryString(element.routeData.path) ==
-            PathParser.stripQueryString(routeData.path)),
+        ((element) => element.routeData.path == routeData.path),
       );
 
       if (currentState != null) {

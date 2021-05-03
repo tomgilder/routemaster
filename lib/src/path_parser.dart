@@ -1,17 +1,6 @@
 import 'package:path/path.dart' as p;
 
 class PathParser {
-  static Map<String, String> parseQueryParameters(String path) {
-    final queryStringStart = path.indexOf('?');
-    if (queryStringStart == -1 || path.length < queryStringStart) {
-      return Map.unmodifiable(const <String, String>{});
-    }
-
-    final queryString = path.substring(path.indexOf('?') + 1);
-
-    return Map.unmodifiable(Uri.splitQueryString(queryString));
-  }
-
   static String stripQueryString(String path) {
     final indexOfQuery = path.indexOf('?');
 

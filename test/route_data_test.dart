@@ -19,7 +19,9 @@ void main() {
       ),
       '/path',
     );
+
     expect(data.path, '/path');
+    expect(data.fullPath, '/path');
   });
 
   test('Provides correct path with query string', () {
@@ -32,7 +34,9 @@ void main() {
       ),
       '/path?hello=world',
     );
-    expect(data.path, '/path?hello=world');
+
+    expect(data.path, '/path');
+    expect(data.fullPath, '/path?hello=world');
   });
 
   test('Route info with different paths are not equal', () {
@@ -151,7 +155,7 @@ void main() {
   test('RouteData.toString() is correct', () {
     expect(
       RouteData('/').toString(),
-      "RouteData: '/'",
+      '/',
     );
   });
 
@@ -179,13 +183,14 @@ void main() {
       ),
     );
 
-    expect(RouteData.of(pageKey1.currentContext!).path, '/');
+    expect(RouteData.of(pageKey1.currentContext!).fullPath, '/');
 
     delegate.push('/two/myId?query=param');
     await tester.pump();
 
     final page2RouteData = RouteData.of(pageKey2.currentContext!);
-    expect(page2RouteData.path, '/two/myId?query=param');
+    expect(page2RouteData.path, '/two/myId');
+    expect(page2RouteData.fullPath, '/two/myId?query=param');
     expect(page2RouteData.pathParameters['id'], 'myId');
     expect(page2RouteData.queryParameters['query'], 'param');
   });

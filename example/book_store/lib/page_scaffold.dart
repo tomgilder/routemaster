@@ -148,7 +148,7 @@ class _PageScaffoldState extends State<PageScaffold> {
                         Routemaster.of(context).push(
                           '/login',
                           queryParameters: {
-                            'redirectTo': RouteData.of(context).path,
+                            'redirectTo': RouteData.of(context).fullPath,
                           },
                         );
                       },
@@ -233,7 +233,7 @@ class NavigationLink extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentPath = RouteData.of(context).path;
+    final currentPath = RouteData.of(context).fullPath;
     final isCurrent = currentPath.startsWith(path);
 
     return Container(
