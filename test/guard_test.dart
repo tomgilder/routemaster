@@ -59,9 +59,7 @@ void main() {
       (tester) async {
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
-        onUnknownRoute: (route, context) => MaterialPage<void>(
-          child: NotFoundPage(),
-        ),
+        onUnknownRoute: (route) => MaterialPage<void>(child: NotFoundPage()),
         routes: {
           '/': (info) => Guard(
                 validate: (info, context) => false,
@@ -86,7 +84,7 @@ void main() {
       (tester) async {
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
-        onUnknownRoute: (route, context) => Redirect('/page-two'),
+        onUnknownRoute: (route) => Redirect('/page-two'),
         routes: {
           '/': (info) => Guard(
                 validate: (info, context) => false,
@@ -211,5 +209,65 @@ void main() {
       () => guard.createRoute(FakeBuildContext()),
       throwsA(isA<UnsupportedError>()),
     );
+  });
+
+  testWidgets('NotFound defaults to DefaultUnknownRoutePage', (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (info) => NotFound(),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    expect(find.byType(DefaultUnknownRoutePage), findsOneWidget);
+  });
+
+  testWidgets('NotFound shows custom not found page', (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        onUnknownRoute: (route) => MaterialPage<void>(child: NotFoundPage()),
+        routes: {
+          '/': (info) => NotFound(),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    expect(find.byType(NotFoundPage), findsOneWidget);
+  });
+
+  testWidgets('NotFound can redirect', (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        onUnknownRoute: (route) => Redirect('/404'),
+        routes: {
+          '/': (info) => NotFound(),
+          '/404': (info) => MaterialPage<void>(child: NotFoundPage()),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    expect(find.byType(NotFoundPage), findsOneWidget);
   });
 }

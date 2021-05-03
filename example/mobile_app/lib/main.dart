@@ -62,7 +62,7 @@ class AppState extends ChangeNotifier {
 // This only allows the user to navigate to the root path.
 // Note: building the route map from methods allows hot reload to work
 final loggedOutRouteMap = RouteMap(
-  onUnknownRoute: (route, context) => Redirect('/'),
+  onUnknownRoute: (route) => Redirect('/'),
   routes: {
     '/': (_) => MaterialPage(child: LoginPage()),
   },
@@ -84,19 +84,17 @@ RouteMap _buildRouteMap(AppState appState) {
           ),
       '/feed': (_) => MaterialPage(child: FeedPage()),
       '/feed/profile/:id': (info) {
-        return Guard(
-          validate: (info, context) {
-            return info.pathParameters['id'] == '1' ||
-                info.pathParameters['id'] == '2';
-          },
-          onValidationFailed: (info, context) => Redirect('/feed'),
-          builder: () => MaterialPage(
+        if (info.pathParameters['id'] == '1' ||
+            info.pathParameters['id'] == '2') {
+          return MaterialPage(
             child: ProfilePage(
               id: info.pathParameters['id'],
               message: info.queryParameters['message'],
             ),
-          ),
-        );
+          );
+        }
+
+        return Redirect('/feed');
       },
       '/feed/profile/:id/photo': (info) => FancyAnimationPage(
             child: PhotoPage(id: info.pathParameters['id']),

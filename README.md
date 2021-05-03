@@ -221,22 +221,22 @@ class HomePage extends StatelessWidget {
 Redirect to another page if validation fails (changes URL):
 
 ```dart
-'/protected-route': (route) => Guard(
-    validate: (route, context) => canUserAccessPage(),
-    onValidationFailed: (info, context) => Redirect('/no-access'),
-    child: MaterialPage(child: ProtectedPage()),
-)
+'/protected-route': (route) => 
+    canUserAccessPage()
+      ? MaterialPage(child: ProtectedPage())
+      : Redirect('/no-access'),
 ```
 
 Show another page if validation fails (doesn't change URL): 
 
 ```dart
-'/protected-route': (route) => Guard(
-    validate: (route, context) => canUserAccessPage(),
-    onValidationFailed: (info, context) => NoAccessPage(),
-    child: MaterialPage(child: ProtectedPage()),
-)
+'/protected-route': (route) => 
+    canUserAccessPage()
+      ? MaterialPage(child: ProtectedPage())
+      : MaterialPage(child: CustomNoAccessPage())
 ```
+
+Show default 404 page if validation fails:
 
 ## 404 Page
 

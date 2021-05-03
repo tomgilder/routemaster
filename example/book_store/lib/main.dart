@@ -28,102 +28,88 @@ bool _isValidBookId(String? id) {
   return booksDatabase.books.any((book) => book.id == id);
 }
 
-final routeMap = RouteMap(
-  onUnknownRoute: (path, context) {
-    return MaterialPage(
-      child: PageScaffold(
-        title: 'Page not found',
-        body: Center(
-          child: Text(
-            "Couldn't find page '$path'",
-            style: Theme.of(context).textTheme.headline3,
-          ),
-        ),
-      ),
-    );
-  },
-  routes: {
-    '/': (route) => MaterialPage(child: ShopHome()),
-    '/login': (route) => MaterialPage(
-          child: LoginPage(
-            redirectTo: route.queryParameters['redirectTo'],
-          ),
-        ),
-    '/book/:id': (route) => Guard(
-          validate: (info, context) => booksDatabase.books.any(
-            (book) => book.id == info.pathParameters['id'],
-          ),
-          builder: () => MaterialPage(
-            child: BookPage(id: route.pathParameters['id']!),
-          ),
-        ),
-    '/category/:category': (route) => Guard(
-          validate: (info, context) =>
-              _isValidCategory(route.pathParameters['category']),
-          builder: () => MaterialPage(
-            child: CategoryPage(
-              category: BookCategory.values.firstWhere(
-                (e) => e.queryParam == route.pathParameters['category'],
-              ),
+RouteMap _buildRouteMap(BuildContext context) {
+  return RouteMap(
+    onUnknownRoute: (path) {
+      return MaterialPage(
+        child: PageScaffold(
+          title: 'Page not found',
+          body: Center(
+            child: Text(
+              "Couldn't find page '$path'",
+              style: Theme.of(context).textTheme.headline3,
             ),
           ),
         ),
-    '/category/:category/book/:id': (route) => Guard(
-          validate: (info, context) =>
-              _isValidCategory(route.pathParameters['category']) &&
-              _isValidBookId(route.pathParameters['id']),
-          builder: () => MaterialPage(
-            child: BookPage(id: route.pathParameters['id']!),
-          ),
-        ),
-    '/audiobooks': (route) => TabPage(
-          child: AudiobookPage(),
-          paths: ['all', 'picks'],
-        ),
-    '/audiobooks/all': (route) => MaterialPage(
-          child: AudiobookListPage(mode: 'all'),
-        ),
-    '/audiobooks/picks': (route) => MaterialPage(
-          child: AudiobookListPage(mode: 'picks'),
-        ),
-    '/audiobooks/book/:id': (route) {
-      return Guard(
-        validate: (info, context) => _isValidBookId(route.pathParameters['id']),
-        builder: () => MaterialPage(
-          child: BookPage(id: route.pathParameters['id']!),
-        ),
       );
     },
-    '/search': (route) => MaterialPage(
-          child: SearchPage(
+    routes: {
+      '/': (route) => MaterialPage(child: ShopHome()),
+      '/login': (route) => MaterialPage(
+            child: LoginPage(
+              redirectTo: route.queryParameters['redirectTo'],
+            ),
+          ),
+      '/book/:id': (route) => _isValidBookId(route.pathParameters['id'])
+          ? MaterialPage(child: BookPage(id: route.pathParameters['id']!))
+          : NotFound(),
+      '/category/:category': (route) =>
+          _isValidCategory(route.pathParameters['category'])
+              ? MaterialPage(
+                  child: CategoryPage(
+                    category: BookCategory.values.firstWhere(
+                      (e) => e.queryParam == route.pathParameters['category'],
+                    ),
+                  ),
+                )
+              : NotFound(),
+      '/category/:category/book/:id': (route) =>
+          _isValidCategory(route.pathParameters['category']) &&
+                  _isValidBookId(route.pathParameters['id'])
+              ? MaterialPage(child: BookPage(id: route.pathParameters['id']!))
+              : NotFound(),
+      '/audiobooks': (route) => TabPage(
+            child: AudiobookPage(),
+            paths: ['all', 'picks'],
+          ),
+      '/audiobooks/all': (route) => MaterialPage(
+            child: AudiobookListPage(mode: 'all'),
+          ),
+      '/audiobooks/picks': (route) => MaterialPage(
+            child: AudiobookListPage(mode: 'picks'),
+          ),
+      '/audiobooks/book/:id': (route) =>
+          _isValidBookId(route.pathParameters['id'])
+              ? MaterialPage(
+                  child: BookPage(id: route.pathParameters['id']!),
+                )
+              : NotFound(),
+      '/search': (route) => MaterialPage(
+              child: SearchPage(
             query: route.queryParameters['query'] ?? '',
             sortOrder: SortOrder.values.firstWhere(
               (e) => e.queryParam == route.queryParameters['sort'],
               orElse: () => SortOrder.name,
             ),
-          ),
-        ),
-    '/wishlist': (route) => MaterialPage(child: WishlistHomePage()),
-    '/wishlist/add': (route) => AddWishlistPage(),
-    '/wishlist/shared/:id': (route) {
-      return Guard(
-        validate: (info, context) {
-          final appState = Provider.of<AppState>(context, listen: false);
-          return appState.isLoggedIn;
-        },
-        onValidationFailed: (route, context) {
-          return Redirect(
-            '/login',
-            queryParameters: {'redirectTo': route.path},
+          )),
+      '/wishlist': (route) => MaterialPage(child: WishlistHomePage()),
+      '/wishlist/add': (route) => AddWishlistPage(),
+      '/wishlist/shared/:id': (route) {
+        final appState = Provider.of<AppState>(context, listen: false);
+        if (appState.isLoggedIn) {
+          return MaterialPage(
+            child: WishlistPage(id: route.pathParameters['id']),
           );
-        },
-        builder: () => MaterialPage(
-          child: WishlistPage(id: route.pathParameters['id']),
-        ),
-      );
+        }
+
+        return Redirect(
+          '/login',
+          queryParameters: {'redirectTo': route.path},
+        );
+      },
     },
-  },
-);
+  );
+}
 
 final loggedOutRouteMap = RouteMap(
   routes: {
@@ -167,7 +153,7 @@ class BookStoreApp extends StatelessWidget {
 
             return siteBlockedWithoutLogin && !state.isLoggedIn
                 ? loggedOutRouteMap
-                : routeMap;
+                : _buildRouteMap(context);
           },
         ),
       ),
