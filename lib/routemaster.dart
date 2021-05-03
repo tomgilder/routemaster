@@ -492,12 +492,18 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         isReplacement: routeRequest.isReplacement,
       );
 
-      final current = _getOrCreatePageWrapper(
-        routeRequest: routeRequest,
-        routeData: routeData,
-        currentRoutes: currentRoutes,
-        routerResult: routerData,
-      );
+      final current = isLastRoute
+          ? _createPageWrapper(
+              routeRequest: routeRequest,
+              page: routerData.builder(routeData),
+              routeData: routeData,
+            )
+          : _getOrCreatePageWrapper(
+              routeRequest: routeRequest,
+              routeData: routeData,
+              currentRoutes: currentRoutes,
+              routerResult: routerData,
+            );
 
       if (current is _PageWrapperResult) {
         final page = current.pageWrapper;
@@ -553,9 +559,10 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     required RouterResult routerResult,
   }) {
     if (currentRoutes != null) {
-      // See if we have a current route matching the routeData
       final currentState = currentRoutes.firstWhereOrNull(
-        ((element) => element.routeData == routeData),
+        ((element) =>
+            PathParser.stripQueryString(element.routeData.path) ==
+            PathParser.stripQueryString(routeData.path)),
       );
 
       if (currentState != null) {

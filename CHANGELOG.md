@@ -4,6 +4,7 @@
 * Added support for getting the `Route` object when pushing a new path
 * Breaking change: `Guard` now takes a `builder` method instead of a `child` property
 * Fixed an issue where subpages wouldn't push on top of a tab page
+* Fixed an issue where query string values were lost after using the back button
 
 # 0.6.2
 
