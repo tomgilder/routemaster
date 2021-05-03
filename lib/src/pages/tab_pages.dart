@@ -326,7 +326,7 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
 
   PageStack _createInitialStackState(String stackPath) {
     final path = PathParser.getAbsolutePath(
-      basePath: routeData.path,
+      basePath: routeData.fullPath,
       path: stackPath,
     );
 

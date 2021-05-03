@@ -114,7 +114,7 @@ final routeMap = RouteMap(
         onValidationFailed: (route, context) {
           return Redirect(
             '/login',
-            queryParameters: {'redirectTo': route.path},
+            queryParameters: {'redirectTo': route.fullPath},
           );
         },
         builder: () => MaterialPage(

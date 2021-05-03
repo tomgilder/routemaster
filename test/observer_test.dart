@@ -409,7 +409,7 @@ class IsDidChangeRoute extends Matcher {
 
   @override
   bool matches(dynamic item, Map matchState) =>
-      item is DidChangeRoute && item.routeData.path == path;
+      item is DidChangeRoute && item.routeData.fullPath == path;
 
   @override
   Description describe(Description description) => description.add(path);
