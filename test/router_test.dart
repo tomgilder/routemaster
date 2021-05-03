@@ -214,4 +214,184 @@ void main() {
       ['/?query=string'],
     );
   });
+
+  testWidgets('Can change query string and then go back', (tester) async {
+    final key = GlobalKey();
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (route) => MaterialPage<void>(
+                child: Scaffold(
+                  body: Text(
+                    'Query: ' + (route.queryParameters['q'] ?? ''),
+                    key: key,
+                  ),
+                ),
+              ),
+          '/two': (_) => MaterialPage<void>(child: Scaffold(appBar: AppBar())),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    expect(
+      await recordUrlChanges(() async {
+        delegate.push('?q=string');
+        await tester.pump();
+        await tester.pump(kTransitionDuration);
+      }),
+      ['/?q=string'],
+    );
+
+    expect(find.text('Query: string'), findsOneWidget);
+    expect(RouteData.of(key.currentContext!).queryParameters['q'], 'string');
+
+    expect(
+      await recordUrlChanges(() async {
+        delegate.push('/two');
+        await tester.pump();
+        await tester.pump(kTransitionDuration);
+      }),
+      ['/two'],
+    );
+
+    expect(
+      await recordUrlChanges(() async {
+        await tester.tap(find.byType(BackButton));
+        await tester.pump();
+        await tester.pump(kTransitionDuration);
+      }),
+      ['/?q=string'],
+    );
+
+    expect(find.text('Query: string'), findsOneWidget);
+    expect(RouteData.of(key.currentContext!).queryParameters['q'], 'string');
+  });
+
+  testWidgets('Can change query string and then go back with path ID',
+      (tester) async {
+    final key = GlobalKey();
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (route) => MaterialPageOne(),
+          '/:id': (route) => MaterialPage<void>(
+                child: Scaffold(
+                  body: Text(
+                    'Query: ' + (route.queryParameters['q'] ?? ''),
+                    key: key,
+                  ),
+                ),
+              ),
+          '/:id/two': (_) =>
+              MaterialPage<void>(child: Scaffold(appBar: AppBar())),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    expect(
+      await recordUrlChanges(() async {
+        delegate.push('/id1?q=string');
+        await tester.pump();
+        await tester.pump(kTransitionDuration);
+      }),
+      ['/id1?q=string'],
+    );
+
+    expect(find.text('Query: string'), findsOneWidget);
+    expect(RouteData.of(key.currentContext!).queryParameters['q'], 'string');
+
+    expect(
+      await recordUrlChanges(() async {
+        delegate.push('two');
+        await tester.pump();
+        await tester.pump(kTransitionDuration);
+      }),
+      ['/id1/two'],
+    );
+
+    expect(
+      await recordUrlChanges(() async {
+        await tester.tap(find.byType(BackButton));
+        await tester.pump();
+        await tester.pump(kTransitionDuration);
+      }),
+      ['/id1?q=string'],
+    );
+
+    expect(find.text('Query: string'), findsOneWidget);
+    expect(RouteData.of(key.currentContext!).queryParameters['q'], 'string');
+  });
+
+  testWidgets('Can change query string and then go back with path ID',
+      (tester) async {
+    final key = GlobalKey();
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (route) => MaterialPageOne(),
+          '/:id': (route) => MaterialPage<void>(
+                child: Scaffold(
+                  body: Text(
+                    'Query: ' + (route.queryParameters['q'] ?? ''),
+                    key: key,
+                  ),
+                ),
+              ),
+          '/:id/two': (_) =>
+              MaterialPage<void>(child: Scaffold(appBar: AppBar())),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    expect(
+      await recordUrlChanges(() async {
+        delegate.push('/id1?q=string');
+        await tester.pump();
+        await tester.pump(kTransitionDuration);
+      }),
+      ['/id1?q=string'],
+    );
+
+    expect(find.text('Query: string'), findsOneWidget);
+    expect(RouteData.of(key.currentContext!).queryParameters['q'], 'string');
+
+    expect(
+      await recordUrlChanges(() async {
+        delegate.push('/id2/two');
+        await tester.pump();
+        await tester.pump(kTransitionDuration);
+      }),
+      ['/id2/two'],
+    );
+
+    expect(
+      await recordUrlChanges(() async {
+        await tester.tap(find.byType(BackButton));
+        await tester.pump();
+        await tester.pump(kTransitionDuration);
+      }),
+      ['/id2'],
+    );
+  });
 }
