@@ -1,4 +1,4 @@
-import 'package:path/path.dart' as path;
+import '../../path_parser.dart';
 
 /// Indicates the user has configured their routes improperly.
 class RouteConfigurationError extends Error {}
@@ -11,8 +11,8 @@ class ConflictingPathError extends RouteConfigurationError {
 
   @override
   String toString() {
-    return "Attempt to add '${path.joinAll(segmentsToAdd)}' but a path containing "
-        "'${path.joinAll(segmentsAlreadyAdded.where((element) => element != null).map((e) => e!))}' has already been added. Adding two paths "
+    return "Attempt to add '${pathContext.joinAll(segmentsToAdd)}' but a path containing "
+        "'${pathContext.joinAll(segmentsAlreadyAdded.where((element) => element != null).map((e) => e!))}' has already been added. Adding two paths "
         "prefixed with ':' at the same index is not allowed.";
   }
 }

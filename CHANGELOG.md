@@ -1,3 +1,7 @@
+# 0.7.1
+
+* Fixed paths using backslashes on Windows
+
 # 0.7.0
 
 * Breaking change: `RouteData.path` no longer returns the full path with query string, to match Dart's `Uri` object. Use `RouteData.toString()` or `RouteData.fullPath` for the entire path including query string.
