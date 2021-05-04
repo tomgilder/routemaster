@@ -10,7 +10,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:path/path.dart' as p;
 import 'package:collection/collection.dart';
 import 'src/pages/guard.dart';
 import 'src/path_parser.dart';

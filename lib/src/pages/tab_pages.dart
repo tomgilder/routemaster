@@ -355,7 +355,7 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
     final tabPagePath = routeData.path;
     final subPagePath = pages.first.routeData.path;
 
-    if (!p.isWithin(tabPagePath, subPagePath)) {
+    if (!pathContext.isWithin(tabPagePath, subPagePath)) {
       // subPagePath is not a path beneath the tab page's path.
       return false;
     }
@@ -388,8 +388,8 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
     var i = 0;
     for (final initialPath in _tabPage.paths) {
       final tabRootAbsolutePath = _getAbsoluteTabPath(initialPath);
-      if (p.equals(tabRootAbsolutePath, requiredAbsolutePath) ||
-          p.isWithin(tabRootAbsolutePath, requiredAbsolutePath)) {
+      if (pathContext.equals(tabRootAbsolutePath, requiredAbsolutePath) ||
+          pathContext.isWithin(tabRootAbsolutePath, requiredAbsolutePath)) {
         return i;
       }
 

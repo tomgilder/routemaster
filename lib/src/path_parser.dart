@@ -1,4 +1,6 @@
-import 'package:path/path.dart' as p;
+import 'package:path/path.dart' as path;
+
+final pathContext = path.Context(style: path.Style.url);
 
 class PathParser {
   static String stripQueryString(String path) {
@@ -20,9 +22,9 @@ class PathParser {
     required String path,
     Map<String, String>? queryParameters,
   }) {
-    final absolutePath = p.isAbsolute(path)
+    final absolutePath = pathContext.isAbsolute(path)
         ? path
-        : p.join(
+        : pathContext.join(
             stripQueryString(basePath),
             path,
           );
