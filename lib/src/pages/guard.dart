@@ -48,7 +48,7 @@ class NotFound extends Page<dynamic> {
 
   @override
   Route createRoute(BuildContext context) {
-    throw UnsupportedError('Guards must be unwrapped');
+    throw UnsupportedError('createRoute must not be called on NotFound');
   }
 }
 

@@ -213,6 +213,13 @@ void main() {
     );
   });
 
+  test('NotFound createRoute throws', () {
+    expect(
+      () => NotFound().createRoute(FakeBuildContext()),
+      throwsA(isA<UnsupportedError>()),
+    );
+  });
+
   testWidgets('NotFound defaults to DefaultUnknownRoutePage', (tester) async {
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
