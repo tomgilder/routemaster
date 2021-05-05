@@ -230,6 +230,15 @@ class HomePage extends StatelessWidget {
 
 ## Guarded routes
 
+Show default not found page if validation fails:
+
+```dart
+'/protected-route': (route) => 
+    canUserAccessPage()
+      ? MaterialPage(child: ProtectedPage())
+      : NotFound()
+```
+
 Redirect to another page if validation fails (changes URL):
 
 ```dart
@@ -247,8 +256,6 @@ Show another page if validation fails (doesn't change URL):
       ? MaterialPage(child: ProtectedPage())
       : MaterialPage(child: CustomNoAccessPage())
 ```
-
-Show default 404 page if validation fails:
 
 ## 404 Page
 
