@@ -1,15 +1,18 @@
 import 'package:flutter/widgets.dart';
 import 'package:routemaster/routemaster.dart';
-
-import 'path_parser.dart';
 import 'trie_router/trie_router.dart';
 
 /// Information generated from a specific path (URL).
 ///
 /// This object has value equality - objects are equal if the paths match.
 class RouteData {
+  final Uri _uri;
+
   /// The full path that generated this route, including query string.
-  final String path;
+  String get fullPath => _uri.toString();
+
+  /// The path component of this route, without query string.
+  String get path => _uri.path;
 
   /// Query parameters from the path.
   ///
@@ -22,7 +25,7 @@ class RouteData {
   ///
   ///   e.g. /page?hello=world becomes `queryParameters['hello'] == 'world'`.
   ///
-  final Map<String, String> queryParameters;
+  Map<String, String> get queryParameters => _uri.queryParameters;
 
   final bool isReplacement;
 
@@ -30,31 +33,31 @@ class RouteData {
 
   RouteData.fromRouterResult(
     RouterResult result,
-    this.path, {
+    String path, {
     this.isReplacement = false,
-  })  : pathParameters = result.pathParameters,
-        queryParameters = PathParser.parseQueryParameters(path),
+  })  : _uri = Uri.parse(path),
+        pathParameters = result.pathParameters,
         pathTemplate = result.pathTemplate;
 
   RouteData(
-    this.path, {
+    String path, {
     this.pathParameters = const {},
     this.isReplacement = false,
     this.pathTemplate,
-  }) : queryParameters = PathParser.parseQueryParameters(path);
+  }) : _uri = Uri.parse(path);
 
   @override
-  bool operator ==(Object other) => other is RouteData && path == other.path;
+  bool operator ==(Object other) => other is RouteData && _uri == other._uri;
 
   @override
-  int get hashCode => path.hashCode;
+  int get hashCode => _uri.hashCode;
 
   @override
-  String toString() => "RouteData: '$path'";
+  String toString() => _uri.toString();
 
   RouteInformation toRouteInformation() {
     return RouteInformation(
-      location: path,
+      location: fullPath,
       state: {
         'isReplacement': isReplacement,
       },

@@ -25,7 +25,7 @@ void main() {
     );
 
     expect(find.byType(PageTwo), findsOneWidget);
-    expect(delegate.currentConfiguration!.path, '/two');
+    expect(delegate.currentConfiguration!.fullPath, '/two');
   });
 
   testWidgets('Deals with redirect loop', (tester) async {
@@ -82,7 +82,7 @@ This is an error in your routing map.""",
     );
 
     expect(find.byType(PageTwo), findsOneWidget);
-    expect(delegate.currentConfiguration!.path, '/two');
+    expect(delegate.currentConfiguration!.fullPath, '/two');
   });
 
   testWidgets('Redirect createRoute throws', (tester) async {

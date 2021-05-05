@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:routemaster/routemaster.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 const kTransitionDuration = Duration(milliseconds: 310);
 

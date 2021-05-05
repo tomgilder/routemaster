@@ -426,12 +426,15 @@ void main() {
 
 class StubRoutemaster implements Routemaster {
   @override
-  Future<bool> pop() {
+  Future<bool> pop<T extends Object?>([T? result]) {
     throw UnimplementedError();
   }
 
   @override
-  void push(String path, {Map<String, String>? queryParameters}) {}
+  NavigationResult<T> push<T extends Object?>(String path,
+      {Map<String, String>? queryParameters}) {
+    return NavigationResult<T>();
+  }
 
   @override
   void replace(String path, {Map<String, String>? queryParameters}) {}

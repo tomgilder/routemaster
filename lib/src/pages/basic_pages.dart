@@ -20,7 +20,7 @@ abstract class PageWrapper {
 
   /// Called when popping a route stack. Returns `true` if this page wrapper
   /// has been able to pop a page, otherwise `false`.
-  Future<bool> maybePop();
+  Future<bool> maybePop<T extends Object?>([T? result]);
 
   /// Returns this page, and any descendant pages below it in the navigation
   /// hierarchy.
@@ -39,6 +39,8 @@ abstract class PageWrapper {
   Page _getOrCreatePage() {
     return _page ??= createPage();
   }
+
+  NavigationResult? result;
 }
 
 /// A page's state, similar to [State] for a [StatefulWidget]. For instance,
@@ -64,7 +66,9 @@ class StatelessPage extends PageWrapper {
   }
 
   @override
-  Future<bool> maybePop() => SynchronousFuture(false);
+  Future<bool> maybePop<T extends Object?>([T? result]) {
+    return SynchronousFuture(false);
+  }
 
   @override
   bool maybeSetChildPages(Iterable<PageWrapper> pages) => false;

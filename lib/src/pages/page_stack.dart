@@ -60,6 +60,7 @@ class PageStack extends ChangeNotifier {
   bool onPopPage(Route<dynamic> route, dynamic result) {
     if (route.didPop(result)) {
       _routes.removeLast();
+
       // We don't need to notify listeners, the Navigator will rebuild itself
       return true;
     }
@@ -67,14 +68,14 @@ class PageStack extends ChangeNotifier {
     return false;
   }
 
-  Future<bool> maybePop() async {
+  Future<bool> maybePop<T extends Object?>([T? result]) async {
     // First try delegating the pop to the last child route.
-    if (await _routes.last.maybePop()) {
+    if (await _routes.last.maybePop(result)) {
       return SynchronousFuture(true);
     }
 
     // Child wasn't interested, ask the navigator if we have a key
-    if (await _attachedNavigatorKey?.currentState?.maybePop() == true) {
+    if (await _attachedNavigatorKey?.currentState?.maybePop(result) == true) {
       return SynchronousFuture(true);
     }
 

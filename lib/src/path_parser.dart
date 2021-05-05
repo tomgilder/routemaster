@@ -1,17 +1,8 @@
-import 'package:path/path.dart' as p;
+import 'package:path/path.dart' as path;
+
+final pathContext = path.Context(style: path.Style.url);
 
 class PathParser {
-  static Map<String, String> parseQueryParameters(String path) {
-    final queryStringStart = path.indexOf('?');
-    if (queryStringStart == -1 || path.length < queryStringStart) {
-      return Map.unmodifiable(const <String, String>{});
-    }
-
-    final queryString = path.substring(path.indexOf('?') + 1);
-
-    return Map.unmodifiable(Uri.splitQueryString(queryString));
-  }
-
   static String stripQueryString(String path) {
     final indexOfQuery = path.indexOf('?');
 
@@ -31,9 +22,9 @@ class PathParser {
     required String path,
     Map<String, String>? queryParameters,
   }) {
-    final absolutePath = p.isAbsolute(path)
+    final absolutePath = pathContext.isAbsolute(path)
         ? path
-        : p.join(
+        : pathContext.join(
             stripQueryString(basePath),
             path,
           );

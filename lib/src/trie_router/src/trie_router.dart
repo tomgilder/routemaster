@@ -1,4 +1,3 @@
-import 'package:path/path.dart' as path;
 import 'package:routemaster/routemaster.dart';
 import '../../path_parser.dart';
 import 'errors.dart';
@@ -22,7 +21,7 @@ class TrieRouter {
   void add(String route, PageBuilder value) {
     assert(route.isNotEmpty);
 
-    var pathSegments = path.split(route);
+    var pathSegments = pathContext.split(route);
     addPathComponents(pathSegments, value);
   }
 
@@ -81,7 +80,7 @@ class TrieRouter {
   }
 
   RouterResult? get(String route) {
-    var pathSegments = path.split(PathParser.stripQueryString(route));
+    var pathSegments = pathContext.split(PathParser.stripQueryString(route));
     var parameters = <String, String>{};
     TrieNode<String?, PageBuilder?>? current = _trie.root;
 
@@ -109,12 +108,12 @@ class TrieRouter {
   }
 
   List<RouterResult>? getAll(String route) {
-    var pathSegments = path.split(PathParser.stripQueryString(route));
+    var pathSegments = pathContext.split(PathParser.stripQueryString(route));
     var parameters = <String, String>{};
     final result = <RouterResult>[];
 
     void addToResult(int index, TrieNode<String?, PageBuilder?> node) {
-      final p = path.joinAll(pathSegments.take(index));
+      final p = pathContext.joinAll(pathSegments.take(index));
       result.add(
         RouterResult(
           builder: node.value!,

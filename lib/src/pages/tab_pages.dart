@@ -326,7 +326,7 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
 
   PageStack _createInitialStackState(String stackPath) {
     final path = PathParser.getAbsolutePath(
-      basePath: routeData.path,
+      basePath: routeData.fullPath,
       path: stackPath,
     );
 
@@ -355,7 +355,7 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
     final tabPagePath = routeData.path;
     final subPagePath = pages.first.routeData.path;
 
-    if (!p.isWithin(tabPagePath, subPagePath)) {
+    if (!pathContext.isWithin(tabPagePath, subPagePath)) {
       // subPagePath is not a path beneath the tab page's path.
       return false;
     }
@@ -388,8 +388,8 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
     var i = 0;
     for (final initialPath in _tabPage.paths) {
       final tabRootAbsolutePath = _getAbsoluteTabPath(initialPath);
-      if (p.equals(tabRootAbsolutePath, requiredAbsolutePath) ||
-          p.isWithin(tabRootAbsolutePath, requiredAbsolutePath)) {
+      if (pathContext.equals(tabRootAbsolutePath, requiredAbsolutePath) ||
+          pathContext.isWithin(tabRootAbsolutePath, requiredAbsolutePath)) {
         return i;
       }
 
@@ -400,8 +400,8 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
   }
 
   @override
-  Future<bool> maybePop() {
-    return stacks[index].maybePop();
+  Future<bool> maybePop<T extends Object?>([T? result]) {
+    return stacks[index].maybePop(result);
   }
 
   @override

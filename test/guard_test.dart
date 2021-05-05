@@ -139,14 +139,16 @@ void main() {
           '/': (_) => MaterialPage<void>(child: PageOne()),
           '/:id': (_) => Guard(
                 validate: (info, context) {
-                  expect(info.path, '/123?query=string');
+                  expect(info.path, '/123');
+                  expect(info.fullPath, '/123?query=string');
                   expect(info.pathParameters, {'id': '123'});
                   expect(info.queryParameters, {'query': 'string'});
                   validateWasCalled = true;
                   return false;
                 },
                 onValidationFailed: (info, context) {
-                  expect(info.path, '/123?query=string');
+                  expect(info.path, '/123');
+                  expect(info.fullPath, '/123?query=string');
                   expect(info.pathParameters, {'id': '123'});
                   expect(info.queryParameters, {'query': 'string'});
                   onValidationFailedWasCalled = true;

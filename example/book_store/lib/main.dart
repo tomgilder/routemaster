@@ -96,16 +96,14 @@ RouteMap _buildRouteMap(BuildContext context) {
       '/wishlist/add': (route) => AddWishlistPage(),
       '/wishlist/shared/:id': (route) {
         final appState = Provider.of<AppState>(context, listen: false);
+
         if (appState.isLoggedIn) {
           return MaterialPage(
             child: WishlistPage(id: route.pathParameters['id']),
           );
         }
 
-        return Redirect(
-          '/login',
-          queryParameters: {'redirectTo': route.path},
-        );
+        return Redirect('/login', queryParameters: {'redirectTo': route.path});
       },
     },
   );

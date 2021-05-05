@@ -4,11 +4,12 @@ export 'src/parser.dart';
 export 'src/route_data.dart';
 export 'src/pages/guard.dart';
 
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:path/path.dart' as p;
 import 'package:collection/collection.dart';
 import 'src/pages/guard.dart';
 import 'src/path_parser.dart';
@@ -145,8 +146,9 @@ class Routemaster {
 
   /// Pops the current route from the router. Returns `true` if the pop was
   /// successful, or `false` if it wasn't.
-  Future<bool> pop() {
-    return _delegate.popRoute();
+  @optionalTypeArgs
+  Future<bool> pop<T extends Object?>([T? value]) {
+    return _delegate.pop(value);
   }
 
   /// Replaces the current route with [path].
@@ -185,8 +187,28 @@ class Routemaster {
   ///   * If the current route is '/products' and you call `replace('/home')`
   ///     you'll navigate to '/home'.
   ///
-  void push(String path, {Map<String, String>? queryParameters}) {
-    _delegate.push(path, queryParameters: queryParameters);
+  @optionalTypeArgs
+  NavigationResult<T> push<T extends Object?>(String path,
+      {Map<String, String>? queryParameters}) {
+    return _delegate.push<T>(path, queryParameters: queryParameters);
+  }
+}
+
+class NavigationResult<T extends Object?> {
+  /// Returns the top-most route that was created as a result of the navigation.
+  Future<Route> get route => _routeCompleter.future;
+  final Completer<Route> _routeCompleter = Completer<Route>();
+
+  /// Used to get the return value from a route.
+  ///
+  /// Return values are passed back when popping a route, for example:
+  ///
+  ///   `Navigator.of(context).pop('Return value')`
+  ///
+  Future<T?> get result async {
+    final route = await _routeCompleter.future;
+    final result = await route.popped as T?;
+    return result;
   }
 }
 
@@ -220,12 +242,18 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   @override
   Future<bool> popRoute() async {
     assert(!_isDisposed);
+    return pop();
+  }
 
-    final result = await _state.stack.maybePop();
-    if (result) {
+  @optionalTypeArgs
+  Future<bool> pop<T extends Object?>([T? result]) async {
+    assert(!_isDisposed);
+
+    final popResult = await _state.stack.maybePop<T>(result);
+    if (popResult) {
       _markNeedsUpdate();
     }
-    return result;
+    return popResult;
   }
 
   /// Replaces the current route with [path].
@@ -249,23 +277,29 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }
 
   /// Pushes [path] into the navigation tree.
-  void push(String path, {Map<String, String>? queryParameters}) {
+  @optionalTypeArgs
+  NavigationResult<T> push<T extends Object?>(String path,
+      {Map<String, String>? queryParameters}) {
     assert(!_isDisposed);
 
+    final result = NavigationResult<T>();
     _setPendingNavigation(
       path,
       queryParameters: queryParameters,
       isReplacement: false,
+      result: result,
     );
+    return result;
   }
 
   void _setPendingNavigation(
     String path, {
     Map<String, String>? queryParameters,
     required bool isReplacement,
+    NavigationResult? result,
   }) {
     final absolutePath = PathParser.getAbsolutePath(
-      basePath: currentConfiguration!.path,
+      basePath: currentConfiguration!.fullPath,
       path: path,
       queryParameters: queryParameters,
     );
@@ -275,6 +309,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     _state.pendingNavigation = _RouteRequest(
       path: absolutePath,
       isReplacement: isReplacement,
+      result: result,
     );
 
     _markNeedsUpdate();
@@ -333,9 +368,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       final pageWrapper = currentPages.last;
       final routeData = pageWrapper.routeData;
 
-      if (_state.currentConfiguration!.path != routeData.path) {
+      if (_state.currentConfiguration!.fullPath != routeData.fullPath) {
         _state.currentConfiguration = RouteData(
-          routeData.path,
+          routeData.fullPath,
           isReplacement: routeData.isReplacement,
           pathTemplate: routeData.pathTemplate,
         );
@@ -355,7 +390,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   Future<void> setNewRoutePath(RouteData routeData) {
     assert(!_isDisposed);
 
-    push(routeData.path);
+    push(routeData.fullPath);
     return SynchronousFuture(null);
   }
 
@@ -375,7 +410,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
       _processNavigation(
         routeRequest: _state.pendingNavigation ??
-            _RouteRequest(path: currentConfiguration?.path ?? '/'),
+            _RouteRequest(path: currentConfiguration?.fullPath ?? '/'),
         currentRoutes: null,
       );
 
@@ -453,15 +488,26 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         isReplacement: routeRequest.isReplacement,
       );
 
-      final current = _getOrCreatePageWrapper(
-        routeRequest: routeRequest,
-        routeData: routeData,
-        currentRoutes: currentRoutes,
-        routerResult: routerData,
-      );
+      final current = isLastRoute
+          ? _createPageWrapper(
+              routeRequest: routeRequest,
+              page: routerData.builder(routeData),
+              routeData: routeData,
+            )
+          : _getOrCreatePageWrapper(
+              routeRequest: routeRequest,
+              routeData: routeData,
+              currentRoutes: currentRoutes,
+              routerResult: routerData,
+            );
 
       if (current is _PageWrapperResult) {
         final page = current.pageWrapper;
+
+        if (isLastRoute) {
+          page.result = routeRequest.result;
+        }
+
         if (result.isNotEmpty && page.maybeSetChildPages(result)) {
           result = [page];
         } else {
@@ -495,6 +541,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     }
 
     assert(result.isNotEmpty, "_createAllStates can't return empty list");
+
     return result;
   }
 
@@ -508,9 +555,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     required RouterResult routerResult,
   }) {
     if (currentRoutes != null) {
-      // See if we have a current route matching the routeData
       final currentState = currentRoutes.firstWhereOrNull(
-        ((element) => element.routeData == routeData),
+        ((element) => element.routeData.path == routeData.path),
       );
 
       if (currentState != null) {
@@ -631,6 +677,18 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     return redirects;
   }
+
+  void didPush(Route route) {
+    final page = route.settings;
+    final current = _state.stack
+        ._getCurrentPages()
+        .firstWhereOrNull((e) => e._getOrCreatePage() == page);
+
+    final completer = current?.result?._routeCompleter;
+    if (completer != null && !completer.isCompleted) {
+      completer.complete(route);
+    }
+  }
 }
 
 @immutable
@@ -648,6 +706,17 @@ class _RedirectResult extends _PageResult {
   final String redirectPath;
 
   _RedirectResult(this.redirectPath);
+}
+
+class _PushObserver extends NavigatorObserver {
+  final Routemaster routemaster;
+
+  _PushObserver(this.routemaster);
+
+  @override
+  void didPush(Route route, Route? previousRoute) {
+    routemaster._delegate.didPush(route);
+  }
 }
 
 /// Used internally so descendent widgets can use `Routemaster.of(context)`.
@@ -673,6 +742,7 @@ class _RoutemasterState {
   RouteConfig? routeConfig;
   RouteData? currentConfiguration;
   _RouteRequest? pendingNavigation;
+  late _PushObserver pushObserver = _PushObserver(routemaster);
 }
 
 class _RoutemasterStateTracker extends StatefulWidget {
@@ -743,10 +813,12 @@ class RedirectLoopError extends Error {
 class _RouteRequest {
   final String path;
   final bool isReplacement;
+  final NavigationResult? result;
 
   _RouteRequest({
     required this.path,
     this.isReplacement = false,
+    this.result,
   });
 }
 
@@ -849,7 +921,11 @@ class StackNavigatorState extends State<StackNavigator> {
         pages: widget.stack.createPages(),
         observers: [
           _RelayingNavigatorObserver(
-            () => widget.observers + _routemaster._delegate.observers,
+            () sync* {
+              yield* widget.observers;
+              yield* _routemaster._delegate.observers;
+              yield _routemaster._delegate._state.pushObserver;
+            },
           )
         ],
       ),
