@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app/pages/login_page.dart';
@@ -15,6 +16,19 @@ void main() {
   runApp(MyApp());
 }
 
+/// Title observer that updates the app's title when the route changes
+/// This shows in a browser tab's title.
+class TitleObserver extends RoutemasterObserver {
+  @override
+  void didChangeRoute(RouteData routeData, Page page) {
+    if (page.name != null) {
+      SystemChrome.setApplicationSwitcherDescription(
+        ApplicationSwitcherDescription(label: page.name),
+      );
+    }
+  }
+}
+
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -26,6 +40,7 @@ class MyApp extends StatelessWidget {
             title: 'Routemaster Demo',
             routeInformationParser: RoutemasterParser(),
             routerDelegate: RoutemasterDelegate(
+              observers: [TitleObserver()],
               routesBuilder: (context) {
                 // We swap out the routing map at runtime based on app state
                 final appState = Provider.of<AppState>(context);
@@ -82,11 +97,15 @@ RouteMap _buildRouteMap(AppState appState) {
               '/settings',
             ],
           ),
-      '/feed': (_) => MaterialPage(child: FeedPage()),
+      '/feed': (_) => MaterialPage(
+            name: 'Feed',
+            child: FeedPage(),
+          ),
       '/feed/profile/:id': (info) {
         if (info.pathParameters['id'] == '1' ||
             info.pathParameters['id'] == '2') {
           return MaterialPage(
+            name: 'Profile',
             child: ProfilePage(
               id: info.pathParameters['id'],
               message: info.queryParameters['message'],
@@ -100,8 +119,12 @@ RouteMap _buildRouteMap(AppState appState) {
             child: PhotoPage(id: info.pathParameters['id']),
           ),
 
-      '/search': (_) => MaterialPage(child: SearchPage()),
+      '/search': (_) => MaterialPage(
+            name: 'Search',
+            child: SearchPage(),
+          ),
       '/settings': (_) => MaterialPage(
+            name: 'Settings',
             key: ValueKey('settings'),
             child: SettingsPage(),
           ),
@@ -118,11 +141,13 @@ RouteMap _buildRouteMap(AppState appState) {
             paths: ['one', 'two'],
           ),
       '/notifications/one': (_) => MaterialPage(
+            name: 'Notifications - One',
             child: NotificationsContentPage(
               message: 'Page one',
             ),
           ),
       '/notifications/two': (_) => MaterialPage(
+            name: 'Notifications - Two',
             child: NotificationsContentPage(message: 'Page two'),
           ),
       '/notifications/pushed': (_) => MaterialPage(
