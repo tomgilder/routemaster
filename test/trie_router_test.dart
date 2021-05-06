@@ -349,4 +349,24 @@ void main() {
     );
     expect(result.toString(), "RouterData - path: '/',  params: '{a: b}'");
   });
+
+  test('Throws if duplicate URL added', () {
+    final router = TrieRouter();
+    final rootRoute = TestRoute('root');
+    final route1 = TestRoute('one');
+
+    router.add('/one', (_) => rootRoute);
+
+    expect(
+      () => router.add('/one', (_) => route1),
+      throwsA(
+        predicate(
+          (e) =>
+              e is DuplicatePathError &&
+              e.toString() ==
+                  "Attempted to add a duplicate route: router already has a route at '/one'.",
+        ),
+      ),
+    );
+  });
 }

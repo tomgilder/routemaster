@@ -53,6 +53,10 @@ class TrieRouter {
 
       if (current.contains(pathSegment)) {
         if (isLastSegment) {
+          if (current.get(pathSegment)!.value != null) {
+            throw DuplicatePathError(pathContext.joinAll(pathSegments));
+          }
+
           // A child node has already been created, need to update it so it
           // points at the right value
           current.get(pathSegment)!.value = value;

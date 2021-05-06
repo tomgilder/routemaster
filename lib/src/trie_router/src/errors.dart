@@ -16,3 +16,14 @@ class ConflictingPathError extends RouteConfigurationError {
         "prefixed with ':' at the same index is not allowed.";
   }
 }
+
+class DuplicatePathError extends RouteConfigurationError {
+  final String path;
+
+  DuplicatePathError(this.path);
+
+  @override
+  String toString() {
+    return "Attempted to add a duplicate route: router already has a route at '$path'.";
+  }
+}
