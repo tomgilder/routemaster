@@ -184,6 +184,7 @@ void main() {
     );
 
     expect(RouteData.of(pageKey1.currentContext!).fullPath, '/');
+    expect(RouteData.of(pageKey1.currentContext!).pathTemplate, '/');
 
     delegate.push('/two/myId?query=param');
     await tester.pump();
@@ -191,6 +192,7 @@ void main() {
     final page2RouteData = RouteData.of(pageKey2.currentContext!);
     expect(page2RouteData.path, '/two/myId');
     expect(page2RouteData.fullPath, '/two/myId?query=param');
+    expect(page2RouteData.pathTemplate, '/two/:id');
     expect(page2RouteData.pathParameters['id'], 'myId');
     expect(page2RouteData.queryParameters['query'], 'param');
   });

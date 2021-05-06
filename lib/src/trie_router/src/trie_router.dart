@@ -18,17 +18,10 @@ class TrieRouter {
   /// Throws a [ConflictingPathError] if there is a conflict.
   ///
   /// It is an error to add two segments prefixed with ':' at the same index.
-  void add(String route, PageBuilder value) {
-    assert(route.isNotEmpty);
+  void add(String path, PageBuilder value) {
+    assert(path.isNotEmpty);
 
-    var pathSegments = pathContext.split(route);
-    addPathComponents(pathSegments, value);
-  }
-
-  /// Throws a [ConflictingPathError] if there is a conflict.
-  ///
-  /// It is an error to add two segments prefixed with ':' at the same index.
-  void addPathComponents(Iterable<String> pathSegments, PageBuilder value) {
+    var pathSegments = pathContext.split(path);
     assert(pathSegments.isNotEmpty);
 
     var list = List<String>.from(pathSegments);
@@ -62,13 +55,15 @@ class TrieRouter {
           current.get(pathSegment)!.value = value;
         }
       } else {
+        final template = pathContext.joinAll(pathSegments.take(i + 1));
+
         // No matching node for path, we need to create one
         if (isLastSegment) {
           // Last segment, add a node pointing at the value
-          current.add(pathSegment, value);
+          current.add(pathSegment, value, template);
         } else {
           // Not the last segment, add null node
-          current.add(pathSegment, null);
+          current.add(pathSegment, null, template);
         }
       }
 
@@ -79,7 +74,7 @@ class TrieRouter {
     // say a path segment is present if it is a prefix of a different, longer
     // word that was added earlier.
     if (!current.contains(null)) {
-      current.add(null, null);
+      current.add(null, null, null);
     }
   }
 
@@ -107,7 +102,7 @@ class TrieRouter {
       builder: current!.value!,
       pathParameters: parameters,
       pathSegment: route,
-      pathTemplate: current.key!,
+      pathTemplate: current.template!,
     );
   }
 
@@ -123,7 +118,7 @@ class TrieRouter {
           builder: node.value!,
           pathParameters: Map.unmodifiable(parameters),
           pathSegment: p,
-          pathTemplate: node.key!,
+          pathTemplate: node.template!,
         ),
       );
     }
