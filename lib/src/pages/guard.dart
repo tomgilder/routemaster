@@ -43,6 +43,15 @@ class Guard extends Page<dynamic> {
   }
 }
 
+class NotFound extends Page<dynamic> {
+  const NotFound();
+
+  @override
+  Route createRoute(BuildContext context) {
+    throw UnsupportedError('createRoute must not be called on NotFound');
+  }
+}
+
 /// A page results which tells the router to redirect to another page.
 class Redirect extends Page<dynamic> {
   final String path;

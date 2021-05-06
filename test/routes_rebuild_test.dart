@@ -68,7 +68,7 @@ void main() {
   testWidgets('Can swap route maps and navigate', (tester) async {
     final routeMap1UnknownRoutes = <String>[];
     final routeMap1 = RouteMap(
-      onUnknownRoute: (route, __) {
+      onUnknownRoute: (route) {
         routeMap1UnknownRoutes.add(route);
         return MaterialPage<void>(child: DefaultUnknownRoutePage(path: route));
       },
@@ -80,7 +80,7 @@ void main() {
 
     final routeMap2UnknownRoutes = <String>[];
     final routeMap2 = RouteMap(
-      onUnknownRoute: (route, __) {
+      onUnknownRoute: (route) {
         routeMap2UnknownRoutes.add(route);
         return MaterialPage<void>(child: DefaultUnknownRoutePage(path: route));
       },

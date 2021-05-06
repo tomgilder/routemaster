@@ -31,10 +31,7 @@ typedef RoutemasterBuilder = Widget Function(
 
 typedef PageBuilder = Page Function(RouteData route);
 
-typedef UnknownRouteCallback = Page Function(
-  String path,
-  BuildContext context,
-);
+typedef UnknownRouteCallback = Page Function(String path);
 
 class DefaultUnknownRoutePage extends StatelessWidget {
   final String path;
@@ -66,7 +63,7 @@ abstract class RouteConfig {
   ///   2. Use the routing delegate to, for instance, redirect to another route
   ///      and return null.
   ///
-  Page onUnknownRoute(String path, BuildContext context) {
+  Page onUnknownRoute(String path) {
     return MaterialPage<void>(
       child: DefaultUnknownRoutePage(path: path),
     );
@@ -114,12 +111,12 @@ class RouteMap extends DefaultRouterConfig {
   }) : _onUnknownRoute = onUnknownRoute;
 
   @override
-  Page onUnknownRoute(String path, BuildContext context) {
+  Page onUnknownRoute(String path) {
     if (_onUnknownRoute != null) {
-      return _onUnknownRoute!(path, context);
+      return _onUnknownRoute!(path);
     }
 
-    return super.onUnknownRoute(path, context);
+    return super.onUnknownRoute(path);
   }
 }
 
@@ -627,6 +624,10 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       page = page.builder();
     }
 
+    if (page is NotFound) {
+      return _NotFoundResult();
+    }
+
     if (page is Redirect) {
       return _RedirectResult(page.redirectPath);
     }
@@ -643,10 +644,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   List<PageWrapper> _onUnknownRoute(_RouteRequest routeRequest) {
     final requestedPath = routeRequest.path;
-    final result = _state.routeConfig!.onUnknownRoute(
-      requestedPath,
-      _context,
-    );
+    final result = _state.routeConfig!.onUnknownRoute(requestedPath);
 
     if (result is Redirect) {
       return _createAllPageWrappers(

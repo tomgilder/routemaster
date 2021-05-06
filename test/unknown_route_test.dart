@@ -31,7 +31,7 @@ void main() {
   testWidgets('Can show 404 page', (tester) async {
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
-        onUnknownRoute: (_, __) {
+        onUnknownRoute: (_) {
           return MaterialPage<void>(child: NotFoundPage());
         },
         routes: {
@@ -62,7 +62,7 @@ void main() {
   testWidgets('Can redirect to 404 page', (tester) async {
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
-        onUnknownRoute: (path, context) => Redirect('/not-found'),
+        onUnknownRoute: (path) => Redirect('/not-found'),
         routes: {
           '/': (_) => MaterialPage<void>(child: PageOne()),
           '/not-found': (_) => MaterialPage<void>(child: NotFoundPage()),
@@ -92,7 +92,7 @@ void main() {
   testWidgets('Can redirect to 404 stack', (tester) async {
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
-        onUnknownRoute: (path, context) => Redirect('/not-found/sub-page'),
+        onUnknownRoute: (path) => Redirect('/not-found/sub-page'),
         routes: {
           '/': (_) => MaterialPage<void>(child: PageOne()),
           '/not-found': (_) => MaterialPage<void>(child: PageTwo()),
