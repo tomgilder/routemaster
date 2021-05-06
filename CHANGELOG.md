@@ -1,3 +1,7 @@
+# 0.7.2
+
+* Fixed `pathTemplate` property on `RouteData`
+
 # 0.7.1
 
 * Fixed paths using backslashes on Windows
