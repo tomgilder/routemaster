@@ -5,16 +5,17 @@
 class TrieNode<K, V> {
   final Map<K, TrieNode<K, V>> _children;
   final K key;
+  final String? template;
   V value;
 
-  TrieNode(this.key, this.value) : _children = {};
+  TrieNode(this.key, this.value, this.template) : _children = {};
 
   bool contains(K key) {
     return _children.containsKey(key);
   }
 
-  void add(K key, V value) {
-    _children[key] = TrieNode<K, V>(key, value);
+  void add(K key, V value, String? template) {
+    _children[key] = TrieNode<K, V>(key, value, template);
   }
 
   TrieNode<K, V>? get(K key) {
@@ -53,5 +54,5 @@ class TrieNode<K, V> {
 class Trie<K, V> {
   final TrieNode<K?, V?> root;
 
-  Trie() : root = TrieNode<K?, V?>(null, null);
+  Trie() : root = TrieNode<K?, V?>(null, null, '/');
 }
