@@ -18,7 +18,7 @@ void main() async {
 // checking whether a user's log in is still valid
 final initializingRoutes = RouteMap(
   // This only defines an unknown route
-  onUnknownRoute: (route, _) => MaterialPage<void>(
+  onUnknownRoute: (route) => MaterialPage<void>(
     child: Scaffold(
       appBar: AppBar(),
       body: Center(child: CircularProgressIndicator()),
