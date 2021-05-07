@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -7,12 +8,17 @@ class Notifications {
 
   Notifications({required this.onNotificationSelected});
 
-  final notifications = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin? notifications =
+      kIsWeb ? null : FlutterLocalNotificationsPlugin();
 
   /// Sets up notifications. Returns a payload if the app was launched via a
   /// notification.
   Future<String?> init() async {
-    await notifications.initialize(
+    if (notifications == null) {
+      return null;
+    }
+
+    await notifications!.initialize(
       InitializationSettings(
         android: AndroidInitializationSettings('app_icon'),
         iOS: IOSInitializationSettings(),
@@ -25,12 +31,16 @@ class Notifications {
       },
     );
 
-    final details = await notifications.getNotificationAppLaunchDetails();
+    final details = await notifications!.getNotificationAppLaunchDetails();
     return details?.payload;
   }
 
   void showNotification() async {
-    await notifications.show(
+    if (notifications == null) {
+      return;
+    }
+
+    await notifications!.show(
       0,
       'Hello world',
       'Wanna read a great article? Click here!',
@@ -46,8 +56,12 @@ class Notifications {
   }
 
   void scheduleNotification() async {
+    if (notifications == null) {
+      return;
+    }
+
     tz.initializeTimeZones();
-    notifications.zonedSchedule(
+    notifications!.zonedSchedule(
       0,
       'Hey there!',
       'Wanna read a great article? Click here!',
