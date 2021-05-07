@@ -376,7 +376,7 @@ This project builds on [page_router](https://github.com/johnpryan/page_router).
 
 # Name
 
-Named after the original Routemaster:
+Named after the [original Routemaster](https://en.wikipedia.org/wiki/AEC_Routemaster):
 
 ![A photo of a Routemaster bus](https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Routemaster_RML2375_%28JJD_375D%29%2C_6_March_2004.jpg/320px-Routemaster_RML2375_%28JJD_375D%29%2C_6_March_2004.jpg)
 
