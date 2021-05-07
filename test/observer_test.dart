@@ -320,6 +320,48 @@ class LoggingObserver extends RoutemasterObserver {
   }
 }
 
+class LoggingNavigatorObserver extends NavigatorObserver {
+  final log = <ObserverLog>[];
+
+  @override
+  void didPush(Route route, Route? previousRoute) {
+    log.add(DidPush(route: route, previousRoute: previousRoute));
+  }
+
+  @override
+  void didPop(Route route, Route? previousRoute) {
+    log.add(DidPop(route: route, previousRoute: previousRoute));
+  }
+
+  @override
+  void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    log.add(DidRemove(route: route, previousRoute: previousRoute));
+  }
+
+  @override
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
+    log.add(DidReplace(newRoute: newRoute, oldRoute: oldRoute));
+  }
+
+  @override
+  void didStartUserGesture(
+      Route<dynamic> route, Route<dynamic>? previousRoute) {
+    log.add(DidStartUserGesture(route: route, previousRoute: previousRoute));
+  }
+
+  @override
+  void didStopUserGesture() {
+    log.add(DidStopUserGesture());
+  }
+
+  void expect(List<Type> expected) {
+    test.expect(
+      log.map((e) => e.runtimeType).toList(),
+      expected,
+    );
+  }
+}
+
 abstract class ObserverLog {}
 
 class DidPush extends ObserverLog {

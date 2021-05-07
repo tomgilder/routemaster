@@ -1,3 +1,8 @@
+# 0.8.0
+
+* Added `NotFound` return page type
+* Added ability to customise the top-level navigator with `RoutemasterDelegate.builder`
+
 # 0.7.2
 
 * Fixed `pathTemplate` property on `RouteData`
