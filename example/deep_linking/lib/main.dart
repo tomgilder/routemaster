@@ -17,14 +17,15 @@ void main() async {
 // This is a route to be shown shown when the app is logging in, or whilst
 // checking whether a user's log in is still valid
 final initializingRoutes = RouteMap(
-  routes: {
-    '/': (route) => MaterialPage<void>(
-          child: Scaffold(
-            appBar: AppBar(),
-            body: Center(child: CircularProgressIndicator()),
-          ),
-        ),
-  },
+  // This only defines an unknown route
+  onUnknownRoute: (route, _) => MaterialPage<void>(
+    child: Scaffold(
+      appBar: AppBar(),
+      body: Center(child: CircularProgressIndicator()),
+    ),
+  ),
+  // There are no actual routes set
+  routes: {},
 );
 
 // Log in page route
