@@ -5,7 +5,6 @@ export 'src/route_data.dart';
 export 'src/pages/guard.dart';
 
 import 'dart:async';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -222,6 +221,13 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   final TransitionDelegate? transitionDelegate;
   final RouteConfig Function(BuildContext context) routesBuilder;
 
+  /// A function that returns the top-level navigator widgets. Normally this
+  /// function would return a [StackNavigator].
+  final Widget Function(
+    BuildContext context,
+    PageStack stack,
+  )? navigatorBuilder;
+
   _RoutemasterState _state = _RoutemasterState();
   bool _isBuilding = false;
   bool _isDisposed = false;
@@ -232,7 +238,18 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     required this.routesBuilder,
     this.transitionDelegate,
     this.observers = const [],
-  }) {
+  }) : navigatorBuilder = null {
+    _state.routemaster._delegate = this;
+  }
+
+  /// Can be used to provide a custom `StackNavigator` builder via
+  /// [navigatorBuilder]. For instance, if you wanted to add a observer to just
+  /// the top-level navigator.
+  RoutemasterDelegate.builder({
+    required this.routesBuilder,
+    required this.navigatorBuilder,
+    this.observers = const [],
+  }) : transitionDelegate = null {
     _state.routemaster._delegate = this;
   }
 
@@ -346,11 +363,13 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
         return _RoutemasterWidget(
           routemaster: _state.routemaster,
-          child: StackNavigator(
-            stack: _state.stack,
-            transitionDelegate: transitionDelegate ??
-                const DefaultTransitionDelegate<dynamic>(),
-          ),
+          child: navigatorBuilder != null
+              ? navigatorBuilder!(context, _state.stack)
+              : StackNavigator(
+                  stack: _state.stack,
+                  transitionDelegate: transitionDelegate ??
+                      const DefaultTransitionDelegate<dynamic>(),
+                ),
         );
       },
     );
