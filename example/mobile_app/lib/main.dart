@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:mobile_app/pages/login_page.dart';
 import 'pages/bottom_navigation_bar_page.dart';
 import 'pages/home_page.dart';
+import 'pages/nested_page.dart';
 import 'pages/settings_page.dart';
 import 'pages/search_page.dart';
 import 'pages/feed_page.dart';
@@ -190,6 +191,15 @@ RouteMap _buildRouteMap(AppState appState) {
           ),
       '/bonus': (_) => MaterialPage(
             child: MessagePage(message: 'You found the bonus page!!!'),
+          ),
+
+      '/nested': (_) => IndexedPage(
+            paths: ['/nested/one'],
+            child: NestedPage(),
+          ),
+      '/nested/one': (_) => MaterialPage(child: NestedPageOne()),
+      '/nested/one/two': (_) => MaterialPage(
+            child: MessagePage(message: 'Two'),
           ),
     },
   );

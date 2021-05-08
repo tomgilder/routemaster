@@ -59,6 +59,10 @@ class FeedPage extends StatelessWidget {
                 child: Text('Tab bar page'),
               ),
               ElevatedButton(
+                onPressed: () => Routemaster.of(context).push('/nested'),
+                child: Text('Nested page'),
+              ),
+              ElevatedButton(
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) {
                     return Scaffold(
