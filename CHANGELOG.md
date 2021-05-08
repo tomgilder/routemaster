@@ -2,6 +2,7 @@
 
 * Added `NotFound` return page type
 * Added ability to customise the top-level navigator with `RoutemasterDelegate.builder`
+* Added ability to use a custom [HeroController]
 
 # 0.7.2
 

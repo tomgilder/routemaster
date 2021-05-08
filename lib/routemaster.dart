@@ -32,6 +32,11 @@ typedef PageBuilder = Page Function(RouteData route);
 
 typedef UnknownRouteCallback = Page Function(String path);
 
+typedef NavigatorBuilder = Widget Function(
+  BuildContext context,
+  PageStack stack,
+);
+
 class DefaultUnknownRoutePage extends StatelessWidget {
   final String path;
 
@@ -218,21 +223,25 @@ class NavigationResult<T extends Object?> {
 
 class RoutemasterDelegate extends RouterDelegate<RouteData>
     with ChangeNotifier {
-  final TransitionDelegate? transitionDelegate;
+  /// A builder method which returns a list of routes.
   final RouteConfig Function(BuildContext context) routesBuilder;
 
   /// A function that returns the top-level navigator widgets. Normally this
   /// function would return a [StackNavigator].
-  final Widget Function(
-    BuildContext context,
-    PageStack stack,
-  )? navigatorBuilder;
+  final NavigatorBuilder? navigatorBuilder;
 
+  /// The transition delegate to use with the top-level [Navigator].
+  final TransitionDelegate? transitionDelegate;
+
+  /// A list of observers to get information on navigation events.
+  ///
+  /// [RoutemasterObserver] inherits from [NavigatorObserver], and these
+  /// observers receive all navigation events from all nested navigators.
+  final List<RoutemasterObserver> observers;
   _RoutemasterState _state = _RoutemasterState();
   bool _isBuilding = false;
   bool _isDisposed = false;
   late BuildContext _context;
-  final List<RoutemasterObserver> observers;
 
   RoutemasterDelegate({
     required this.routesBuilder,
@@ -247,9 +256,10 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   /// the top-level navigator.
   RoutemasterDelegate.builder({
     required this.routesBuilder,
-    required this.navigatorBuilder,
+    required NavigatorBuilder navigatorBuilder,
     this.observers = const [],
-  }) : transitionDelegate = null {
+  })  : transitionDelegate = null,
+        navigatorBuilder = navigatorBuilder {
     _state.routemaster._delegate = this;
   }
 
@@ -854,12 +864,14 @@ class StackNavigator extends StatefulWidget {
   final PageStack stack;
   final TransitionDelegate transitionDelegate;
   final List<NavigatorObserver> observers;
+  final HeroController? heroController;
 
   const StackNavigator({
     Key? key,
     required this.stack,
     this.transitionDelegate = const DefaultTransitionDelegate<dynamic>(),
     this.observers = const [],
+    this.heroController,
   }) : super(key: key);
 
   @override
@@ -875,13 +887,13 @@ class StackNavigator extends StatefulWidget {
 class StackNavigatorState extends State<StackNavigator> {
   late HeroControllerScope _widget;
   late Routemaster _routemaster;
-  final HeroController _heroController =
-      MaterialApp.createMaterialHeroController();
+  late HeroController _heroController;
 
   @override
   void initState() {
     super.initState();
 
+    _updateHeroController();
     _didUpdateStack(null, widget.stack);
     _updateNavigator();
   }
@@ -890,10 +902,26 @@ class StackNavigatorState extends State<StackNavigator> {
   void didUpdateWidget(StackNavigator oldWidget) {
     super.didUpdateWidget(oldWidget);
 
+    var needsUpdate = false;
+
     if (oldWidget.stack != widget.stack) {
       _didUpdateStack(oldWidget.stack, widget.stack);
+      needsUpdate = true;
+    }
+
+    if (oldWidget.heroController != widget.heroController) {
+      _updateHeroController();
+      needsUpdate = true;
+    }
+
+    if (needsUpdate) {
       _updateNavigator();
     }
+  }
+
+  void _updateHeroController() {
+    _heroController =
+        widget.heroController ?? MaterialApp.createMaterialHeroController();
   }
 
   void _didUpdateStack(PageStack? oldStack, PageStack newStack) {

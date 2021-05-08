@@ -63,4 +63,37 @@ void main() {
     expect(observer.log[0], isPush());
     expect(observer.log[1], isPush());
   });
+
+  testWidgets('Can swap navigatorBuilder', (tester) async {
+    var builder1Called = 0;
+    var builder2Called = 0;
+
+    final builder1 = (BuildContext context, PageStack stack) {
+      builder1Called++;
+      return StackNavigator(stack: stack);
+    };
+
+    final builder2 = (BuildContext context, PageStack stack) {
+      builder2Called++;
+      return StackNavigator(stack: stack);
+    };
+
+    Widget buildApp(NavigatorBuilder builder) {
+      return MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: RoutemasterDelegate.builder(
+          routesBuilder: (_) => RouteMap(
+            routes: {'/': (_) => MaterialPageOne()},
+          ),
+          navigatorBuilder: builder,
+        ),
+      );
+    }
+
+    await tester.pumpWidget(buildApp(builder1));
+    expect(builder1Called, 1);
+
+    await tester.pumpWidget(buildApp(builder2));
+    expect(builder2Called, 1);
+  });
 }
