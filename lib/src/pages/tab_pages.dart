@@ -1,14 +1,21 @@
 part of '../../routemaster.dart';
 
+Page _defaultPageBuilder(Widget child) {
+  return MaterialPage<void>(child: child);
+}
+
 class IndexedPage extends StatefulPage<void> with IndexedRouteMixIn {
   final Widget child;
 
   @override
   final List<String> paths;
 
+  final Page Function(Widget child) pageBuilder;
+
   const IndexedPage({
     required this.child,
     required this.paths,
+    this.pageBuilder = _defaultPageBuilder,
   });
 
   @override
@@ -60,9 +67,8 @@ class IndexedPageState extends PageState
 
   @override
   Page createPage() {
-    // TODO: Provide a way for user to specify something other than MaterialPage
-    return MaterialPage<void>(
-      child: _IndexedPageStateProvider(
+    return _tabPage.pageBuilder(
+      _IndexedPageStateProvider(
         pageState: this,
         child: _tabPage.child,
       ),
@@ -76,9 +82,12 @@ class TabPage extends StatefulPage<void> with IndexedRouteMixIn {
   @override
   final List<String> paths;
 
+  final Page Function(Widget child) pageBuilder;
+
   const TabPage({
     required this.child,
     required this.paths,
+    this.pageBuilder = _defaultPageBuilder,
   });
 
   @override
@@ -135,9 +144,8 @@ class TabPageState extends PageState
 
   @override
   Page createPage() {
-    // TODO: Provide a way for user to specify something other than MaterialPage
-    return MaterialPage<void>(
-      child: _TabControllerProvider(
+    return _tabPage.pageBuilder(
+      _TabControllerProvider(
         pageState: this,
         child: _TabPageStateProvider(
           pageState: this,
@@ -214,9 +222,12 @@ class CupertinoTabPage extends StatefulPage<void> with IndexedRouteMixIn {
   @override
   final List<String> paths;
 
+  final Page Function(Widget child) pageBuilder;
+
   const CupertinoTabPage({
     required this.child,
     required this.paths,
+    this.pageBuilder = _defaultPageBuilder,
   });
 
   @override
@@ -278,9 +289,8 @@ class CupertinoTabPageState extends PageState
 
   @override
   Page createPage() {
-    // TODO: Provide a way for user to specify something other than MaterialPage
-    return MaterialPage<void>(
-      child: _CupertinoTabPageStateProvider(
+    return _tabPage.pageBuilder(
+      _CupertinoTabPageStateProvider(
         pageState: this,
         child: _tabPage.child,
       ),
