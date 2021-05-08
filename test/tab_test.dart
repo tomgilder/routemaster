@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:routemaster/routemaster.dart';
@@ -421,6 +422,34 @@ void main() {
           e is AssertionError &&
           e.message == "Couldn't find a TabPageState from the given context.")),
     );
+  });
+
+  testWidgets('Can use custom page with TabPage', (tester) async {
+    final key = Key('custom');
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (_) => TabPage(
+                child: MyTabPage(),
+                paths: ['/one', '/two'],
+                pageBuilder: (child) => CupertinoPage<void>(
+                  child: Container(key: key, child: child),
+                ),
+              ),
+          '/one': (_) => MaterialPage<void>(child: PageOne()),
+          '/two': (_) => MaterialPage<void>(child: PageTwo()),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    expect(find.byKey(key), findsOneWidget);
   });
 }
 

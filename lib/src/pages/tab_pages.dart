@@ -51,26 +51,26 @@ class _IndexedPageStateProvider extends InheritedNotifier {
 class IndexedPageState extends PageState
     with ChangeNotifier, IndexedPageStateMixIn {
   @override
-  final IndexedPage _tabPage;
+  final IndexedPage page;
 
   @override
   final RouteData routeData;
 
   IndexedPageState(
-    this._tabPage,
+    this.page,
     Routemaster routemaster,
     this.routeData,
   ) {
     _routemaster = routemaster;
-    _routes = List.filled(_tabPage.paths.length, null);
+    _routes = List.filled(page.paths.length, null);
   }
 
   @override
   Page createPage() {
-    return _tabPage.pageBuilder(
+    return page.pageBuilder(
       _IndexedPageStateProvider(
         pageState: this,
-        child: _tabPage.child,
+        child: page.child,
       ),
     );
   }
@@ -123,14 +123,14 @@ class _TabPageStateProvider extends InheritedNotifier {
 class TabPageState extends PageState
     with ChangeNotifier, IndexedPageStateMixIn {
   @override
-  final TabPage _tabPage;
+  final TabPage page;
 
   @override
   final RouteData routeData;
 
-  TabPageState(this._tabPage, Routemaster routemaster, this.routeData) {
+  TabPageState(this.page, Routemaster routemaster, this.routeData) {
     _routemaster = routemaster;
-    _routes = List.filled(_tabPage.paths.length, null);
+    _routes = List.filled(page.paths.length, null);
   }
 
   @override
@@ -144,12 +144,12 @@ class TabPageState extends PageState
 
   @override
   Page createPage() {
-    return _tabPage.pageBuilder(
+    return page.pageBuilder(
       _TabControllerProvider(
         pageState: this,
         child: _TabPageStateProvider(
           pageState: this,
-          child: _tabPage.child,
+          child: page.child,
         ),
       ),
     );
@@ -263,7 +263,7 @@ class _CupertinoTabPageStateProvider extends InheritedNotifier {
 class CupertinoTabPageState extends PageState
     with ChangeNotifier, IndexedPageStateMixIn {
   @override
-  final CupertinoTabPage _tabPage;
+  final CupertinoTabPage page;
 
   @override
   final RouteData routeData;
@@ -271,12 +271,12 @@ class CupertinoTabPageState extends PageState
   final CupertinoTabController controller = CupertinoTabController();
 
   CupertinoTabPageState(
-    this._tabPage,
+    this.page,
     Routemaster routemaster,
     this.routeData,
   ) {
     _routemaster = routemaster;
-    _routes = List.filled(_tabPage.paths.length, null);
+    _routes = List.filled(page.paths.length, null);
 
     addListener(() {
       controller.index = index;
@@ -289,10 +289,10 @@ class CupertinoTabPageState extends PageState
 
   @override
   Page createPage() {
-    return _tabPage.pageBuilder(
+    return page.pageBuilder(
       _CupertinoTabPageStateProvider(
         pageState: this,
-        child: _tabPage.child,
+        child: page.child,
       ),
     );
   }
@@ -313,12 +313,12 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
   @override
   RouteData get routeData;
 
-  IndexedRouteMixIn get _tabPage;
+  IndexedRouteMixIn get page;
 
   List<PageStack>? _stacks;
   List<PageStack> get stacks {
     return _stacks ??=
-        _tabPage.paths.map((e) => _createInitialStackState(e)).toList();
+        page.paths.map((e) => _createInitialStackState(e)).toList();
   }
 
   PageStack get currentStack => stacks[index];
@@ -396,7 +396,7 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
     final requiredAbsolutePath = _getAbsoluteTabPath(path);
 
     var i = 0;
-    for (final initialPath in _tabPage.paths) {
+    for (final initialPath in page.paths) {
       final tabRootAbsolutePath = _getAbsoluteTabPath(initialPath);
       if (pathContext.equals(tabRootAbsolutePath, requiredAbsolutePath) ||
           pathContext.isWithin(tabRootAbsolutePath, requiredAbsolutePath)) {

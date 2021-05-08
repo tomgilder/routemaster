@@ -69,6 +69,34 @@ void main() {
     expect(pageState.index, 0);
     expect(tabController.index, 0);
   });
+
+  testWidgets('Can use custom page with CupertinoTabPage', (tester) async {
+    final key = Key('custom');
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (_) => CupertinoTabPage(
+                paths: ['/one', '/two'],
+                child: TabbedPage(),
+                pageBuilder: (child) => CupertinoPage<void>(
+                  child: Container(key: key, child: child),
+                ),
+              ),
+          '/one': (_) => MaterialPage<void>(child: PageOne()),
+          '/two': (_) => MaterialPage<void>(child: PageTwo()),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    expect(find.byKey(key), findsOneWidget);
+  });
 }
 
 final routes = RouteMap(

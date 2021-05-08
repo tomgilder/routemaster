@@ -131,7 +131,6 @@ RouteMap _buildRouteMap(AppState appState) {
 
       // Most pages tend to appear only in one place in the app
       // However sometimes you can push them into multiple places.
-      // TODO: Is there a better way to do this? Such as an `Alias` page class?
       '/search/hero': (_) => MaterialPage(child: HeroPage()),
       '/settings/hero': (_) => MaterialPage(child: HeroPage()),
 
