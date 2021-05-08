@@ -362,7 +362,7 @@ class TestPageWrapper extends PageWrapper with ChangeNotifier {
   }
 
   @override
-  Iterable<PageWrapper> getCurrentPages() {
+  Iterable<List<PageWrapper>> getCurrentPages() {
     throw UnimplementedError();
   }
 

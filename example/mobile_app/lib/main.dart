@@ -193,14 +193,16 @@ RouteMap _buildRouteMap(AppState appState) {
             child: MessagePage(message: 'You found the bonus page!!!'),
           ),
 
-      '/nested': (_) => IndexedPage(
-            paths: ['/nested/one'],
-            child: NestedPage(),
+      '/nested': (_) => NestedPage(
+            paths: ['/nested/sidebar/one', '/nested/main/one'],
+            child: SplitScreenPage(),
           ),
-      '/nested/one': (_) => MaterialPage(child: NestedPageOne()),
-      '/nested/one/two': (_) => MaterialPage(
-            child: MessagePage(message: 'Two'),
-          ),
+
+      '/nested/main/one': (_) => MaterialPage(child: NestedContentPageOne()),
+      '/nested/main/two': (_) => MaterialPage(child: NestedContentPageTwo()),
+
+      '/nested/sidebar/one': (_) => MaterialPage(child: NestedSidebarPageOne()),
+      '/nested/sidebar/two': (_) => MaterialPage(child: NestedSidebarPageTwo()),
     },
   );
 }

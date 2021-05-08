@@ -50,7 +50,7 @@ class PageStack extends ChangeNotifier {
     return true;
   }
 
-  Iterable<PageWrapper> _getCurrentPages() sync* {
+  Iterable<List<PageWrapper>> _getCurrentPages() sync* {
     if (_routes.isNotEmpty) {
       yield* _routes.last.getCurrentPages();
     }

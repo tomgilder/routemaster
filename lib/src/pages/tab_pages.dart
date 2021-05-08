@@ -405,8 +405,8 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
   }
 
   @override
-  Iterable<PageWrapper> getCurrentPages() sync* {
-    yield this;
+  Iterable<List<PageWrapper>> getCurrentPages() sync* {
+    yield [this];
     yield* stacks[index]._getCurrentPages();
   }
 }

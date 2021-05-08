@@ -19,6 +19,7 @@ import 'src/route_data.dart';
 part 'src/pages/page_stack.dart';
 part 'src/pages/tab_pages.dart';
 part 'src/pages/basic_pages.dart';
+part 'src/pages/nested_page.dart';
 part 'src/observers.dart';
 
 typedef RoutemasterBuilder = Widget Function(
@@ -386,7 +387,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }
 
   void _updateCurrentConfiguration() {
-    final currentPages = _state.stack._getCurrentPages();
+    final currentPages = _state.stack._getCurrentPages().flattened;
 
     if (currentPages.isNotEmpty) {
       final pageWrapper = currentPages.last;
@@ -448,7 +449,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     if (pendingNavigation != null) {
       _processNavigation(
         routeRequest: pendingNavigation,
-        currentRoutes: _state.stack._getCurrentPages().toList(),
+        currentRoutes: _state.stack._getCurrentPages().flattened.toList(),
       );
       _state.pendingNavigation = null;
     }
@@ -706,6 +707,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     final page = route.settings;
     final current = _state.stack
         ._getCurrentPages()
+        .flattened
         .firstWhereOrNull((e) => e._getOrCreatePage() == page);
 
     final completer = current?.result?._routeCompleter;

@@ -24,7 +24,7 @@ abstract class PageWrapper {
 
   /// Returns this page, and any descendant pages below it in the navigation
   /// hierarchy.
-  Iterable<PageWrapper> getCurrentPages();
+  Iterable<List<PageWrapper>> getCurrentPages();
 
   /// See if this page can consume the list of [pages] as children. For instance
   /// a tab page could accept the pages and put them in one of its tab's stacks.
@@ -61,8 +61,8 @@ class StatelessPage extends PageWrapper {
   final RouteData routeData;
 
   @override
-  Iterable<PageWrapper> getCurrentPages() sync* {
-    yield this;
+  Iterable<List<PageWrapper>> getCurrentPages() sync* {
+    yield [this];
   }
 
   @override
