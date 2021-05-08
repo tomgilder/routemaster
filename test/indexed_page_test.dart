@@ -102,6 +102,34 @@ void main() {
 
     expect(find.byType(PageThree), findsOneWidget);
   });
+
+  testWidgets('Can use custom page with indexed page', (tester) async {
+    final key = Key('custom');
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (_) => IndexedPage(
+                paths: ['/one', '/two'],
+                child: BasicTabPage(),
+                pageBuilder: (child) => CupertinoPage<void>(
+                  child: Container(key: key, child: child),
+                ),
+              ),
+          '/one': (_) => MaterialPage<void>(child: PageOne()),
+          '/two': (_) => MaterialPage<void>(child: PageTwo()),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    expect(find.byKey(key), findsOneWidget);
+  });
 }
 
 class TabPage extends StatelessWidget {
