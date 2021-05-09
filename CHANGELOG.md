@@ -1,5 +1,8 @@
 # 0.8.0
 
+* Breaking change: `Guard` properties have been renamed: `validate` is now `canNavigate` and `onValidationFailed` is now `onNavigationFailed`
+* Use of `Guard` is no longer recommended
+* Deprecation: StackNavigator has been renamed PageStackNavigator
 * Added `NotFound` return page type
 * Added ability to customise the top-level navigator with `RoutemasterDelegate.builder`
 * Added ability to use tabs with a custom page type
