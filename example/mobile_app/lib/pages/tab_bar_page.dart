@@ -34,7 +34,7 @@ class TabBarPage extends StatelessWidget {
       body: TabBarView(
         controller: tabPage.controller,
         children: [
-          for (final stack in tabPage.stacks) StackNavigator(stack: stack),
+          for (final stack in tabPage.stacks) PageStackNavigator(stack: stack),
         ],
       ),
     );

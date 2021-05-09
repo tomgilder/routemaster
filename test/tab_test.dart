@@ -485,7 +485,7 @@ class MyTabPage extends StatelessWidget {
 
     return Container(
       height: 300,
-      child: StackNavigator(stack: stack),
+      child: PageStackNavigator(stack: stack),
     );
   }
 }

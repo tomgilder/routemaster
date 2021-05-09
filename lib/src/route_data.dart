@@ -70,6 +70,6 @@ class RouteData {
     assert(modalRoute!.settings is Page, "Modal route isn't a page route");
 
     final page = modalRoute!.settings as Page;
-    return StackNavigator.of(context).routeDataFor(page)!;
+    return PageStackNavigator.of(context).routeDataFor(page)!;
   }
 }

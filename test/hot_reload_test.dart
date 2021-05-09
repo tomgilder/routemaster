@@ -138,7 +138,7 @@ class HomePage extends StatelessWidget {
       ),
       tabBuilder: (BuildContext context, int index) {
         final stack = tabState.stacks[index];
-        return StackNavigator(stack: stack);
+        return PageStackNavigator(stack: stack);
       },
     );
   }

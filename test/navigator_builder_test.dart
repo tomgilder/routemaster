@@ -14,7 +14,7 @@ void main() {
         },
       ),
       navigatorBuilder: (BuildContext context, PageStack stack) {
-        return StackNavigator(stack: stack);
+        return PageStackNavigator(stack: stack);
       },
     );
 
@@ -45,7 +45,7 @@ void main() {
             },
           ),
           navigatorBuilder: (BuildContext context, PageStack stack) {
-            return StackNavigator(
+            return PageStackNavigator(
               stack: stack,
               observers: [observer],
             );

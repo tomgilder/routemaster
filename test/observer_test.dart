@@ -201,7 +201,7 @@ class _HomePageState extends State<HomePage> {
       controller: tabState.controller,
       tabBuilder: (BuildContext context, int index) {
         final stack = tabState.stacks[index];
-        return StackNavigator(
+        return PageStackNavigator(
           stack: stack,
           observers: _observers ?? widget.navigatorObservers,
         );

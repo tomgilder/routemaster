@@ -292,7 +292,7 @@ void main() {
     );
 
     expect(
-      () => StackNavigator.of(context),
+      () => PageStackNavigator.of(context),
       throwsA(predicate((e) =>
           e is AssertionError &&
           e.message == "Couldn't find a StackNavigatorState")),
@@ -351,7 +351,7 @@ class StackSwapPageState extends State<StackSwapPage> {
 
   @override
   Widget build(BuildContext context) {
-    return StackNavigator(stack: _firstNavigator ? _stack1 : _stack2);
+    return PageStackNavigator(stack: _firstNavigator ? _stack1 : _stack2);
   }
 }
 
@@ -387,7 +387,7 @@ class MyTabPage extends StatelessWidget {
 
     return Container(
       height: 300,
-      child: StackNavigator(stack: stack),
+      child: PageStackNavigator(stack: stack),
     );
   }
 }
