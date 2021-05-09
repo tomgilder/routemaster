@@ -8,9 +8,9 @@ void main() {
     expect(() => SystemNav.pathStrategy, throwsA(isA<UnsupportedError>()));
   });
 
-  test('SystemNav.setHash() throws when not on web', () {
+  test('SystemNav.replaceUrl() throws when not on web', () {
     expect(
-      () => SystemNav.setHash('', {}),
+      () => SystemNav.replaceUrl('', {}),
       throwsA(isA<UnsupportedError>()),
     );
   });

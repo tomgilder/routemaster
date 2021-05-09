@@ -282,13 +282,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   void replace(String path, {Map<String, String>? queryParameters}) {
     assert(!_isDisposed);
 
-    if (kIsWeb && SystemNav.pathStrategy == PathStrategy.hash) {
-      // If we're using the default hash path strategy, we can do a simple
-      // replace on the location hash.
-      SystemNav.setHash(path, queryParameters);
-      return;
-    }
-
     // Otherwise we do a convoluted dance which uses a custom UrlStrategy that
     // supports replacing the URL.
     _setPendingNavigation(
@@ -385,23 +378,35 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return _state.currentConfiguration;
   }
 
-  void _updateCurrentConfiguration() {
+  void _updateCurrentConfiguration({bool isReplacement = false}) {
     final currentPages = _state.stack._getCurrentPages();
 
     if (currentPages.isNotEmpty) {
       final pageWrapper = currentPages.last;
       final routeData = pageWrapper.routeData;
 
-      if (_state.currentConfiguration!.fullPath != routeData.fullPath) {
-        _state.currentConfiguration = RouteData(
-          routeData.fullPath,
-          isReplacement: routeData.isReplacement,
-          pathTemplate: routeData.pathTemplate,
-        );
+      void _update() {
+        if (_state.currentConfiguration!.fullPath != routeData.fullPath) {
+          _state.currentConfiguration = RouteData(
+            routeData.fullPath,
+            isReplacement: routeData.isReplacement,
+            pathTemplate: routeData.pathTemplate,
+          );
 
-        for (final observer in observers) {
-          observer.didChangeRoute(routeData, pageWrapper._getOrCreatePage());
+          for (final observer in observers) {
+            observer.didChangeRoute(routeData, pageWrapper._getOrCreatePage());
+          }
         }
+      }
+
+      if (kIsWeb && isReplacement) {
+        // Update without the router changing the URL or adding a history entry
+        Router.neglect(_context, _update);
+
+        // Set the URL directly
+        SystemNav.replaceUrl(routeData.fullPath, routeData.queryParameters);
+      } else {
+        _update();
       }
     }
   }
@@ -465,7 +470,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     assert(pages.isNotEmpty);
 
     _state.stack._routes = pages;
-    _updateCurrentConfiguration();
+    _updateCurrentConfiguration(isReplacement: routeRequest.isReplacement);
   }
 
   /// Called when dependencies of the [routesBuilder] changed.
@@ -601,7 +606,11 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     final requestedPath = routeRequest.path;
     final routerResult = _state.routeConfig!.get(requestedPath);
     if (routerResult != null) {
-      final routeData = RouteData.fromRouterResult(routerResult, requestedPath);
+      final routeData = RouteData.fromRouterResult(
+        routerResult,
+        requestedPath,
+        isReplacement: routeRequest.isReplacement,
+      );
 
       final wrapper = _createPageWrapper(
         routeRequest: routeRequest,
