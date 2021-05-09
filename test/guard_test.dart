@@ -9,8 +9,8 @@ void main() {
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (info) => Guard(
-                validate: (info, context) => false,
-                onValidationFailed: (info, context) {
+                canNavigate: (info, context) => false,
+                onNavigationFailed: (info, context) {
                   return MaterialPage<void>(child: NotFoundPage());
                 },
                 builder: () => MaterialPage<void>(child: PageOne()),
@@ -35,8 +35,8 @@ void main() {
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (info) => Guard(
-                validate: (info, context) => false,
-                onValidationFailed: (info, context) => Redirect('/page-two'),
+                canNavigate: (info, context) => false,
+                onNavigationFailed: (info, context) => Redirect('/page-two'),
                 builder: () => MaterialPage<void>(child: PageOne()),
               ),
           '/page-two': (info) => MaterialPage<void>(child: PageTwo()),
@@ -62,7 +62,7 @@ void main() {
         onUnknownRoute: (route) => MaterialPage<void>(child: NotFoundPage()),
         routes: {
           '/': (info) => Guard(
-                validate: (info, context) => false,
+                canNavigate: (info, context) => false,
                 builder: () => MaterialPage<void>(child: PageOne()),
               ),
         },
@@ -87,7 +87,7 @@ void main() {
         onUnknownRoute: (route) => Redirect('/page-two'),
         routes: {
           '/': (info) => Guard(
-                validate: (info, context) => false,
+                canNavigate: (info, context) => false,
                 builder: () => MaterialPage<void>(child: PageOne()),
               ),
           '/page-two': (info) => MaterialPage<void>(child: PageTwo()),
@@ -111,7 +111,7 @@ void main() {
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (info) => Guard(
-                validate: (info, context) => true,
+                canNavigate: (info, context) => true,
                 builder: () => MaterialPage<void>(child: PageOne()),
               ),
         },
@@ -138,7 +138,7 @@ void main() {
         routes: {
           '/': (_) => MaterialPage<void>(child: PageOne()),
           '/:id': (_) => Guard(
-                validate: (info, context) {
+                canNavigate: (info, context) {
                   expect(info.path, '/123');
                   expect(info.fullPath, '/123?query=string');
                   expect(info.pathParameters, {'id': '123'});
@@ -146,7 +146,7 @@ void main() {
                   validateWasCalled = true;
                   return false;
                 },
-                onValidationFailed: (info, context) {
+                onNavigationFailed: (info, context) {
                   expect(info.path, '/123');
                   expect(info.fullPath, '/123?query=string');
                   expect(info.pathParameters, {'id': '123'});
@@ -181,9 +181,9 @@ void main() {
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (info) => Guard(
-                validate: (_, __) => true,
+                canNavigate: (_, __) => true,
                 builder: () => Guard(
-                  validate: (_, __) => true,
+                  canNavigate: (_, __) => true,
                   builder: () => MaterialPage<void>(child: PageOne()),
                 ),
               ),
@@ -203,7 +203,7 @@ void main() {
 
   test('Guard createRoute throws', () {
     final guard = Guard(
-      validate: (_, __) => false,
+      canNavigate: (_, __) => false,
       builder: () => MaterialPageOne(),
     );
 

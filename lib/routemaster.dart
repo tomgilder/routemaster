@@ -651,12 +651,12 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     required RouteData routeData,
   }) {
     while (page is Guard) {
-      if (!page.validate(routeData, _context)) {
-        if (page.onValidationFailed == null) {
+      if (!page.canNavigate(routeData, _context)) {
+        if (page.onNavigationFailed == null) {
           return _NotFoundResult();
         }
 
-        final result = page.onValidationFailed!(routeData, _context);
+        final result = page.onNavigationFailed!(routeData, _context);
         return _createPageWrapper(
           routeRequest: routeRequest,
           page: result,

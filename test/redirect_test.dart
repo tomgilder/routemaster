@@ -10,7 +10,7 @@ void main() {
         routes: {
           '/': (info) => Redirect('/two'),
           '/two': (info) => Guard(
-                validate: (info, context) => true,
+                canNavigate: (info, context) => true,
                 builder: () => MaterialPage<void>(child: PageTwo()),
               ),
         },
@@ -66,7 +66,7 @@ This is an error in your routing map.""",
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (info) => Guard(
-                validate: (_, __) => true,
+                canNavigate: (_, __) => true,
                 builder: () => Redirect('/two'),
               ),
           '/two': (info) => MaterialPage<void>(child: PageTwo()),
