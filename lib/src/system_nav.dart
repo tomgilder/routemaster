@@ -12,3 +12,23 @@ bool isReplacementNavigation(dynamic state) {
 
   return false;
 }
+
+String makeUrl({
+  required PathStrategy pathStrategy,
+  required String path,
+  Map<String, String>? queryParameters,
+}) {
+  final url = Uri(
+    path: path,
+    queryParameters:
+        queryParameters?.isNotEmpty == true ? queryParameters : null,
+  );
+
+  switch (pathStrategy) {
+    case PathStrategy.hash:
+      return '#$url';
+
+    case PathStrategy.path:
+      return url.toString();
+  }
+}

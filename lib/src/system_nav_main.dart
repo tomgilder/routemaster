@@ -2,7 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'system_nav.dart';
 
 class SystemNav {
-  static void setHash(String location, Map<String, String>? queryParameters) {
+  static void replaceUrl(
+    String location,
+    Map<String, String>? queryParameters,
+  ) {
     throw UnsupportedError('Only supported on web');
   }
 

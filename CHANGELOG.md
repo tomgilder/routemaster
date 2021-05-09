@@ -3,6 +3,7 @@
 * Added `NotFound` return page type
 * Added ability to customise the top-level navigator with `RoutemasterDelegate.builder`
 * Added ability to use tabs with a custom page type
+* Fixed `replace()` not working with hashes on web
 
 # 0.7.2
 
