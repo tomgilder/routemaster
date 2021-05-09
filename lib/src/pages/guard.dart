@@ -1,40 +1,55 @@
 import 'package:flutter/material.dart';
 import '../../routemaster.dart';
 
-typedef ValidateCallback = bool Function(
+typedef CanNavigateCallback = bool Function(
   RouteData info,
   BuildContext context,
 );
 
-typedef ValidationFailedCallback = Page Function(
+typedef NavigationFailedCallback = Page Function(
   RouteData info,
   BuildContext context,
 );
 
-/// A page that wraps other pages in order to provide more functionality.
+/// Provides functionality to block pages being loaded.
 ///
-/// Similar to [ProxyPage] but uses a builder method so the page doesn't build
-/// until the route is required.
+/// Generally it's **cleaner not to use this class**, and just use logic within
+/// the route map, like this:
 ///
-/// For example, [Guarded] adds validation functionality for routes.
+/// ```
+///  '/protected-route': (route) {
+///    if (!isLoggedIn()) return Redirect('/login');
+///    if (!canUserAccessPage) return Redirect('/no-access');
+///    return ProtectedPage();
+///  }
+/// ```
+///
+/// If [canNavigate] returns true, the page returned by [builder] is shown.
+///
+/// If it returns false, the [onNavigationFailed] function is called. This can
+/// either return a new page, or return [Redirect] to go to a different path.
+///
+/// If no [onNavigationFailed] is provided, the default behavior is to redirect
+/// to the router's default path.
 class Guard extends Page<dynamic> {
+  /// A function that returns a page to show if [canNavigate] returns true.
   final Page Function() builder;
 
   /// Callback to check if the route is valid. If this returns false,
-  /// [onValidationFailed] is called.
+  /// [onNavigationFailed] is called.
   ///
-  /// If [onValidationFailed] is null, `onUnknownRoute` is called.
-  final ValidateCallback validate;
+  /// If [onNavigationFailed] is null, `onUnknownRoute` is called.
+  final CanNavigateCallback canNavigate;
 
-  /// Callback, called when the [validate] returns false.
+  /// Callback, called when the [canNavigate] returns false.
   ///
   /// By default this redirects to the default path.
-  final ValidationFailedCallback? onValidationFailed;
+  final NavigationFailedCallback? onNavigationFailed;
 
   const Guard({
     required this.builder,
-    required this.validate,
-    this.onValidationFailed,
+    required this.canNavigate,
+    this.onNavigationFailed,
   });
 
   @override
@@ -43,6 +58,8 @@ class Guard extends Page<dynamic> {
   }
 }
 
+/// Tells the router the page was not found, and causes the router to call
+/// `onUnknownRoute`. By default this will show [DefaultUnknownRoutePage].
 class NotFound extends Page<dynamic> {
   const NotFound();
 
@@ -54,9 +71,13 @@ class NotFound extends Page<dynamic> {
 
 /// A page results which tells the router to redirect to another page.
 class Redirect extends Page<dynamic> {
+  /// The path to redirect to.
   final String path;
+
+  /// Query parameters to append to [path] when redirecting.
   final Map<String, String>? queryParameters;
 
+  /// The full redirect path, including [queryParameters].
   String get redirectPath => Uri(
         path: path,
         queryParameters: queryParameters,
