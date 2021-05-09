@@ -33,7 +33,7 @@ class _BottomNavigationBarPageState extends State<BottomNavigationBarPage> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Bottom Navigation Bar')),
-      body: StackNavigator(
+      body: PageStackNavigator(
         key: ValueKey(selectedIndex),
         stack: stack,
       ),

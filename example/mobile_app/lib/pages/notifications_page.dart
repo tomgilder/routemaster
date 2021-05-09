@@ -59,7 +59,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
         final tabPageState = IndexedPage.of(context);
         final stack = tabPageState.stacks[index];
 
-        return StackNavigator(stack: stack);
+        return PageStackNavigator(stack: stack);
       },
     );
   }

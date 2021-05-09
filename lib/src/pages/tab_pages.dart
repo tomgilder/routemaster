@@ -298,7 +298,7 @@ class CupertinoTabPageState extends PageState
   }
 
   Widget tabBuilder(BuildContext context, int index) {
-    return StackNavigator(stack: stacks[index]);
+    return PageStackNavigator(stack: stacks[index]);
   }
 }
 
