@@ -65,4 +65,15 @@ void replaceTests({void Function(String) expectUrl = _default}) {
     expect(find.byType(PageOne), findsNothing);
     expectUrl('/');
   });
+
+  testWidgets('Has correct URL when replacing with tabs', (tester) async {
+    app.main();
+
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Replace tabs'));
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expect(find.byType(TabbedPage), findsOneWidget);
+    expectUrl('/tabs/one');
+  });
 }
