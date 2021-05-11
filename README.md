@@ -7,7 +7,7 @@ Hello! Routemaster is an easy-to-use router for Flutter, which wraps over Naviga
 
 ## Features
 
-* Simple declarative mapping from a URLs to pages
+* Simple declarative mapping from URLs to pages
 * Easy-to-use API: just `Routemaster.of(context).push('/page')`
 * Really easy nested navigation support for tabs
 * Multiple route maps: for example one for a logged in user, another for logged out
