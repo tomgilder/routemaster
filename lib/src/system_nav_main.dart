@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
+import '../routemaster.dart';
 import 'system_nav.dart';
 
 class SystemNav {
-  static void replaceUrl(
-    String location,
-    Map<String, String>? queryParameters,
-  ) {
+  static HistoryProvider? historyProvider;
+
+  static void replaceUrl(RouteData routeData) {
     throw UnsupportedError('Only supported on web');
   }
 

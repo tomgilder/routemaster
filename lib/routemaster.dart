@@ -404,7 +404,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         Router.neglect(_context, _update);
 
         // Set the URL directly
-        SystemNav.replaceUrl(routeData.fullPath, routeData.queryParameters);
+        SystemNav.replaceUrl(routeData);
       } else {
         _update();
       }

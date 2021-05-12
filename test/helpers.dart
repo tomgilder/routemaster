@@ -1,14 +1,36 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:routemaster/src/system_nav.dart';
 
 const kTransitionDuration = Duration(milliseconds: 310);
+
+class MockHistoryProvider implements HistoryProvider {
+  final void Function(String) onReplaceState;
+
+  MockHistoryProvider(this.onReplaceState);
+
+  @override
+  void replaceState(dynamic data, String title, String? url) {
+    if (url != null) {
+      onReplaceState(url);
+    }
+  }
+}
 
 /// Records changes in URL
 Future<List<String?>> recordUrlChanges(Future Function() callback) async {
   final result = <String?>[];
   final stackTraces = <StackTrace>[];
+
+  final webHistoryProvider = MockHistoryProvider((url) {
+    result.add(url);
+  });
+
+  SystemNav.historyProvider = webHistoryProvider;
+
   SystemChannels.navigation.setMockMethodCallHandler((call) async {
     if (call.method == 'routeInformationUpdated') {
       final location = call.arguments['location'] as String;
@@ -22,6 +44,7 @@ Future<List<String?>> recordUrlChanges(Future Function() callback) async {
 
   await callback();
   SystemChannels.navigation.setMockMethodCallHandler(null);
+  SystemNav.historyProvider = null;
   return result;
 }
 
