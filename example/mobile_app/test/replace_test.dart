@@ -1,9 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile_app/main.dart';
-import 'package:mobile_app/pages/bottom_navigation_bar_page.dart';
-import 'package:mobile_app/pages/home_page.dart';
-import 'package:mobile_app/pages/notifications_page.dart';
 import 'helpers.dart';
 
 Future pumpBottomNavigationPage(WidgetTester tester) async {

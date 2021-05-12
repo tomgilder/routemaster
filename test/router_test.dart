@@ -66,38 +66,6 @@ void main() {
                 "Couldn't get a Routemaster object from the given context.")));
   });
 
-  test('isReplacement returns correct values', () {
-    expect(isReplacementNavigation('blah'), isFalse);
-
-    expect(isReplacementNavigation({'state': null}), isFalse);
-
-    expect(
-      isReplacementNavigation({'state': null}),
-      isFalse,
-    );
-
-    expect(
-      isReplacementNavigation({
-        'state': {'isReplacement': null}
-      }),
-      isFalse,
-    );
-
-    expect(
-      isReplacementNavigation({
-        'state': {'isReplacement': false}
-      }),
-      isFalse,
-    );
-
-    expect(
-      isReplacementNavigation({
-        'state': {'isReplacement': true}
-      }),
-      isTrue,
-    );
-  });
-
   testWidgets('Can push relative path when current page has query string',
       (tester) async {
     final delegate = RoutemasterDelegate(
@@ -188,13 +156,11 @@ void main() {
   testWidgets('Can replace just a query string', (tester) async {
     SystemNav.setFakePathUrlStrategy();
 
+    final key = GlobalKey();
     final delegate = RoutemasterDelegate(
-      routesBuilder: (_) => RouteMap(
-        routes: {
-          '/': (_) => MaterialPageOne(),
-          '/two': (_) => MaterialPageTwo(),
-        },
-      ),
+      routesBuilder: (_) => RouteMap(routes: {
+        '/': (_) => MaterialPage<void>(child: Container(key: key)),
+      }),
     );
 
     await tester.pumpWidget(
@@ -211,6 +177,11 @@ void main() {
         await tester.pump(kTransitionDuration);
       }),
       ['/?query=string'],
+    );
+
+    expect(
+      RouteData.of(key.currentContext!).queryParameters['query'],
+      'string',
     );
   });
 
@@ -426,6 +397,50 @@ void main() {
       '#/new-path?query=param',
     );
   });
+
+  test('makeUrl makes hash URL with just query params', () {
+    expect(
+      makeUrl(
+        pathStrategy: PathStrategy.hash,
+        path: '/new-path',
+        queryParameters: {'query': 'param'},
+      ),
+      '#/new-path?query=param',
+    );
+  });
+
+  // test('makeUrl makes hash URL with query params in path and null map', () {
+  //   expect(
+  //     makeUrl(
+  //       pathStrategy: PathStrategy.hash,
+  //       path: '/?query=param',
+  //       queryParameters: null,
+  //     ),
+  //     '#/?query=param',
+  //   );
+  // });
+
+  // test('makeUrl makes hash URL with query params in path and empty map', () {
+  //   expect(
+  //     makeUrl(
+  //       pathStrategy: PathStrategy.hash,
+  //       path: '/?query=param',
+  //       queryParameters: {},
+  //     ),
+  //     '#/?query=param',
+  //   );
+  // });
+
+  //  test('makeUrl makes hash URL with query params bothpath and empty map', () {
+  //   expect(
+  //     makeUrl(
+  //       pathStrategy: PathStrategy.hash,
+  //       path: '/?query=param',
+  //       queryParameters: {},
+  //     ),
+  //     '#/?query=param',
+  //   );
+  // });
 
   test('makeUrl makes path URL with null query params', () {
     expect(

@@ -1,20 +1,23 @@
 import 'dart:html';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+import 'route_data.dart';
 import 'system_nav.dart';
 
 class SystemNav {
-  static void replaceUrl(
-    String location,
-    Map<String, String>? queryParameters,
-  ) {
-    window.history.replaceState(
+  /// Allows tests to mock browser history
+  @visibleForTesting
+  static HistoryProvider? historyProvider;
+
+  static void replaceUrl(RouteData routeData) {
+    historyProvider ??= BrowserHistoryProvider();
+    historyProvider!.replaceState(
       null,
       '',
       makeUrl(
         pathStrategy: _pathStrategy,
-        path: location,
-        queryParameters: queryParameters,
+        path: routeData.path,
+        queryParameters: routeData.queryParameters,
       ),
     );
   }
@@ -33,4 +36,11 @@ class SystemNav {
 
   static PathStrategy _pathStrategy = PathStrategy.hash;
   static PathStrategy get pathStrategy => _pathStrategy;
+}
+
+class BrowserHistoryProvider implements HistoryProvider {
+  @override
+  void replaceState(dynamic data, String title, String? url) {
+    window.history.replaceState(data, title, url);
+  }
 }

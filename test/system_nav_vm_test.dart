@@ -10,7 +10,7 @@ void main() {
 
   test('SystemNav.replaceUrl() throws when not on web', () {
     expect(
-      () => SystemNav.replaceUrl('', {}),
+      () => SystemNav.replaceUrl(RouteData('path')),
       throwsA(isA<UnsupportedError>()),
     );
   });
