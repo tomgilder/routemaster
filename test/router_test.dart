@@ -409,39 +409,6 @@ void main() {
     );
   });
 
-  // test('makeUrl makes hash URL with query params in path and null map', () {
-  //   expect(
-  //     makeUrl(
-  //       pathStrategy: PathStrategy.hash,
-  //       path: '/?query=param',
-  //       queryParameters: null,
-  //     ),
-  //     '#/?query=param',
-  //   );
-  // });
-
-  // test('makeUrl makes hash URL with query params in path and empty map', () {
-  //   expect(
-  //     makeUrl(
-  //       pathStrategy: PathStrategy.hash,
-  //       path: '/?query=param',
-  //       queryParameters: {},
-  //     ),
-  //     '#/?query=param',
-  //   );
-  // });
-
-  //  test('makeUrl makes hash URL with query params bothpath and empty map', () {
-  //   expect(
-  //     makeUrl(
-  //       pathStrategy: PathStrategy.hash,
-  //       path: '/?query=param',
-  //       queryParameters: {},
-  //     ),
-  //     '#/?query=param',
-  //   );
-  // });
-
   test('makeUrl makes path URL with null query params', () {
     expect(
       makeUrl(
