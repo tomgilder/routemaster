@@ -4,6 +4,8 @@
 * Added ability to customise the top-level navigator with `RoutemasterDelegate.builder`
 * Added ability to use tabs with a custom page type
 * Fixed `replace()` not working with hashes on web
+* Fixed path URL strategy not working when it's set outside Routemaster 
+* Fixed tabs creating a redirect loop on web
 
 # 0.7.2
 
