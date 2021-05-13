@@ -5,6 +5,28 @@ import 'route_data.dart';
 import 'system_nav.dart';
 
 class SystemNav {
+  static HashUrlStrategy? _urlStrategy;
+
+  static void setPathUrlStrategy() {
+    _urlStrategy = PathUrlStrategy();
+    setUrlStrategy(_urlStrategy);
+  }
+
+  @visibleForTesting
+  static void setHashUrlStrategy() {
+    _urlStrategy = HashUrlStrategy();
+    setUrlStrategy(_urlStrategy);
+  }
+
+  /// Attempts to guess the current URL strategy based on whether a hash is set
+  /// or not. This is to deal with users directly setting the URL strategy.
+  static void _setDefaultUrlStrategy() {
+    historyProvider ??= BrowserHistoryProvider();
+    _urlStrategy = historyProvider!.hash.isNotEmpty
+        ? HashUrlStrategy()
+        : PathUrlStrategy();
+  }
+
   /// Allows tests to mock browser history
   @visibleForTesting
   static HistoryProvider? historyProvider;
@@ -15,27 +37,28 @@ class SystemNav {
       null,
       '',
       makeUrl(
-        pathStrategy: _pathStrategy,
         path: routeData.path,
         queryParameters: routeData.queryParameters,
       ),
     );
   }
 
-  static void setPathUrlStrategy() {
-    _pathStrategy = PathStrategy.path;
-    setUrlStrategy(PathUrlStrategy());
-  }
+  static String makeUrl({
+    required String path,
+    Map<String, String>? queryParameters,
+  }) {
+    final hasQueryParameters = queryParameters?.isNotEmpty == true;
+    final url = Uri(
+      path: path,
+      queryParameters: hasQueryParameters ? queryParameters : null,
+    );
 
-  /// Used from tests: pretends we're using the path URL strategy.
-  /// Otherwise calls to replace() won't work from tests.
-  @visibleForTesting
-  static void setFakePathUrlStrategy() {
-    _pathStrategy = PathStrategy.path;
-  }
+    if (_urlStrategy == null) {
+      _setDefaultUrlStrategy();
+    }
 
-  static PathStrategy _pathStrategy = PathStrategy.hash;
-  static PathStrategy get pathStrategy => _pathStrategy;
+    return _urlStrategy!.prepareExternalUrl(url.toString());
+  }
 }
 
 class BrowserHistoryProvider implements HistoryProvider {
@@ -43,4 +66,7 @@ class BrowserHistoryProvider implements HistoryProvider {
   void replaceState(dynamic data, String title, String? url) {
     window.history.replaceState(data, title, url);
   }
+
+  @override
+  String get hash => window.location.hash;
 }
