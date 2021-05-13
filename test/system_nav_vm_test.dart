@@ -11,6 +11,20 @@ void main() {
     );
   });
 
+  test('SystemNav.setHashUrlStrategy() throws when not on web', () {
+    expect(
+      () => SystemNav.setHashUrlStrategy(),
+      throwsA(isA<UnsupportedError>()),
+    );
+  });
+
+  test('SystemNav.makeUrl() throws when not on web', () {
+    expect(
+      () => SystemNav.makeUrl(path: ''),
+      throwsA(isA<UnsupportedError>()),
+    );
+  });
+
   test('SystemNav.setPathUrlStrategy() throws when not on web', () {
     expect(
       () => SystemNav.setPathUrlStrategy(),
