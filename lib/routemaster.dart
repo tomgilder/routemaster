@@ -472,7 +472,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     _state.stack._routes = pages;
 
     final urlHasNotChanged =
-        _state.currentConfiguration!.path == pages.last.routeData.path;
+        _state.currentConfiguration!.fullPath == pages.last.routeData.fullPath;
 
     _updateCurrentConfiguration(
       isReplacement: urlHasNotChanged || routeRequest.isReplacement,
