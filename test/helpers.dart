@@ -15,9 +15,12 @@ class MockHistoryProvider implements HistoryProvider {
   @override
   void replaceState(dynamic data, String title, String? url) {
     if (url != null) {
-      onReplaceState(url);
+      onReplaceState(url.startsWith('#') ? url.substring(1) : url);
     }
   }
+
+  @override
+  String hash = '#';
 }
 
 /// Records changes in URL

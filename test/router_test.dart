@@ -97,8 +97,6 @@ void main() {
 
   testWidgets('Can replace relative path when current page has query string',
       (tester) async {
-    SystemNav.setFakePathUrlStrategy();
-
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         routes: {
@@ -154,8 +152,6 @@ void main() {
   });
 
   testWidgets('Can replace just a query string', (tester) async {
-    SystemNav.setFakePathUrlStrategy();
-
     final key = GlobalKey();
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(routes: {
@@ -362,83 +358,6 @@ void main() {
         await tester.pump(kTransitionDuration);
       }),
       ['/id2'],
-    );
-  });
-
-  test('makeUrl makes hash URL with null query params', () {
-    expect(
-      makeUrl(
-        pathStrategy: PathStrategy.hash,
-        path: '/new-path',
-        queryParameters: null,
-      ),
-      '#/new-path',
-    );
-  });
-
-  test('makeUrl makes hash URL with empty query params', () {
-    expect(
-      makeUrl(
-        pathStrategy: PathStrategy.hash,
-        path: '/new-path',
-        queryParameters: {},
-      ),
-      '#/new-path',
-    );
-  });
-
-  test('makeUrl makes hash URL with query params', () {
-    expect(
-      makeUrl(
-        pathStrategy: PathStrategy.hash,
-        path: '/new-path',
-        queryParameters: {'query': 'param'},
-      ),
-      '#/new-path?query=param',
-    );
-  });
-
-  test('makeUrl makes hash URL with just query params', () {
-    expect(
-      makeUrl(
-        pathStrategy: PathStrategy.hash,
-        path: '/new-path',
-        queryParameters: {'query': 'param'},
-      ),
-      '#/new-path?query=param',
-    );
-  });
-
-  test('makeUrl makes path URL with null query params', () {
-    expect(
-      makeUrl(
-        pathStrategy: PathStrategy.path,
-        path: '/new-path',
-        queryParameters: null,
-      ),
-      '/new-path',
-    );
-  });
-
-  test('makeUrl makes path URL with empty query params', () {
-    expect(
-      makeUrl(
-        pathStrategy: PathStrategy.path,
-        path: '/new-path',
-        queryParameters: {},
-      ),
-      '/new-path',
-    );
-  });
-
-  test('makeUrl makes hash URL with query params', () {
-    expect(
-      makeUrl(
-        pathStrategy: PathStrategy.path,
-        path: '/new-path',
-        queryParameters: {'query': 'param'},
-      ),
-      '/new-path?query=param',
     );
   });
 }

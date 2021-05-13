@@ -13,10 +13,15 @@ class SystemNav {
     throw UnsupportedError('Only supported on web');
   }
 
-  static PathStrategy get pathStrategy {
+  @visibleForTesting
+  static void setHashUrlStrategy() {
     throw UnsupportedError('Only supported on web');
   }
 
-  @visibleForTesting
-  static void setFakePathUrlStrategy() {}
+  static String makeUrl({
+    required String path,
+    Map<String, String>? queryParameters,
+  }) {
+    throw UnsupportedError('Only supported on web');
+  }
 }
