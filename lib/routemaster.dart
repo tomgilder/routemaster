@@ -470,7 +470,13 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     assert(pages.isNotEmpty);
 
     _state.stack._routes = pages;
-    _updateCurrentConfiguration(isReplacement: routeRequest.isReplacement);
+
+    final urlHasNotChanged =
+        _state.currentConfiguration!.path == pages.last.routeData.path;
+
+    _updateCurrentConfiguration(
+      isReplacement: urlHasNotChanged || routeRequest.isReplacement,
+    );
   }
 
   /// Called when dependencies of the [routesBuilder] changed.
