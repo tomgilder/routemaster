@@ -431,7 +431,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return SynchronousFuture(null);
   }
 
-  void _initRouter(BuildContext context, {bool isRebuild = false}) {
+  void _initRouter(BuildContext context) {
     final routerNeedsBuilding = _state.routeConfig == null;
 
     if (routerNeedsBuilding) {
@@ -445,6 +445,14 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
       _state.pendingNavigation = null;
     }
+  }
+
+  void _rebuildRouter(BuildContext context) {
+    _state.routeConfig = null;
+
+    _isBuilding = true;
+    _initRouter(context);
+    _isBuilding = false;
   }
 
   void _processPendingNavigation() {
@@ -471,11 +479,11 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     _state.stack._routes = pages;
 
-    final urlHasNotChanged =
+    final pathIsSame =
         _state.currentConfiguration!.fullPath == pages.last.routeData.fullPath;
 
     _updateCurrentConfiguration(
-      isReplacement: urlHasNotChanged || routeRequest.isReplacement,
+      isReplacement: pathIsSame || routeRequest.isReplacement,
     );
   }
 
@@ -488,11 +496,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     }
 
     // Reset state
-    _state.routeConfig = null;
-
-    _isBuilding = true;
-    _initRouter(context, isRebuild: true);
-    _isBuilding = false;
+    _rebuildRouter(context);
 
     // Already building; schedule rebuild for next frame
     WidgetsBinding.instance?.addPostFrameCallback((_) => _markNeedsUpdate());
@@ -823,6 +827,10 @@ class _RoutemasterStateTrackerState extends State<_RoutemasterStateTracker> {
       // Update new delegate's state from old delegate's state
       newDelegate._state = oldDelegate._state;
       newDelegate._state.routemaster._delegate = newDelegate;
+
+      if (newDelegate.routesBuilder != oldDelegate.routesBuilder) {
+        newDelegate._rebuildRouter(context);
+      }
 
       WidgetsBinding.instance!.addPostFrameCallback((_) {
         // Dispose after this frame to allow child widgets to unsubscribe

@@ -65,6 +65,41 @@ void main() {
     expect(routeBuildCount, 2);
   });
 
+  testWidgets('Rebuilds route map when widget changes', (tester) async {
+    var routeBuildCount = 0;
+
+    final delegate1 = RoutemasterDelegate(routesBuilder: (context) {
+      routeBuildCount++;
+      return RouteMap(routes: {
+        '/': (_) => MaterialPage<void>(child: PageOne()),
+      });
+    });
+
+    final delegate2 = RoutemasterDelegate(routesBuilder: (context) {
+      routeBuildCount++;
+      return RouteMap(routes: {
+        '/': (_) => MaterialPage<void>(child: PageTwo()),
+      });
+    });
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate1,
+      ),
+    );
+    expect(routeBuildCount, 1);
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate2,
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(routeBuildCount, 2);
+  });
+
   testWidgets('Can swap route maps and navigate', (tester) async {
     final routeMap1UnknownRoutes = <String>[];
     final routeMap1 = RouteMap(

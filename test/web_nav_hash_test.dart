@@ -1,7 +1,10 @@
 @TestOn('browser')
-
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:routemaster/routemaster.dart';
 import 'package:routemaster/src/system_nav.dart';
+import 'helpers.dart';
 
 void main() {
   test('makeUrl makes hash URL with null query params', () {
@@ -51,6 +54,43 @@ void main() {
         queryParameters: {'query': 'param'},
       ),
       '#/new-path?query=param',
+    );
+  });
+
+  testWidgets('Replaces URL when redirecting to tabs', (tester) async {
+    final routes1 = RouteMap(
+      routes: {'/': (_) => MaterialPage<void>(child: Container())},
+    );
+
+    final routes2 = RouteMap(
+      routes: {
+        '/': (_) => CupertinoTabPage(
+              child: Container(),
+              paths: ['/one', '/two'],
+            ),
+        '/one': (_) => MaterialPageOne(),
+        '/two': (_) => MaterialPageTwo(),
+      },
+    );
+
+    expect(
+      await recordUrlChanges(() async {
+        await tester.pumpWidget(
+          MaterialApp.router(
+            routerDelegate: RoutemasterDelegate(routesBuilder: (_) => routes1),
+            routeInformationParser: const RoutemasterParser(),
+          ),
+        );
+
+        await tester.pumpWidget(
+          MaterialApp.router(
+            routerDelegate: RoutemasterDelegate(routesBuilder: (_) => routes2),
+            routeInformationParser: const RoutemasterParser(),
+          ),
+        );
+        await tester.pump();
+      }),
+      ['/', '/one'],
     );
   });
 }
