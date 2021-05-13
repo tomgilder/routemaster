@@ -828,9 +828,7 @@ class _RoutemasterStateTrackerState extends State<_RoutemasterStateTracker> {
       newDelegate._state = oldDelegate._state;
       newDelegate._state.routemaster._delegate = newDelegate;
 
-      if (newDelegate.routesBuilder != oldDelegate.routesBuilder) {
-        newDelegate._rebuildRouter(context);
-      }
+      newDelegate._rebuildRouter(context);
 
       WidgetsBinding.instance!.addPostFrameCallback((_) {
         // Dispose after this frame to allow child widgets to unsubscribe
