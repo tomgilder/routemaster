@@ -76,7 +76,7 @@ void main() {
     await tester.pump(kTransitionDuration);
 
     expect(delegateObserver1.log.length, 3);
-    expect(delegateObserver2.log.length, 2);
+    expect(delegateObserver2.log.length, 3);
   });
 
   testWidgets('Can switch Navigator observers', (tester) async {
