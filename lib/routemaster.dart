@@ -55,13 +55,27 @@ class DefaultUnknownRoutePage extends StatelessWidget {
 ///   * [routes]: A map of paths and [PageBuilder] delegates that return
 ///     [Page] objects to build.
 ///
-
 @immutable
 class RouteMap {
   final UnknownRouteCallback? _onUnknownRoute;
 
   final _router = TrieRouter();
 
+  /// Creates a standard simple routing table which takes a map of routes.
+  ///
+  ///   * [routes]: A map of paths and [PageBuilder] delegates that return
+  ///     [Page] objects to build.
+  ///
+  ///   * [onUnknownRoute]: called when there's no match for a route.
+  ///     There are two general options for this callback's operation:
+  ///
+  ///       1. Return a page, which will be displayed.
+  ///
+  ///     or
+  ///
+  ///       2. Use the routing delegate to, for instance, redirect to another
+  ///          route and return null.
+  ///
   RouteMap({
     required Map<String, PageBuilder> routes,
     UnknownRouteCallback? onUnknownRoute,
