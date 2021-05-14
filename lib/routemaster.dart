@@ -126,7 +126,7 @@ class Routemaster {
 
   static void setPathUrlStrategy() {
     if (kIsWeb) {
-      SystemNav.setPathUrlStrategy();
+      SystemNav.setPathUrlStrategy(); // coverage:ignore-line
     }
   }
 
@@ -395,10 +395,10 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
       if (kIsWeb && isReplacement) {
         // Update without the router changing the URL or adding a history entry
-        Router.neglect(_context, _update);
+        Router.neglect(_context, _update); // coverage:ignore-line
 
         // Set the URL directly
-        SystemNav.replaceUrl(routeData);
+        SystemNav.replaceUrl(routeData); // coverage:ignore-line
       } else {
         _update();
       }
@@ -981,6 +981,7 @@ class PageStackNavigatorState extends State<PageStackNavigator> {
   }
 }
 
+// coverage:ignore-start
 /// Provides a [Navigator] that shows pages from a [PageStack].
 ///
 /// This widget listens to that stack, and updates the navigator when the pages
@@ -1104,3 +1105,4 @@ class StackNavigatorState extends State<StackNavigator> {
     return widget.stack._routeMap[page];
   }
 }
+// coverage:ignore-end
