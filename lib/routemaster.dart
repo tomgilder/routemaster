@@ -50,10 +50,36 @@ class DefaultUnknownRoutePage extends StatelessWidget {
   }
 }
 
-/// An abstract class that can provide a map of routes
+/// A standard simple routing table which takes a map of routes.
+///
+///   * [routes]: A map of paths and [PageBuilder] delegates that return
+///     [Page] objects to build.
+///
+
 @immutable
-abstract class RouteConfig {
-  const RouteConfig();
+class RouteMap {
+  final UnknownRouteCallback? _onUnknownRoute;
+
+  final _router = TrieRouter();
+
+  RouteMap({
+    required Map<String, PageBuilder> routes,
+    UnknownRouteCallback? onUnknownRoute,
+  }) : _onUnknownRoute = onUnknownRoute {
+    _router.addAll(routes);
+  }
+
+  /// Generate a single [RouteResult] for the given [path]. Returns null if the
+  /// path isn't valid.
+  RouterResult? get(String path) {
+    return _router.get(path);
+  }
+
+  /// Generate all [RouteResult] objects required to build the navigation tree
+  /// for the given [path]. Returns null if the path isn't valid.
+  List<RouterResult>? getAll(String path) {
+    return _router.getAll(path);
+  }
 
   /// Called when there's no match for a route. By default this returns
   /// [DefaultUnknownRoutePage], a simple page not found page.
@@ -68,59 +94,13 @@ abstract class RouteConfig {
   ///      and return null.
   ///
   Page onUnknownRoute(String path) {
-    return MaterialPage<void>(
-      child: DefaultUnknownRoutePage(path: path),
-    );
-  }
-
-  /// Generate a single [RouteResult] for the given [path]. Returns null if the
-  /// path isn't valid.
-  RouterResult? get(String path);
-
-  /// Generate all [RouteResult] objects required to build the navigation tree
-  /// for the given [path]. Returns null if the path isn't valid.
-  List<RouterResult>? getAll(String path);
-}
-
-@immutable
-abstract class DefaultRouterConfig extends RouteConfig {
-  final _router = TrieRouter();
-
-  DefaultRouterConfig() {
-    _router.addAll(routes);
-  }
-
-  @override
-  RouterResult? get(String route) => _router.get(route);
-
-  @override
-  List<RouterResult>? getAll(String route) => _router.getAll(route);
-
-  Map<String, PageBuilder> get routes;
-}
-
-/// A standard simple routing table which takes a map of routes.
-@immutable
-class RouteMap extends DefaultRouterConfig {
-  /// A map of paths and [PageBuilder] delegates that return [Page] objects to
-  /// build.
-  @override
-  final Map<String, PageBuilder> routes;
-
-  final UnknownRouteCallback? _onUnknownRoute;
-
-  RouteMap({
-    required this.routes,
-    UnknownRouteCallback? onUnknownRoute,
-  }) : _onUnknownRoute = onUnknownRoute;
-
-  @override
-  Page onUnknownRoute(String path) {
     if (_onUnknownRoute != null) {
       return _onUnknownRoute!(path);
     }
 
-    return super.onUnknownRoute(path);
+    return MaterialPage<void>(
+      child: DefaultUnknownRoutePage(path: path),
+    );
   }
 }
 
@@ -219,7 +199,7 @@ class NavigationResult<T extends Object?> {
 class RoutemasterDelegate extends RouterDelegate<RouteData>
     with ChangeNotifier {
   final TransitionDelegate? transitionDelegate;
-  final RouteConfig Function(BuildContext context) routesBuilder;
+  final RouteMap Function(BuildContext context) routesBuilder;
 
   /// A function that returns the top-level navigator widgets. Normally this
   /// function would return a [PageStackNavigator].
@@ -432,10 +412,10 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }
 
   void _initRouter(BuildContext context) {
-    final routerNeedsBuilding = _state.routeConfig == null;
+    final routerNeedsBuilding = _state.routeMap == null;
 
     if (routerNeedsBuilding) {
-      _state.routeConfig = routesBuilder(context);
+      _state.routeMap = routesBuilder(context);
 
       _processNavigation(
         routeRequest: _state.pendingNavigation ??
@@ -448,7 +428,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }
 
   void _rebuildRouter(BuildContext context) {
-    _state.routeConfig = null;
+    _state.routeMap = null;
 
     _isBuilding = true;
     _initRouter(context);
@@ -508,7 +488,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     List<String>? redirects,
   }) {
     final requestedPath = routeRequest.path;
-    final routerResult = _state.routeConfig!.getAll(requestedPath);
+    final routerResult = _state.routeMap!.getAll(requestedPath);
 
     if (routerResult == null || routerResult.isEmpty) {
       return _onUnknownRoute(routeRequest);
@@ -614,7 +594,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   /// Called by tab pages to lazily generate their initial routes
   PageWrapper _getPageForTab(_RouteRequest routeRequest) {
     final requestedPath = routeRequest.path;
-    final routerResult = _state.routeConfig!.get(requestedPath);
+    final routerResult = _state.routeMap!.get(requestedPath);
     if (routerResult != null) {
       final routeData = RouteData.fromRouterResult(
         routerResult,
@@ -687,7 +667,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   List<PageWrapper> _onUnknownRoute(_RouteRequest routeRequest) {
     final requestedPath = routeRequest.path;
-    final result = _state.routeConfig!.onUnknownRoute(requestedPath);
+    final result = _state.routeMap!.onUnknownRoute(requestedPath);
 
     if (result is Redirect) {
       return _createAllPageWrappers(
@@ -782,7 +762,7 @@ class _RoutemasterWidget extends InheritedWidget {
 class _RoutemasterState {
   final routemaster = Routemaster._();
   final stack = PageStack();
-  RouteConfig? routeConfig;
+  RouteMap? routeMap;
   RouteData? currentConfiguration;
   _RouteRequest? pendingNavigation;
   late _PushObserver pushObserver = _PushObserver(routemaster);
