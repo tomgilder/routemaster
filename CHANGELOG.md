@@ -1,7 +1,6 @@
 # 0.8.0
 
 * Breaking change: `Guard` properties have been renamed: `validate` is now `canNavigate` and `onValidationFailed` is now `onNavigationFailed`
-* Use of `Guard` is no longer recommended - use standard if statements and `NotFound` or `Redirect`
 * Breaking change: removed abstract `RouteConfig` class; to create custom routing maps, inherit from `RouteMap`
 * Deprecation: StackNavigator has been renamed PageStackNavigator
 * Added `NotFound` return page type
@@ -10,6 +9,7 @@
 * Fixed `replace()` not working with hashes on web
 * Fixed path URL strategy not working when it's set outside Routemaster 
 * Fixed tabs creating a redirect loop on web
+* Note: Use of `Guard` is no longer recommended - use standard `if` statements and `NotFound` or `Redirect`
 
 # 0.7.2
 
