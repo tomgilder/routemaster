@@ -55,7 +55,7 @@ I would love any feedback you have! Please create an issue for API feedback.
 
 ## Migration from 0.7 to 0.8
 
-* StackNavigator has been renamed PageStackNavigator.
+* `StackNavigator` has been renamed `PageStackNavigator`.
 * `Guard` properties have been renamed: `validate` is now `canNavigate` and `onValidationFailed` is now `onNavigationFailed`.
 * Note: `Guard` is no longer recommended. It's cleaner to use logic in the route map, like this:
 
