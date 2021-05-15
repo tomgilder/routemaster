@@ -2,7 +2,7 @@
 
 * Breaking change: `Guard` properties have been renamed: `validate` is now `canNavigate` and `onValidationFailed` is now `onNavigationFailed`
 * Breaking change: removed abstract `RouteConfig` class; to create custom routing maps, inherit from `RouteMap`
-* Deprecation: StackNavigator has been renamed PageStackNavigator
+* Deprecation: `StackNavigator` has been renamed `PageStackNavigator`
 * Added `NotFound` return page type
 * Added ability to customise the top-level navigator with `RoutemasterDelegate.builder`
 * Added ability to use tabs with a custom page type
