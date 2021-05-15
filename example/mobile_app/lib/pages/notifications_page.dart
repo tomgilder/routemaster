@@ -15,6 +15,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _pageState = IndexedPage.of(context);
+    _pageState.addListener(() {
+      _tabController.index = _pageState.index;
+    });
   }
 
   @override
