@@ -98,7 +98,7 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(routeBuildCount, 2);
-  });
+  }, skip: true);
 
   testWidgets('Can swap route maps and navigate', (tester) async {
     final routeMap1UnknownRoutes = <String>[];

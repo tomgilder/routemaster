@@ -8,6 +8,7 @@ void main() {
       (tester) async {
     final tracker1 = Tracker();
     final tracker2 = Tracker();
+    final tracker3 = Tracker();
 
     final routes = <String, PageBuilder>{
       '/': (_) => CupertinoTabPage(
@@ -17,7 +18,9 @@ void main() {
       '/feed': (_) => MaterialPage<void>(
             child: InitStateTracker(tracker: tracker2),
           ),
-      '/settings': (_) => MaterialPage<void>(child: Container()),
+      '/settings': (_) => MaterialPage<void>(
+            child: InitStateTracker(tracker: tracker3),
+          ),
     };
 
     await tester.pumpWidget(
@@ -31,6 +34,7 @@ void main() {
 
     expect(tracker1.initStateCount, 1);
     expect(tracker2.initStateCount, 1);
+    expect(tracker3.initStateCount, 0);
 
     await tester.pumpWidget(
       MaterialApp.router(
@@ -43,12 +47,15 @@ void main() {
 
     expect(tracker1.initStateCount, 1);
     expect(tracker2.initStateCount, 1);
+    expect(tracker3.initStateCount, 0);
   });
 
-  testWidgets('Stateful widgets are not recreated when delegate is updated',
+  testWidgets(
+      'Stateful widgets are not recreated when same delegate is rebuilt',
       (tester) async {
     final tracker1 = Tracker();
     final tracker2 = Tracker();
+    final tracker3 = Tracker();
 
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(routes: {
@@ -59,7 +66,9 @@ void main() {
         '/feed': (_) => MaterialPage<void>(
               child: InitStateTracker(tracker: tracker2),
             ),
-        '/settings': (_) => MaterialPage<void>(child: Container()),
+        '/settings': (_) => MaterialPage<void>(
+              child: InitStateTracker(tracker: tracker3),
+            ),
       }),
     );
 
@@ -72,6 +81,7 @@ void main() {
 
     expect(tracker1.initStateCount, 1);
     expect(tracker2.initStateCount, 1);
+    expect(tracker3.initStateCount, 0);
 
     await tester.pumpWidget(
       MaterialApp.router(
@@ -82,6 +92,7 @@ void main() {
 
     expect(tracker1.initStateCount, 1);
     expect(tracker2.initStateCount, 1);
+    expect(tracker3.initStateCount, 0);
   });
 }
 
