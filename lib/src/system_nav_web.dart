@@ -1,4 +1,4 @@
-import 'dart:html';
+import 'fake_html.dart' if (dart.library.js) 'dart:html';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'route_data.dart';
