@@ -1,23 +1,66 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:routemaster/routemaster.dart';
 
 void main() {
-  testWidgets('Pages do not rebuild', (tester) async {
+  testWidgets('Stateful widgets are not recreated when delegate changes',
+      (tester) async {
+    final tracker1 = Tracker();
+    final tracker2 = Tracker();
+
+    final routes = <String, PageBuilder>{
+      '/': (_) => CupertinoTabPage(
+            child: HomePage(tracker: tracker1),
+            paths: ['feed', 'settings'],
+          ),
+      '/feed': (_) => MaterialPage<void>(
+            child: InitStateTracker(tracker: tracker2),
+          ),
+      '/settings': (_) => MaterialPage<void>(child: Container()),
+    };
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: RoutemasterDelegate(
+          routesBuilder: (_) => RouteMap(routes: routes),
+        ),
+      ),
+    );
+
+    expect(tracker1.initStateCount, 1);
+    expect(tracker2.initStateCount, 1);
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: RoutemasterDelegate(
+          routesBuilder: (_) => RouteMap(routes: routes),
+        ),
+      ),
+    );
+
+    expect(tracker1.initStateCount, 1);
+    expect(tracker2.initStateCount, 1);
+  });
+
+  testWidgets('Stateful widgets are not recreated when delegate is updated',
+      (tester) async {
     final tracker1 = Tracker();
     final tracker2 = Tracker();
 
     final delegate = RoutemasterDelegate(
-      routesBuilder: (_) => RouteMap(
-        routes: {
-          '/': (_) => MaterialPage<void>(
-                child: BuildTracker(tracker: tracker1),
-              ),
-          '/two': (_) => MaterialPage<void>(
-                child: BuildTracker(tracker: tracker2),
-              ),
-        },
-      ),
+      routesBuilder: (_) => RouteMap(routes: {
+        '/': (_) => CupertinoTabPage(
+              child: HomePage(tracker: tracker1),
+              paths: ['feed', 'settings'],
+            ),
+        '/feed': (_) => MaterialPage<void>(
+              child: InitStateTracker(tracker: tracker2),
+            ),
+        '/settings': (_) => MaterialPage<void>(child: Container()),
+      }),
     );
 
     await tester.pumpWidget(
@@ -27,9 +70,15 @@ void main() {
       ),
     );
 
-    delegate.push('/two');
-    await tester.pump();
-    await tester.pump(Duration(seconds: 1));
+    expect(tracker1.initStateCount, 1);
+    expect(tracker2.initStateCount, 1);
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
 
     expect(tracker1.initStateCount, 1);
     expect(tracker2.initStateCount, 1);
@@ -40,16 +89,16 @@ class Tracker {
   var initStateCount = 0;
 }
 
-class BuildTracker extends StatefulWidget {
+class InitStateTracker extends StatefulWidget {
   final Tracker tracker;
 
-  BuildTracker({required this.tracker});
+  InitStateTracker({required this.tracker});
 
   @override
-  _BuildTrackerState createState() => _BuildTrackerState();
+  _InitStateTrackerState createState() => _InitStateTrackerState();
 }
 
-class _BuildTrackerState extends State<BuildTracker> {
+class _InitStateTrackerState extends State<InitStateTracker> {
   @override
   void initState() {
     super.initState();
@@ -59,5 +108,90 @@ class _BuildTrackerState extends State<BuildTracker> {
   @override
   Widget build(BuildContext context) {
     return Container();
+  }
+}
+
+class HomePage extends StatefulWidget {
+  final Tracker tracker;
+
+  const HomePage({required this.tracker});
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    widget.tracker.initStateCount++;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tabState = CupertinoTabPage.of(context);
+
+    return CupertinoTabScaffold(
+      controller: tabState.controller,
+      tabBuilder: tabState.tabBuilder,
+      tabBar: CupertinoTabBar(
+        items: [
+          BottomNavigationBarItem(
+            label: 'Feed',
+            icon: Icon(CupertinoIcons.list_bullet),
+          ),
+          BottomNavigationBarItem(
+            label: 'Settings',
+            icon: Icon(CupertinoIcons.search),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class FeedPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () => Routemaster.of(context).push('profile/1'),
+          child: Text('Profile page'),
+        ),
+      ),
+    );
+  }
+}
+
+class ProfilePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: Center(
+        child: Column(
+          children: [
+            Text('Profile page'),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class SettingsPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(body: Center(child: Text('Settings page')));
+  }
+}
+
+class TabbedPage extends StatelessWidget {
+  TabbedPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox();
   }
 }
