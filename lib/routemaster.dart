@@ -5,6 +5,7 @@ export 'src/route_data.dart';
 export 'src/pages/guard.dart';
 
 import 'dart:async';
+import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -541,6 +542,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           page.result = routeRequest.result;
         }
 
+        assert(page._routeData != null);
+        assert(page._page != null);
+
         if (result.isNotEmpty && page.maybeSetChildPages(result)) {
           result = [page];
         } else {
@@ -670,9 +674,19 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     }
 
     if (page is StatefulPage) {
-      return _PageWrapperResult(
-        page.createState(_state.routemaster, routeData),
+      final state = page.createState();
+
+      assert(
+        state._debugTypesAreRight(page),
+        'Was expecting State<${page.runtimeType}> but got ${state.runtimeType}',
       );
+
+      state._page = page;
+      state._routemaster = _state.routemaster;
+      state._routeData = routeData;
+      state.initState();
+
+      return _PageWrapperResult(state);
     }
 
     // Page is just a standard Flutter page, create a wrapper for it

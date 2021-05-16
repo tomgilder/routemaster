@@ -347,19 +347,43 @@ void main() {
       paths: ['path'],
     );
 
-    final state1 = TabPageState(page, StubRoutemaster(), RouteData('root'));
-    final state2 = TabPageState(page, StubRoutemaster(), RouteData('root'));
+    final delegate = RoutemasterDelegate(routesBuilder: (context) {
+      return RouteMap(routes: {
+        '/': (_) => page,
+        '/path': (_) => MaterialPageOne(),
+      });
+    });
 
-    final page1 = state1.createPage() as MaterialPage;
-    final page2 = state2.createPage() as MaterialPage;
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+    // final state = tester.state(find.byWidgetPredicate(
+    //     (widget) => widget.runtimeType.toString() == '_TabControllerProvider'));
+    // state.didUpdateWidget(oldWidget);
 
-    await tester.pumpWidget(page1.child);
+    // final state1 = TabPageState();
+    // final state2 = TabPageState();
+
+    // final page1 = state1.createPage() as MaterialPage;
+    // final page2 = state2.createPage() as MaterialPage;
+
+    // await tester.pumpWidget(page1.child);
     expect(buildCount, 1);
     expect(controller, isNotNull);
     final oldController = controller;
 
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
     // This causes _TabControllerProvider.didUpdateWidget to be called
-    await tester.pumpWidget(page2.child);
+    // await tester.pumpWidget(page2.child);
     expect(buildCount, 2);
     expect(oldController, controller);
   });
@@ -369,18 +393,18 @@ void main() {
     var buildCount = 0;
     TabController? controller;
 
-    Widget builder(BuildContext context) {
-      buildCount++;
-      controller = TabPage.of(context).controller;
-      return Container();
-    }
+    // Widget builder(BuildContext context) {
+    //   buildCount++;
+    //   controller = TabPage.of(context).controller;
+    //   return Container();
+    // }
 
-    final tabPage1 = TabPage(child: Builder(builder: builder), paths: ['path']);
-    final tabPage2 =
-        TabPage(child: Builder(builder: builder), paths: ['1', '2']);
+    // final tabPage1 = TabPage(child: Builder(builder: builder), paths: ['path']);
+    // final tabPage2 =
+    //     TabPage(child: Builder(builder: builder), paths: ['1', '2']);
 
-    final state1 = TabPageState(tabPage1, StubRoutemaster(), RouteData('root'));
-    final state2 = TabPageState(tabPage2, StubRoutemaster(), RouteData('root'));
+    final state1 = TabPageState();
+    final state2 = TabPageState();
 
     final page1 = state1.createPage() as MaterialPage;
     final page2 = state2.createPage() as MaterialPage;
@@ -392,7 +416,7 @@ void main() {
     // This causes _TabControllerProvider.didUpdateWidget to be called
     await tester.pumpWidget(page2.child);
     expect(buildCount, 2);
-    expect(controller!.length, 2);
+    expect(controller.length, 2);
   });
 
   test("CupertinoTabPage.of asserts if it can't find widget", () {

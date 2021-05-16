@@ -38,7 +38,7 @@ void main() {
 
 class MockStatefulPage extends StatefulPage<void> {
   @override
-  PageState createState(Routemaster routemaster, RouteData info) {
+  PageState createState() {
     throw UnimplementedError();
   }
 }
