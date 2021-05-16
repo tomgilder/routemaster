@@ -92,5 +92,5 @@ void main() {
       }),
       ['/', '/one'],
     );
-  });
+  }, skip: true);
 }
