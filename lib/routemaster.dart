@@ -541,6 +541,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           page.result = routeRequest.result;
         }
 
+        assert(page._routeData != null);
+        assert(page._page != null);
+
         if (result.isNotEmpty && page.maybeSetChildPages(result)) {
           result = [page];
         } else {
@@ -670,9 +673,19 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     }
 
     if (page is StatefulPage) {
-      return _PageWrapperResult(
-        page.createState(_state.routemaster, routeData),
+      final state = page.createState();
+
+      assert(
+        state._debugTypesAreRight(page),
+        '${page.runtimeType}.createState must return a subtype of PageState<${page.runtimeType}>, but it returned ${state.runtimeType}.',
       );
+
+      state._page = page;
+      state._routemaster = _state.routemaster;
+      state._routeData = routeData;
+      state.initState();
+
+      return _PageWrapperResult(state);
     }
 
     // Page is just a standard Flutter page, create a wrapper for it
