@@ -19,8 +19,8 @@ class IndexedPage extends StatefulPage<void> with IndexedRouteMixIn {
   });
 
   @override
-  PageState createState(Routemaster routemaster, RouteData routeData) {
-    return IndexedPageState(this, routemaster, routeData);
+  PageState createState() {
+    return IndexedPageState();
   }
 
   static IndexedPageState of(BuildContext context) {
@@ -48,20 +48,11 @@ class _IndexedPageStateProvider extends InheritedNotifier {
         );
 }
 
-class IndexedPageState extends PageState
+class IndexedPageState extends PageState<IndexedPage>
     with ChangeNotifier, IndexedPageStateMixIn {
   @override
-  final IndexedPage page;
-
-  @override
-  final RouteData routeData;
-
-  IndexedPageState(
-    this.page,
-    Routemaster routemaster,
-    this.routeData,
-  ) {
-    _routemaster = routemaster;
+  void initState() {
+    super.initState();
     _routes = List.filled(page.paths.length, null);
   }
 
@@ -91,8 +82,8 @@ class TabPage extends StatefulPage<void> with IndexedRouteMixIn {
   });
 
   @override
-  PageState createState(Routemaster routemaster, RouteData routeData) {
-    return TabPageState(this, routemaster, routeData);
+  PageState createState() {
+    return TabPageState();
   }
 
   static TabPageState of(BuildContext context) {
@@ -120,16 +111,11 @@ class _TabPageStateProvider extends InheritedNotifier {
         );
 }
 
-class TabPageState extends PageState
+class TabPageState extends PageState<TabPage>
     with ChangeNotifier, IndexedPageStateMixIn {
   @override
-  final TabPage page;
-
-  @override
-  final RouteData routeData;
-
-  TabPageState(this.page, Routemaster routemaster, this.routeData) {
-    _routemaster = routemaster;
+  void initState() {
+    super.initState();
     _routes = List.filled(page.paths.length, null);
   }
 
@@ -231,8 +217,8 @@ class CupertinoTabPage extends StatefulPage<void> with IndexedRouteMixIn {
   });
 
   @override
-  PageState createState(Routemaster routemaster, RouteData routeData) {
-    return CupertinoTabPageState(this, routemaster, routeData);
+  PageState createState() {
+    return CupertinoTabPageState();
   }
 
   static CupertinoTabPageState of(BuildContext context) {
@@ -260,22 +246,14 @@ class _CupertinoTabPageStateProvider extends InheritedNotifier {
         );
 }
 
-class CupertinoTabPageState extends PageState
+class CupertinoTabPageState extends PageState<CupertinoTabPage>
     with ChangeNotifier, IndexedPageStateMixIn {
-  @override
-  final CupertinoTabPage page;
-
-  @override
-  final RouteData routeData;
-
   final CupertinoTabController controller = CupertinoTabController();
 
-  CupertinoTabPageState(
-    this.page,
-    Routemaster routemaster,
-    this.routeData,
-  ) {
-    _routemaster = routemaster;
+  @override
+  void initState() {
+    super.initState();
+
     _routes = List.filled(page.paths.length, null);
 
     addListener(() {
@@ -302,18 +280,13 @@ class CupertinoTabPageState extends PageState
   }
 }
 
-mixin IndexedRouteMixIn<T> on Page<T> {
+mixin IndexedRouteMixIn<T> on StatefulPage<T> {
   List<String> get paths;
 }
 
-mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
-  late final Routemaster _routemaster;
+mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
+    on PageState<T>, ChangeNotifier {
   late final List<PageStack?> _routes;
-
-  @override
-  RouteData get routeData;
-
-  IndexedRouteMixIn get page;
 
   List<PageStack>? _stacks;
   List<PageStack> get stacks {
@@ -330,7 +303,7 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
       _index = value;
 
       notifyListeners();
-      _routemaster._delegate._markNeedsUpdate();
+      routemaster._delegate._markNeedsUpdate();
     }
   }
 
@@ -340,7 +313,7 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
       path: stackPath,
     );
 
-    final route = _routemaster._delegate._getPageForTab(
+    final route = routemaster._delegate._getPageForTab(
       _RouteRequest(
         path: path,
         isReplacement: routeData.isReplacement,
@@ -410,7 +383,7 @@ mixin IndexedPageStateMixIn on PageWrapper, ChangeNotifier {
   }
 
   @override
-  Future<bool> maybePop<T extends Object?>([T? result]) {
+  Future<bool> maybePop<E extends Object?>([E? result]) {
     return stacks[index].maybePop(result);
   }
 

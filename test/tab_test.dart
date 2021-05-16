@@ -347,51 +347,89 @@ void main() {
       paths: ['path'],
     );
 
-    final state1 = TabPageState(page, StubRoutemaster(), RouteData('root'));
-    final state2 = TabPageState(page, StubRoutemaster(), RouteData('root'));
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: RoutemasterDelegate(routesBuilder: (context) {
+          return RouteMap(routes: {
+            '/': (_) => page,
+            '/path': (_) => MaterialPageOne(),
+          });
+        }),
+      ),
+    );
 
-    final page1 = state1.createPage() as MaterialPage;
-    final page2 = state2.createPage() as MaterialPage;
-
-    await tester.pumpWidget(page1.child);
     expect(buildCount, 1);
     expect(controller, isNotNull);
     final oldController = controller;
 
     // This causes _TabControllerProvider.didUpdateWidget to be called
-    await tester.pumpWidget(page2.child);
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: RoutemasterDelegate(routesBuilder: (context) {
+          return RouteMap(routes: {
+            '/': (_) => page,
+            '/path': (_) => MaterialPageOne(),
+          });
+        }),
+      ),
+    );
+
     expect(buildCount, 2);
     expect(oldController, controller);
   });
 
   testWidgets('Tab controller gets recreated when tab length changes',
       (tester) async {
-    var buildCount = 0;
     TabController? controller;
 
-    Widget builder(BuildContext context) {
-      buildCount++;
-      controller = TabPage.of(context).controller;
-      return Container();
-    }
+    // Show one tab
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: RoutemasterDelegate(routesBuilder: (context) {
+          return RouteMap(routes: {
+            '/': (_) => TabPage(
+                  child: Builder(
+                    builder: (BuildContext context) {
+                      controller = TabPage.of(context).controller;
+                      return Container();
+                    },
+                  ),
+                  paths: ['/one'],
+                ),
+            '/one': (_) => MaterialPageOne(),
+          });
+        }),
+      ),
+    );
 
-    final tabPage1 = TabPage(child: Builder(builder: builder), paths: ['path']);
-    final tabPage2 =
-        TabPage(child: Builder(builder: builder), paths: ['1', '2']);
-
-    final state1 = TabPageState(tabPage1, StubRoutemaster(), RouteData('root'));
-    final state2 = TabPageState(tabPage2, StubRoutemaster(), RouteData('root'));
-
-    final page1 = state1.createPage() as MaterialPage;
-    final page2 = state2.createPage() as MaterialPage;
-
-    await tester.pumpWidget(page1.child);
-    expect(buildCount, 1);
     expect(controller!.length, 1);
 
-    // This causes _TabControllerProvider.didUpdateWidget to be called
-    await tester.pumpWidget(page2.child);
-    expect(buildCount, 2);
+    // Add a second tab
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: RoutemasterDelegate(routesBuilder: (context) {
+          return RouteMap(routes: {
+            '/': (_) => TabPage(
+                  child: Builder(
+                    builder: (BuildContext context) {
+                      controller = TabPage.of(context).controller;
+                      return Container();
+                    },
+                  ),
+                  paths: ['/one', '/two'],
+                ),
+            '/one': (_) => MaterialPageOne(),
+            '/two': (_) => MaterialPageTwo(),
+          });
+        }),
+      ),
+    );
+
+    // Controller should have been recreated
     expect(controller!.length, 2);
   });
 

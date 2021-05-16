@@ -34,11 +34,66 @@ void main() {
 
     expect(statelessPage.createPage(), page);
   });
+
+  testWidgets('StatefulPage that returns incorrect state type throws',
+      (tester) async {
+    final app = MaterialApp.router(
+      routeInformationParser: RoutemasterParser(),
+      routerDelegate: RoutemasterDelegate(
+        routesBuilder: (_) => RouteMap(
+          routes: {
+            '/': (_) => StatefulPage1(),
+          },
+        ),
+      ),
+    );
+
+    await tester.pumpWidget(app);
+    final e = tester.takeException() as AssertionError;
+    expect(e.message,
+        'StatefulPage1.createState must return a subtype of PageState<StatefulPage1>, but it returned WrongPageState.');
+  });
+}
+
+class StatefulPage1 extends StatefulPage<void> {
+  @override
+  PageState<StatefulPage> createState() {
+    return WrongPageState();
+  }
+}
+
+class StatefulPage2 extends StatefulPage<void> {
+  @override
+  PageState<StatefulPage> createState() {
+    return WrongPageState();
+  }
+}
+
+class WrongPageState extends PageState<StatefulPage2> {
+  @override
+  Page createPage() {
+    throw UnimplementedError();
+  }
+
+  @override
+  Iterable<PageWrapper<Page>> getCurrentPages() {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool> maybePop<T extends Object?>([T? result]) {
+    throw UnimplementedError();
+  }
+
+  @override
+  bool maybeSetChildPages(Iterable<PageWrapper<Page>> pages) {
+    throw UnimplementedError();
+  }
 }
 
 class MockStatefulPage extends StatefulPage<void> {
   @override
-  PageState createState(Routemaster routemaster, RouteData info) {
+  PageState createState() {
     throw UnimplementedError();
   }
 }
