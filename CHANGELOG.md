@@ -1,3 +1,7 @@
+# 0.9.0
+
+* Fixed: issue with rebuilding routes when `RoutemasterDelegate` is recreated 
+
 # 0.8.1
 
 * Fixed: widgets rebuilding when `RoutemasterDelegate` is recreated

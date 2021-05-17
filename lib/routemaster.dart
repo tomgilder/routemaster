@@ -822,6 +822,8 @@ class _RoutemasterStateTrackerState extends State<_RoutemasterStateTracker> {
       newDelegate._state = oldDelegate._state;
       newDelegate._state.routemaster._delegate = newDelegate;
 
+      newDelegate._rebuildRouter(context);
+
       WidgetsBinding.instance!.addPostFrameCallback((_) {
         // Dispose after this frame to allow child widgets to unsubscribe
         oldDelegate.dispose();
@@ -915,9 +917,6 @@ class PageStackNavigatorState extends State<PageStackNavigator> {
     }
 
     newStack.addListener(_onStackChanged);
-    newStack._attachedNavigatorKey = GlobalKey<NavigatorState>(
-      debugLabel: 'StackNavigator',
-    );
   }
 
   @override
@@ -945,8 +944,8 @@ class PageStackNavigatorState extends State<PageStackNavigator> {
   void _updateNavigator() {
     _widget = HeroControllerScope(
       controller: _heroController,
-      child: Navigator(
-        key: widget.stack._attachedNavigatorKey,
+      child: _StackNavigator(
+        stack: widget.stack,
         onPopPage: (route, dynamic result) {
           final didPop = widget.stack.onPopPage(route, result);
           if (didPop) {
@@ -979,128 +978,41 @@ class PageStackNavigatorState extends State<PageStackNavigator> {
   }
 }
 
-// coverage:ignore-start
-/// Provides a [Navigator] that shows pages from a [PageStack].
-///
-/// This widget listens to that stack, and updates the navigator when the pages
-/// change.
-@Deprecated(
-    'StackNavigator has been renamed PageStackNavigator. The old class will be removed in v0.9.')
-class StackNavigator extends StatefulWidget {
+class _StackNavigator extends Navigator {
   final PageStack stack;
-  final TransitionDelegate transitionDelegate;
-  final List<NavigatorObserver> observers;
 
-  const StackNavigator({
-    Key? key,
+  _StackNavigator({
     required this.stack,
-    this.transitionDelegate = const DefaultTransitionDelegate<dynamic>(),
-    this.observers = const [],
-  }) : super(key: key);
+    Key? key,
+    PopPageCallback? onPopPage,
+    TransitionDelegate transitionDelegate =
+        const DefaultTransitionDelegate<dynamic>(),
+    List<Page> pages = const <Page<dynamic>>[],
+    List<NavigatorObserver> observers = const <NavigatorObserver>[],
+  }) : super(
+          key: key,
+          onPopPage: onPopPage,
+          transitionDelegate: transitionDelegate,
+          pages: pages,
+          observers: observers,
+        );
 
   @override
-  StackNavigatorState createState() => StackNavigatorState();
-
-  static StackNavigatorState of(BuildContext context) {
-    final state = context.findAncestorStateOfType<StackNavigatorState>();
-    assert(state != null, "Couldn't find a StackNavigatorState");
-    return state!;
+  NavigatorState createState() {
+    return _StackNavigatorState();
   }
 }
 
-@Deprecated(
-    'StackNavigatorState has been renamed PageStackNavigatorState. The old class will be removed in v0.9.')
-class StackNavigatorState extends State<StackNavigator> {
-  late HeroControllerScope _widget;
-  late Routemaster _routemaster;
-  final HeroController _heroController =
-      MaterialApp.createMaterialHeroController();
-
+class _StackNavigatorState extends NavigatorState {
   @override
   void initState() {
     super.initState();
-
-    _didUpdateStack(null, widget.stack);
-    _updateNavigator();
-  }
-
-  @override
-  void didUpdateWidget(StackNavigator oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    if (oldWidget.stack != widget.stack) {
-      _didUpdateStack(oldWidget.stack, widget.stack);
-      _updateNavigator();
-    }
-  }
-
-  void _didUpdateStack(PageStack? oldStack, PageStack newStack) {
-    if (oldStack != null) {
-      oldStack.removeListener(_onStackChanged);
-    }
-
-    newStack.addListener(_onStackChanged);
-    newStack._attachedNavigatorKey = GlobalKey<NavigatorState>(
-      debugLabel: 'StackNavigator',
-    );
+    (widget as _StackNavigator).stack._attachedNavigator = this;
   }
 
   @override
   void dispose() {
-    widget.stack.removeListener(_onStackChanged);
+    (widget as _StackNavigator).stack._attachedNavigator = null;
     super.dispose();
   }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _routemaster = Routemaster.of(context);
-  }
-
-  void _onStackChanged() {
-    setState(() {
-      _updateNavigator();
-    });
-  }
-
-  void _updateDelegate() {
-    _routemaster._delegate._markNeedsUpdate();
-  }
-
-  void _updateNavigator() {
-    _widget = HeroControllerScope(
-      controller: _heroController,
-      child: Navigator(
-        key: widget.stack._attachedNavigatorKey,
-        onPopPage: (route, dynamic result) {
-          final didPop = widget.stack.onPopPage(route, result);
-          if (didPop) {
-            _updateDelegate();
-          }
-          return didPop;
-        },
-        transitionDelegate: widget.transitionDelegate,
-        pages: widget.stack.createPages(),
-        observers: [
-          _RelayingNavigatorObserver(
-            () sync* {
-              yield* widget.observers;
-              yield* _routemaster._delegate.observers;
-              yield _routemaster._delegate._state.pushObserver;
-            },
-          )
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return _widget;
-  }
-
-  RouteData? routeDataFor(Page page) {
-    return widget.stack._routeMap[page];
-  }
 }
-// coverage:ignore-end

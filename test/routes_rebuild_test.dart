@@ -98,7 +98,7 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(routeBuildCount, 2);
-  }, skip: true);
+  });
 
   testWidgets('Can swap route maps and navigate', (tester) async {
     final routeMap1UnknownRoutes = <String>[];
@@ -158,35 +158,6 @@ void main() {
     // Assert that onUnknownRoute has never been called
     expect(routeMap1UnknownRoutes.isEmpty, isTrue);
     expect(routeMap2UnknownRoutes.isEmpty, isTrue);
-  });
-
-  testWidgets("Doesn't change navigator key when route map changes",
-      (tester) async {
-    final delegate = RoutemasterDelegate(routesBuilder: (context) {
-      StateProvider.of(context).state;
-
-      return RouteMap(routes: {
-        '/': (_) => MaterialPage<void>(child: PageOne()),
-      });
-    });
-    final state = AppState();
-
-    await tester.pumpWidget(
-      StateProvider(
-        state: state,
-        child: MaterialApp.router(
-          routeInformationParser: RoutemasterParser(),
-          routerDelegate: delegate,
-        ),
-      ),
-    );
-
-    final navigatorKey1 = tester.widget(find.byType(Navigator)).key;
-    state.someValue = 'state change';
-    await tester.pump();
-    final navigatorKey2 = tester.widget(find.byType(Navigator)).key;
-
-    expect(navigatorKey1, navigatorKey2);
   });
 }
 
