@@ -1,7 +1,7 @@
 part of '../../routemaster.dart';
 
 class PageStack extends ChangeNotifier {
-  GlobalKey<NavigatorState>? _attachedNavigatorKey;
+  NavigatorState? _attachedNavigator;
 
   List<PageWrapper>? __routes;
   List<PageWrapper> get _routes => __routes!;
@@ -74,12 +74,12 @@ class PageStack extends ChangeNotifier {
       return SynchronousFuture(true);
     }
 
-    // Child wasn't interested, ask the navigator if we have a key
-    if (await _attachedNavigatorKey?.currentState?.maybePop(result) == true) {
+    // Child wasn't interested, ask the navigator
+    if (await _attachedNavigator?.maybePop(result) == true) {
       return SynchronousFuture(true);
     }
 
-    // No navigator attached, but we can pop the stack anyway
+    // Pop the stack as a last resort
     if (_routes.length > 1) {
       _routes.removeLast();
       notifyListeners();

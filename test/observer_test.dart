@@ -115,8 +115,9 @@ void main() {
     final loggingObserver = LoggingObserver();
     await tester.pumpWidget(ObserverApp(delegateObservers: [loggingObserver]));
 
-    final state =
-        tester.stateList(find.byType(Navigator)).last as NavigatorState;
+    final state = tester
+        .stateList(find.byWidgetPredicate((widget) => widget is Navigator))
+        .last as NavigatorState;
     final observer = state.widget.observers[0];
 
     observer.didPush(MockRoute(), MockRoute());
