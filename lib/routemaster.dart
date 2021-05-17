@@ -900,7 +900,7 @@ class RedirectLoopError extends Error {
   /// A list of paths in the redirect loop.
   final List<String> redirects;
 
-  /// Initializes an error that the router gets in in an endless redirect loop.
+  /// Initializes an error that the router is in an endless redirect loop.
   RedirectLoopError(this.redirects);
 
   @override
@@ -932,7 +932,7 @@ class _RouteRequest {
 /// This widget listens to that stack, and updates the navigator when the pages
 /// change.
 class PageStackNavigator extends StatefulWidget {
-  /// The stack to show in the [Navigator].
+  /// The stack of pages to show in the [Navigator].
   final PageStack stack;
 
   /// A delegate that decides how pages are animated when they're added or
@@ -1060,7 +1060,9 @@ class PageStackNavigatorState extends State<PageStackNavigator> {
 }
 
 /// A subclass of [Navigator] that attaches itself to a [PageStack], so that
-/// the stack can use [Navigator.maybePop] .
+/// the stack can use [Navigator.maybePop].
+///
+/// This is to support popping non-[Page] routes.
 class _StackNavigator extends Navigator {
   final PageStack stack;
 

@@ -4,7 +4,8 @@ import 'route_data.dart';
 
 /// A delegate that is used by the [Router] widget to parse URLs.
 ///
-/// This must be supplied to top-level app object for Routemaster to work.
+/// This must be supplied to the top-level [App] or [MaterialApp] for
+/// Routemaster to work.
 class RoutemasterParser extends RouteInformationParser<RouteData> {
   /// Initializes a parser that works in conjunction with [RoutemasterDelegate].
   const RoutemasterParser();
