@@ -105,7 +105,7 @@ void main() {
     final routeMap1 = RouteMap(
       onUnknownRoute: (route) {
         routeMap1UnknownRoutes.add(route);
-        return MaterialPage<void>(child: DefaultUnknownRoutePage(path: route));
+        return MaterialPage<void>(child: DefaultNotFoundPage(path: route));
       },
       routes: {
         '/': (_) => MaterialPageOne(),
@@ -117,7 +117,7 @@ void main() {
     final routeMap2 = RouteMap(
       onUnknownRoute: (route) {
         routeMap2UnknownRoutes.add(route);
-        return MaterialPage<void>(child: DefaultUnknownRoutePage(path: route));
+        return MaterialPage<void>(child: DefaultNotFoundPage(path: route));
       },
       routes: {
         '/': (_) => MaterialPageOne(),

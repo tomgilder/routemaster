@@ -24,7 +24,7 @@ void main() {
     await tester.pump();
     await tester.pump(Duration(seconds: 1));
 
-    expect(find.byType(DefaultUnknownRoutePage), findsOneWidget);
+    expect(find.byType(DefaultNotFoundPage), findsOneWidget);
     expect(find.text("Page '/unknown/nonsense' wasn't found."), findsOneWidget);
   });
 

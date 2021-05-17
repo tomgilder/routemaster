@@ -3,7 +3,7 @@ part of '../../routemaster.dart';
 /// A wrapper around a [Page] that holds additional routing information and
 /// provides navigation functions.
 class PageWrapper<T extends Page<dynamic>> {
-  PageWrapper();
+  PageWrapper._();
 
   /// Creates a stateless wrapper from the given page and routing data.
   PageWrapper.fromPage({
@@ -18,9 +18,9 @@ class PageWrapper<T extends Page<dynamic>> {
   RouteData get routeData => _routeData!;
   RouteData? _routeData;
 
-  /// The inner page.
-  T? _page;
+  /// The page object that will be added to a [Navigator].
   T get page => _page!;
+  T? _page;
 
   /// Called when popping a route stack. Returns `true` if this page wrapper
   /// has been able to pop a page, otherwise `false`.
@@ -65,6 +65,7 @@ class PageWrapper<T extends Page<dynamic>> {
 /// A [Page] object that can create a state, for instance to keep track of
 /// the current tab index. Similar to [StatefulWidget].
 abstract class StatefulPage<T> extends Page<T> {
+  /// Initializes a stateful page.
   const StatefulPage();
 
   /// Returns a state object for this page.
@@ -84,6 +85,9 @@ abstract class StatefulPage<T> extends Page<T> {
 /// maintains the current index for a tabbed page.
 abstract class PageState<T extends StatefulPage<dynamic>>
     extends PageWrapper<T> {
+  /// Initializes the state for a [StatefulPage].
+  PageState() : super._();
+
   /// The main [Routemaster] object that created this page state.
   Routemaster get routemaster => _routemaster!;
   Routemaster? _routemaster;

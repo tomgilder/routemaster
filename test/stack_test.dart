@@ -358,7 +358,7 @@ class StackSwapPageState extends State<StackSwapPage> {
   }
 }
 
-class TestPageWrapper extends PageWrapper with ChangeNotifier {
+class TestPageWrapper with ChangeNotifier implements PageWrapper {
   @override
   Page createPage() {
     throw UnimplementedError();
@@ -381,6 +381,12 @@ class TestPageWrapper extends PageWrapper with ChangeNotifier {
 
   @override
   RouteData get routeData => throw UnimplementedError();
+
+  @override
+  NavigationResult<Object?>? result;
+
+  @override
+  Page get page => throw UnimplementedError();
 }
 
 class MyTabPage extends StatelessWidget {

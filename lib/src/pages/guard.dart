@@ -1,20 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../routemaster.dart';
 
-typedef CanNavigateCallback = bool Function(
-  RouteData info,
-  BuildContext context,
-);
-
-typedef NavigationFailedCallback = Page Function(
-  RouteData info,
-  BuildContext context,
-);
-
-/// Provides functionality to block pages being loaded.
-///
-/// Generally it's **cleaner not to use this class**, and just use logic within
-/// the route map, like this:
+/// Provides functionality to block pages being loaded. Generally it's cleaner
+/// to **not to use this class**, and just use logic within the route map
+/// to return [NotFound] or [Redirect], like this:
 ///
 /// ```
 ///  '/protected-route': (route) {
@@ -39,13 +28,17 @@ class Guard extends Page<dynamic> {
   /// [onNavigationFailed] is called.
   ///
   /// If [onNavigationFailed] is null, `onUnknownRoute` is called.
-  final CanNavigateCallback canNavigate;
+  final bool Function(RouteData info, BuildContext context) canNavigate;
 
   /// Callback, called when the [canNavigate] returns false.
   ///
   /// By default this redirects to the default path.
-  final NavigationFailedCallback? onNavigationFailed;
+  final Page Function(RouteData info, BuildContext context)? onNavigationFailed;
 
+  /// Initializes a way to prevent loading of certain routes.
+  ///
+  /// Note: it's usually cleaner to not use this class, and instead return
+  /// [NotFound] or [Redirect].
   const Guard({
     required this.builder,
     required this.canNavigate,
@@ -58,9 +51,16 @@ class Guard extends Page<dynamic> {
   }
 }
 
-/// Tells the router the page was not found, and causes the router to call
-/// `onUnknownRoute`. By default this will show [DefaultUnknownRoutePage].
+/// Can be returned instead of a page to inform the router that the page was not
+/// found.
+///
+/// Results in the router calling `onUnknownRoute`. By default this will show
+/// [DefaultNotFoundPage].
 class NotFound extends Page<dynamic> {
+  /// Informs the router that no page was found.
+  ///
+  /// Results in the router calling `onUnknownRoute`. By default this will show
+  /// [DefaultNotFoundPage].
   const NotFound();
 
   @override
@@ -69,7 +69,7 @@ class NotFound extends Page<dynamic> {
   }
 }
 
-/// A page results which tells the router to redirect to another page.
+/// Can be returned instead of a page to redirect the router to another path.
 class Redirect extends Page<dynamic> {
   /// The path to redirect to.
   final String path;
@@ -83,6 +83,8 @@ class Redirect extends Page<dynamic> {
         queryParameters: queryParameters,
       ).toString();
 
+  /// Initializes a redirect to the given [path], with an optional map of
+  /// [queryParameters].
   const Redirect(this.path, {this.queryParameters});
 
   @override
