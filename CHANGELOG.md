@@ -1,5 +1,6 @@
-# 0.9.0-dev1
+# 0.9.0-dev2
 
+* Breaking change: refactored `PageWrapper` and `StatefulPage` (this is unlikely to affect you)
 * Fixed: issue with rebuilding routes when `RoutemasterDelegate` is recreated 
 
 # 0.8.1
