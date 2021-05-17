@@ -211,11 +211,11 @@ void main() {
     final lastRouteData = RouteData('/last');
     final stack = PageStack(
       routes: [
-        StatelessPage(
+        PageWrapper.fromPage(
           page: MaterialPageOne(),
           routeData: RouteData('/'),
         ),
-        StatelessPage(
+        PageWrapper.fromPage(
           page: MaterialPageTwo(),
           routeData: lastRouteData,
         ),
@@ -228,7 +228,10 @@ void main() {
   test('Stack.maybePop() returns false with one child', () async {
     final stack = PageStack(
       routes: [
-        StatelessPage(page: MaterialPageOne(), routeData: RouteData('/')),
+        PageWrapper.fromPage(
+          page: MaterialPageOne(),
+          routeData: RouteData('/'),
+        ),
       ],
     );
 
@@ -336,14 +339,14 @@ class StackSwapPageState extends State<StackSwapPage> {
   }
 
   final _stack1 = PageStack(routes: [
-    StatelessPage(
+    PageWrapper.fromPage(
       page: MaterialPage<void>(child: Text('Stack 1')),
       routeData: RouteData('/'),
     )
   ]);
 
   final _stack2 = PageStack(routes: [
-    StatelessPage(
+    PageWrapper.fromPage(
       page: MaterialPage<void>(child: Text('Stack 2')),
       routeData: RouteData('/'),
     )

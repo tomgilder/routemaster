@@ -16,7 +16,17 @@ abstract class StatefulPage<T> extends Page<T> {
 }
 
 /// A wrapper around a page object.
-abstract class PageWrapper<T extends Page<dynamic>> {
+class PageWrapper<T extends Page<dynamic>> {
+  PageWrapper();
+
+  PageWrapper.fromPage({
+    required T page,
+    required RouteData routeData,
+  }) {
+    _page = page;
+    _routeData = routeData;
+  }
+
   /// Information about the current route.
   RouteData get routeData => _routeData!;
   RouteData? _routeData;
@@ -26,20 +36,26 @@ abstract class PageWrapper<T extends Page<dynamic>> {
 
   /// Called when popping a route stack. Returns `true` if this page wrapper
   /// has been able to pop a page, otherwise `false`.
-  Future<bool> maybePop<E extends Object?>([E? result]);
+  Future<bool> maybePop<E extends Object?>([E? result]) {
+    return SynchronousFuture(false);
+  }
 
   /// Returns this page, and any descendant pages below it in the navigation
   /// hierarchy.
-  Iterable<PageWrapper> getCurrentPages();
+  Iterable<PageWrapper> getCurrentPages() sync* {
+    yield this;
+  }
 
   /// See if this page can consume the list of [pages] as children. For instance
   /// a tab page could accept the pages and put them in one of its tab's stacks.
-  bool maybeSetChildPages(Iterable<PageWrapper> pages);
+  bool maybeSetChildPages(Iterable<PageWrapper> pages) => false;
 
   /// Gets the actual Flutter [Page] object for passing to a [Navigator].
   ///
   /// This will only be called once per [PageWrapper], and the result cached.
-  Page createPage();
+  Page createPage() {
+    return _page!;
+  }
 
   Page? _createdPage;
   Page _getOrCreatePage() {
@@ -64,32 +80,4 @@ abstract class PageState<T extends StatefulPage<dynamic>>
   }
 
   bool _debugTypesAreRight(Page page) => page is T;
-}
-
-/// A wrapper for normal, non-stateless pages that allows us to treat them like
-/// stateful ones.
-class StatelessPage extends PageWrapper {
-  StatelessPage({
-    required Page page,
-    required RouteData routeData,
-  }) {
-    _page = page;
-    _routeData = routeData;
-  }
-
-  @override
-  Iterable<PageWrapper> getCurrentPages() sync* {
-    yield this;
-  }
-
-  @override
-  Future<bool> maybePop<T extends Object?>([T? result]) {
-    return SynchronousFuture(false);
-  }
-
-  @override
-  bool maybeSetChildPages(Iterable<PageWrapper> pages) => false;
-
-  @override
-  Page createPage() => page;
 }

@@ -394,9 +394,9 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
   }
 }
 
-class _TabNotFoundPage extends StatelessPage {
+class _TabNotFoundPage extends PageWrapper {
   _TabNotFoundPage(String path)
-      : super(
+      : super.fromPage(
           routeData: RouteData(path, pathTemplate: null),
           page: MaterialPage<void>(
             child: DefaultUnknownRoutePage(path: path),
