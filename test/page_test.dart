@@ -16,8 +16,8 @@ void main() {
     ));
   });
 
-  test('StatelessPage getCurrentPageStates returns itself', () {
-    final page = StatelessPage(
+  test('PageWrapper getCurrentPageStates returns itself', () {
+    final page = PageWrapper.fromPage(
       routeData: RouteData(''),
       page: MaterialPageOne(),
     );
@@ -25,14 +25,14 @@ void main() {
     expect(page.getCurrentPages().single, page);
   });
 
-  test('StatelessPage createPage returns page', () {
+  test('PageWrapper createPage returns page', () {
     final page = MaterialPageOne();
-    final statelessPage = StatelessPage(
+    final wrapper = PageWrapper.fromPage(
       routeData: RouteData(''),
       page: page,
     );
 
-    expect(statelessPage.createPage(), page);
+    expect(wrapper.createPage(), page);
   });
 
   testWidgets('StatefulPage that returns incorrect state type throws',

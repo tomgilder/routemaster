@@ -689,7 +689,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     }
 
     // Page is just a standard Flutter page, create a wrapper for it
-    return _PageWrapperResult(StatelessPage(routeData: routeData, page: page));
+    return _PageWrapperResult(
+      PageWrapper.fromPage(routeData: routeData, page: page),
+    );
   }
 
   List<PageWrapper> _onUnknownRoute(_RouteRequest routeRequest) {
@@ -710,7 +712,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       requestedPath,
       isReplacement: routeRequest.isReplacement,
     );
-    return [StatelessPage(routeData: routeData, page: result)];
+    return [PageWrapper.fromPage(routeData: routeData, page: result)];
   }
 
   List<String> _debugCheckRedirectLoop(
