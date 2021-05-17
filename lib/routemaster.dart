@@ -21,21 +21,20 @@ part 'src/pages/tab_pages.dart';
 part 'src/pages/basic_pages.dart';
 part 'src/observers.dart';
 
-typedef RoutemasterBuilder = Widget Function(
-  BuildContext context,
-  List<Page> pages,
-  PopPageCallback onPopPage,
-  GlobalKey<NavigatorState> navigatorKey,
-);
-
+/// A function that builds a [Page] from given [RouteData].
 typedef PageBuilder = Page Function(RouteData route);
 
+/// A function that returns a [Page] when the given [path] couldn't be found.
 typedef UnknownRouteCallback = Page Function(String path);
 
-class DefaultUnknownRoutePage extends StatelessWidget {
+/// The default not found page. To customize this, return a different page from
+/// [RouteMap.onUnknownRoute].
+class DefaultNotFoundPage extends StatelessWidget {
+  /// The path that couldn't be found.
   final String path;
 
-  const DefaultUnknownRoutePage({required this.path});
+  /// Initializes the page with the path that couldn't be found.
+  const DefaultNotFoundPage({required this.path});
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +51,7 @@ class DefaultUnknownRoutePage extends StatelessWidget {
 
 /// A standard simple routing table which takes a map of routes.
 ///
-///   * [routes]: A map of paths and [PageBuilder] delegates that return
+///   * [routes] - A map of paths and [PageBuilder] delegates that return
 ///     [Page] objects to build.
 ///
 @immutable
@@ -63,10 +62,10 @@ class RouteMap {
 
   /// Creates a standard simple routing table which takes a map of routes.
   ///
-  ///   * [routes]: A map of paths and [PageBuilder] delegates that return
+  ///   * [routes] - a map of paths and [PageBuilder] delegates that return
   ///     [Page] objects to build.
   ///
-  ///   * [onUnknownRoute]: called when there's no match for a route.
+  ///   * [onUnknownRoute] - called when there's no match for a route.
   ///     There are two general options for this callback's operation:
   ///
   ///       1. Return a page, which will be displayed.
@@ -96,7 +95,7 @@ class RouteMap {
   }
 
   /// Called when there's no match for a route. By default this returns
-  /// [DefaultUnknownRoutePage], a simple page not found page.
+  /// [DefaultNotFoundPage], a simple page not found page.
   ///
   /// There are two general options for this callback's operation:
   ///
@@ -113,23 +112,42 @@ class RouteMap {
     }
 
     return MaterialPage<void>(
-      child: DefaultUnknownRoutePage(path: path),
+      child: DefaultNotFoundPage(path: path),
     );
   }
 }
 
+/// Provides access to router functionality.
+///
+/// For example: `Routemaster.of(context).push('/path')`
 class Routemaster {
   // The current router delegate. This can change if the delegate is recreated.
   late RoutemasterDelegate _delegate;
 
   Routemaster._();
 
+  /// Uses [PathUrlStrategy] on the web, which removes hashes from URLs. This
+  /// must be called at app startup, before `runApp` is called.
+  ///
+  /// Calling this method does nothing when not running on the web.
+  ///
+  /// Note: to load pages directly by URL, your server needs to be set up
+  /// correctly.
+  ///
+  /// For example, if your app's home is at http://dash.dev/myapp and you have
+  /// an app page with the path '/settings', then trying to load
+  /// http://dash.dev/myapp/settings will probably show a server 404 error
+  /// without additional server configuration.
+  ///
+  /// You need to ensure server requests to dash.dev/myapp/*<anything>* return
+  /// the Flutter app.
   static void setPathUrlStrategy() {
     if (kIsWeb) {
       SystemNav.setPathUrlStrategy(); // coverage:ignore-line
     }
   }
 
+  /// Retrieves the nearest ancestor [Routemaster] object.
   static Routemaster of(BuildContext context) {
     final element =
         context.getElementForInheritedWidgetOfExactType<_RoutemasterWidget>();
@@ -192,7 +210,13 @@ class Routemaster {
   }
 }
 
+/// Provides access to the [Route] created after a route has been pushed.
+///
+/// Also provides access to any value returned when popping the route.
+@immutable
 class NavigationResult<T extends Object?> {
+  NavigationResult._();
+
   /// Returns the top-most route that was created as a result of the navigation.
   Future<Route> get route => _routeCompleter.future;
   final Completer<Route> _routeCompleter = Completer<Route>();
@@ -210,10 +234,19 @@ class NavigationResult<T extends Object?> {
   }
 }
 
+/// A delegate that is used by the [Router] widget to manage navigation.
 class RoutemasterDelegate extends RouterDelegate<RouteData>
     with ChangeNotifier {
+  /// Specifies how the top-level [Navigator] transitions between routes.
+  ///
+  /// If this isn't provided, a [DefaultTransitionDelegate] is used.
   final TransitionDelegate? transitionDelegate;
+
+  /// A function that returns a map of routes, to create pages from paths.
   final RouteMap Function(BuildContext context) routesBuilder;
+
+  /// A list of observers for the router, and nested [Navigator] widgets.
+  final List<RoutemasterObserver> observers;
 
   /// A function that returns the top-level navigator widgets. Normally this
   /// function would return a [PageStackNavigator].
@@ -226,8 +259,11 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   bool _isBuilding = false;
   bool _isDisposed = false;
   late BuildContext _context;
-  final List<RoutemasterObserver> observers;
 
+  /// Initializes the delegate.
+  ///
+  /// This uses a default [PageStackNavigator], to supply your own
+  /// use [RoutemasterDelegate.builder].
   RoutemasterDelegate({
     required this.routesBuilder,
     this.transitionDelegate,
@@ -236,7 +272,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     _state.routemaster._delegate = this;
   }
 
-  /// Can be used to provide a custom `StackNavigator` builder via
+  /// Initializes the delegate with a custom [PageStackNavigator] builder via
   /// [navigatorBuilder]. For instance, if you wanted to add a observer to just
   /// the top-level navigator.
   RoutemasterDelegate.builder({
@@ -247,6 +283,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     _state.routemaster._delegate = this;
   }
 
+  /// Disposes the delegate. The delegate must not be used once this method has
+  /// been called.
   @override
   void dispose() {
     _isDisposed = true;
@@ -261,6 +299,11 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return pop();
   }
 
+  /// Attempts to pops the top-level route. Returns `true` if a route was
+  /// successfully popped, otherwise `false`.
+  ///
+  /// An optional value can be passed to the previous route via the [result]
+  /// parameter.
   @optionalTypeArgs
   Future<bool> pop<T extends Object?>([T? result]) async {
     assert(!_isDisposed);
@@ -272,7 +315,14 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return popResult;
   }
 
-  /// Replaces the current route with [path].
+  /// Replaces the current route with [path]. On the web, this prevents the user
+  /// returning to the previous route via the back button.
+  ///
+  ///   * [path] - an absolute or relative path.
+  ///
+  ///   * [queryParameters] - an optional map of parameters to be passed to the
+  ///     created page.
+  ///
   void replace(String path, {Map<String, String>? queryParameters}) {
     assert(!_isDisposed);
 
@@ -286,12 +336,18 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }
 
   /// Pushes [path] into the navigation tree.
+  ///
+  ///   * [path] - an absolute or relative path.
+  ///
+  ///   * [queryParameters] - an optional map of parameters to be passed to the
+  ///     created page.
+  ///
   @optionalTypeArgs
   NavigationResult<T> push<T extends Object?>(String path,
       {Map<String, String>? queryParameters}) {
     assert(!_isDisposed);
 
-    final result = NavigationResult<T>();
+    final result = NavigationResult<T>._();
     _setPendingNavigation(
       path,
       queryParameters: queryParameters,
@@ -301,6 +357,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return result;
   }
 
+  /// Sets the router state to have a pending navigation to process on the next
+  /// build.
   void _setPendingNavigation(
     String path, {
     Map<String, String>? queryParameters,
@@ -324,6 +382,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     _markNeedsUpdate();
   }
 
+  /// Marks the router as needing an update, for instance of the current path
+  /// has changed.
   void _markNeedsUpdate() {
     assert(!_isDisposed);
 
@@ -364,7 +424,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   // Returns a [RouteData] that matches the current route state.
   // This is used to update a browser's current URL.
-
   @override
   RouteData? get currentConfiguration {
     assert(!_isDisposed);
@@ -372,6 +431,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return _state.currentConfiguration;
   }
 
+  /// Reports the current path to the Flutter routing system, and any observers.
   void _updateCurrentConfiguration({bool isReplacement = false}) {
     final currentPages = _state.stack._getCurrentPages();
 
@@ -471,7 +531,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     );
     assert(pages.isNotEmpty);
 
-    _state.stack._routes = pages;
+    _state.stack._pageWrappers = pages;
 
     final pathIsSame =
         _state.currentConfiguration!.fullPath == pages.last.routeData.fullPath;
@@ -496,6 +556,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     WidgetsBinding.instance?.addPostFrameCallback((_) => _markNeedsUpdate());
   }
 
+  /// The main Routemaster algorithm that turns a route request into a list of
+  /// pages. It attempts to reuse current pages from [currentRoutes] if they
+  /// exist.
   List<PageWrapper> _createAllPageWrappers(
     _RouteRequest routeRequest, {
     List<PageWrapper>? currentRoutes,
@@ -511,9 +574,11 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     var result = <PageWrapper>[];
     var i = 0;
 
+    // Loop through routes in reverse order
     for (final routerData in routerResult.reversed) {
       final isLastRoute = i++ == 0;
 
+      // Look the route up in the routing map
       final routeData = RouteData.fromRouterResult(
         routerData,
         // Only the last route gets query parameters
@@ -521,6 +586,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         isReplacement: routeRequest.isReplacement,
       );
 
+      // Get a page wrapper object for the current route
       final current = isLastRoute
           ? _createPageWrapper(
               routeRequest: routeRequest,
@@ -730,7 +796,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return redirects;
   }
 
-  void didPush(Route route) {
+  void _didPush(Route route) {
     final page = route.settings;
     final current = _state.stack
         ._getCurrentPages()
@@ -743,6 +809,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }
 }
 
+/// A union type for results from the page map.
 @immutable
 abstract class _PageResult {}
 
@@ -767,7 +834,7 @@ class _PushObserver extends NavigatorObserver {
 
   @override
   void didPush(Route route, Route? previousRoute) {
-    routemaster._delegate.didPush(route);
+    routemaster._delegate._didPush(route);
   }
 }
 
@@ -847,9 +914,14 @@ class _RoutemasterStateTrackerState extends State<_RoutemasterStateTracker> {
   }
 }
 
+/// Thrown when the router gets in an endless redirect loop due to a
+/// misconfigured routing map.
+@immutable
 class RedirectLoopError extends Error {
+  /// A list of paths in the redirect loop.
   final List<String> redirects;
 
+  /// Initializes an error that the router gets in in an endless redirect loop.
   RedirectLoopError(this.redirects);
 
   @override
@@ -881,10 +953,17 @@ class _RouteRequest {
 /// This widget listens to that stack, and updates the navigator when the pages
 /// change.
 class PageStackNavigator extends StatefulWidget {
+  /// The stack to show in the [Navigator].
   final PageStack stack;
+
+  /// A delegate that decides how pages are animated when they're added or
+  /// removed from the [Navigator].
   final TransitionDelegate transitionDelegate;
+
+  /// A list of [NavigatorObserver] that will be passed to the [Navigator].
   final List<NavigatorObserver> observers;
 
+  /// Provides a [Navigator] that shows pages from a [PageStack].
   const PageStackNavigator({
     Key? key,
     required this.stack,
@@ -895,6 +974,7 @@ class PageStackNavigator extends StatefulWidget {
   @override
   PageStackNavigatorState createState() => PageStackNavigatorState();
 
+  /// Retrieves the nearest [PageStackNavigatorState] ancestor.
   static PageStackNavigatorState of(BuildContext context) {
     final state = context.findAncestorStateOfType<PageStackNavigatorState>();
     assert(state != null, "Couldn't find a StackNavigatorState");
@@ -902,11 +982,17 @@ class PageStackNavigator extends StatefulWidget {
   }
 }
 
+/// The state for a [PageStackNavigator]. Watches for changes in the stack
+/// and rebuilds the [Navigator] when required.
 class PageStackNavigatorState extends State<PageStackNavigator> {
   late HeroControllerScope _widget;
   late Routemaster _routemaster;
   final HeroController _heroController =
       MaterialApp.createMaterialHeroController();
+
+  /// The state for a [PageStackNavigator]. Watches for changes in the stack
+  /// and rebuilds the [Navigator] when required.
+  PageStackNavigatorState();
 
   @override
   void initState() {
@@ -988,11 +1074,14 @@ class PageStackNavigatorState extends State<PageStackNavigator> {
     return _widget;
   }
 
+  /// Retrieves the routing data for the given page.
   RouteData? routeDataFor(Page page) {
     return widget.stack._routeMap[page];
   }
 }
 
+/// A subclass of [Navigator] that attaches itself to a [PageStack], so that
+/// the stack can use [Navigator.maybePop] .
 class _StackNavigator extends Navigator {
   final PageStack stack;
 

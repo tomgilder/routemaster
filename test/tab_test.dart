@@ -500,11 +500,19 @@ class StubRoutemaster implements Routemaster {
   @override
   NavigationResult<T> push<T extends Object?>(String path,
       {Map<String, String>? queryParameters}) {
-    return NavigationResult<T>();
+    return StubNavigationResult<T>();
   }
 
   @override
   void replace(String path, {Map<String, String>? queryParameters}) {}
+}
+
+class StubNavigationResult<T> implements NavigationResult<T> {
+  @override
+  Future<Route> get route => throw UnimplementedError();
+
+  @override
+  Future<T?> get result => throw UnimplementedError();
 }
 
 class TabbedPage extends StatelessWidget {

@@ -16,7 +16,7 @@ class RouteData {
 
   /// Query parameters from the path.
   ///
-  ///   e.g. a route template of /profile:id and a path of /profile/1
+  ///   e.g. a route template of '/profile/:id' and a path of '/profile/1'
   ///        becomes `pathParameters['id'] == '1'`.
   ///
   final Map<String, String> pathParameters;
@@ -27,10 +27,14 @@ class RouteData {
   ///
   Map<String, String> get queryParameters => _uri.queryParameters;
 
+  /// Did this route replace the previous one, preventing the user from
+  /// returning to it.
   final bool isReplacement;
 
+  /// The template for this route, for instance '/profile/:id'.
   final String? pathTemplate;
 
+  /// Initializes routing data from the provided router result.
   RouteData.fromRouterResult(
     RouterResult result,
     String path, {
@@ -39,6 +43,7 @@ class RouteData {
         pathParameters = result.pathParameters,
         pathTemplate = result.pathTemplate;
 
+  /// Initializes routing data from a path string.
   RouteData(
     String path, {
     this.pathParameters = const {},
@@ -55,6 +60,7 @@ class RouteData {
   @override
   String toString() => _uri.toString();
 
+  /// Creates a [RouteInformation] object with data from this route.
   RouteInformation toRouteInformation() {
     return RouteInformation(
       location: fullPath,
@@ -64,6 +70,8 @@ class RouteData {
     );
   }
 
+  /// Gets the [RouteData] for the nearest [Page] ancestor for the given
+  /// context.
   static RouteData of(BuildContext context) {
     final modalRoute = ModalRoute.of(context);
     assert(modalRoute != null, "Couldn't get modal route");

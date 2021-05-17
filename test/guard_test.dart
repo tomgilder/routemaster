@@ -220,7 +220,7 @@ void main() {
     );
   });
 
-  testWidgets('NotFound defaults to DefaultUnknownRoutePage', (tester) async {
+  testWidgets('NotFound defaults to DefaultNotFoundPage', (tester) async {
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         routes: {
@@ -236,7 +236,7 @@ void main() {
       ),
     );
 
-    expect(find.byType(DefaultUnknownRoutePage), findsOneWidget);
+    expect(find.byType(DefaultNotFoundPage), findsOneWidget);
   });
 
   testWidgets('NotFound shows custom not found page', (tester) async {

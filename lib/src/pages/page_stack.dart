@@ -1,12 +1,13 @@
 part of '../../routemaster.dart';
 
+/// Manages a stack of pages. Used by [PageStackNavigator].
 class PageStack extends ChangeNotifier {
   NavigatorState? _attachedNavigator;
 
-  List<PageWrapper>? __routes;
-  List<PageWrapper> get _routes => __routes!;
-  set _routes(List<PageWrapper> newRoutes) {
-    if (newRoutes == __routes) {
+  List<PageWrapper>? __pageWrappers;
+  List<PageWrapper> get _pageWrappers => __pageWrappers!;
+  set _pageWrappers(List<PageWrapper> newPages) {
+    if (newPages == __pageWrappers) {
       return;
     }
 
@@ -14,12 +15,12 @@ class PageStack extends ChangeNotifier {
       route.removeListener(notifyListeners);
     });
 
-    _listenedToRoutes = newRoutes.whereType<Listenable>().toList()
+    _listenedToRoutes = newPages.whereType<Listenable>().toList()
       ..forEach((route) {
         route.addListener(notifyListeners);
       });
 
-    __routes = newRoutes;
+    __pageWrappers = newPages;
     notifyListeners();
   }
 
@@ -29,14 +30,16 @@ class PageStack extends ChangeNotifier {
   /// users to get the current page's [RouteData] via `RouteData.of(context)`.
   Map<Page, RouteData> _routeMap = {};
 
-  PageStack({List<PageWrapper>? routes}) {
-    _routes = routes ?? [];
+  /// Manages a stack of pages.
+  PageStack({List<PageWrapper> routes = const <PageWrapper>[]}) {
+    _pageWrappers = routes;
   }
 
+  /// Generates a list of pages for the list of routes provided to this object.
   List<Page> createPages() {
-    assert(_routes.isNotEmpty, "Can't generate pages with no routes");
+    assert(_pageWrappers.isNotEmpty, "Can't generate pages with no routes");
     _routeMap = {};
-    final pages = _routes.map((pageState) {
+    final pages = _pageWrappers.map((pageState) {
       final page = pageState._getOrCreatePage();
       _routeMap[page] = pageState.routeData;
       return page;
@@ -45,21 +48,22 @@ class PageStack extends ChangeNotifier {
     return pages;
   }
 
+  /// Replaces the list of routes.
   bool maybeSetChildPages(Iterable<PageWrapper> pages) {
-    _routes = pages.toList();
+    _pageWrappers = pages.toList();
     return true;
   }
 
   Iterable<PageWrapper> _getCurrentPages() sync* {
-    if (_routes.isNotEmpty) {
-      yield* _routes.last.getCurrentPages();
+    if (_pageWrappers.isNotEmpty) {
+      yield* _pageWrappers.last.getCurrentPages();
     }
   }
 
   /// Passed to [Navigator] widgets for them to inform this stack of a pop
   bool onPopPage(Route<dynamic> route, dynamic result) {
     if (route.didPop(result)) {
-      _routes.removeLast();
+      _pageWrappers.removeLast();
 
       // We don't need to notify listeners, the Navigator will rebuild itself
       return true;
@@ -70,7 +74,7 @@ class PageStack extends ChangeNotifier {
 
   Future<bool> maybePop<T extends Object?>([T? result]) async {
     // First try delegating the pop to the last child route.
-    if (await _routes.last.maybePop(result)) {
+    if (await _pageWrappers.last.maybePop(result)) {
       return SynchronousFuture(true);
     }
 
@@ -80,8 +84,8 @@ class PageStack extends ChangeNotifier {
     }
 
     // Pop the stack as a last resort
-    if (_routes.length > 1) {
-      _routes.removeLast();
+    if (_pageWrappers.length > 1) {
+      _pageWrappers.removeLast();
       notifyListeners();
       return SynchronousFuture(true);
     }
