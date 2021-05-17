@@ -1,24 +1,11 @@
 part of '../../routemaster.dart';
 
-/// A page that can create a state.
-abstract class StatefulPage<T> extends Page<T> {
-  const StatefulPage();
-
-  @protected
-  @factory
-  PageState createState();
-
-  @override
-  Route<T> createRoute(BuildContext context) {
-    throw UnimplementedError(
-        'Stateful pages do not directly create routes. Do not call createRoute on them directly.');
-  }
-}
-
-/// A wrapper around a page object.
+/// A wrapper around a [Page] that holds additional routing information and
+/// provides navigation functions.
 class PageWrapper<T extends Page<dynamic>> {
   PageWrapper();
 
+  /// Creates a stateless wrapper from the given page and routing data.
   PageWrapper.fromPage({
     required T page,
     required RouteData routeData,
@@ -31,24 +18,35 @@ class PageWrapper<T extends Page<dynamic>> {
   RouteData get routeData => _routeData!;
   RouteData? _routeData;
 
+  /// The inner page.
   T? _page;
   T get page => _page!;
 
   /// Called when popping a route stack. Returns `true` if this page wrapper
   /// has been able to pop a page, otherwise `false`.
+  ///
+  /// By default this returns `false`.
   Future<bool> maybePop<E extends Object?>([E? result]) {
     return SynchronousFuture(false);
   }
 
   /// Returns this page, and any descendant pages below it in the navigation
   /// hierarchy.
+  ///
+  /// By default this only returns this page wrapper.
   Iterable<PageWrapper> getCurrentPages() sync* {
     yield this;
   }
 
   /// See if this page can consume the list of [pages] as children. For instance
   /// a tab page could accept the pages and put them in one of its tab's stacks.
+  ///
+  /// By default this returns false.
   bool maybeSetChildPages(Iterable<PageWrapper> pages) => false;
+
+  /// Provides access to the [Route] created from this page, and any result
+  /// returned via popping the route.
+  NavigationResult? result;
 
   /// Gets the actual Flutter [Page] object for passing to a [Navigator].
   ///
@@ -62,17 +60,35 @@ class PageWrapper<T extends Page<dynamic>> {
     assert(_routeData != null);
     return _createdPage ??= createPage();
   }
+}
 
-  NavigationResult? result;
+/// A [Page] object that can create a state, for instance to keep track of
+/// the current tab index. Similar to [StatefulWidget].
+abstract class StatefulPage<T> extends Page<T> {
+  const StatefulPage();
+
+  /// Returns a state object for this page.
+  @protected
+  @factory
+  PageState createState();
+
+  @override
+  Route<T> createRoute(BuildContext context) {
+    throw UnimplementedError(
+      'Stateful pages do not directly create routes. Do not call createRoute on them directly.',
+    );
+  }
 }
 
 /// A page's state, similar to [State] for a [StatefulWidget]. For instance,
 /// maintains the current index for a tabbed page.
 abstract class PageState<T extends StatefulPage<dynamic>>
     extends PageWrapper<T> {
-  Routemaster? _routemaster;
+  /// The main [Routemaster] object that created this page state.
   Routemaster get routemaster => _routemaster!;
+  Routemaster? _routemaster;
 
+  /// Called once to initialize the state of this page.
   void initState() {
     assert(_page != null);
     assert(_routemaster != null);
