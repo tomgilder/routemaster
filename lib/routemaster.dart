@@ -10,6 +10,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:collection/collection.dart';
+import 'src/not_found_page.dart';
 import 'src/pages/guard.dart';
 import 'src/path_parser.dart';
 import 'src/system_nav.dart';
@@ -26,28 +27,6 @@ typedef PageBuilder = Page Function(RouteData route);
 
 /// A function that returns a [Page] when the given [path] couldn't be found.
 typedef UnknownRouteCallback = Page Function(String path);
-
-/// The default not found page. To customize this, return a different page from
-/// [RouteMap.onUnknownRoute].
-class DefaultNotFoundPage extends StatelessWidget {
-  /// The path that couldn't be found.
-  final String path;
-
-  /// Initializes the page with the path that couldn't be found.
-  const DefaultNotFoundPage({required this.path});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Text("Page '$path' wasn't found."),
-        ),
-      ),
-    );
-  }
-}
 
 /// A standard simple routing table which takes a map of routes.
 ///
