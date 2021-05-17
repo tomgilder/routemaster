@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:routemaster/routemaster.dart';
+import 'package:routemaster/src/not_found_page.dart';
 import 'helpers.dart';
 
 void main() {
