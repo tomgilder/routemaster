@@ -964,10 +964,8 @@ class PageStackNavigator extends StatefulWidget {
 /// The state for a [PageStackNavigator]. Watches for changes in the stack
 /// and rebuilds the [Navigator] when required.
 class PageStackNavigatorState extends State<PageStackNavigator> {
-  late HeroControllerScope _widget;
+  late _StackNavigator _widget;
   late Routemaster _routemaster;
-  final HeroController _heroController =
-      MaterialApp.createMaterialHeroController();
 
   /// The state for a [PageStackNavigator]. Watches for changes in the stack
   /// and rebuilds the [Navigator] when required.
@@ -1022,29 +1020,26 @@ class PageStackNavigatorState extends State<PageStackNavigator> {
   }
 
   void _updateNavigator() {
-    _widget = HeroControllerScope(
-      controller: _heroController,
-      child: _StackNavigator(
-        stack: widget.stack,
-        onPopPage: (route, dynamic result) {
-          final didPop = widget.stack.onPopPage(route, result);
-          if (didPop) {
-            _updateDelegate();
-          }
-          return didPop;
-        },
-        transitionDelegate: widget.transitionDelegate,
-        pages: widget.stack.createPages(),
-        observers: [
-          _RelayingNavigatorObserver(
-            () sync* {
-              yield* widget.observers;
-              yield* _routemaster._delegate.observers;
-              yield _routemaster._delegate._state.pushObserver;
-            },
-          )
-        ],
-      ),
+    _widget = _StackNavigator(
+      stack: widget.stack,
+      onPopPage: (route, dynamic result) {
+        final didPop = widget.stack.onPopPage(route, result);
+        if (didPop) {
+          _updateDelegate();
+        }
+        return didPop;
+      },
+      transitionDelegate: widget.transitionDelegate,
+      pages: widget.stack.createPages(),
+      observers: [
+        _RelayingNavigatorObserver(
+          () sync* {
+            yield* widget.observers;
+            yield* _routemaster._delegate.observers;
+            yield _routemaster._delegate._state.pushObserver;
+          },
+        )
+      ],
     );
   }
 
