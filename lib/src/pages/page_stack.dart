@@ -38,12 +38,25 @@ class PageStack extends ChangeNotifier {
   /// Generates a list of pages for the list of routes provided to this object.
   List<Page> createPages() {
     assert(_pageWrappers.isNotEmpty, "Can't generate pages with no routes");
-    _routeMap = {};
+
+    final newRouteMap = <Page, RouteData>{};
+
     final pages = _pageWrappers.map((pageState) {
       final page = pageState._getOrCreatePage();
+
+      // We need to keep any removed pages in the route map as they may still
+      // rebuild whilst being removed - so for this build, the route map
+      // contains both new and removed pages
+      newRouteMap[page] = pageState.routeData;
       _routeMap[page] = pageState.routeData;
       return page;
     }).toList();
+
+    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
+      // Flushes out any removed pages
+      _routeMap = newRouteMap;
+    });
+
     assert(pages.isNotEmpty, 'Returned pages list must not be empty');
     return pages;
   }

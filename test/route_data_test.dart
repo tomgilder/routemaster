@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:routemaster/src/trie_router/trie_router.dart';
+import 'helpers.dart';
 
 MaterialPage<void> builder(RouteData info) {
   return MaterialPage<void>(child: Container());
@@ -195,6 +196,42 @@ void main() {
     expect(page2RouteData.pathTemplate, '/two/:id');
     expect(page2RouteData.pathParameters['id'], 'myId');
     expect(page2RouteData.queryParameters['query'], 'param');
+  });
+
+  testWidgets('Can get RouteData from context when navigating back',
+      (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (context) {
+        return RouteMap(
+          routes: {
+            '/': (_) => MaterialPage<void>(child: Container()),
+            '/two': (_) => MaterialPage<void>(
+                  child: Builder(
+                    builder: (context) {
+                      RouteData.of(context);
+                      return Container();
+                    },
+                  ),
+                ),
+          },
+        );
+      },
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    delegate.push('/two');
+    await tester.pump();
+    await tester.pump(kTransitionDuration);
+
+    // Simulates navigating back in a web browser
+    await setSystemUrl('/');
+    await tester.pumpAndSettle();
   });
 
   testWidgets('Asserts if unable to get modal route', (tester) async {
