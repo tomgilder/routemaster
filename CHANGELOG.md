@@ -1,3 +1,7 @@
+# 0.9.0-dev3
+
+* Breaking change: `PageStackNavigator` no longer automatically provides a `HeroController` - to use heroes, wrap the navigator in a `HeroControllerScope`
+
 # 0.9.0-dev2
 
 * Breaking change: refactored `PageWrapper` and `StatefulPage` (this is unlikely to affect you)
