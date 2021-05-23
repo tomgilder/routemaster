@@ -89,6 +89,7 @@ void main() {
         routerDelegate: delegate1,
       ),
     );
+    expect(find.byType(PageOne), findsOneWidget);
     expect(routeBuildCount, 1);
 
     await tester.pumpWidget(
@@ -97,7 +98,8 @@ void main() {
         routerDelegate: delegate2,
       ),
     );
-    await tester.pumpAndSettle();
+
+    expect(find.byType(PageTwo), findsOneWidget);
     expect(routeBuildCount, 2);
   });
 

@@ -183,8 +183,10 @@ class Routemaster {
   ///     you'll navigate to '/home'.
   ///
   @optionalTypeArgs
-  NavigationResult<T> push<T extends Object?>(String path,
-      {Map<String, String>? queryParameters}) {
+  NavigationResult<T> push<T extends Object?>(
+    String path, {
+    Map<String, String>? queryParameters,
+  }) {
     return _delegate.push<T>(path, queryParameters: queryParameters);
   }
 }
@@ -307,7 +309,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     // Otherwise we do a convoluted dance which uses a custom UrlStrategy that
     // supports replacing the URL.
-    _setPendingNavigation(
+    _navigate(
       path,
       queryParameters: queryParameters,
       isReplacement: true,
@@ -327,38 +329,13 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     assert(!_isDisposed);
 
     final result = NavigationResult<T>._();
-    _setPendingNavigation(
+    _navigate(
       path,
       queryParameters: queryParameters,
       isReplacement: false,
       result: result,
     );
     return result;
-  }
-
-  /// Sets the router state to have a pending navigation to process on the next
-  /// build.
-  void _setPendingNavigation(
-    String path, {
-    Map<String, String>? queryParameters,
-    required bool isReplacement,
-    NavigationResult? result,
-  }) {
-    final absolutePath = PathParser.getAbsolutePath(
-      basePath: currentConfiguration!.fullPath,
-      path: path,
-      queryParameters: queryParameters,
-    );
-
-    // Schedule request for next build. This makes sure the routing table is
-    // updated before processing the new path.
-    _state.pendingNavigation = _RouteRequest(
-      path: absolutePath,
-      isReplacement: isReplacement,
-      result: result,
-    );
-
-    _markNeedsUpdate();
   }
 
   /// Marks the router as needing an update, for instance of the current path
@@ -382,11 +359,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return _RoutemasterStateTracker(
       delegate: this,
       builder: (context) {
-        _isBuilding = true;
-        _initRouter(context);
-        _processPendingNavigation();
-        _isBuilding = false;
-
         return _RoutemasterWidget(
           routemaster: _state.routemaster,
           child: navigatorBuilder != null
@@ -425,6 +397,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
             isReplacement: routeData.isReplacement,
             pathTemplate: routeData.pathTemplate,
           );
+
+          _markNeedsUpdate();
 
           for (final observer in observers) {
             observer.didChangeRoute(routeData, pageWrapper._getOrCreatePage());
@@ -469,14 +443,11 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     if (routerNeedsBuilding) {
       _state.routeMap = routesBuilder(context);
-
-      _processNavigation(
-        routeRequest: _state.pendingNavigation ??
-            _RouteRequest(path: currentConfiguration?.fullPath ?? '/'),
-        currentRoutes: null,
+      _navigate(
+        currentConfiguration?.fullPath ?? '/',
+        isReplacement: false,
+        useCurrentState: false,
       );
-
-      _state.pendingNavigation = null;
     }
   }
 
@@ -488,26 +459,29 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     _isBuilding = false;
   }
 
-  void _processPendingNavigation() {
-    final pendingNavigation = _state.pendingNavigation;
-
-    if (pendingNavigation != null) {
-      _processNavigation(
-        routeRequest: pendingNavigation,
-        currentRoutes: _state.stack._getCurrentPages().toList(),
-      );
-      _state.pendingNavigation = null;
-    }
-  }
-
-  void _processNavigation({
-    required _RouteRequest routeRequest,
-    required List<PageWrapper>? currentRoutes,
+  void _navigate(
+    String path, {
+    required bool isReplacement,
+    bool useCurrentState = true,
+    NavigationResult? result,
+    Map<String, String>? queryParameters,
   }) {
-    final pages = _createAllPageWrappers(
-      routeRequest,
-      currentRoutes: currentRoutes,
+    final absolutePath = PathParser.getAbsolutePath(
+      basePath: currentConfiguration!.fullPath,
+      path: path,
+      queryParameters: queryParameters,
     );
+
+    final pages = _createAllPageWrappers(
+      currentRoutes:
+          useCurrentState ? _state.stack._getCurrentPages().toList() : null,
+      request: _RouteRequest(
+        path: absolutePath,
+        isReplacement: isReplacement,
+        result: result,
+      ),
+    );
+
     assert(pages.isNotEmpty);
 
     _state.stack._pageWrappers = pages;
@@ -516,7 +490,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         _state.currentConfiguration!.fullPath == pages.last.routeData.fullPath;
 
     _updateCurrentConfiguration(
-      isReplacement: pathIsSame || routeRequest.isReplacement,
+      isReplacement: pathIsSame || isReplacement,
     );
   }
 
@@ -532,22 +506,24 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     _rebuildRouter(context);
 
     // Already building; schedule rebuild for next frame
-    WidgetsBinding.instance?.addPostFrameCallback((_) => _markNeedsUpdate());
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      _markNeedsUpdate();
+    });
   }
 
   /// The main Routemaster algorithm that turns a route request into a list of
   /// pages. It attempts to reuse current pages from [currentRoutes] if they
   /// exist.
-  List<PageWrapper> _createAllPageWrappers(
-    _RouteRequest routeRequest, {
+  List<PageWrapper> _createAllPageWrappers({
+    required _RouteRequest request,
     List<PageWrapper>? currentRoutes,
     List<String>? redirects,
   }) {
-    final requestedPath = routeRequest.path;
-    final routerResult = _state.routeMap!.getAll(requestedPath);
+    final requestedPath = request.path;
+    final routerResult = _getAllRouterResults(requestedPath);
 
     if (routerResult == null || routerResult.isEmpty) {
-      return _onUnknownRoute(routeRequest);
+      return _onUnknownRoute(request);
     }
 
     var result = <PageWrapper>[];
@@ -562,18 +538,18 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         routerData,
         // Only the last route gets query parameters
         isLastRoute ? requestedPath : routerData.pathSegment,
-        isReplacement: routeRequest.isReplacement,
+        isReplacement: request.isReplacement,
       );
 
       // Get a page wrapper object for the current route
       final current = isLastRoute
           ? _createPageWrapper(
-              routeRequest: routeRequest,
+              routeRequest: request,
               page: routerData.builder(routeData),
               routeData: routeData,
             )
           : _getOrCreatePageWrapper(
-              routeRequest: routeRequest,
+              routeRequest: request,
               routeData: routeData,
               currentRoutes: currentRoutes,
               routerResult: routerData,
@@ -583,7 +559,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         final page = current.pageWrapper;
 
         if (isLastRoute) {
-          page.result = routeRequest.result;
+          page.result = request.result;
         }
 
         assert(page._routeData != null);
@@ -602,7 +578,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       }
 
       if (current is _NotFoundResult) {
-        return _onUnknownRoute(routeRequest);
+        return _onUnknownRoute(request);
       }
 
       if (current is _RedirectResult) {
@@ -611,12 +587,12 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         }
 
         return _createAllPageWrappers(
-          _RouteRequest(
-            path: current.redirectPath,
-            isReplacement: routeRequest.isReplacement,
-          ),
           currentRoutes: currentRoutes,
           redirects: redirects,
+          request: _RouteRequest(
+            path: current.redirectPath,
+            isReplacement: request.isReplacement,
+          ),
         );
       }
     }
@@ -624,6 +600,21 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     assert(result.isNotEmpty, "_createAllStates can't return empty list");
 
     return result;
+  }
+
+  /// Gets a list of results from the router. If a result can't be found, the
+  /// router is rebuilt and the request retried. This is for cases where some
+  /// state has updated but the map hasn't yet been rebuilt.
+  List<RouterResult>? _getAllRouterResults(String requestedPath) {
+    final routerResult = _state.routeMap!.getAll(requestedPath);
+    if (routerResult?.isNotEmpty == true) {
+      return routerResult;
+    }
+
+    // Route couldn't be found, try rebuilding router to see if it's available
+    // after rebuild
+    _state.routeMap = routesBuilder(_context);
+    return _state.routeMap!.getAll(requestedPath);
   }
 
   /// If there's a current route matching the path in the tree, return it.
@@ -745,7 +736,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     if (result is Redirect) {
       return _createAllPageWrappers(
-        _RouteRequest(
+        request: _RouteRequest(
           path: result.redirectPath,
           isReplacement: routeRequest.isReplacement,
         ),
@@ -839,7 +830,7 @@ class _RoutemasterState {
   final stack = PageStack();
   RouteMap? routeMap;
   RouteData? currentConfiguration;
-  _RouteRequest? pendingNavigation;
+
   late _PushObserver pushObserver = _PushObserver(routemaster);
 }
 
