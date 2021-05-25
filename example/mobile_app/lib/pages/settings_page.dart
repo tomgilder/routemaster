@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_app/main.dart';
+import 'package:mobile_app/app_state/app_state.dart';
 import 'package:provider/provider.dart';
 
 class SettingsPage extends StatelessWidget {
