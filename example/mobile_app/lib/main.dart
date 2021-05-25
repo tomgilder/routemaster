@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app/pages/login_page.dart';
+import 'app_state/app_state.dart';
 import 'pages/bottom_navigation_bar_page.dart';
 import 'pages/home_page.dart';
 import 'pages/settings_page.dart';
@@ -57,22 +58,6 @@ class MyApp extends StatelessWidget {
         },
       ),
     );
-  }
-}
-
-class AppState extends ChangeNotifier {
-  bool _isLoggedIn = false;
-  bool get isLoggedIn => _isLoggedIn;
-  set isLoggedIn(bool value) {
-    _isLoggedIn = value;
-    notifyListeners();
-  }
-
-  bool _showBonusTab = false;
-  bool get showBonusTab => _showBonusTab;
-  set showBonusTab(bool value) {
-    _showBonusTab = value;
-    notifyListeners();
   }
 }
 
