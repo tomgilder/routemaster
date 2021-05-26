@@ -1,20 +1,11 @@
-# 0.9.0-dev3
+# 0.9.0
 
 * Breaking change: `PageStackNavigator` no longer automatically provides a `HeroController` - to use heroes, wrap the navigator in a `HeroControllerScope`
-* Added a new property to get the current route: `Routemaster.of(context).currentRoute`
-* Fixed: `RouteData.of(context)` sometimes throwing when navigating away from a page
-
-# 0.9.0-dev2
-
 * Breaking change: refactored `PageWrapper` and `StatefulPage` (this is unlikely to affect you)
+* Added a new property to get the current route: `Routemaster.of(context).currentRoute`
 * Added documentation to all classes, properties and methods
-
-# 0.9.0-dev1
-
- * Fixed: issue with rebuilding routes when `RoutemasterDelegate` is recreated 
-
-# 0.8.1
-
+* Fixed: `RouteData.of(context)` sometimes throwing when navigating away from a page
+* Fixed: issue with rebuilding routes when `RoutemasterDelegate` is recreated 
 * Fixed: widgets rebuilding when `RoutemasterDelegate` is recreated
 
 # 0.8.0
