@@ -139,6 +139,7 @@ class Routemaster {
     return widget!.routemaster;
   }
 
+  /// The current global route.
   RouteData get currentRoute => _delegate.currentConfiguration!;
 
   /// Pops the current route from the router. Returns `true` if the pop was
