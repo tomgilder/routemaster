@@ -175,8 +175,10 @@ class TabPageState extends PageState<TabPage>
     );
   }
 
-  TabController? _controller;
+  /// The [TabController] for this page that can be passed to widgets such as
+  /// `TabBar` and `TabBarView`.
   TabController get controller => _controller!;
+  TabController? _controller;
 }
 
 /// Creates a [TabController] for [TabPageState]

@@ -6,6 +6,9 @@ part of '../routemaster.dart';
 ///
 /// It will relay all navigation events from all [PageStackNavigator] widgets.
 abstract class RoutemasterObserver extends NavigatorObserver {
+  /// Creates an observer to listen to changes in navigation.
+  RoutemasterObserver();
+
   /// The router's current route changed.
   void didChangeRoute(RouteData routeData, Page page) {}
 }
