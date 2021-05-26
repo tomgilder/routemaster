@@ -85,6 +85,11 @@ class PageStack extends ChangeNotifier {
     return false;
   }
 
+  /// Attempts to pops this page stack. Returns `true` if a route was
+  /// successfully popped, otherwise `false`.
+  ///
+  /// An optional value can be passed to the previous route via the [result]
+  /// parameter.
   Future<bool> maybePop<T extends Object?>([T? result]) async {
     // First try delegating the pop to the last child route.
     if (await _pageWrappers.last.maybePop(result)) {
