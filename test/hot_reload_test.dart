@@ -16,7 +16,7 @@ void main() {
       await recordUrlChanges(() async {
         await tester.tap(find.text('Push page'));
         await tester.pump();
-        await tester.pump(Duration(seconds: 1));
+        await tester.pump(const Duration(seconds: 1));
       }),
       ['/feed/profile'],
     );
@@ -49,7 +49,7 @@ void main() {
       await recordUrlChanges(() async {
         await tester.tap(find.text('Push page'));
         await tester.pump();
-        await tester.pump(Duration(seconds: 1));
+        await tester.pump(const Duration(seconds: 1));
       }),
       ['/feed/profile'],
     );
@@ -60,7 +60,7 @@ void main() {
       await recordUrlChanges(() async {
         await tester.tap(find.byType(BackButton));
         await tester.pump();
-        await tester.pump(Duration(seconds: 1));
+        await tester.pump(const Duration(seconds: 1));
       }),
       ['/feed'],
     );
@@ -71,7 +71,7 @@ void main() {
       await recordUrlChanges(() async {
         await tester.tap(find.text('Push page'));
         await tester.pump();
-        await tester.pump(Duration(seconds: 1));
+        await tester.pump(const Duration(seconds: 1));
       }),
       ['/feed/profile'],
     );
@@ -84,7 +84,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      routeInformationParser: RoutemasterParser(),
+      routeInformationParser: const RoutemasterParser(),
       routerDelegate: RoutemasterDelegate(
         routesBuilder: (context) => routeMap,
       ),
@@ -93,7 +93,7 @@ class MyApp extends StatelessWidget {
 }
 
 final routeMap = RouteMap(routes: {
-  '/': (_) => CupertinoTabPage(child: HomePage(), paths: ['feed']),
+  '/': (_) => CupertinoTabPage(child: HomePage(), paths: const ['feed']),
   '/feed': (_) => MaterialPage<void>(child: FeedPage()),
   '/feed/profile': (info) => MaterialPage<void>(child: ProfilePage())
 });
@@ -104,7 +104,7 @@ class FeedPage extends StatelessWidget {
     return Scaffold(
       body: ElevatedButton(
         onPressed: () => Routemaster.of(context).push('profile'),
-        child: Text('Push page'),
+        child: const Text('Push page'),
       ),
     );
   }
@@ -125,7 +125,7 @@ class HomePage extends StatelessWidget {
     return CupertinoTabScaffold(
       controller: tabState.controller,
       tabBar: CupertinoTabBar(
-        items: <BottomNavigationBarItem>[
+        items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             label: '1',
             icon: Icon(CupertinoIcons.list_bullet),

@@ -11,14 +11,14 @@ void main() {
   testWidgets('Can push a page via replace()', (tester) async {
     final delegate = RoutemasterDelegate(routesBuilder: (context) {
       return RouteMap(routes: {
-        '/': (_) => MaterialPage<void>(child: PageOne()),
-        '/two': (_) => MaterialPage<void>(child: PageTwo()),
+        '/': (_) => const MaterialPageOne(),
+        '/two': (_) => const MaterialPageTwo(),
       });
     });
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -41,11 +41,11 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: RoutemasterDelegate(routesBuilder: (context) {
           return RouteMap(routes: {
             '/': (_) => MaterialPage<void>(child: PageOne(key: page1Key)),
-            '/two': (_) => MaterialPage<void>(child: PageTwo()),
+            '/two': (_) => const MaterialPageTwo(),
           });
         }),
       ),

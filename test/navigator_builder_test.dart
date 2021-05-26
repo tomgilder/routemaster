@@ -9,8 +9,8 @@ void main() {
     final delegate = RoutemasterDelegate.builder(
       routesBuilder: (_) => RouteMap(
         routes: {
-          '/': (_) => MaterialPageOne(),
-          '/two': (_) => MaterialPageTwo(),
+          '/': (_) => const MaterialPageOne(),
+          '/two': (_) => const MaterialPageTwo(),
         },
       ),
       navigatorBuilder: (BuildContext context, PageStack stack) {
@@ -20,14 +20,14 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
 
     delegate.push('/two');
     await tester.pump();
-    await tester.pump(Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
 
     expect(find.byType(PageTwo), findsOneWidget);
   });
@@ -36,12 +36,12 @@ void main() {
     final observer = LoggingNavigatorObserver();
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: RoutemasterDelegate.builder(
           routesBuilder: (_) => RouteMap(
             routes: {
-              '/': (_) => MaterialPageOne(),
-              '/two': (_) => MaterialPageTwo(),
+              '/': (_) => const MaterialPageOne(),
+              '/two': (_) => const MaterialPageTwo(),
             },
           ),
           navigatorBuilder: (BuildContext context, PageStack stack) {
@@ -56,7 +56,7 @@ void main() {
 
     await setSystemUrl('/two');
     await tester.pump();
-    await tester.pump(Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
 
     expect(find.byType(PageTwo), findsOneWidget);
     expect(observer.log.length, 2);

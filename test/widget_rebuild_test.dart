@@ -17,17 +17,17 @@ void main() {
                   child: HomePage(onBuild: () {
                     buildCount++;
                   }),
-                  paths: ['one', 'three'],
+                  paths: const ['one', 'three'],
                 ),
-            '/one': (_) => MaterialPageOne(),
-            '/one/two': (_) => MaterialPageTwo(),
-            '/three': (_) => MaterialPageThree(),
+            '/one': (_) => const MaterialPageOne(),
+            '/one/two': (_) => const MaterialPageTwo(),
+            '/three': (_) => const MaterialPageThree(),
           },
         );
       },
     );
     await tester.pumpWidget(MaterialApp.router(
-      routeInformationParser: RoutemasterParser(),
+      routeInformationParser: const RoutemasterParser(),
       routerDelegate: delegate,
     ));
 
@@ -42,7 +42,7 @@ void main() {
 class HomePage extends StatelessWidget {
   final void Function() onBuild;
 
-  HomePage({required this.onBuild});
+  const HomePage({required this.onBuild});
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +53,7 @@ class HomePage extends StatelessWidget {
       controller: tabState.controller,
       tabBuilder: tabState.tabBuilder,
       tabBar: CupertinoTabBar(
-        items: <BottomNavigationBarItem>[
+        items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             label: 'Heros',
             icon: Icon(CupertinoIcons.list_bullet),

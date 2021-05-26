@@ -11,15 +11,15 @@ class MyApp extends StatelessWidget {
         routesBuilder: (BuildContext context) {
           return RouteMap(
             routes: {
-              '/': (_) => MaterialPage<void>(child: HomePage()),
-              '/one': (_) => MaterialPage<void>(child: PageOne()),
-              '/two': (_) => MaterialPage<void>(child: PageTwo()),
-              '/tabs': (_) => CupertinoTabPage(
-                    paths: ['/tabs/one', '/tabs/two'],
+              '/': (_) => const MaterialPage<void>(child: HomePage()),
+              '/one': (_) => const MaterialPage<void>(child: PageOne()),
+              '/two': (_) => const MaterialPage<void>(child: PageTwo()),
+              '/tabs': (_) => const CupertinoTabPage(
+                    paths: const ['/tabs/one', '/tabs/two'],
                     child: TabbedPage(),
                   ),
-              '/tabs/one': (_) => MaterialPage<void>(child: PageOne()),
-              '/tabs/two': (_) => MaterialPage<void>(child: PageTwo()),
+              '/tabs/one': (_) => const MaterialPage<void>(child: PageOne()),
+              '/tabs/two': (_) => const MaterialPage<void>(child: PageTwo()),
             },
           );
         },
@@ -39,15 +39,15 @@ class HomePage extends StatelessWidget {
         children: [
           ElevatedButton(
             onPressed: () => Routemaster.of(context).replace('/one'),
-            child: Text('Replace page one'),
+            child: const Text('Replace page one'),
           ),
           ElevatedButton(
             onPressed: () => Routemaster.of(context).push('/one'),
-            child: Text('Push page one'),
+            child: const Text('Push page one'),
           ),
           ElevatedButton(
             onPressed: () => Routemaster.of(context).push('/tabs'),
-            child: Text('Replace tabs'),
+            child: const Text('Replace tabs'),
           ),
         ],
       ),
@@ -66,11 +66,11 @@ class PageOne extends StatelessWidget {
         children: [
           ElevatedButton(
             onPressed: () => Routemaster.of(context).replace('/two'),
-            child: Text('Replace page two'),
+            child: const Text('Replace page two'),
           ),
           ElevatedButton(
             onPressed: () => Routemaster.of(context).push('/two'),
-            child: Text('Push page two'),
+            child: const Text('Push page two'),
           ),
         ],
       ),
@@ -86,14 +86,14 @@ class PageTwo extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(),
       body: ListView(
-        children: [Text('Page two')],
+        children: const [Text('Page two')],
       ),
     );
   }
 }
 
 class TabbedPage extends StatelessWidget {
-  TabbedPage({Key key}) : super(key: key);
+  const TabbedPage({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +102,7 @@ class TabbedPage extends StatelessWidget {
       controller: tabState.controller,
       tabBuilder: tabState.tabBuilder,
       tabBar: CupertinoTabBar(
-        items: [
+        items: const [
           BottomNavigationBarItem(
             label: 'Feed',
             icon: Icon(CupertinoIcons.list_bullet),

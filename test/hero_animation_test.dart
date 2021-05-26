@@ -38,25 +38,25 @@ void main() {
   });
 }
 
-final hero1Key = Key('hero1');
-final hero2Key = Key('hero2');
+const hero1Key = Key('hero1');
+const hero2Key = Key('hero2');
 
 class HeroApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      routeInformationParser: RoutemasterParser(),
+      routeInformationParser: const RoutemasterParser(),
       routerDelegate: RoutemasterDelegate(
         routesBuilder: (context) {
           return RouteMap(
             routes: {
               '/': (_) => CupertinoTabPage(
                     child: HomePage(),
-                    paths: ['hero1', 'other'],
+                    paths: const ['hero1', 'other'],
                   ),
               '/hero1': (_) => MaterialPage<void>(child: HeroPage1()),
               '/hero1/hero2': (_) => MaterialPage<void>(child: HeroPage2()),
-              '/other': (_) => MaterialPageOne(),
+              '/other': (_) => const MaterialPageOne(),
             },
           );
         },
@@ -73,7 +73,7 @@ class HomePage extends StatelessWidget {
     return CupertinoTabScaffold(
       controller: tabState.controller,
       tabBar: CupertinoTabBar(
-        items: <BottomNavigationBarItem>[
+        items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             label: 'Heros',
             icon: Icon(CupertinoIcons.list_bullet),
@@ -102,9 +102,9 @@ class HeroPage1 extends StatelessWidget {
           children: [
             ElevatedButton(
               onPressed: () => Routemaster.of(context).push('hero2'),
-              child: Text('Push page 2'),
+              child: const Text('Push page 2'),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Hero(
               tag: 'my-hero',
               child: Container(
@@ -128,7 +128,7 @@ class HeroPage2 extends StatelessWidget {
       appBar: AppBar(),
       body: ListView(
         children: [
-          SizedBox(height: 300),
+          const SizedBox(height: 300),
           Center(
             child: Hero(
               tag: 'my-hero',

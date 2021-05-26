@@ -12,7 +12,7 @@ MaterialPage<void> builder(RouteData info) {
 void main() {
   test('Provides correct path without query string', () {
     final data = RouteData.fromRouterResult(
-      RouterResult(
+      const RouterResult(
         builder: builder,
         pathParameters: {},
         pathSegment: '/path',
@@ -27,7 +27,7 @@ void main() {
 
   test('Provides correct path with query string', () {
     final data = RouteData.fromRouterResult(
-      RouterResult(
+      const RouterResult(
         builder: builder,
         pathParameters: {},
         pathSegment: '/path',
@@ -42,7 +42,7 @@ void main() {
 
   test('Route info with different paths are not equal', () {
     final one = RouteData.fromRouterResult(
-      RouterResult(
+      const RouterResult(
         builder: builder,
         pathParameters: {},
         pathSegment: '/one',
@@ -51,7 +51,7 @@ void main() {
       '/one/two',
     );
     final two = RouteData.fromRouterResult(
-      RouterResult(
+      const RouterResult(
         builder: builder,
         pathParameters: {},
         pathSegment: '/two',
@@ -66,7 +66,7 @@ void main() {
 
   test('Route info with same paths are equal', () {
     final one = RouteData.fromRouterResult(
-      RouterResult(
+      const RouterResult(
         builder: builder,
         pathParameters: {},
         pathSegment: '/',
@@ -75,7 +75,7 @@ void main() {
       '/',
     );
     final two = RouteData.fromRouterResult(
-        RouterResult(
+        const RouterResult(
           builder: builder,
           pathParameters: {},
           pathSegment: '/',
@@ -89,7 +89,7 @@ void main() {
 
   test('Route info with different query strings are not equal', () {
     final one = RouteData.fromRouterResult(
-        RouterResult(
+        const RouterResult(
           builder: builder,
           pathParameters: {},
           pathSegment: '/',
@@ -97,7 +97,7 @@ void main() {
         ),
         '/?a=b');
     final two = RouteData.fromRouterResult(
-        RouterResult(
+        const RouterResult(
           builder: builder,
           pathParameters: {},
           pathSegment: '/',
@@ -111,7 +111,7 @@ void main() {
 
   test('Route info with same query strings are equal', () {
     final one = RouteData.fromRouterResult(
-        RouterResult(
+        const RouterResult(
           builder: builder,
           pathParameters: {},
           pathSegment: '/',
@@ -119,7 +119,7 @@ void main() {
         ),
         '/?a=b');
     final two = RouteData.fromRouterResult(
-        RouterResult(
+        const RouterResult(
           builder: builder,
           pathParameters: {},
           pathSegment: '/',
@@ -133,7 +133,7 @@ void main() {
 
   test('Route info with same path params are equal', () {
     final one = RouteData.fromRouterResult(
-        RouterResult(
+        const RouterResult(
           builder: builder,
           pathParameters: {'a': 'b'},
           pathSegment: '/',
@@ -141,7 +141,7 @@ void main() {
         ),
         '/');
     final two = RouteData.fromRouterResult(
-        RouterResult(
+        const RouterResult(
           builder: builder,
           pathParameters: {'a': 'b'},
           pathSegment: '/',
@@ -179,7 +179,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -227,7 +227,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -245,7 +245,7 @@ void main() {
     late BuildContext context;
     await tester.pumpWidget(Builder(builder: (c) {
       context = c;
-      return SizedBox();
+      return const SizedBox();
     }));
 
     expect(

@@ -10,17 +10,17 @@ void main() {
     final delegate = RoutemasterDelegate(routesBuilder: (context) {
       return RouteMap(routes: {
         '/': (_) => IndexedPage(
-              paths: ['one', 'two'],
+              paths: const ['one', 'two'],
               child: TabPage(key: pageKey),
             ),
-        '/one': (_) => MaterialPageOne(),
-        '/two': (_) => MaterialPageTwo(),
+        '/one': (_) => const MaterialPageOne(),
+        '/two': (_) => const MaterialPageTwo(),
       });
     });
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -38,19 +38,19 @@ void main() {
     final delegate = RoutemasterDelegate(routesBuilder: (context) {
       return RouteMap(routes: {
         '/': (_) => IndexedPage(
-              paths: ['one', 'two'],
+              paths: const ['one', 'two'],
               child: TabPage(key: pageKey),
             ),
-        '/one': (_) => MaterialPageOne(),
-        '/two': (_) => MaterialPageTwo(),
+        '/one': (_) => const MaterialPageOne(),
+        '/two': (_) => const MaterialPageTwo(),
       });
     });
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routeInformationProvider: PlatformRouteInformationProvider(
-          initialRouteInformation: RouteInformation(location: '/two'),
+          initialRouteInformation: const RouteInformation(location: '/two'),
         ),
         routerDelegate: delegate,
       ),
@@ -63,7 +63,7 @@ void main() {
   testWidgets('Shows not found page within tab', (tester) async {
     final delegate = RoutemasterDelegate(routesBuilder: (context) {
       return RouteMap(routes: {
-        '/': (_) => IndexedPage(
+        '/': (_) => const IndexedPage(
               paths: ['not-found', 'two'],
               child: BasicTabPage(),
             ),
@@ -72,7 +72,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -83,19 +83,19 @@ void main() {
   testWidgets('Can redirect within tab', (tester) async {
     final delegate = RoutemasterDelegate(routesBuilder: (context) {
       return RouteMap(routes: {
-        '/': (_) => IndexedPage(
+        '/': (_) => const IndexedPage(
               paths: ['one', 'two'],
               child: BasicTabPage(),
             ),
-        '/one': (_) => Redirect('/three'),
-        '/two': (_) => MaterialPageTwo(),
-        '/three': (_) => MaterialPageThree(),
+        '/one': (_) => const Redirect('/three'),
+        '/two': (_) => const MaterialPageTwo(),
+        '/three': (_) => const MaterialPageThree(),
       });
     });
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -104,26 +104,26 @@ void main() {
   });
 
   testWidgets('Can use custom page with indexed page', (tester) async {
-    final key = Key('custom');
+    const key = Key('custom');
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (_) => IndexedPage(
-                paths: ['/one', '/two'],
-                child: BasicTabPage(),
+                paths: const ['/one', '/two'],
+                child: const BasicTabPage(),
                 pageBuilder: (child) => CupertinoPage<void>(
                   child: Container(key: key, child: child),
                 ),
               ),
-          '/one': (_) => MaterialPage<void>(child: PageOne()),
-          '/two': (_) => MaterialPage<void>(child: PageTwo()),
+          '/one': (_) => const MaterialPageOne(),
+          '/two': (_) => const MaterialPageTwo(),
         },
       ),
     );
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -133,7 +133,7 @@ void main() {
 }
 
 class TabPage extends StatelessWidget {
-  TabPage({Key? key}) : super(key: key);
+  const TabPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -146,7 +146,7 @@ class TabPage extends StatelessWidget {
 }
 
 class BasicTabPage extends StatelessWidget {
-  BasicTabPage({Key? key}) : super(key: key);
+  const BasicTabPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

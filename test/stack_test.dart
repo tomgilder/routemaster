@@ -7,14 +7,14 @@ void main() {
   testWidgets('Can push and pop a page via delegate pop()', (tester) async {
     final delegate = RoutemasterDelegate(routesBuilder: (context) {
       return RouteMap(routes: {
-        '/': (_) => MaterialPage<void>(child: PageOne()),
-        '/two': (_) => MaterialPage<void>(child: PageTwo()),
+        '/': (_) => const MaterialPageOne(),
+        '/two': (_) => const MaterialPageTwo(),
       });
     });
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -44,14 +44,14 @@ void main() {
     final page2Key = GlobalKey();
     final delegate = RoutemasterDelegate(routesBuilder: (context) {
       return RouteMap(routes: {
-        '/': (_) => MaterialPage<void>(child: PageOne()),
+        '/': (_) => const MaterialPageOne(),
         '/two': (_) => MaterialPage<void>(child: PageTwo(key: page2Key)),
       });
     });
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -89,7 +89,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -128,7 +128,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -157,14 +157,14 @@ void main() {
   testWidgets('Can push and pop a page with query string', (tester) async {
     final delegate = RoutemasterDelegate(routesBuilder: (context) {
       return RouteMap(routes: {
-        '/': (_) => MaterialPage<void>(child: PageOne()),
-        '/two': (_) => MaterialPage<void>(child: PageTwo()),
+        '/': (_) => const MaterialPageOne(),
+        '/two': (_) => const MaterialPageTwo(),
       });
     });
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -186,17 +186,17 @@ void main() {
     late RouteData routeData;
     final delegate = RoutemasterDelegate(routesBuilder: (context) {
       return RouteMap(routes: {
-        '/': (_) => MaterialPage<void>(child: PageOne()),
+        '/': (_) => const MaterialPageOne(),
         '/two': (info) {
           routeData = info;
-          return MaterialPage<void>(child: PageTwo());
+          return const MaterialPageTwo();
         },
       });
     });
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -212,11 +212,11 @@ void main() {
     final stack = PageStack(
       routes: [
         PageWrapper.fromPage(
-          page: MaterialPageOne(),
+          page: const MaterialPageOne(),
           routeData: RouteData('/'),
         ),
         PageWrapper.fromPage(
-          page: MaterialPageTwo(),
+          page: const MaterialPageTwo(),
           routeData: lastRouteData,
         ),
       ],
@@ -229,7 +229,7 @@ void main() {
     final stack = PageStack(
       routes: [
         PageWrapper.fromPage(
-          page: MaterialPageOne(),
+          page: const MaterialPageOne(),
           routeData: RouteData('/'),
         ),
       ],
@@ -243,19 +243,20 @@ void main() {
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (_) => MaterialPage<void>(child: Container()),
-          '/tabs': (_) => TabPage(child: MyTabPage(), paths: ['one', 'two']),
-          '/tabs/one': (_) => MaterialPageOne(),
-          '/tabs/one/subpage': (_) => MaterialPageThree(),
-          '/tabs/two': (_) => MaterialPageTwo(),
+          '/tabs': (_) =>
+              TabPage(child: MyTabPage(), paths: const ['one', 'two']),
+          '/tabs/one': (_) => const MaterialPageOne(),
+          '/tabs/one/subpage': (_) => const MaterialPageThree(),
+          '/tabs/two': (_) => const MaterialPageTwo(),
         },
       ),
     );
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routeInformationProvider: PlatformRouteInformationProvider(
-          initialRouteInformation: RouteInformation(
+          initialRouteInformation: const RouteInformation(
             location: '/tabs/one/subpage',
           ),
         ),
@@ -290,7 +291,7 @@ void main() {
     await tester.pumpWidget(
       Builder(builder: (c) {
         context = c;
-        return SizedBox();
+        return const SizedBox();
       }),
     );
 
@@ -311,7 +312,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -340,14 +341,14 @@ class StackSwapPageState extends State<StackSwapPage> {
 
   final _stack1 = PageStack(routes: [
     PageWrapper.fromPage(
-      page: MaterialPage<void>(child: Text('Stack 1')),
+      page: const MaterialPage<void>(child: Text('Stack 1')),
       routeData: RouteData('/'),
     )
   ]);
 
   final _stack2 = PageStack(routes: [
     PageWrapper.fromPage(
-      page: MaterialPage<void>(child: Text('Stack 2')),
+      page: const MaterialPage<void>(child: Text('Stack 2')),
       routeData: RouteData('/'),
     )
   ]);

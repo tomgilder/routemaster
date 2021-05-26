@@ -8,7 +8,7 @@ import 'helpers.dart';
 class TestRoute extends Page<void> {
   final String id;
 
-  TestRoute(this.id);
+  const TestRoute(this.id);
 
   @override
   String toString() {
@@ -28,9 +28,9 @@ RouteData getRouteData(RouterResult routerResult) {
 void main() {
   test('Can add and get single routes', () {
     final router = TrieRouter();
-    final rootRoute = TestRoute('root');
-    final route1 = TestRoute('one');
-    final route2 = TestRoute('two');
+    const rootRoute = TestRoute('root');
+    const route1 = TestRoute('one');
+    const route2 = TestRoute('two');
 
     router.add('/', (_) => rootRoute);
     router.add('/one', (_) => route1);
@@ -57,8 +57,8 @@ void main() {
 
   test('Can add and get single routes without root', () {
     final router = TrieRouter();
-    final route1 = TestRoute('one');
-    final route2 = TestRoute('two');
+    const route1 = TestRoute('one');
+    const route2 = TestRoute('two');
 
     router.add('/one/two', (_) => route2);
     router.add('/one', (_) => route1);
@@ -78,9 +78,9 @@ void main() {
 
   test('Can add and get single routes in reverse order', () {
     final router = TrieRouter();
-    final rootRoute = TestRoute('root');
-    final route1 = TestRoute('one');
-    final route2 = TestRoute('two');
+    const rootRoute = TestRoute('root');
+    const route1 = TestRoute('one');
+    const route2 = TestRoute('two');
 
     router.add('/one/two', (_) => route2);
     router.add('/one', (_) => route1);
@@ -107,9 +107,9 @@ void main() {
 
   test('Can add and get all routes', () {
     final router = TrieRouter();
-    final rootRoute = TestRoute('root');
-    final route1 = TestRoute('one');
-    final route2 = TestRoute('two');
+    const rootRoute = TestRoute('root');
+    const route1 = TestRoute('one');
+    const route2 = TestRoute('two');
 
     router.add('/', (_) => rootRoute);
     router.add('/one', (_) => route1);
@@ -134,9 +134,9 @@ void main() {
 
   test('Can add and get all routes in reverse order', () {
     final router = TrieRouter();
-    final rootRoute = TestRoute('root');
-    final route1 = TestRoute('one');
-    final route2 = TestRoute('two');
+    const rootRoute = TestRoute('root');
+    const route1 = TestRoute('one');
+    const route2 = TestRoute('two');
 
     router.add('/one/two', (_) => route2);
     router.add('/one', (_) => route1);
@@ -163,8 +163,8 @@ void main() {
 
   test('Can add and get all routes without root', () {
     final router = TrieRouter();
-    final route1 = TestRoute('one');
-    final route2 = TestRoute('two');
+    const route1 = TestRoute('one');
+    const route2 = TestRoute('two');
 
     router.add('/one/two', (_) => route2);
     router.add('/one', (_) => route1);
@@ -184,8 +184,8 @@ void main() {
 
   test('Can get route which starts with parameter', () {
     final router = TrieRouter();
-    final rootRoute = TestRoute('root');
-    final route1 = TestRoute('one');
+    const rootRoute = TestRoute('root');
+    const route1 = TestRoute('one');
 
     router.add('/', (_) => rootRoute);
     router.add('/:id/one', (_) => route1);
@@ -206,10 +206,10 @@ void main() {
 
   test('Can get route which starts with multiple parameters', () {
     final router = TrieRouter();
-    final rootRoute = TestRoute('root');
-    final idRoute1 = TestRoute('id1');
-    final idRoute2 = TestRoute('id2');
-    final finalRoute = TestRoute('id2');
+    const rootRoute = TestRoute('root');
+    const idRoute1 = TestRoute('id1');
+    const idRoute2 = TestRoute('id2');
+    const finalRoute = TestRoute('id2');
 
     router.add('/', (_) => rootRoute);
     router.add('/:id1', (_) => idRoute1);
@@ -240,8 +240,8 @@ void main() {
 
   test('Can get route which starts with multiple skipped parameters', () {
     final router = TrieRouter();
-    final rootRoute = TestRoute('root');
-    final finalRoute = TestRoute('id2');
+    const rootRoute = TestRoute('root');
+    const finalRoute = TestRoute('id2');
 
     router.add('/', (_) => rootRoute);
     router.add('/:id1/:id2/final', (_) => finalRoute);
@@ -260,10 +260,10 @@ void main() {
 
   test('Can get route with parameter in middle', () {
     final router = TrieRouter();
-    final rootRoute = TestRoute('root');
-    final productRoute = TestRoute('product');
-    final productIdRoute = TestRoute('productId');
-    final detailsRoute = TestRoute('details');
+    const rootRoute = TestRoute('root');
+    const productRoute = TestRoute('product');
+    const productIdRoute = TestRoute('productId');
+    const detailsRoute = TestRoute('details');
 
     router.add('/', (_) => rootRoute);
     router.add('/product', (_) => productRoute);
@@ -297,11 +297,11 @@ void main() {
 
   test('Can get route with multiple parameters in middle', () {
     final router = TrieRouter();
-    final rootRoute = TestRoute('root');
-    final productRoute = TestRoute('product');
-    final productId1Route = TestRoute('productId1');
-    final productId2Route = TestRoute('productId2');
-    final detailsRoute = TestRoute('details');
+    const rootRoute = TestRoute('root');
+    const productRoute = TestRoute('product');
+    const productId1Route = TestRoute('productId1');
+    const productId2Route = TestRoute('productId2');
+    const detailsRoute = TestRoute('details');
 
     router.add('/', (_) => rootRoute);
     router.add('/product', (_) => productRoute);
@@ -341,11 +341,11 @@ void main() {
 
   test('Throws ConflictingPathError', () {
     final router = TrieRouter();
-    router.add('/test/:id1', (info) => MaterialPageOne());
+    router.add('/test/:id1', (info) => const MaterialPageOne());
 
     expect(
       () {
-        router.add('/test/:id2', (info) => MaterialPageOne());
+        router.add('/test/:id2', (info) => const MaterialPageOne());
       },
       throwsA(predicate((e) =>
           e is ConflictingPathError &&
@@ -356,14 +356,14 @@ void main() {
 
   test('RouterResult not equal with different paths', () {
     final result1 = RouterResult(
-      builder: (_) => MaterialPageOne(),
+      builder: (_) => const MaterialPageOne(),
       pathParameters: {},
       pathSegment: '/one',
       pathTemplate: '/one',
     );
 
     final result2 = RouterResult(
-      builder: (_) => MaterialPageTwo(),
+      builder: (_) => const MaterialPageTwo(),
       pathParameters: {},
       pathSegment: '/two',
       pathTemplate: '/two',
@@ -375,7 +375,7 @@ void main() {
 
   test('RouterResult toString() is correct', () {
     final result = RouterResult(
-      builder: (_) => MaterialPageOne(),
+      builder: (_) => const MaterialPageOne(),
       pathParameters: {'a': 'b'},
       pathSegment: '/',
       pathTemplate: '/',
@@ -385,8 +385,8 @@ void main() {
 
   test('Throws if duplicate URL added', () {
     final router = TrieRouter();
-    final rootRoute = TestRoute('root');
-    final route1 = TestRoute('one');
+    const rootRoute = TestRoute('root');
+    const route1 = TestRoute('one');
 
     router.add('/one', (_) => rootRoute);
 

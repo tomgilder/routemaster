@@ -9,21 +9,21 @@ void main() {
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         routes: {
-          '/': (_) => MaterialPage<void>(child: PageOne()),
+          '/': (_) => const MaterialPageOne(),
         },
       ),
     );
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
 
     delegate.push('/unknown/nonsense');
     await tester.pump();
-    await tester.pump(Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
 
     expect(find.byType(DefaultNotFoundPage), findsOneWidget);
     expect(find.text("Page '/unknown/nonsense' wasn't found."), findsOneWidget);
@@ -36,14 +36,14 @@ void main() {
           return MaterialPage<void>(child: NotFoundPage());
         },
         routes: {
-          '/': (_) => MaterialPage<void>(child: PageOne()),
+          '/': (_) => const MaterialPageOne(),
         },
       ),
     );
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -52,7 +52,7 @@ void main() {
       await recordUrlChanges(() async {
         delegate.push('/unknown/nonsense');
         await tester.pump();
-        await tester.pump(Duration(seconds: 1));
+        await tester.pump(const Duration(seconds: 1));
 
         expect(find.byType(NotFoundPage), findsOneWidget);
       }),
@@ -63,9 +63,9 @@ void main() {
   testWidgets('Can redirect to 404 page', (tester) async {
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
-        onUnknownRoute: (path) => Redirect('/not-found'),
+        onUnknownRoute: (path) => const Redirect('/not-found'),
         routes: {
-          '/': (_) => MaterialPage<void>(child: PageOne()),
+          '/': (_) => const MaterialPageOne(),
           '/not-found': (_) => MaterialPage<void>(child: NotFoundPage()),
         },
       ),
@@ -73,7 +73,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -82,7 +82,7 @@ void main() {
       await recordUrlChanges(() async {
         delegate.push('/unknown/nonsense');
         await tester.pump();
-        await tester.pump(Duration(seconds: 1));
+        await tester.pump(const Duration(seconds: 1));
 
         expect(find.byType(NotFoundPage), findsOneWidget);
       }),
@@ -93,10 +93,10 @@ void main() {
   testWidgets('Can redirect to 404 stack', (tester) async {
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
-        onUnknownRoute: (path) => Redirect('/not-found/sub-page'),
+        onUnknownRoute: (path) => const Redirect('/not-found/sub-page'),
         routes: {
-          '/': (_) => MaterialPage<void>(child: PageOne()),
-          '/not-found': (_) => MaterialPage<void>(child: PageTwo()),
+          '/': (_) => const MaterialPageOne(),
+          '/not-found': (_) => const MaterialPageTwo(),
           '/not-found/sub-page': (_) =>
               MaterialPage<void>(child: NotFoundPage()),
         },
@@ -105,7 +105,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -114,7 +114,7 @@ void main() {
       await recordUrlChanges(() async {
         delegate.push('/unknown/nonsense');
         await tester.pump();
-        await tester.pump(Duration(seconds: 1));
+        await tester.pump(const Duration(seconds: 1));
 
         expect(find.byType(NotFoundPage), findsOneWidget);
       }),
@@ -125,7 +125,7 @@ void main() {
       await recordUrlChanges(() async {
         await delegate.popRoute();
         await tester.pump();
-        await tester.pump(Duration(seconds: 1));
+        await tester.pump(const Duration(seconds: 1));
         expect(find.byType(PageTwo), findsOneWidget);
       }),
       ['/not-found'],
@@ -136,6 +136,6 @@ void main() {
 class NotFoundPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return SizedBox();
+    return const SizedBox();
   }
 }

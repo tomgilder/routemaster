@@ -13,7 +13,7 @@ void main() {
     final routes = <String, PageBuilder>{
       '/': (_) => CupertinoTabPage(
             child: HomePage(tracker: tracker1),
-            paths: ['feed', 'settings'],
+            paths: const ['feed', 'settings'],
           ),
       '/feed': (_) => MaterialPage<void>(
             child: InitStateTracker(tracker: tracker2),
@@ -25,7 +25,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: RoutemasterDelegate(
           routesBuilder: (_) => RouteMap(routes: routes),
         ),
@@ -38,7 +38,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: RoutemasterDelegate(
           routesBuilder: (_) => RouteMap(routes: routes),
         ),
@@ -61,7 +61,7 @@ void main() {
       routesBuilder: (_) => RouteMap(routes: {
         '/': (_) => CupertinoTabPage(
               child: HomePage(tracker: tracker1),
-              paths: ['feed', 'settings'],
+              paths: const ['feed', 'settings'],
             ),
         '/feed': (_) => MaterialPage<void>(
               child: InitStateTracker(tracker: tracker2),
@@ -74,7 +74,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -85,7 +85,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -103,7 +103,7 @@ class Tracker {
 class InitStateTracker extends StatefulWidget {
   final Tracker tracker;
 
-  InitStateTracker({required this.tracker});
+  const InitStateTracker({required this.tracker});
 
   @override
   _InitStateTrackerState createState() => _InitStateTrackerState();
@@ -146,7 +146,7 @@ class _HomePageState extends State<HomePage> {
       controller: tabState.controller,
       tabBuilder: tabState.tabBuilder,
       tabBar: CupertinoTabBar(
-        items: [
+        items: const [
           BottomNavigationBarItem(
             label: 'Feed',
             icon: Icon(CupertinoIcons.list_bullet),
@@ -168,7 +168,7 @@ class FeedPage extends StatelessWidget {
       body: Center(
         child: ElevatedButton(
           onPressed: () => Routemaster.of(context).push('profile/1'),
-          child: Text('Profile page'),
+          child: const Text('Profile page'),
         ),
       ),
     );
@@ -182,7 +182,7 @@ class ProfilePage extends StatelessWidget {
       appBar: AppBar(),
       body: Center(
         child: Column(
-          children: [
+          children: const [
             Text('Profile page'),
           ],
         ),
@@ -194,15 +194,15 @@ class ProfilePage extends StatelessWidget {
 class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Center(child: Text('Settings page')));
+    return const Scaffold(body: Center(child: Text('Settings page')));
   }
 }
 
 class TabbedPage extends StatelessWidget {
-  TabbedPage({Key? key}) : super(key: key);
+  const TabbedPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox();
+    return const SizedBox();
   }
 }

@@ -61,7 +61,7 @@ void main() {
     await tester.pumpWidget(
       ObserverApp(
         delegateObservers: [delegateObserver1],
-        navigatorObservers: [],
+        navigatorObservers: const [],
       ),
     );
 
@@ -159,7 +159,7 @@ class ObserverApp extends StatelessWidget {
           routes: {
             '/': (_) => CupertinoTabPage(
                   child: HomePage(navigatorObservers: navigatorObservers),
-                  paths: ['feed', 'settings'],
+                  paths: const ['feed', 'settings'],
                 ),
             '/feed': (_) => MaterialPage<void>(
                   child: FeedPage(),
@@ -177,7 +177,7 @@ class ObserverApp extends StatelessWidget {
         ),
         observers: delegateObservers,
       ),
-      routeInformationParser: RoutemasterParser(),
+      routeInformationParser: const RoutemasterParser(),
     );
   }
 }
@@ -208,7 +208,7 @@ class _HomePageState extends State<HomePage> {
         );
       },
       tabBar: CupertinoTabBar(
-        items: [
+        items: const [
           BottomNavigationBarItem(
             label: 'Feed',
             icon: Icon(CupertinoIcons.list_bullet),
@@ -230,7 +230,7 @@ class FeedPage extends StatelessWidget {
       body: Center(
         child: ElevatedButton(
           onPressed: () => Routemaster.of(context).push('profile/1'),
-          child: Text('Profile page'),
+          child: const Text('Profile page'),
         ),
       ),
     );
@@ -245,10 +245,10 @@ class ProfilePage extends StatelessWidget {
       body: Center(
         child: Column(
           children: [
-            Text('Profile page'),
+            const Text('Profile page'),
             CupertinoButton(
               onPressed: () => Routemaster.of(context).pop(),
-              child: Text('Pop'),
+              child: const Text('Pop'),
             ),
           ],
         ),
@@ -260,16 +260,16 @@ class ProfilePage extends StatelessWidget {
 class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Center(child: Text('Settings page')));
+    return const Scaffold(body: Center(child: Text('Settings page')));
   }
 }
 
 class TabbedPage extends StatelessWidget {
-  TabbedPage({Key? key}) : super(key: key);
+  const TabbedPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox();
+    return const SizedBox();
   }
 }
 

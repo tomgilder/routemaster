@@ -9,7 +9,7 @@ void main() {
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         routes: {
-          '/': (_) => MaterialPageOne(),
+          '/': (_) => const MaterialPageOne(),
           '/two': (_) => MaterialPage<void>(child: Container(key: key)),
         },
       ),
@@ -17,7 +17,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -34,7 +34,7 @@ void main() {
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         routes: {
-          '/': (_) => MaterialPageOne(),
+          '/': (_) => const MaterialPageOne(),
           '/two': (_) => MaterialPage<void>(child: Container(key: key)),
         },
       ),
@@ -42,7 +42,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -59,7 +59,7 @@ void main() {
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         routes: {
-          '/': (_) => MaterialPageOne(),
+          '/': (_) => const MaterialPageOne(),
           '/two': (_) => MaterialPage<void>(child: Container(key: key)),
         },
       ),
@@ -67,7 +67,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -85,7 +85,7 @@ void main() {
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         routes: {
-          '/': (_) => MaterialPageOne(),
+          '/': (_) => const MaterialPageOne(),
           '/two': (_) => MaterialPage<void>(child: Container(key: key)),
         },
       ),
@@ -93,7 +93,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -110,7 +110,7 @@ void main() {
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         routes: {
-          '/': (_) => MaterialPageOne(),
+          '/': (_) => const MaterialPageOne(),
           '/two': (_) => MaterialPage<void>(child: Container(key: key)),
         },
       ),
@@ -118,7 +118,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -133,8 +133,8 @@ void main() {
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         routes: {
-          '/': (_) => MaterialPageOne(),
-          '/two': (_) => MaterialPageTwo(),
+          '/': (_) => const MaterialPageOne(),
+          '/two': (_) => const MaterialPageTwo(),
           '/two/three': (_) => MaterialPage<void>(child: Container(key: key)),
         },
       ),
@@ -142,7 +142,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );

@@ -839,7 +839,7 @@ class _RoutemasterStateTracker extends StatefulWidget {
   final RoutemasterDelegate delegate;
   final Widget Function(BuildContext context) builder;
 
-  _RoutemasterStateTracker({
+  const _RoutemasterStateTracker({
     required this.delegate,
     required this.builder,
   });
@@ -1053,7 +1053,7 @@ class PageStackNavigatorState extends State<PageStackNavigator> {
 class _StackNavigator extends Navigator {
   final PageStack stack;
 
-  _StackNavigator({
+  const _StackNavigator({
     required this.stack,
     Key? key,
     PopPageCallback? onPopPage,

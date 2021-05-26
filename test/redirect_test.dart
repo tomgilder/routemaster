@@ -8,10 +8,10 @@ void main() {
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         routes: {
-          '/': (info) => Redirect('/two'),
+          '/': (info) => const Redirect('/two'),
           '/two': (info) => Guard(
                 canNavigate: (info, context) => true,
-                builder: () => MaterialPage<void>(child: PageTwo()),
+                builder: () => const MaterialPageTwo(),
               ),
         },
       ),
@@ -19,7 +19,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -32,15 +32,15 @@ void main() {
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         routes: {
-          '/': (info) => Redirect('/two'),
-          '/two': (info) => Redirect('/'),
+          '/': (info) => const Redirect('/two'),
+          '/two': (info) => const Redirect('/'),
         },
       ),
     );
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -67,16 +67,16 @@ This is an error in your routing map.""",
         routes: {
           '/': (info) => Guard(
                 canNavigate: (_, __) => true,
-                builder: () => Redirect('/two'),
+                builder: () => const Redirect('/two'),
               ),
-          '/two': (info) => MaterialPage<void>(child: PageTwo()),
+          '/two': (info) => const MaterialPageTwo(),
         },
       ),
     );
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -90,10 +90,10 @@ This is an error in your routing map.""",
       Builder(
         builder: (context) {
           expect(
-            () => Redirect('/').createRoute(context),
+            () => const Redirect('/').createRoute(context),
             throwsA(isA<UnimplementedError>()),
           );
-          return SizedBox();
+          return const SizedBox();
         },
       ),
     );

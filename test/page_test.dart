@@ -11,7 +11,7 @@ void main() {
           () => MockStatefulPage().createRoute(context),
           throwsA(isA<UnimplementedError>()),
         );
-        return SizedBox();
+        return const SizedBox();
       },
     ));
   });
@@ -19,14 +19,14 @@ void main() {
   test('PageWrapper getCurrentPageStates returns itself', () {
     final page = PageWrapper.fromPage(
       routeData: RouteData(''),
-      page: MaterialPageOne(),
+      page: const MaterialPageOne(),
     );
 
     expect(page.getCurrentPages().single, page);
   });
 
   test('PageWrapper createPage returns page', () {
-    final page = MaterialPageOne();
+    const page = MaterialPageOne();
     final wrapper = PageWrapper.fromPage(
       routeData: RouteData(''),
       page: page,
@@ -38,7 +38,7 @@ void main() {
   testWidgets('StatefulPage that returns incorrect state type throws',
       (tester) async {
     final app = MaterialApp.router(
-      routeInformationParser: RoutemasterParser(),
+      routeInformationParser: const RoutemasterParser(),
       routerDelegate: RoutemasterDelegate(
         routesBuilder: (_) => RouteMap(
           routes: {
