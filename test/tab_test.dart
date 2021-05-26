@@ -10,22 +10,23 @@ void main() {
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (_) => MaterialPage<void>(child: Container()),
-          '/tabs': (_) => TabPage(child: MyTabPage(), paths: ['one', 'two']),
-          '/tabs/one': (_) => MaterialPage<void>(child: PageOne()),
-          '/tabs/two': (_) => MaterialPage<void>(child: PageTwo()),
+          '/tabs': (_) =>
+              TabPage(child: MyTabPage(), paths: const ['one', 'two']),
+          '/tabs/one': (_) => const MaterialPageOne(),
+          '/tabs/two': (_) => const MaterialPageTwo(),
         },
       ),
     );
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
     delegate.push('/tabs/one');
     await tester.pump();
-    await tester.pump(Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
 
     expect(find.byType(MyTabPage), findsOneWidget);
     expect(find.byType(PageOne), findsOneWidget);
@@ -37,25 +38,25 @@ void main() {
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (_) => MaterialPage<void>(child: Container()),
-          '/tabs': (_) => TabPage(child: MyTabPage(), paths: [
+          '/tabs': (_) => TabPage(child: MyTabPage(), paths: const [
                 '/tabs/one',
                 '/tabs/two',
               ]),
-          '/tabs/one': (_) => MaterialPage<void>(child: PageOne()),
-          '/tabs/two': (_) => MaterialPage<void>(child: PageTwo()),
+          '/tabs/one': (_) => const MaterialPageOne(),
+          '/tabs/two': (_) => const MaterialPageTwo(),
         },
       ),
     );
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
     delegate.push('/tabs/one');
     await tester.pump();
-    await tester.pump(Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
 
     expect(find.byType(MyTabPage), findsOneWidget);
     expect(find.byType(PageOne), findsOneWidget);
@@ -66,33 +67,33 @@ void main() {
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (_) => MaterialPage<void>(child: Container()),
-          '/tabs': (_) => TabPage(child: MyTabPage(), paths: [
+          '/tabs': (_) => TabPage(child: MyTabPage(), paths: const [
                 '/tabs/one',
                 '/tabs/two',
               ]),
-          '/tabs/one': (_) => MaterialPage<void>(child: PageOne()),
-          '/tabs/two': (_) => MaterialPage<void>(child: PageTwo()),
-          '/tabs/one/subpage': (_) => MaterialPage<void>(child: PageThree()),
+          '/tabs/one': (_) => const MaterialPageOne(),
+          '/tabs/two': (_) => const MaterialPageTwo(),
+          '/tabs/one/subpage': (_) => const MaterialPageThree(),
         },
       ),
     );
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
     delegate.push('/tabs/one?query=string');
     await tester.pump();
-    await tester.pump(Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
 
     expect(find.byType(MyTabPage), findsOneWidget);
     expect(find.byType(PageOne), findsOneWidget);
 
     delegate.push('subpage');
     await tester.pump();
-    await tester.pump(Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
     expect(find.byType(PageThree), findsOneWidget);
   });
 
@@ -101,33 +102,33 @@ void main() {
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (_) => MaterialPage<void>(child: Container()),
-          '/tabs': (_) => TabPage(child: MyTabPage(), paths: [
+          '/tabs': (_) => TabPage(child: MyTabPage(), paths: const [
                 '/tabs/one?a=b',
                 '/tabs/two?c=d',
               ]),
-          '/tabs/one': (_) => MaterialPage<void>(child: PageOne()),
-          '/tabs/two': (_) => MaterialPage<void>(child: PageTwo()),
-          '/tabs/one/subpage': (_) => MaterialPage<void>(child: PageThree()),
+          '/tabs/one': (_) => const MaterialPageOne(),
+          '/tabs/two': (_) => const MaterialPageTwo(),
+          '/tabs/one/subpage': (_) => const MaterialPageThree(),
         },
       ),
     );
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
     delegate.push('/tabs/one?query=string');
     await tester.pump();
-    await tester.pump(Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
 
     expect(find.byType(MyTabPage), findsOneWidget);
     expect(find.byType(PageOne), findsOneWidget);
 
     delegate.push('subpage');
     await tester.pump();
-    await tester.pump(Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
     expect(find.byType(PageThree), findsOneWidget);
   });
 
@@ -136,33 +137,33 @@ void main() {
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (_) => MaterialPage<void>(child: Container()),
-          '/tabs': (_) => TabPage(child: MyTabPage(), paths: [
+          '/tabs': (_) => TabPage(child: MyTabPage(), paths: const [
                 '/tabs/one?a=b',
                 '/tabs/two?c=d',
               ]),
-          '/tabs/one': (_) => MaterialPage<void>(child: PageOne()),
-          '/tabs/two': (_) => MaterialPage<void>(child: PageTwo()),
-          '/tabs/one/subpage': (_) => MaterialPage<void>(child: PageThree()),
+          '/tabs/one': (_) => const MaterialPageOne(),
+          '/tabs/two': (_) => const MaterialPageTwo(),
+          '/tabs/one/subpage': (_) => const MaterialPageThree(),
         },
       ),
     );
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
     delegate.push('/tabs/one?query=string');
     await tester.pump();
-    await tester.pump(Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
 
     expect(find.byType(MyTabPage), findsOneWidget);
     expect(find.byType(PageOne), findsOneWidget);
 
     delegate.push('subpage');
     await tester.pump();
-    await tester.pump(Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
     expect(find.byType(PageThree), findsOneWidget);
   });
 
@@ -173,22 +174,22 @@ void main() {
         routes: {
           '/': (_) => MaterialPage<void>(child: Container()),
           '/:id/tabs': (_) =>
-              TabPage(child: MyTabPage(), paths: ['one', 'two']),
-          '/:id/tabs/one': (_) => MaterialPage<void>(child: PageOne()),
-          '/:id/tabs/two': (_) => MaterialPage<void>(child: PageTwo()),
+              TabPage(child: MyTabPage(), paths: const ['one', 'two']),
+          '/:id/tabs/one': (_) => const MaterialPageOne(),
+          '/:id/tabs/two': (_) => const MaterialPageTwo(),
         },
       ),
     );
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
     delegate.push('/myId/tabs/one?query=string');
     await tester.pump();
-    await tester.pump(Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
 
     expect(find.byType(MyTabPage), findsOneWidget);
     expect(find.byType(PageOne), findsOneWidget);
@@ -208,21 +209,21 @@ void main() {
               paths: ['/$id/tabs/one', '/$id/tabs/two'],
             );
           },
-          '/:id/tabs/one': (_) => MaterialPage<void>(child: PageOne()),
-          '/:id/tabs/two': (_) => MaterialPage<void>(child: PageTwo()),
+          '/:id/tabs/one': (_) => const MaterialPageOne(),
+          '/:id/tabs/two': (_) => const MaterialPageTwo(),
         },
       ),
     );
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
     delegate.push('/myId/tabs/one?query=string');
     await tester.pump();
-    await tester.pump(Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
 
     expect(find.byType(MyTabPage), findsOneWidget);
     expect(find.byType(PageOne), findsOneWidget);
@@ -234,30 +235,31 @@ void main() {
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (_) => MaterialPage<void>(child: Container()),
-          '/tabs': (_) => TabPage(child: MyTabPage(), paths: ['one', 'two']),
-          '/tabs/one': (_) => MaterialPage<void>(child: PageOne()),
-          '/tabs/two': (_) => MaterialPage<void>(child: PageTwo()),
-          '/tabs/onepagethree': (_) => MaterialPage<void>(child: PageThree()),
+          '/tabs': (_) =>
+              TabPage(child: MyTabPage(), paths: const ['one', 'two']),
+          '/tabs/one': (_) => const MaterialPageOne(),
+          '/tabs/two': (_) => const MaterialPageTwo(),
+          '/tabs/onepagethree': (_) => const MaterialPageThree(),
         },
       ),
     );
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
     delegate.push('/tabs/one');
     await tester.pump();
-    await tester.pump(Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
 
     expect(find.byType(MyTabPage), findsOneWidget);
     expect(find.byType(PageOne), findsOneWidget);
 
     delegate.push('/tabs/onepagethree');
     await tester.pump();
-    await tester.pump(Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
     expect(find.byType(MyTabPage), findsNothing);
     expect(find.byType(PageThree), findsOneWidget);
   });
@@ -269,31 +271,31 @@ void main() {
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (_) => MaterialPage<void>(child: Container()),
-          '/tabs': (_) =>
-              TabPage(child: MyTabPage(), paths: ['/tabs/one', '/tabs/two']),
-          '/tabs/one': (_) => MaterialPage<void>(child: PageOne()),
-          '/tabs/two': (_) => MaterialPage<void>(child: PageTwo()),
-          '/tabs/onepagethree': (_) => MaterialPage<void>(child: PageThree()),
+          '/tabs': (_) => TabPage(
+              child: MyTabPage(), paths: const ['/tabs/one', '/tabs/two']),
+          '/tabs/one': (_) => const MaterialPageOne(),
+          '/tabs/two': (_) => const MaterialPageTwo(),
+          '/tabs/onepagethree': (_) => const MaterialPageThree(),
         },
       ),
     );
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
     delegate.push('/tabs/one');
     await tester.pump();
-    await tester.pump(Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
 
     expect(find.byType(MyTabPage), findsOneWidget);
     expect(find.byType(PageOne), findsOneWidget);
 
     delegate.push('/tabs/onepagethree');
     await tester.pump();
-    await tester.pump(Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
     expect(find.byType(PageThree), findsOneWidget);
   });
 
@@ -302,17 +304,17 @@ void main() {
     final delegate = RoutemasterDelegate(routesBuilder: (context) {
       return RouteMap(routes: {
         '/': (_) => TabPage(
-              paths: ['one', 'two'],
+              paths: const ['one', 'two'],
               child: TabbedPage(key: pageKey),
             ),
-        '/one': (_) => MaterialPageOne(),
-        '/two': (_) => MaterialPageTwo(),
+        '/one': (_) => const MaterialPageOne(),
+        '/two': (_) => const MaterialPageTwo(),
       });
     });
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -344,16 +346,16 @@ void main() {
           return Container();
         },
       ),
-      paths: ['path'],
+      paths: const ['path'],
     );
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: RoutemasterDelegate(routesBuilder: (context) {
           return RouteMap(routes: {
             '/': (_) => page,
-            '/path': (_) => MaterialPageOne(),
+            '/path': (_) => const MaterialPageOne(),
           });
         }),
       ),
@@ -366,11 +368,11 @@ void main() {
     // This causes _TabControllerProvider.didUpdateWidget to be called
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: RoutemasterDelegate(routesBuilder: (context) {
           return RouteMap(routes: {
             '/': (_) => page,
-            '/path': (_) => MaterialPageOne(),
+            '/path': (_) => const MaterialPageOne(),
           });
         }),
       ),
@@ -387,7 +389,7 @@ void main() {
     // Show one tab
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: RoutemasterDelegate(routesBuilder: (context) {
           return RouteMap(routes: {
             '/': (_) => TabPage(
@@ -397,9 +399,9 @@ void main() {
                       return Container();
                     },
                   ),
-                  paths: ['/one'],
+                  paths: const ['/one'],
                 ),
-            '/one': (_) => MaterialPageOne(),
+            '/one': (_) => const MaterialPageOne(),
           });
         }),
       ),
@@ -410,7 +412,7 @@ void main() {
     // Add a second tab
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: RoutemasterDelegate(routesBuilder: (context) {
           return RouteMap(routes: {
             '/': (_) => TabPage(
@@ -420,10 +422,10 @@ void main() {
                       return Container();
                     },
                   ),
-                  paths: ['/one', '/two'],
+                  paths: const ['/one', '/two'],
                 ),
-            '/one': (_) => MaterialPageOne(),
-            '/two': (_) => MaterialPageTwo(),
+            '/one': (_) => const MaterialPageOne(),
+            '/two': (_) => const MaterialPageTwo(),
           });
         }),
       ),
@@ -463,26 +465,26 @@ void main() {
   });
 
   testWidgets('Can use custom page with TabPage', (tester) async {
-    final key = Key('custom');
+    const key = Key('custom');
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (_) => TabPage(
                 child: MyTabPage(),
-                paths: ['/one', '/two'],
+                paths: const ['/one', '/two'],
                 pageBuilder: (child) => CupertinoPage<void>(
                   child: Container(key: key, child: child),
                 ),
               ),
-          '/one': (_) => MaterialPage<void>(child: PageOne()),
-          '/two': (_) => MaterialPage<void>(child: PageTwo()),
+          '/one': (_) => const MaterialPageOne(),
+          '/two': (_) => const MaterialPageTwo(),
         },
       ),
     );
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -519,11 +521,11 @@ class StubNavigationResult<T> implements NavigationResult<T> {
 }
 
 class TabbedPage extends StatelessWidget {
-  TabbedPage({Key? key}) : super(key: key);
+  const TabbedPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox();
+    return const SizedBox();
   }
 }
 

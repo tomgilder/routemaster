@@ -66,10 +66,10 @@ void main() {
       routes: {
         '/': (_) => CupertinoTabPage(
               child: Container(),
-              paths: ['/one', '/two'],
+              paths: const ['/one', '/two'],
             ),
-        '/one': (_) => MaterialPageOne(),
-        '/two': (_) => MaterialPageTwo(),
+        '/one': (_) => const MaterialPageOne(),
+        '/two': (_) => const MaterialPageTwo(),
       },
     );
 

@@ -14,7 +14,7 @@ class SystemNav {
 
   @visibleForTesting
   static void setHashUrlStrategy() {
-    _urlStrategy = HashUrlStrategy();
+    _urlStrategy = const HashUrlStrategy();
     setUrlStrategy(_urlStrategy);
   }
 
@@ -23,7 +23,7 @@ class SystemNav {
   static void _setDefaultUrlStrategy() {
     historyProvider ??= BrowserHistoryProvider();
     _urlStrategy = historyProvider!.hash.isNotEmpty
-        ? HashUrlStrategy()
+        ? const HashUrlStrategy()
         : PathUrlStrategy();
   }
 

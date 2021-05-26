@@ -101,7 +101,7 @@ MaterialApp.router(
       '/two': (routeData) => MaterialPage(child: PageTwo()),
     }),
   ),
-  routeInformationParser: const RoutemasterParser(),
+  routeInformationParser: RoutemasterParser(),
 )
 ```
 
@@ -312,7 +312,7 @@ final loggedInMap = RouteMap(
 );
 
 MaterialApp.router(
-  routerDelegate: const RoutemasterDelegate(
+  routerDelegate: RoutemasterDelegate(
     routesBuilder: (context) {
 			// This will rebuild when AppState changes
       final appState = Provider.of<AppState>(context);
@@ -346,7 +346,7 @@ MaterialApp.router(
     observers: [MyObserver()],
     routesBuilder: (_) => routeMap,
   ),
-  routeInformationParser: const RoutemasterParser(),
+  routeInformationParser: RoutemasterParser(),
 );
 ```
 
@@ -360,7 +360,7 @@ final routemaster = RoutemasterDelegate(
 
 MaterialApp.router(
   routerDelegate: routemaster,
-  routeInformationParser: const RoutemasterParser(),
+  routeInformationParser: RoutemasterParser(),
 )
 ```
 

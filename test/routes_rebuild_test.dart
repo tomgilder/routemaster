@@ -11,14 +11,14 @@ void main() {
     final delegate = RoutemasterDelegate(routesBuilder: (context) {
       routeBuildCount++;
       return RouteMap(routes: {
-        '/': (_) => MaterialPage<void>(child: PageOne()),
-        '/two': (_) => MaterialPage<void>(child: PageTwo()),
+        '/': (_) => const MaterialPageOne(),
+        '/two': (_) => const MaterialPageTwo(),
       });
     });
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -40,7 +40,7 @@ void main() {
       final state = StateProvider.of(context).state;
 
       return RouteMap(routes: {
-        '/': (_) => MaterialPage<void>(child: PageOne()),
+        '/': (_) => const MaterialPageOne(),
         '/two': (_) => MaterialPage<void>(child: Text(state.someValue)),
       });
     });
@@ -50,7 +50,7 @@ void main() {
       StateProvider(
         state: state,
         child: MaterialApp.router(
-          routeInformationParser: RoutemasterParser(),
+          routeInformationParser: const RoutemasterParser(),
           routerDelegate: delegate,
         ),
       ),
@@ -72,20 +72,20 @@ void main() {
     final delegate1 = RoutemasterDelegate(routesBuilder: (context) {
       routeBuildCount++;
       return RouteMap(routes: {
-        '/': (_) => MaterialPage<void>(child: PageOne()),
+        '/': (_) => const MaterialPage<void>(child: PageOne()),
       });
     });
 
     final delegate2 = RoutemasterDelegate(routesBuilder: (context) {
       routeBuildCount++;
       return RouteMap(routes: {
-        '/': (_) => MaterialPage<void>(child: PageTwo()),
+        '/': (_) => const MaterialPage<void>(child: PageTwo()),
       });
     });
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate1,
       ),
     );
@@ -94,7 +94,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate2,
       ),
     );
@@ -111,8 +111,8 @@ void main() {
         return MaterialPage<void>(child: DefaultNotFoundPage(path: route));
       },
       routes: {
-        '/': (_) => MaterialPageOne(),
-        '/two': (_) => MaterialPageTwo(),
+        '/': (_) => const MaterialPageOne(),
+        '/two': (_) => const MaterialPageTwo(),
       },
     );
 
@@ -123,8 +123,8 @@ void main() {
         return MaterialPage<void>(child: DefaultNotFoundPage(path: route));
       },
       routes: {
-        '/': (_) => MaterialPageOne(),
-        '/three': (_) => MaterialPageThree(),
+        '/': (_) => const MaterialPageOne(),
+        '/three': (_) => const MaterialPageThree(),
       },
     );
 
@@ -138,9 +138,9 @@ void main() {
       StateProvider(
         state: state,
         child: MaterialApp.router(
-          routeInformationParser: RoutemasterParser(),
+          routeInformationParser: const RoutemasterParser(),
           routeInformationProvider: PlatformRouteInformationProvider(
-            initialRouteInformation: RouteInformation(location: '/two'),
+            initialRouteInformation: const RouteInformation(location: '/two'),
           ),
           routerDelegate: delegate,
         ),
@@ -176,7 +176,7 @@ class AppState extends ChangeNotifier {
 class StateProvider extends InheritedNotifier {
   final AppState state;
 
-  StateProvider({
+  const StateProvider({
     required Widget child,
     required this.state,
   }) : super(

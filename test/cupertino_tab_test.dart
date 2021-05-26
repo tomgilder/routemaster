@@ -40,17 +40,17 @@ void main() {
     final delegate = RoutemasterDelegate(routesBuilder: (context) {
       return RouteMap(routes: {
         '/': (_) => CupertinoTabPage(
-              paths: ['one', 'two'],
+              paths: const ['one', 'two'],
               child: TabbedPage(key: pageKey),
             ),
-        '/one': (_) => MaterialPageOne(),
-        '/two': (_) => MaterialPageTwo(),
+        '/one': (_) => const MaterialPageOne(),
+        '/two': (_) => const MaterialPageTwo(),
       });
     });
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -71,26 +71,26 @@ void main() {
   });
 
   testWidgets('Can use custom page with CupertinoTabPage', (tester) async {
-    final key = Key('custom');
+    const key = Key('custom');
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (_) => CupertinoTabPage(
-                paths: ['/one', '/two'],
-                child: TabbedPage(),
+                paths: const ['/one', '/two'],
+                child: const TabbedPage(),
                 pageBuilder: (child) => CupertinoPage<void>(
                   child: Container(key: key, child: child),
                 ),
               ),
-          '/one': (_) => MaterialPage<void>(child: PageOne()),
-          '/two': (_) => MaterialPage<void>(child: PageTwo()),
+          '/one': (_) => const MaterialPage<void>(child: PageOne()),
+          '/two': (_) => const MaterialPage<void>(child: PageTwo()),
         },
       ),
     );
 
     await tester.pumpWidget(
       MaterialApp.router(
-        routeInformationParser: RoutemasterParser(),
+        routeInformationParser: const RoutemasterParser(),
         routerDelegate: delegate,
       ),
     );
@@ -103,7 +103,7 @@ final routes = RouteMap(
   routes: {
     '/': (_) => CupertinoTabPage(
           child: HomePage(),
-          paths: ['feed', 'settings'],
+          paths: const ['feed', 'settings'],
         ),
     '/feed': (_) => MaterialPage<void>(child: FeedPage()),
     '/feed/profile/:id': (_) => MaterialPage<void>(child: ProfilePage()),
@@ -116,7 +116,7 @@ class CupertinoApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       routerDelegate: RoutemasterDelegate(routesBuilder: (_) => routes),
-      routeInformationParser: RoutemasterParser(),
+      routeInformationParser: const RoutemasterParser(),
     );
   }
 }
@@ -130,7 +130,7 @@ class HomePage extends StatelessWidget {
       controller: tabState.controller,
       tabBuilder: tabState.tabBuilder,
       tabBar: CupertinoTabBar(
-        items: [
+        items: const [
           BottomNavigationBarItem(
             label: 'Feed',
             icon: Icon(CupertinoIcons.list_bullet),
@@ -152,7 +152,7 @@ class FeedPage extends StatelessWidget {
       body: Center(
         child: ElevatedButton(
           onPressed: () => Routemaster.of(context).push('profile/1'),
-          child: Text('Profile page'),
+          child: const Text('Profile page'),
         ),
       ),
     );
@@ -167,10 +167,10 @@ class ProfilePage extends StatelessWidget {
       body: Center(
         child: Column(
           children: [
-            Text('Profile page'),
+            const Text('Profile page'),
             CupertinoButton(
               onPressed: () => Routemaster.of(context).pop(),
-              child: Text('Pop'),
+              child: const Text('Pop'),
             ),
           ],
         ),
@@ -182,15 +182,15 @@ class ProfilePage extends StatelessWidget {
 class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Center(child: Text('Settings page')));
+    return const Scaffold(body: Center(child: Text('Settings page')));
   }
 }
 
 class TabbedPage extends StatelessWidget {
-  TabbedPage({Key? key}) : super(key: key);
+  const TabbedPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox();
+    return const SizedBox();
   }
 }

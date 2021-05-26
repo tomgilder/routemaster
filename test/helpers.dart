@@ -63,39 +63,40 @@ Future<void> setSystemUrl(String url) {
 }
 
 class MaterialPageOne extends MaterialPage<void> {
-  MaterialPageOne() : super(child: PageOne());
+  const MaterialPageOne() : super(child: const PageOne());
 }
 
 class PageOne extends StatelessWidget {
-  PageOne({Key? key}) : super(key: key);
+  const PageOne({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox();
+    return const SizedBox();
   }
 }
 
 class MaterialPageTwo extends MaterialPage<void> {
-  MaterialPageTwo() : super(child: PageTwo());
+  const MaterialPageTwo() : super(child: const PageTwo());
 }
 
 class PageTwo extends StatelessWidget {
-  PageTwo({Key? key}) : super(key: key);
+  const PageTwo({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox();
+    return const SizedBox();
   }
 }
 
 class MaterialPageThree extends MaterialPage<void> {
-  MaterialPageThree() : super(child: PageThree());
+  const MaterialPageThree() : super(child: const PageThree());
 }
 
 class PageThree extends StatelessWidget {
+  const PageThree();
   @override
   Widget build(BuildContext context) {
-    return SizedBox();
+    return const SizedBox();
   }
 }
 
@@ -105,7 +106,7 @@ class PopPage extends StatelessWidget {
     return Scaffold(
       body: ElevatedButton(
         onPressed: () => Routemaster.of(context).pop(),
-        child: Text('Pop'),
+        child: const Text('Pop'),
       ),
     );
   }
@@ -114,7 +115,7 @@ class PopPage extends StatelessWidget {
 class NotFoundPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return SizedBox();
+    return const SizedBox();
   }
 }
 
