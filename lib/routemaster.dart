@@ -128,16 +128,18 @@ class Routemaster {
 
   /// Retrieves the nearest ancestor [Routemaster] object.
   static Routemaster of(BuildContext context) {
-    final element =
-        context.getElementForInheritedWidgetOfExactType<_RoutemasterWidget>();
+    final widget =
+        context.dependOnInheritedWidgetOfExactType<_RoutemasterWidget>();
 
     assert(
-      element != null,
+      widget != null,
       "Couldn't get a Routemaster object from the given context.",
     );
 
-    return (element!.widget as _RoutemasterWidget).routemaster;
+    return widget!.routemaster;
   }
+
+  RouteData get currentRoute => _delegate.currentConfiguration!;
 
   /// Pops the current route from the router. Returns `true` if the pop was
   /// successful, or `false` if it wasn't.
@@ -361,6 +363,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       builder: (context) {
         return _RoutemasterWidget(
           routemaster: _state.routemaster,
+          routeData: currentConfiguration!,
           child: navigatorBuilder != null
               ? navigatorBuilder!(context, _state.stack)
               : PageStackNavigator(
@@ -392,11 +395,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
       void _update() {
         if (_state.currentConfiguration!.fullPath != routeData.fullPath) {
-          _state.currentConfiguration = RouteData(
-            routeData.fullPath,
-            isReplacement: routeData.isReplacement,
-            pathTemplate: routeData.pathTemplate,
-          );
+          _state.currentConfiguration = routeData;
 
           _markNeedsUpdate();
 
@@ -811,15 +810,17 @@ class _PushObserver extends NavigatorObserver {
 /// Used internally so descendent widgets can use `Routemaster.of(context)`.
 class _RoutemasterWidget extends InheritedWidget {
   final Routemaster routemaster;
+  final RouteData routeData;
 
   const _RoutemasterWidget({
     required Widget child,
     required this.routemaster,
+    required this.routeData,
   }) : super(child: child);
 
   @override
   bool updateShouldNotify(covariant _RoutemasterWidget oldWidget) {
-    return false;
+    return oldWidget.routeData != routeData;
   }
 }
 

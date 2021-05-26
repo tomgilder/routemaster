@@ -505,6 +505,9 @@ class StubRoutemaster implements Routemaster {
 
   @override
   void replace(String path, {Map<String, String>? queryParameters}) {}
+
+  @override
+  RouteData get currentRoute => throw UnimplementedError();
 }
 
 class StubNavigationResult<T> implements NavigationResult<T> {
