@@ -1,6 +1,7 @@
 # 0.9.0-dev3
 
 * Breaking change: `PageStackNavigator` no longer automatically provides a `HeroController` - to use heroes, wrap the navigator in a `HeroControllerScope`
+* Added a new property to get the current route: `Routemaster.of(context).currentRoute`
 * Fixed: `RouteData.of(context)` sometimes throwing when navigating away from a page
 
 # 0.9.0-dev2

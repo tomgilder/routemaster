@@ -12,6 +12,8 @@ class RouteData {
   String get fullPath => _uri.toString();
 
   /// The path component of this route, without query string.
+  ///
+  /// For the full path including query string, use [fullPath].
   String get path => _uri.path;
 
   /// Query parameters from the path.

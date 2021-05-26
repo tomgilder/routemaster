@@ -196,6 +196,13 @@ void main() {
     expect(page2RouteData.pathTemplate, '/two/:id');
     expect(page2RouteData.pathParameters['id'], 'myId');
     expect(page2RouteData.queryParameters['query'], 'param');
+
+    final currentRoute = Routemaster.of(pageKey2.currentContext!).currentRoute;
+    expect(currentRoute.path, '/two/myId');
+    expect(currentRoute.fullPath, '/two/myId?query=param');
+    expect(currentRoute.pathTemplate, '/two/:id');
+    expect(currentRoute.pathParameters['id'], 'myId');
+    expect(currentRoute.queryParameters['query'], 'param');
   });
 
   testWidgets('Can get RouteData from context when navigating back',
