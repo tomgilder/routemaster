@@ -291,6 +291,17 @@ RouteMap(routes: {
 })
 ```
 
+Redirect all routes to login page, for a logged-out route map:
+
+```dart
+RouteMap(
+  onUnknownRoute: (_) => Redirect('/'),
+  routes: {
+    '/': (_) => MaterialPage(child: LoginPage()),
+  },
+)
+```
+
 ## Swap routing map
 
 You can swap the entire routing map at runtime.
