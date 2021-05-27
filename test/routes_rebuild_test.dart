@@ -162,6 +162,38 @@ void main() {
     expect(routeMap1UnknownRoutes.isEmpty, isTrue);
     expect(routeMap2UnknownRoutes.isEmpty, isTrue);
   });
+
+  testWidgets('Can swap route maps and navigate to the same path',
+      (tester) async {
+    final routeMap1 = RouteMap(routes: {'/': (_) => const MaterialPageOne()});
+    final routeMap2 = RouteMap(routes: {'/': (_) => const MaterialPageTwo()});
+
+    final delegate = RoutemasterDelegate(routesBuilder: (context) {
+      final state = StateProvider.of(context).state;
+      return state.someValue == '1' ? routeMap1 : routeMap2;
+    });
+    final state = AppState()..someValue = '1';
+
+    await tester.pumpWidget(
+      StateProvider(
+        state: state,
+        child: MaterialApp.router(
+          routeInformationParser: const RoutemasterParser(),
+          routerDelegate: delegate,
+        ),
+      ),
+    );
+
+    expect(find.byType(PageOne), findsOneWidget);
+
+    // Change state to swap to routeMap2
+    state.someValue = '2';
+    delegate.push('/');
+
+    await tester.pump();
+    await tester.pump();
+    expect(find.byType(PageTwo), findsOneWidget);
+  });
 }
 
 class AppState extends ChangeNotifier {
