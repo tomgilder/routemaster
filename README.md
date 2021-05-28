@@ -67,12 +67,6 @@ I would love any feedback you have! Please create an issue for API feedback.
       return ProtectedPage();
     }
     ```
-
-## Migration from 0.6 to 0.7
-
-* The `path` property on `RouteData` no longer returns the full path, including query string, to match Dart's `Uri` object. The full including query string is now available from the `fullPath` property.
-* `Builder` no longer takes a `child` property, but a `builder`.
-
 ___
 
 <img src="https://openclipart.org/download/286938/Double-Decker-Bus.svg" width="80"> 
