@@ -442,7 +442,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     final routerNeedsBuilding = _state.routeMap == null;
 
     if (routerNeedsBuilding) {
-      _state.routeMap = routesBuilder(context);
+      _state.routeMap = _buildRoutes(context);
       _navigate(
         currentConfiguration?.fullPath ?? '/',
         isReplacement: false,
@@ -613,8 +613,18 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     // Route couldn't be found, try rebuilding router to see if it's available
     // after rebuild
-    _state.routeMap = routesBuilder(_context);
+
+    _state.routeMap = _buildRoutes(_context);
     return _state.routeMap!.getAll(requestedPath);
+  }
+
+  RouteMap _buildRoutes(BuildContext context) {
+    assert(
+      context.owner!.debugBuilding,
+      'Tried to call route builder outside of build phase',
+    );
+
+    return routesBuilder(context);
   }
 
   /// If there's a current route matching the path in the tree, return it.
