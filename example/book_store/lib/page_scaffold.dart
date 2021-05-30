@@ -31,6 +31,16 @@ class _PageScaffoldState extends State<PageScaffold> {
   @override
   void initState() {
     super.initState();
+    _updateSearchQuery();
+  }
+
+  @override
+  void didUpdateWidget(covariant PageScaffold oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _updateSearchQuery();
+  }
+
+  void _updateSearchQuery() {
     if (widget.searchQuery != null) {
       _searchController.text = widget.searchQuery!;
     }
