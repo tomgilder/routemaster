@@ -359,4 +359,99 @@ void main() {
       ['/id2'],
     );
   });
+
+  testWidgets('Query parameters update when system URL set', (tester) async {
+    late Map<String, String> builderQueryParameters;
+    late Map<String, String> contextQueryParameters;
+
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (_) => const MaterialPageOne(),
+          '/two': (route) {
+            builderQueryParameters = route.queryParameters;
+
+            return MaterialPage<void>(
+              child: Builder(builder: (context) {
+                contextQueryParameters = RouteData.of(context).queryParameters;
+                return const SizedBox();
+              }),
+            );
+          },
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    delegate.push('/two?query=1');
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(builderQueryParameters['query'], '1');
+    expect(contextQueryParameters['query'], '1');
+
+    await setSystemUrl('/two?query=2');
+    await tester.pump();
+    expect(builderQueryParameters['query'], '2');
+    expect(contextQueryParameters['query'], '2');
+
+    await setSystemUrl('/two?query=3');
+    await tester.pump();
+
+    expect(builderQueryParameters['query'], '3');
+    expect(contextQueryParameters['query'], '3');
+  });
+
+  testWidgets('Page gets rebuilt when query parameters update', (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (_) => const MaterialPageOne(),
+          '/two': (route) {
+            return MaterialPage<void>(
+              child: QueryParamEcho(
+                query: route.queryParameters['query'] ?? '',
+              ),
+            );
+          },
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    delegate.push('/two?query=1');
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('1'), findsOneWidget);
+
+    await setSystemUrl('/two?query=2');
+    await tester.pump();
+    expect(find.text('2'), findsOneWidget);
+
+    await setSystemUrl('/two?query=3');
+    await tester.pump();
+    expect(find.text('3'), findsOneWidget);
+  });
+}
+
+class QueryParamEcho extends StatelessWidget {
+  final String query;
+
+  const QueryParamEcho({required this.query});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(body: Text(query));
+  }
 }
