@@ -1,3 +1,7 @@
+# 0.9.2
+
+* Fixed: navigating to an unknown page on startup could throw an exception
+
 # 0.9.1
 
 * Fixed: issue where `routesBuilder` could be called outside the build phase.
