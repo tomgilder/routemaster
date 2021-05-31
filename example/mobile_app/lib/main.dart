@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -198,11 +200,13 @@ RouteMap _buildRouteMap(AppState appState) {
       //       child: BottomSheetPageTwo(),
       //     ),
 
-      '/bottom-sheet': (_) => FlowPage(
-            pageBuilder: (child) => BottomSheetPage(child: child),
-            child: BottomSheetContents(),
-            paths: ['one', 'two'],
-          ),
+      '/bottom-sheet': (_) {
+        return FlowPage(
+          pageBuilder: (child) => BottomSheetPage(child: child),
+          child: BottomSheetContents(),
+          paths: ['one', 'two'],
+        );
+      },
 
       '/bottom-sheet/one': (_) => MaterialPage(child: BottomSheetPageOne()),
 
