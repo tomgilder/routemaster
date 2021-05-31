@@ -500,9 +500,13 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     );
 
     if (pages == null) {
+      final noCurrentPages = _state.stack._getCurrentPages().isEmpty;
+
       // No page found from router
-      if (isRetry) {
-        // This is a retry after giving the routing map a chance to rebuild
+      if (isRetry || noCurrentPages) {
+        // Either we're retrying after giving the routing map a chance to
+        // rebuild, or we don't have a current stack of pages so we *have* to
+        // build immediately.
         pages = _onUnknownRoute(request);
       } else {
         // No page has been found, but we don't call onUnknownRoute immediately.

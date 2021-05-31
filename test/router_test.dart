@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:routemaster/routemaster.dart';
+import 'package:routemaster/src/not_found_page.dart';
 import 'helpers.dart';
 
 void main() {
@@ -480,6 +481,49 @@ void main() {
     expect(contextQueryParameters['query'], '1');
     expect(builderQueryParameters['query2'], '2');
     expect(contextQueryParameters['query2'], '2');
+  });
+
+  testWidgets('Unknown startup URL shows not found page', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routeInformationProvider: PlatformRouteInformationProvider(
+          initialRouteInformation: const RouteInformation(location: '/404'),
+        ),
+        routerDelegate: RoutemasterDelegate(
+          routesBuilder: (_) => RouteMap(
+            routes: {'/': (_) => const MaterialPageOne()},
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(DefaultNotFoundPage), findsOneWidget);
+  });
+
+  testWidgets('Unknown startup URL redirects to another page', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routeInformationProvider: PlatformRouteInformationProvider(
+          initialRouteInformation: const RouteInformation(location: '/404'),
+        ),
+        routerDelegate: RoutemasterDelegate(
+          routesBuilder: (_) => RouteMap(
+            onUnknownRoute: (_) {
+              return const Redirect('/two');
+            },
+            routes: {
+              '/two': (_) {
+                return const MaterialPageTwo();
+              },
+            },
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(PageTwo), findsOneWidget);
   });
 }
 
