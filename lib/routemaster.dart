@@ -1,7 +1,6 @@
 library routemaster;
 
 export 'src/parser.dart';
-export 'src/route_data.dart';
 export 'src/pages/guard.dart';
 
 import 'dart:async';
@@ -15,12 +14,12 @@ import 'src/pages/guard.dart';
 import 'src/path_parser.dart';
 import 'src/system_nav.dart';
 import 'src/trie_router/trie_router.dart';
-import 'src/route_data.dart';
 
 part 'src/pages/page_stack.dart';
 part 'src/pages/tab_pages.dart';
 part 'src/pages/basic_pages.dart';
 part 'src/observers.dart';
+part 'src/route_data.dart';
 
 /// A function that builds a [Page] from given [RouteData].
 typedef PageBuilder = Page Function(RouteData route);
@@ -313,7 +312,11 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     // Otherwise we do a convoluted dance which uses a custom UrlStrategy that
     // supports replacing the URL.
     _navigate(
-      path,
+      uri: PathParser.getAbsolutePath(
+        basePath: currentConfiguration!.fullPath,
+        path: path,
+        queryParameters: queryParameters,
+      ),
       queryParameters: queryParameters,
       isReplacement: true,
     );
@@ -333,10 +336,14 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     final result = NavigationResult<T>._();
     _navigate(
-      path,
+      uri: PathParser.getAbsolutePath(
+        basePath: currentConfiguration!.fullPath,
+        path: path,
+        queryParameters: queryParameters,
+      ),
       queryParameters: queryParameters,
       isReplacement: false,
-      result: result,
+      navigationResult: result,
     );
     return result;
   }
@@ -445,17 +452,17 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       _state.routeMap = _buildRoutes(context);
 
       final pending = _state.pendingNavigation;
-
       if (pending != null) {
+        // Process pending navigation after rebuild
         _navigate(
-          pending.uri.toString(),
+          uri: pending.uri,
           isReplacement: pending.isReplacement,
-          result: pending.result,
+          navigationResult: pending.result,
           useCurrentState: false,
         );
       } else {
         _navigate(
-          currentConfiguration?.fullPath ?? '/',
+          uri: currentConfiguration?._uri ?? Uri(path: '/'),
           isReplacement: false,
           useCurrentState: false,
         );
@@ -471,26 +478,19 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     _isBuilding = false;
   }
 
-  void _navigate(
-    String path, {
+  void _navigate({
+    required Uri uri,
     required bool isReplacement,
-    NavigationResult? result,
+    NavigationResult? navigationResult,
     Map<String, String>? queryParameters,
     bool useCurrentState = true,
     bool isRetry = false,
   }) {
     _state.pendingNavigation = null;
-
-    final uri = PathParser.getAbsolutePath(
-      basePath: currentConfiguration!.fullPath,
-      path: path,
-      queryParameters: queryParameters,
-    );
-
     final request = _RouteRequest(
       uri: uri,
       isReplacement: isReplacement,
-      result: result,
+      result: navigationResult,
     );
 
     var pages = _createAllPageWrappers(
@@ -500,25 +500,30 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     );
 
     if (pages == null) {
+      // No page found from router
       if (isRetry) {
+        // This is a retry after giving the routing map a chance to rebuild
         pages = _onUnknownRoute(request);
       } else {
+        // No page has been found, but we don't call onUnknownRoute immediately.
+        // Instead we schedule a new navigation for after this frame. This is
+        // for cases where the user has updated the route map (e.g. by changing
+        // the app state) and called .push() within the same frame.
         _state.pendingNavigation = request;
 
         if (!_isBuilding) {
+          // Schedule rebuild if we're not in build phase
           notifyListeners();
         }
 
         WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
-          // If navigate has been called, do nothing
-
-          // Check if any page has been found in the meantime
           if (_state.pendingNavigation != null) {
+            // Retry navigation
             _navigate(
-              path,
+              uri: uri,
               isReplacement: isReplacement,
               useCurrentState: useCurrentState,
-              result: result,
+              navigationResult: navigationResult,
               queryParameters: queryParameters,
               isRetry: true,
             );
