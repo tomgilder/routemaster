@@ -33,6 +33,15 @@ class PathParser {
       return absolutePath;
     }
 
-    return Uri(path: absolutePath, queryParameters: queryParameters).toString();
+    final uri = Uri.parse(absolutePath);
+    return Uri(
+      path: uri.path,
+      queryParameters: <String, String>{
+        // Combine query params from both path and map
+        // This allows push('/two?a=b', queryParameters: {'c': 'd'})
+        ...uri.queryParameters,
+        ...queryParameters,
+      },
+    ).toString();
   }
 }

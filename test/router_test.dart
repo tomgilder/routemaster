@@ -443,6 +443,44 @@ void main() {
     await tester.pump();
     expect(find.text('3'), findsOneWidget);
   });
+
+  testWidgets('Can push query string in both URL and map', (tester) async {
+    late Map<String, String> builderQueryParameters;
+    late Map<String, String> contextQueryParameters;
+
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (_) => const MaterialPageOne(),
+          '/two': (route) {
+            builderQueryParameters = route.queryParameters;
+
+            return MaterialPage<void>(
+              child: Builder(builder: (context) {
+                contextQueryParameters = RouteData.of(context).queryParameters;
+                return const SizedBox();
+              }),
+            );
+          },
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    delegate.push('/two?query=1', queryParameters: {'query2': '2'});
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(builderQueryParameters['query'], '1');
+    expect(contextQueryParameters['query'], '1');
+    expect(builderQueryParameters['query2'], '2');
+    expect(contextQueryParameters['query2'], '2');
+  });
 }
 
 class QueryParamEcho extends StatelessWidget {
