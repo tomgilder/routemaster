@@ -17,7 +17,7 @@ class PathParser {
   ///
   /// If [path] is already an absolute path, return that path.
   /// Otherwise return the joining of [basePath] and [path].
-  static String getAbsolutePath({
+  static Uri getAbsolutePath({
     required String basePath,
     required String path,
     Map<String, String>? queryParameters,
@@ -29,11 +29,12 @@ class PathParser {
             path,
           );
 
+    final uri = Uri.parse(absolutePath);
+
     if (queryParameters == null) {
-      return absolutePath;
+      return uri;
     }
 
-    final uri = Uri.parse(absolutePath);
     return Uri(
       path: uri.path,
       queryParameters: <String, String>{
@@ -42,6 +43,6 @@ class PathParser {
         ...uri.queryParameters,
         ...queryParameters,
       },
-    ).toString();
+    );
   }
 }

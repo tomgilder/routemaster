@@ -41,7 +41,10 @@ class HomePage extends StatelessWidget {
       tabBuilder: (BuildContext context, int index) {
         return HeroControllerScope(
           controller: MaterialApp.createMaterialHeroController(),
-          child: PageStackNavigator(stack: tabState.stacks[index]),
+          child: PageStackNavigator(
+            key: ValueKey(tabState.page.paths[index]),
+            stack: tabState.stacks[index],
+          ),
         );
       },
     );

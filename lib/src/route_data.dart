@@ -36,15 +36,6 @@ class RouteData {
   /// The template for this route, for instance '/profile/:id'.
   final String? pathTemplate;
 
-  /// Initializes routing data from the provided router result.
-  RouteData.fromRouterResult(
-    RouterResult result,
-    String path, {
-    this.isReplacement = false,
-  })  : _uri = Uri.parse(path),
-        pathParameters = result.pathParameters,
-        pathTemplate = result.pathTemplate;
-
   /// Initializes routing data from a path string.
   RouteData(
     String path, {
@@ -52,6 +43,22 @@ class RouteData {
     this.isReplacement = false,
     this.pathTemplate,
   }) : _uri = Uri.parse(path);
+
+  RouteData.fromUri(
+    Uri uri, {
+    this.pathParameters = const {},
+    this.isReplacement = false,
+    this.pathTemplate,
+  }) : _uri = uri;
+
+  /// Initializes routing data from the provided router result.
+  RouteData.fromRouterResult(
+    RouterResult result,
+    Uri uri, {
+    this.isReplacement = false,
+  })  : _uri = uri,
+        pathParameters = result.pathParameters,
+        pathTemplate = result.pathTemplate;
 
   @override
   bool operator ==(Object other) => other is RouteData && _uri == other._uri;

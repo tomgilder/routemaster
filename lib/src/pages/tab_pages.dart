@@ -415,7 +415,7 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
 
     final route = routemaster._delegate._getPageForTab(
       _RouteRequest(
-        path: path,
+        uri: path,
         isReplacement: routeData.isReplacement,
       ),
     );
@@ -461,9 +461,10 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
   /// Otherwise, returns null.
   int? _getIndexForPath(String path) {
     String _getAbsoluteTabPath(String subpath) {
-      return PathParser.stripQueryString(
-        PathParser.getAbsolutePath(basePath: routeData.path, path: subpath),
-      );
+      return PathParser.getAbsolutePath(
+        basePath: routeData.path,
+        path: subpath,
+      ).path;
     }
 
     final requiredAbsolutePath = _getAbsoluteTabPath(path);
@@ -495,11 +496,11 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
 }
 
 class _TabNotFoundPage extends PageWrapper {
-  _TabNotFoundPage(String path)
+  _TabNotFoundPage(Uri uri)
       : super.fromPage(
-          routeData: RouteData(path, pathTemplate: null),
+          routeData: RouteData.fromUri(uri, pathTemplate: null),
           page: MaterialPage<void>(
-            child: DefaultNotFoundPage(path: path),
+            child: DefaultNotFoundPage(path: uri.path),
           ),
         );
 }
