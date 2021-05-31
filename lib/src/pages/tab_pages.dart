@@ -413,7 +413,7 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
       path: stackPath,
     );
 
-    final route = routemaster._delegate._getPageForTab(
+    final route = routemaster._delegate._getSinglePage(
       _RouteRequest(
         uri: path,
         isReplacement: routeData.isReplacement,
