@@ -23,6 +23,7 @@ void main() {
 
     delegate.push('/unknown/nonsense');
     await tester.pump();
+    await tester.pump();
     await tester.pump(const Duration(seconds: 1));
 
     expect(find.byType(DefaultNotFoundPage), findsOneWidget);
@@ -51,6 +52,7 @@ void main() {
     expect(
       await recordUrlChanges(() async {
         delegate.push('/unknown/nonsense');
+        await tester.pump();
         await tester.pump();
         await tester.pump(const Duration(seconds: 1));
 
@@ -81,6 +83,7 @@ void main() {
     expect(
       await recordUrlChanges(() async {
         delegate.push('/unknown/nonsense');
+        await tester.pump();
         await tester.pump();
         await tester.pump(const Duration(seconds: 1));
 
@@ -113,6 +116,7 @@ void main() {
     expect(
       await recordUrlChanges(() async {
         delegate.push('/unknown/nonsense');
+        await tester.pump();
         await tester.pump();
         await tester.pump(const Duration(seconds: 1));
 

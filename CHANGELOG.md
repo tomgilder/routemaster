@@ -1,3 +1,7 @@
+# 0.9.1
+
+* Fixed: issue where `routesBuilder` could be called outside the build phase.
+
 # 0.9.0
 
 * Breaking change: `PageStackNavigator` no longer automatically provides a `HeroController` - to use heroes, wrap the navigator in a `HeroControllerScope`

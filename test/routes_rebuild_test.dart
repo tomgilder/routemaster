@@ -155,6 +155,7 @@ void main() {
     delegate.push('/three');
 
     await tester.pump();
+    await tester.pump();
     await tester.pump(kTransitionDuration);
     expect(find.byType(PageThree), findsOneWidget);
 

@@ -1,6 +1,6 @@
 name: routemaster
 description: Easy-to-use Navigator 2.0 router for web, mobile and desktop. URL-based routing, simple navigation of tabs and nested routes.
-version: 0.9.0
+version: 0.9.1
 homepage: https://github.com/tomgilder/routemaster
 
 environment:
