@@ -448,7 +448,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
       if (pending != null) {
         _navigate(
-          pending.path,
+          pending.uri.toString(),
           isReplacement: pending.isReplacement,
           result: pending.result,
           useCurrentState: false,
@@ -481,14 +481,14 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }) {
     _state.pendingNavigation = null;
 
-    final absolutePath = PathParser.getAbsolutePath(
+    final uri = PathParser.getAbsolutePath(
       basePath: currentConfiguration!.fullPath,
       path: path,
       queryParameters: queryParameters,
     );
 
     final request = _RouteRequest(
-      path: absolutePath,
+      uri: uri,
       isReplacement: isReplacement,
       result: result,
     );
@@ -566,7 +566,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     List<PageWrapper>? currentRoutes,
     List<String>? redirects,
   }) {
-    final requestedPath = request.path;
+    final requestedPath = request.uri.toString();
     final routerResult = _getAllRouterResults(requestedPath);
 
     if (routerResult == null || routerResult.isEmpty) {
@@ -584,7 +584,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       final routeData = RouteData.fromRouterResult(
         routerData,
         // Only the last route gets query parameters
-        isLastRoute ? requestedPath : routerData.pathSegment,
+        isLastRoute ? request.uri : Uri(path: routerData.pathSegment),
         isReplacement: request.isReplacement,
       );
 
@@ -637,7 +637,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           currentRoutes: currentRoutes,
           redirects: redirects,
           request: _RouteRequest(
-            path: current.redirectPath,
+            uri: Uri.parse(current.redirectPath),
             isReplacement: request.isReplacement,
           ),
         );
@@ -694,12 +694,12 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   /// Called by tab pages to lazily generate their initial routes
   PageWrapper _getPageForTab(_RouteRequest routeRequest) {
-    final requestedPath = routeRequest.path;
+    final requestedPath = routeRequest.uri.toString();
     final routerResult = _state.routeMap!.get(requestedPath);
     if (routerResult != null) {
       final routeData = RouteData.fromRouterResult(
         routerResult,
-        requestedPath,
+        Uri.parse(requestedPath),
         isReplacement: routeRequest.isReplacement,
       );
 
@@ -716,14 +716,14 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       if (wrapper is _RedirectResult) {
         return _getPageForTab(
           _RouteRequest(
-            path: wrapper.redirectPath,
+            uri: Uri.parse(wrapper.redirectPath),
             isReplacement: routeRequest.isReplacement,
           ),
         );
       }
     }
 
-    return _TabNotFoundPage(routeRequest.path);
+    return _TabNotFoundPage(routeRequest.uri);
   }
 
   _PageResult _createPageWrapper({
@@ -779,13 +779,13 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }
 
   List<PageWrapper> _onUnknownRoute(_RouteRequest routeRequest) {
-    final requestedPath = routeRequest.path;
-    final result = _state.routeMap!.onUnknownRoute(requestedPath);
+    final requestedPath = routeRequest.uri;
+    final result = _state.routeMap!.onUnknownRoute(requestedPath.toString());
 
     if (result is Redirect) {
       final redirectResult = _createAllPageWrappers(
         request: _RouteRequest(
-          path: result.redirectPath,
+          uri: Uri.parse(result.redirectPath),
           isReplacement: routeRequest.isReplacement,
         ),
       );
@@ -796,7 +796,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     }
 
     // Return 404 page
-    final routeData = RouteData(
+    final routeData = RouteData.fromUri(
       requestedPath,
       isReplacement: routeRequest.isReplacement,
     );
@@ -962,12 +962,12 @@ class RedirectLoopError extends Error {
 }
 
 class _RouteRequest {
-  final String path;
+  final Uri uri;
   final bool isReplacement;
   final NavigationResult? result;
 
   _RouteRequest({
-    required this.path,
+    required this.uri,
     this.isReplacement = false,
     this.result,
   });

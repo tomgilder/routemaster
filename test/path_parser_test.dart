@@ -7,7 +7,7 @@ void main() {
       PathParser.getAbsolutePath(
         basePath: '/old',
         path: '/new',
-      ),
+      ).toString(),
       '/new',
     );
 
@@ -15,7 +15,7 @@ void main() {
       PathParser.getAbsolutePath(
         basePath: '/old?query=string',
         path: '/new',
-      ),
+      ).toString(),
       '/new',
     );
 
@@ -23,7 +23,7 @@ void main() {
       PathParser.getAbsolutePath(
         basePath: '/old/blah',
         path: '/new/blah',
-      ),
+      ).toString(),
       '/new/blah',
     );
 
@@ -32,7 +32,7 @@ void main() {
         basePath: '/old',
         path: '/new',
         queryParameters: {'query': 'param'},
-      ),
+      ).toString(),
       '/new?query=param',
     );
   });
@@ -42,7 +42,7 @@ void main() {
       PathParser.getAbsolutePath(
         basePath: '/one',
         path: 'two',
-      ),
+      ).toString(),
       '/one/two',
     );
 
@@ -50,7 +50,7 @@ void main() {
       PathParser.getAbsolutePath(
         basePath: '/one?query=string',
         path: 'two',
-      ),
+      ).toString(),
       '/one/two',
     );
 
@@ -58,7 +58,7 @@ void main() {
       PathParser.getAbsolutePath(
         basePath: '/one/two',
         path: 'three/four',
-      ),
+      ).toString(),
       '/one/two/three/four',
     );
 
@@ -67,7 +67,7 @@ void main() {
         basePath: '/one/two',
         path: 'three/four',
         queryParameters: {'query': 'param'},
-      ),
+      ).toString(),
       '/one/two/three/four?query=param',
     );
   });

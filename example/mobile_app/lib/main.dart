@@ -113,7 +113,6 @@ RouteMap _buildRouteMap(AppState appState) {
           ),
       '/settings': (_) => MaterialPage(
             name: 'Settings',
-            key: ValueKey('settings'),
             child: SettingsPage(),
           ),
 

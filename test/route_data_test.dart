@@ -18,7 +18,7 @@ void main() {
         pathSegment: '/path',
         pathTemplate: '/template',
       ),
-      '/path',
+      Uri.parse('/path'),
     );
 
     expect(data.path, '/path');
@@ -33,7 +33,7 @@ void main() {
         pathSegment: '/path',
         pathTemplate: '/template',
       ),
-      '/path?hello=world',
+      Uri.parse('/path?hello=world'),
     );
 
     expect(data.path, '/path');
@@ -48,7 +48,7 @@ void main() {
         pathSegment: '/one',
         pathTemplate: '/template',
       ),
-      '/one/two',
+      Uri.parse('/one/two'),
     );
     final two = RouteData.fromRouterResult(
       const RouterResult(
@@ -57,7 +57,7 @@ void main() {
         pathSegment: '/two',
         pathTemplate: '/template',
       ),
-      '/one',
+      Uri.parse('/one'),
     );
 
     expect(one == two, isFalse);
@@ -72,16 +72,17 @@ void main() {
         pathSegment: '/',
         pathTemplate: '/',
       ),
-      '/',
+      Uri.parse('/'),
     );
     final two = RouteData.fromRouterResult(
-        const RouterResult(
-          builder: builder,
-          pathParameters: {},
-          pathSegment: '/',
-          pathTemplate: '/',
-        ),
-        '/');
+      const RouterResult(
+        builder: builder,
+        pathParameters: {},
+        pathSegment: '/',
+        pathTemplate: '/',
+      ),
+      Uri.parse('/'),
+    );
 
     expect(one == two, isTrue);
     expect(one.hashCode == two.hashCode, isTrue);
@@ -95,7 +96,7 @@ void main() {
           pathSegment: '/',
           pathTemplate: '/',
         ),
-        '/?a=b');
+        Uri.parse('/?a=b'));
     final two = RouteData.fromRouterResult(
         const RouterResult(
           builder: builder,
@@ -103,7 +104,7 @@ void main() {
           pathSegment: '/',
           pathTemplate: '/',
         ),
-        '/');
+        Uri.parse('/'));
 
     expect(one == two, isFalse);
     expect(one.hashCode == two.hashCode, isFalse);
@@ -117,7 +118,7 @@ void main() {
           pathSegment: '/',
           pathTemplate: '/',
         ),
-        '/?a=b');
+        Uri.parse('/?a=b'));
     final two = RouteData.fromRouterResult(
         const RouterResult(
           builder: builder,
@@ -125,7 +126,7 @@ void main() {
           pathSegment: '/',
           pathTemplate: '/',
         ),
-        '/?a=b');
+        Uri.parse('/?a=b'));
 
     expect(one == two, isTrue);
     expect(one.hashCode == two.hashCode, isTrue);
@@ -139,7 +140,7 @@ void main() {
           pathSegment: '/',
           pathTemplate: '/',
         ),
-        '/');
+        Uri.parse('/'));
     final two = RouteData.fromRouterResult(
         const RouterResult(
           builder: builder,
@@ -147,7 +148,7 @@ void main() {
           pathSegment: '/',
           pathTemplate: '/',
         ),
-        '/');
+        Uri.parse('/'));
 
     expect(one == two, isTrue);
     expect(one.hashCode == two.hashCode, isTrue);
