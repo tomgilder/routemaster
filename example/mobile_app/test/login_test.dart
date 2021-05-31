@@ -35,6 +35,7 @@ void main() {
       await recordUrlChanges(() async {
         await tester.tap(find.text('Log out'));
         await tester.pump();
+        await tester.pump();
         await tester.pump(Duration(seconds: 1));
       }),
       ['/'],

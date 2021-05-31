@@ -443,11 +443,23 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     if (routerNeedsBuilding) {
       _state.routeMap = _buildRoutes(context);
-      _navigate(
-        currentConfiguration?.fullPath ?? '/',
-        isReplacement: false,
-        useCurrentState: false,
-      );
+
+      final pending = _state.pendingNavigation;
+
+      if (pending != null) {
+        _navigate(
+          pending.path,
+          isReplacement: pending.isReplacement,
+          result: pending.result,
+          useCurrentState: false,
+        );
+      } else {
+        _navigate(
+          currentConfiguration?.fullPath ?? '/',
+          isReplacement: false,
+          useCurrentState: false,
+        );
+      }
     }
   }
 
@@ -462,25 +474,60 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   void _navigate(
     String path, {
     required bool isReplacement,
-    bool useCurrentState = true,
     NavigationResult? result,
     Map<String, String>? queryParameters,
+    bool useCurrentState = true,
+    bool isRetry = false,
   }) {
+    _state.pendingNavigation = null;
+
     final absolutePath = PathParser.getAbsolutePath(
       basePath: currentConfiguration!.fullPath,
       path: path,
       queryParameters: queryParameters,
     );
 
-    final pages = _createAllPageWrappers(
+    final request = _RouteRequest(
+      path: absolutePath,
+      isReplacement: isReplacement,
+      result: result,
+    );
+
+    var pages = _createAllPageWrappers(
       currentRoutes:
           useCurrentState ? _state.stack._getCurrentPages().toList() : null,
-      request: _RouteRequest(
-        path: absolutePath,
-        isReplacement: isReplacement,
-        result: result,
-      ),
+      request: request,
     );
+
+    if (pages == null) {
+      if (isRetry) {
+        pages = _onUnknownRoute(request);
+      } else {
+        _state.pendingNavigation = request;
+
+        if (!_isBuilding) {
+          notifyListeners();
+        }
+
+        WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
+          // If navigate has been called, do nothing
+
+          // Check if any page has been found in the meantime
+          if (_state.pendingNavigation != null) {
+            _navigate(
+              path,
+              isReplacement: isReplacement,
+              useCurrentState: useCurrentState,
+              result: result,
+              queryParameters: queryParameters,
+              isRetry: true,
+            );
+          }
+        });
+
+        return;
+      }
+    }
 
     assert(pages.isNotEmpty);
 
@@ -514,7 +561,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   /// The main Routemaster algorithm that turns a route request into a list of
   /// pages. It attempts to reuse current pages from [currentRoutes] if they
   /// exist.
-  List<PageWrapper> _createAllPageWrappers({
+  List<PageWrapper>? _createAllPageWrappers({
     required _RouteRequest request,
     List<PageWrapper>? currentRoutes,
     List<String>? redirects,
@@ -523,7 +570,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     final routerResult = _getAllRouterResults(requestedPath);
 
     if (routerResult == null || routerResult.isEmpty) {
-      return _onUnknownRoute(request);
+      return null;
     }
 
     var result = <PageWrapper>[];
@@ -606,15 +653,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   /// router is rebuilt and the request retried. This is for cases where some
   /// state has updated but the map hasn't yet been rebuilt.
   List<RouterResult>? _getAllRouterResults(String requestedPath) {
-    final routerResult = _state.routeMap!.getAll(requestedPath);
-    if (routerResult?.isNotEmpty == true) {
-      return routerResult;
-    }
-
-    // Route couldn't be found, try rebuilding router to see if it's available
-    // after rebuild
-
-    _state.routeMap = _buildRoutes(_context);
     return _state.routeMap!.getAll(requestedPath);
   }
 
@@ -745,12 +783,16 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     final result = _state.routeMap!.onUnknownRoute(requestedPath);
 
     if (result is Redirect) {
-      return _createAllPageWrappers(
+      final redirectResult = _createAllPageWrappers(
         request: _RouteRequest(
           path: result.redirectPath,
           isReplacement: routeRequest.isReplacement,
         ),
       );
+
+      if (redirectResult != null) {
+        return redirectResult;
+      }
     }
 
     // Return 404 page
@@ -842,6 +884,7 @@ class _RoutemasterState {
   final stack = PageStack();
   RouteMap? routeMap;
   RouteData? currentConfiguration;
+  _RouteRequest? pendingNavigation;
 
   late _PushObserver pushObserver = _PushObserver(routemaster);
 }
