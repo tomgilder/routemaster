@@ -1,6 +1,4 @@
-import 'package:flutter/widgets.dart';
-import 'package:routemaster/routemaster.dart';
-import 'trie_router/trie_router.dart';
+part of '../../routemaster.dart';
 
 /// Information generated from a specific path (URL).
 ///
