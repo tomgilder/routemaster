@@ -70,18 +70,28 @@ class FeedPage extends StatelessWidget {
                 child: Text('Push non-Page route'),
               ),
               ElevatedButton(
-                onPressed: () => Routemaster.of(context).push('/bottom-sheet'),
-                child: Text('/bottom-sheet'),
+                onPressed: () => Routemaster.of(context).push('/flow'),
+                child: Text('/flow'),
               ),
               ElevatedButton(
-                onPressed: () =>
-                    Routemaster.of(context).push('/bottom-sheet/one'),
-                child: Text('/bottom-sheet/one'),
+                onPressed: () => Routemaster.of(context).push('/flow/one'),
+                child: Text('/flow/one'),
               ),
               ElevatedButton(
-                onPressed: () =>
-                    Routemaster.of(context).push('/bottom-sheet/two'),
-                child: Text('/bottom-sheet/two'),
+                onPressed: () => Routemaster.of(context).push('/flow/two'),
+                child: Text('/flow/two'),
+              ),
+              ElevatedButton(
+                onPressed: () => Routemaster.of(context).push('/stack'),
+                child: Text('/stack'),
+              ),
+              ElevatedButton(
+                onPressed: () => Routemaster.of(context).push('/stack/one'),
+                child: Text('/stack/one'),
+              ),
+              ElevatedButton(
+                onPressed: () => Routemaster.of(context).push('/stack/two'),
+                child: Text('/two'),
               ),
             ],
           )

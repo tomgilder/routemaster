@@ -216,10 +216,17 @@ class FlowPageState extends PageState<FlowPage>
         .toList();
   }
 
-  void pushNext() {
-    final currentIndex = _absolutePaths
-        .indexWhere((path) => path == stack._pageWrappers.last.routeData.path);
+  int get currentIndex {
+    return _absolutePaths.indexWhere(
+      (path) => path == stack._pageWrappers.last.routeData.path,
+    );
+  }
 
+  void pushNext() {
     routemaster.push(_absolutePaths[currentIndex + 1]);
+  }
+
+  void pop() {
+    routemaster.push(_absolutePaths[currentIndex - 1]);
   }
 }

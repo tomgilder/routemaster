@@ -184,27 +184,21 @@ RouteMap _buildRouteMap(AppState appState) {
             child: MessagePage(message: 'You found the bonus page!!!'),
           ),
 
-      // '/bottom-sheet': (_) => StackPage(
-      //       pageBuilder: (child) => BottomSheetPage(child: child),
-      //       child: BottomSheetContents(),
-      //       initialPath: '/bottom-sheet/one',
-      //     ),
+      '/stack': (_) => StackPage(
+            pageBuilder: (child) => BottomSheetPage(child: child),
+            child: BottomSheetContents(),
+            initialPath: '/bottom-sheet/one',
+          ),
 
-      // '/bottom-sheet/one': (_) => MaterialPage(
-      //       child: BottomSheetPageOne(),
-      //     ),
+      '/stack/one': (_) => MaterialPage(
+            child: BottomSheetPageOne(),
+          ),
 
-      // '/bottom-sheet/one/two': (_) => MaterialPage(
-      //       child: BottomSheetPageTwo(),
-      //     ),
+      '/stack/one/two': (_) => MaterialPage(
+            child: BottomSheetPageTwo(),
+          ),
 
-      // 1. Wrap
-
-      // '/bottom-sheet/one': (_) => MaskUrl(child: MaterialPage(child: BottomSheetPageOne())),
-
-      // MaskPaths, PathMasker, PathHider, HidePath,
-
-      '/bottom-sheet': (_) {
+      '/flow': (_) {
         return FlowPage(
           pageBuilder: (child) => BottomSheetPage(child: child),
           child: BottomSheetContents(),
@@ -212,10 +206,9 @@ RouteMap _buildRouteMap(AppState appState) {
         );
       },
 
-      '/bottom-sheet/one': (_) => MaterialPage(child: BottomSheetPageOne()),
+      '/flow/one': (_) => MaterialPage(child: BottomSheetPageOne()),
 
-      '/bottom-sheet/two': (route) {
-        print(route.source);
+      '/flow/two': (route) {
         return MaterialPage(child: BottomSheetPageTwo());
       },
     },
