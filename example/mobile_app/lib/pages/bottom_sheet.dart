@@ -40,14 +40,21 @@ class BottomSheetPage extends Page<void> {
   }
 }
 
-class BottomSheetContents extends StatelessWidget {
+class FlowBottomSheetContents extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PageStackNavigator(stack: FlowPage.of(context).stack);
   }
 }
 
-class BottomSheetPageOne extends StatelessWidget {
+class StackBottomSheetContents extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return PageStackNavigator(stack: StackPage.of(context).stack);
+  }
+}
+
+class FlowPageOne extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
@@ -83,7 +90,71 @@ class BottomSheetPageOne extends StatelessWidget {
   }
 }
 
-class BottomSheetPageTwo extends StatelessWidget {
+class FlowPageTwo extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(),
+      child: Material(
+        child: ListView(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Center(
+                child: Text(
+                  'Page Two',
+                  style: TextStyle(fontSize: 30),
+                ),
+              ),
+            ),
+            CupertinoButton(
+              onPressed: () => Routemaster.of(context).push('/feed'),
+              child: Text('Done'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class StackPageOne extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        leading: CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: () {
+            Routemaster.of(context).pop();
+          },
+          child: const Text('Cancel'),
+        ),
+      ),
+      child: Material(
+        child: ListView(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Center(
+                child: Text(
+                  'Page One',
+                  style: TextStyle(fontSize: 30),
+                ),
+              ),
+            ),
+            CupertinoButton(
+              onPressed: () => Routemaster.of(context).push('/stack/one/two'),
+              child: Text('Next page'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class StackPageTwo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(

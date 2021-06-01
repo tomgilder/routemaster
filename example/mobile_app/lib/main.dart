@@ -78,10 +78,7 @@ RouteMap _buildRouteMap(AppState appState) {
   return RouteMap(
     routes: {
       '/': (_) => CupertinoTabPage(
-            pageBuilder: (child) {
-              print('pageBuilder');
-              return MaterialWithModalsPage(child: child);
-            },
+            pageBuilder: (child) => MaterialWithModalsPage(child: child),
             child: HomePage(),
             paths: [
               '/feed',
@@ -186,30 +183,30 @@ RouteMap _buildRouteMap(AppState appState) {
 
       '/stack': (_) => StackPage(
             pageBuilder: (child) => BottomSheetPage(child: child),
-            child: BottomSheetContents(),
-            initialPath: '/bottom-sheet/one',
+            child: StackBottomSheetContents(),
+            initialPath: 'one',
           ),
 
       '/stack/one': (_) => MaterialPage(
-            child: BottomSheetPageOne(),
+            child: StackPageOne(),
           ),
 
       '/stack/one/two': (_) => MaterialPage(
-            child: BottomSheetPageTwo(),
+            child: StackPageOne(),
           ),
 
       '/flow': (_) {
         return FlowPage(
           pageBuilder: (child) => BottomSheetPage(child: child),
-          child: BottomSheetContents(),
+          child: FlowBottomSheetContents(),
           paths: ['one', 'two'],
         );
       },
 
-      '/flow/one': (_) => MaterialPage(child: BottomSheetPageOne()),
+      '/flow/one': (_) => MaterialPage(child: FlowPageOne()),
 
       '/flow/two': (route) {
-        return MaterialPage(child: BottomSheetPageTwo());
+        return MaterialPage(child: FlowPageTwo());
       },
     },
   );

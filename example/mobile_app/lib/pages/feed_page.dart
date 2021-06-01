@@ -90,8 +90,8 @@ class FeedPage extends StatelessWidget {
                 child: Text('/stack/one'),
               ),
               ElevatedButton(
-                onPressed: () => Routemaster.of(context).push('/stack/two'),
-                child: Text('/two'),
+                onPressed: () => Routemaster.of(context).push('/stack/one/two'),
+                child: Text('/stack/one/two'),
               ),
             ],
           )
