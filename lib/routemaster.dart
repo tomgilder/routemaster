@@ -24,7 +24,8 @@ part 'src/route_data.dart';
 
 /// The source of where a navigation request came from.
 ///
-///   * [app] - the request came from your code, such as via a call to `push()`.
+///   * [app] - the request came from within an app's code, such as via a call
+///             to `push()`.
 ///
 ///   * [system] - the request came from the system, such as the user entering
 ///                a URL in the web browser's address bar.
@@ -652,15 +653,14 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         if (page is PageInserter) {
           // Page inserters can provide a list of paths to insert above them in
           // the navigation hierarchy
-          final insertedPages =
-              (page as PageInserter).getPagesToInsert(result).map(
-                    (insertPath) => _getSinglePage(
-                      _RouteRequest(
-                        uri: Uri.parse(insertPath),
-                        source: request.source,
-                      ),
-                    ),
-                  );
+          final insertedPages = page.getPagesToInsert(result).map(
+                (insertPath) => _getSinglePage(
+                  _RouteRequest(
+                    uri: Uri.parse(insertPath),
+                    source: request.source,
+                  ),
+                ),
+              );
 
           result.insertAll(0, insertedPages);
         }
@@ -832,7 +832,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       return _RedirectResult(
         pathContext.join(
           routeRequest.uri.path,
-          (page as PageContainer).redirectPath,
+          page.redirectPath,
         ),
       );
     }

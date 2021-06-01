@@ -9,7 +9,8 @@ Page _defaultPageBuilder(Widget child) {
 ///
 /// This class is only for very custom cases that don't require a
 /// [TabController] or [CupertinoTabController].
-class IndexedPage extends StatefulPage<void> with IndexedRouteMixIn {
+class IndexedPage extends StatefulPage<void>
+    with IndexedRouteMixIn, PageContainer {
   /// The content to be shown in the [Route] created by this page.
   final Widget child;
 
@@ -19,6 +20,9 @@ class IndexedPage extends StatefulPage<void> with IndexedRouteMixIn {
   /// Optional function to customize the [Page] created for this route.
   /// If this is null, a [MaterialPage] is used.
   final Page Function(Widget child) pageBuilder;
+
+  @override
+  String get redirectPath => paths[0];
 
   /// Initializes the page with a list of child [paths]. The provided [child]
   /// will normally show some kind of indexed navigation, such as tabs.
@@ -91,7 +95,7 @@ class IndexedPageState extends PageState<IndexedPage>
 
 /// A page used to manage tab views. Its state object creates and manages a
 /// [TabController] that can be retrieved via `TabPage.of(context).controller`.
-class TabPage extends StatefulPage<void> with IndexedRouteMixIn {
+class TabPage extends StatefulPage<void> with IndexedRouteMixIn, PageContainer {
   /// The content to be shown in the [Route] created by this page.
   final Widget child;
 
@@ -101,6 +105,9 @@ class TabPage extends StatefulPage<void> with IndexedRouteMixIn {
   /// Optional function to customize the [Page] created for this route.
   /// If this is null, a [MaterialPage] is used.
   final Page Function(Widget child) pageBuilder;
+
+  @override
+  String get redirectPath => paths[0];
 
   /// Initializes the page with a list of child [paths].
   const TabPage({
@@ -261,7 +268,8 @@ class _TabControllerProviderState extends State<_TabControllerProvider>
 ///   ),
 /// );
 /// ```
-class CupertinoTabPage extends StatefulPage<void> with IndexedRouteMixIn {
+class CupertinoTabPage extends StatefulPage<void>
+    with IndexedRouteMixIn, PageContainer {
   /// The child [Widget] that will display the [CupertinoTabBar].
   final Widget child;
 
@@ -271,6 +279,9 @@ class CupertinoTabPage extends StatefulPage<void> with IndexedRouteMixIn {
   /// Optional function to customize the [Page] created for this route.
   /// If this is null, a [MaterialPage] is used.
   final Page Function(Widget child) pageBuilder;
+
+  @override
+  String get redirectPath => paths[0];
 
   /// Initializes the page with a list of child [paths].
   const CupertinoTabPage({

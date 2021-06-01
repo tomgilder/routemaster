@@ -6,12 +6,15 @@ part of '../../routemaster.dart';
 /// If the router tries to show this page as the top page, it'll redirect to
 /// [redirectPath].
 ///
-/// TODO: Do we need this? Can we just use [Redirect] somehow?
-mixin PageContainer {
+/// For example, you could have a set of tabs at `/home`, with the first tab
+/// being `/home/profile`. If the user tries to navigate to `/home`, they'll be
+/// redirected to `/home/profile`.
+mixin PageContainer<T> on Page<T> {
+  /// The path of a child route to redirect to.
   String get redirectPath;
 }
 
-mixin PageInserter {
+mixin PageInserter<T extends StatefulPage<dynamic>> on PageState<T> {
   List<String> getPagesToInsert(List<PageWrapper<Page>> result);
 }
 
