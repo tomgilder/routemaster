@@ -1,3 +1,7 @@
+# 0.9.3
+
+* Fixed: incorrect path reference in file (thanks to Thomas Frantz for PR)
+
 # 0.9.2
 
 * Fixed: navigating to an unknown page on startup could throw an exception
