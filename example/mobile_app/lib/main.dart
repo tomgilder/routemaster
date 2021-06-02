@@ -192,7 +192,7 @@ RouteMap _buildRouteMap(AppState appState) {
           ),
 
       '/stack/one/two': (_) => MaterialPage(
-            child: StackPageOne(),
+            child: StackPageTwo(),
           ),
 
       '/flow': (_) {
