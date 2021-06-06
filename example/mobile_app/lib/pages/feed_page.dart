@@ -8,94 +8,97 @@ class FeedPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('Feed'),
       ),
-      body: ListView(
-        padding: EdgeInsets.all(16),
-        children: [
-          Column(
-            children: [
-              ElevatedButton(
-                onPressed: () async {
-                  final result = await Routemaster.of(context)
-                      .push<String?>('profile/1')
-                      .result;
-                  print(result);
-                },
-                child: Text('Push profile page with ID 1'),
-              ),
-              ElevatedButton(
-                onPressed: () =>
-                    Routemaster.of(context).push('profile/2?message=hello'),
-                child: Text('Push profile page with ID 2 and query string'),
-              ),
-              ElevatedButton(
-                onPressed: () =>
-                    Routemaster.of(context).push('profile/1/photo'),
-                child: Text("Go to user 1's photo page (skipping stacks)"),
-              ),
-              ElevatedButton(
-                onPressed: () => Routemaster.of(context).push('profile/3'),
-                child: Text('Go to user 3 (validation fail)'),
-              ),
-              ElevatedButton(
-                onPressed: () => Routemaster.of(context).push('/404'),
-                child: Text('Go to /404'),
-              ),
-              ElevatedButton(
-                onPressed: () =>
-                    Routemaster.of(context).push('/bottom-navigation-bar'),
-                child: Text('Bottom Navigation Bar page'),
-              ),
-              ElevatedButton(
-                onPressed: () => Routemaster.of(context)
-                    .replace('/bottom-navigation-bar-replace'),
-                child: Text('Replace test'),
-              ),
-              ElevatedButton(
-                onPressed: () => Routemaster.of(context).push('/settings'),
-                child: Text('Jump to settings tab'),
-              ),
-              ElevatedButton(
-                onPressed: () => Routemaster.of(context).push('/tab-bar'),
-                child: Text('Tab bar page'),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) {
-                    return Scaffold(
-                      appBar: AppBar(),
-                      body: Center(child: Text('Non-Page route')),
-                    );
-                  }),
+      body: SafeArea(
+        child: ListView(
+          padding: EdgeInsets.all(16),
+          children: [
+            Column(
+              children: [
+                ElevatedButton(
+                  onPressed: () async {
+                    final result = await Routemaster.of(context)
+                        .push<String?>('profile/1')
+                        .result;
+                    print(result);
+                  },
+                  child: Text('Push profile page with ID 1'),
                 ),
-                child: Text('Push non-Page route'),
-              ),
-              ElevatedButton(
-                onPressed: () => Routemaster.of(context).push('/flow'),
-                child: Text('/flow'),
-              ),
-              ElevatedButton(
-                onPressed: () => Routemaster.of(context).push('/flow/one'),
-                child: Text('/flow/one'),
-              ),
-              ElevatedButton(
-                onPressed: () => Routemaster.of(context).push('/flow/two'),
-                child: Text('/flow/two'),
-              ),
-              ElevatedButton(
-                onPressed: () => Routemaster.of(context).push('/stack'),
-                child: Text('/stack'),
-              ),
-              ElevatedButton(
-                onPressed: () => Routemaster.of(context).push('/stack/one'),
-                child: Text('/stack/one'),
-              ),
-              ElevatedButton(
-                onPressed: () => Routemaster.of(context).push('/stack/one/two'),
-                child: Text('/stack/one/two'),
-              ),
-            ],
-          )
-        ],
+                ElevatedButton(
+                  onPressed: () =>
+                      Routemaster.of(context).push('profile/2?message=hello'),
+                  child: Text('Push profile page with ID 2 and query string'),
+                ),
+                ElevatedButton(
+                  onPressed: () =>
+                      Routemaster.of(context).push('profile/1/photo'),
+                  child: Text("Go to user 1's photo page (skipping stacks)"),
+                ),
+                ElevatedButton(
+                  onPressed: () => Routemaster.of(context).push('profile/3'),
+                  child: Text('Go to user 3 (validation fail)'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Routemaster.of(context).push('/404'),
+                  child: Text('Go to /404'),
+                ),
+                ElevatedButton(
+                  onPressed: () =>
+                      Routemaster.of(context).push('/bottom-navigation-bar'),
+                  child: Text('Bottom Navigation Bar page'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Routemaster.of(context)
+                      .replace('/bottom-navigation-bar-replace'),
+                  child: Text('Replace test'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Routemaster.of(context).push('/settings'),
+                  child: Text('Jump to settings tab'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Routemaster.of(context).push('/tab-bar'),
+                  child: Text('Tab bar page'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) {
+                      return Scaffold(
+                        appBar: AppBar(),
+                        body: Center(child: Text('Non-Page route')),
+                      );
+                    }),
+                  ),
+                  child: Text('Push non-Page route'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Routemaster.of(context).push('/flow'),
+                  child: Text('/flow'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Routemaster.of(context).push('/flow/one'),
+                  child: Text('/flow/one'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Routemaster.of(context).push('/flow/two'),
+                  child: Text('/flow/two'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Routemaster.of(context).push('/stack'),
+                  child: Text('/stack'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Routemaster.of(context).push('/stack/one'),
+                  child: Text('/stack/one'),
+                ),
+                ElevatedButton(
+                  onPressed: () =>
+                      Routemaster.of(context).push('/stack/one/two'),
+                  child: Text('/stack/one/two'),
+                ),
+              ],
+            )
+          ],
+        ),
       ),
     );
   }

@@ -15,7 +15,7 @@ import 'pages/notifications_page.dart';
 import 'pages/tab_bar_page.dart';
 
 void main() {
-  // Routemaster.setPathUrlStrategy();
+  Routemaster.setPathUrlStrategy();
   runApp(MyApp());
 }
 
@@ -187,13 +187,8 @@ RouteMap _buildRouteMap(AppState appState) {
             initialPath: 'one',
           ),
 
-      '/stack/one': (_) => MaterialPage(
-            child: StackPageOne(),
-          ),
-
-      '/stack/one/two': (_) => MaterialPage(
-            child: StackPageTwo(),
-          ),
+      '/stack/one': (_) => MaterialPage(child: StackPageOne()),
+      '/stack/one/two': (_) => MaterialPage(child: StackPageTwo()),
 
       '/flow': (_) {
         return FlowPage(
@@ -204,10 +199,10 @@ RouteMap _buildRouteMap(AppState appState) {
       },
 
       '/flow/one': (_) => MaterialPage(child: FlowPageOne()),
-
-      '/flow/two': (route) {
-        return MaterialPage(child: FlowPageTwo());
-      },
+      '/flow/subpage': (_) => MaterialPage(
+            child: MessagePage(message: 'Subpage'),
+          ),
+      '/flow/two': (route) => MaterialPage(child: FlowPageTwo()),
     },
   );
 }

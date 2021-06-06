@@ -4,6 +4,7 @@ export 'src/parser.dart';
 export 'src/pages/guard.dart';
 
 import 'dart:async';
+import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,7 @@ part 'src/pages/page_stack.dart';
 part 'src/pages/tab_pages.dart';
 part 'src/pages/basic_pages.dart';
 part 'src/pages/stack_page.dart';
+part 'src/pages/flow_page.dart';
 part 'src/observers.dart';
 part 'src/route_data.dart';
 
@@ -623,18 +625,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
       if (current is _PageWrapperResult) {
         final page = current.pageWrapper;
-
-        if (page is PageInserter) {
-          // Page inserters can provide a list of paths to insert above them in
-          // the navigation hierarchy
-          final insertedPages = page.getPagesToInsert(result).map(
-                (insertPath) => _getSinglePage(
-                  _RouteRequest(uri: Uri.parse(insertPath)),
-                ),
-              );
-
-          result.insertAll(0, insertedPages);
-        }
 
         if (isLastRoute) {
           // Set the page result for popped return values

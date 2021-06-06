@@ -83,6 +83,10 @@ class FlowPageOne extends StatelessWidget {
               onPressed: () => FlowPage.of(context).pushNext(),
               child: Text('Next page'),
             ),
+            CupertinoButton(
+              onPressed: () => Routemaster.of(context).push('/flow/subpage'),
+              child: Text('Subpage'),
+            ),
           ],
         ),
       ),

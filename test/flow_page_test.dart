@@ -140,6 +140,62 @@ void main() {
       ['/flow/one'],
     );
   });
+
+  testWidgets('Can specify absolute paths for flow', (tester) async {
+    await tester.pumpWidget(MaterialApp.router(
+      routeInformationParser: const RoutemasterParser(),
+      routerDelegate: RoutemasterDelegate(
+        routesBuilder: (_) => RouteMap(
+          routes: {
+            '/': (_) => MaterialPage<void>(child: PageOne(key: rootPageKey)),
+            '/flow': (_) {
+              return FlowPage(
+                pageBuilder: (child) => BottomSheetPage(child: child),
+                child: FlowBottomSheetContents(),
+                paths: const ['/flow/one', '/flow/two'],
+              );
+            },
+            '/flow/one': (_) => MaterialPage<void>(child: FlowPageOne()),
+            '/flow/two': (route) {
+              return MaterialPage<void>(child: FlowPageTwo());
+            },
+          },
+        ),
+      ),
+    ));
+
+    expect(
+      await recordUrlChanges(() async {
+        Routemaster.of(rootPageKey.currentContext!).push('/flow');
+        await tester.pump();
+        await tester.pump(kTransitionDuration);
+
+        expect(find.byType(FlowPageOne), findsOneWidget);
+      }),
+      ['/flow/one'],
+    );
+
+    expect(
+      await recordUrlChanges(() async {
+        FlowPage.of(flowPageOneKey.currentContext!).pushNext();
+        await tester.pump();
+        await tester.pump(kTransitionDuration);
+        expect(find.byType(FlowPageTwo), findsOneWidget);
+      }),
+      ['/flow/two'],
+    );
+
+    expect(
+      await recordUrlChanges(() async {
+        Routemaster.of(flowPageOneKey.currentContext!).push('/');
+        await tester.pump();
+        await tester.pump(kTransitionDuration);
+
+        expect(find.byType(FlowPageTwo), findsNothing);
+      }),
+      ['/'],
+    );
+  });
 }
 
 class BottomSheetPage extends Page<void> {
