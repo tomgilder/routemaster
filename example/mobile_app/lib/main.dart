@@ -7,6 +7,7 @@ import 'package:mobile_app/pages/login_page.dart';
 import 'app_state/app_state.dart';
 import 'pages/bottom_navigation_bar_page.dart';
 import 'pages/bottom_sheet.dart';
+import 'pages/custom_flow_page.dart';
 import 'pages/home_page.dart';
 import 'pages/settings_page.dart';
 import 'pages/search_page.dart';
@@ -203,6 +204,10 @@ RouteMap _buildRouteMap(AppState appState) {
             child: MessagePage(message: 'Subpage'),
           ),
       '/flow/two': (route) => MaterialPage(child: FlowPageTwo()),
+
+      '/customflow': (_) {
+        return MaterialPage(child: CustomFlowPage());
+      },
     },
   );
 }
