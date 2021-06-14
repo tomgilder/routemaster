@@ -1,3 +1,7 @@
+# 0.9.4
+
+* Fixed: an issue where pages were incorrectly rebuilding, causing state such as the active tab to reset
+
 # 0.9.3
 
 * Fixed: incorrect path reference in file (thanks to Thomas Frantz for PR)
