@@ -69,6 +69,10 @@ class PageStack extends ChangeNotifier {
 
   Iterable<PageWrapper> _getCurrentPages() sync* {
     if (_pageWrappers.isNotEmpty) {
+      for (final wrapper in _pageWrappers) {
+        yield wrapper;
+      }
+
       yield* _pageWrappers.last.getCurrentPages();
     }
   }
