@@ -1,6 +1,7 @@
 # 0.9.4
 
 * Fixed: an issue where pages were incorrectly rebuilding, causing state such as the active tab to reset
+* Fixed: you can now use the ternary operator in page builders without having to do extra casts
 
 # 0.9.3
 
