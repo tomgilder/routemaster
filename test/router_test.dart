@@ -525,6 +525,64 @@ void main() {
 
     expect(find.byType(PageTwo), findsOneWidget);
   });
+
+  test('Can use ternary operator in route map', () {
+    const id = 0;
+
+    // This just needs to compile to pass
+    RouteMap(
+      onUnknownRoute: (_) {
+        return id == 0 ? const Redirect('/two') : const MaterialPageOne();
+      },
+      routes: {
+        '/two': (_) {
+          return id == 0 ? const NotFound() : const MaterialPageOne();
+        },
+      },
+    );
+  });
+
+  testWidgets('Asserts when Page not returned from not found', (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        onUnknownRoute: (_) => NotAPage(),
+        routes: {'/': (_) => const MaterialPageOne()},
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    delegate.push('/404');
+    await tester.pump();
+
+    final exception = tester.takeException() as AssertionError;
+    expect(
+      exception.message,
+      "Route builders must return a Page object. The route builder for '/404' instead returned an object of type 'NotAPage'.",
+    );
+  });
+
+  testWidgets('Asserts when Page not returned from builder', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: RoutemasterDelegate(
+          routesBuilder: (_) => RouteMap(routes: {'/': (_) => NotAPage()}),
+        ),
+      ),
+    );
+
+    final exception = tester.takeException() as AssertionError;
+    expect(
+      exception.message,
+      "Route builders must return a Page object. The route builder for '/' instead returned an object of type 'NotAPage'.",
+    );
+  });
 }
 
 class QueryParamEcho extends StatelessWidget {
@@ -537,3 +595,5 @@ class QueryParamEcho extends StatelessWidget {
     return Scaffold(body: Text(query));
   }
 }
+
+class NotAPage extends RouteSettings {}

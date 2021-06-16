@@ -22,10 +22,10 @@ part 'src/observers.dart';
 part 'src/route_data.dart';
 
 /// A function that builds a [Page] from given [RouteData].
-typedef PageBuilder = Page Function(RouteData route);
+typedef PageBuilder = RouteSettings Function(RouteData route);
 
 /// A function that returns a [Page] when the given [path] couldn't be found.
-typedef UnknownRouteCallback = Page Function(String path);
+typedef UnknownRouteCallback = RouteSettings Function(String path);
 
 /// A standard simple routing table which takes a map of routes.
 ///
@@ -84,7 +84,7 @@ class RouteMap {
   ///   2. Use the routing delegate to, for instance, redirect to another route
   ///      and return null.
   ///
-  Page onUnknownRoute(String path) {
+  RouteSettings onUnknownRoute(String path) {
     if (_onUnknownRoute != null) {
       return _onUnknownRoute!(path);
     }
@@ -598,10 +598,13 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       );
 
       // Get a page wrapper object for the current route
+      final page = routerData.builder(routeData);
+      _assertIsPage(page, routeData.fullPath);
+
       final current = isLastRoute
           ? _createPageWrapper(
               routeRequest: request,
-              page: routerData.builder(routeData),
+              page: page as Page,
               routeData: routeData,
             )
           : _getOrCreatePageWrapper(
@@ -696,7 +699,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     // No current route, create a new one
     return _createPageWrapper(
       routeRequest: routeRequest,
-      page: routerResult.builder(routeData),
+      page: routerResult.builder(routeData) as Page,
       routeData: routeData,
     );
   }
@@ -712,9 +715,12 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         isReplacement: routeRequest.isReplacement,
       );
 
+      final page = routerResult.builder(routeData);
+      _assertIsPage(page, routeData.fullPath);
+
       final wrapper = _createPageWrapper(
         routeRequest: routeRequest,
-        page: routerResult.builder(routeData),
+        page: routerResult.builder(routeData) as Page,
         routeData: routeData,
       );
 
@@ -789,7 +795,10 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   List<PageWrapper> _onUnknownRoute(_RouteRequest routeRequest) {
     final requestedPath = routeRequest.uri;
-    final result = _state.routeMap!.onUnknownRoute(requestedPath.toString());
+    final fullPath = requestedPath.toString();
+    final result = _state.routeMap!.onUnknownRoute(fullPath);
+
+    _assertIsPage(result, fullPath);
 
     if (result is Redirect) {
       final redirectResult = _createAllPageWrappers(
@@ -805,11 +814,15 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     }
 
     // Return 404 page
-    final routeData = RouteData.fromUri(
-      requestedPath,
-      isReplacement: routeRequest.isReplacement,
-    );
-    return [PageWrapper.fromPage(routeData: routeData, page: result)];
+    return [
+      PageWrapper.fromPage(
+        routeData: RouteData.fromUri(
+          requestedPath,
+          isReplacement: routeRequest.isReplacement,
+        ),
+        page: result as Page,
+      )
+    ];
   }
 
   List<String> _debugCheckRedirectLoop(
@@ -1150,4 +1163,11 @@ class _StackNavigatorState extends NavigatorState {
     (widget as _StackNavigator).stack._attachedNavigator = null;
     super.dispose();
   }
+}
+
+void _assertIsPage(RouteSettings page, String route) {
+  assert(
+    page is Page,
+    "Route builders must return a Page object. The route builder for '$route' instead returned an object of type '${page.runtimeType}'.",
+  );
 }
