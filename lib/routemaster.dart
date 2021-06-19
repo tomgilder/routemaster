@@ -18,6 +18,7 @@ import 'src/trie_router/trie_router.dart';
 part 'src/pages/page_stack.dart';
 part 'src/pages/tab_pages.dart';
 part 'src/pages/basic_pages.dart';
+part 'src/pages/stack_page.dart';
 part 'src/observers.dart';
 part 'src/route_data.dart';
 
@@ -433,7 +434,12 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   Future<void> setNewRoutePath(RouteData routeData) {
     assert(!_isDisposed);
 
-    push(routeData.fullPath);
+    _navigate(
+      uri: routeData._uri,
+      queryParameters: routeData.queryParameters,
+      isReplacement: false,
+    );
+
     return SynchronousFuture(null);
   }
 
@@ -606,6 +612,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
               routeRequest: request,
               page: page as Page,
               routeData: routeData,
+              isLastRoute: true,
             )
           : _getOrCreatePageWrapper(
               routeRequest: request,
@@ -618,6 +625,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         final page = current.pageWrapper;
 
         if (isLastRoute) {
+          // Set the page result for popped return values
           page.result = request.result;
         }
 
@@ -701,12 +709,14 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       routeRequest: routeRequest,
       page: routerResult.builder(routeData) as Page,
       routeData: routeData,
+      isLastRoute: false,
     );
   }
 
   /// Called by tab pages to lazily generate their initial routes
-  PageWrapper _getPageForTab(_RouteRequest routeRequest) {
+  PageWrapper _getSinglePage(_RouteRequest routeRequest) {
     final requestedPath = routeRequest.uri.toString();
+
     final routerResult = _state.routeMap!.get(requestedPath);
     if (routerResult != null) {
       final routeData = RouteData.fromRouterResult(
@@ -722,6 +732,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         routeRequest: routeRequest,
         page: routerResult.builder(routeData) as Page,
         routeData: routeData,
+        isLastRoute: false,
       );
 
       if (wrapper is _PageWrapperResult) {
@@ -729,7 +740,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       }
 
       if (wrapper is _RedirectResult) {
-        return _getPageForTab(
+        return _getSinglePage(
           _RouteRequest(
             uri: Uri.parse(wrapper.redirectPath),
             isReplacement: routeRequest.isReplacement,
@@ -738,13 +749,14 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       }
     }
 
-    return _TabNotFoundPage(routeRequest.uri);
+    return _TabNotFoundPage(routeRequest);
   }
 
   _PageResult _createPageWrapper({
     required _RouteRequest routeRequest,
     required Page page,
     required RouteData routeData,
+    required bool isLastRoute,
   }) {
     while (page is Guard) {
       if (!page.canNavigate(routeData, _context)) {
@@ -757,6 +769,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           routeRequest: routeRequest,
           page: result,
           routeData: routeData,
+          isLastRoute: isLastRoute,
         );
       }
 
@@ -769,6 +782,15 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     if (page is Redirect) {
       return _RedirectResult(page.redirectPath);
+    }
+
+    if (isLastRoute && page is PageContainer) {
+      return _RedirectResult(
+        pathContext.join(
+          routeRequest.uri.path,
+          page.redirectPath,
+        ),
+      );
     }
 
     if (page is StatefulPage) {

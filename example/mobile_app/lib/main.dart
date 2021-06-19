@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:routemaster/routemaster.dart';
@@ -5,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:mobile_app/pages/login_page.dart';
 import 'app_state/app_state.dart';
 import 'pages/bottom_navigation_bar_page.dart';
+import 'pages/bottom_sheet.dart';
 import 'pages/home_page.dart';
 import 'pages/settings_page.dart';
 import 'pages/search_page.dart';
@@ -76,6 +78,7 @@ RouteMap _buildRouteMap(AppState appState) {
   return RouteMap(
     routes: {
       '/': (_) => CupertinoTabPage(
+            pageBuilder: (child) => MaterialWithModalsPage(child: child),
             child: HomePage(),
             paths: [
               '/feed',
@@ -177,6 +180,15 @@ RouteMap _buildRouteMap(AppState appState) {
       '/bonus': (_) => MaterialPage(
             child: MessagePage(message: 'You found the bonus page!!!'),
           ),
+
+      '/stack': (_) => StackPage(
+            pageBuilder: (child) => BottomSheetPage(child: child),
+            child: StackBottomSheetContents(),
+            defaultPath: 'one',
+          ),
+
+      '/stack/one': (_) => MaterialPage(child: StackPageOne()),
+      '/stack/one/two': (_) => MaterialPage(child: StackPageTwo()),
     },
   );
 }

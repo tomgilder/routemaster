@@ -60,8 +60,8 @@ class _IndexedPageStateProvider extends InheritedNotifier {
         );
 }
 
-/// The current state of an [IndexedPage]. Created when the an instance of the
-/// page is shown. Provides a list of track of the currently active index.
+/// The current state of an [IndexedPage]. Created when an instance of the page
+/// is shown. Provides a list of track of the currently active index.
 ///
 ///   * [stacks] - a list of [PageStack] objects that manage the child routes.
 ///
@@ -413,7 +413,7 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
       path: stackPath,
     );
 
-    final route = routemaster._delegate._getPageForTab(
+    final route = routemaster._delegate._getSinglePage(
       _RouteRequest(
         uri: path,
         isReplacement: routeData.isReplacement,
@@ -496,11 +496,14 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
 }
 
 class _TabNotFoundPage extends PageWrapper {
-  _TabNotFoundPage(Uri uri)
+  _TabNotFoundPage(_RouteRequest request)
       : super.fromPage(
-          routeData: RouteData.fromUri(uri, pathTemplate: null),
+          routeData: RouteData(
+            request.uri.toString(),
+            pathTemplate: null,
+          ),
           page: MaterialPage<void>(
-            child: DefaultNotFoundPage(path: uri.path),
+            child: DefaultNotFoundPage(path: request.uri.toString()),
           ),
         );
 }
