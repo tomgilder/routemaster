@@ -22,7 +22,10 @@ class TestRoute extends Page<void> {
 }
 
 RouteData getRouteData(RouterResult routerResult) {
-  return RouteData.fromRouterResult(routerResult, Uri(path: '/'));
+  return RouteData.fromRouterResult(
+    routerResult,
+    Uri(path: '/'),
+  );
 }
 
 void main() {

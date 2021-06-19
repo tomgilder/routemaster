@@ -1,5 +1,19 @@
 part of '../../routemaster.dart';
 
+/// Marks a page as not being navigable to directly. It cannot be the top-level
+/// page, and if navigated to directly will redirect to a child page.
+///
+/// If the router tries to show this page as the top page, it'll redirect to
+/// [redirectPath].
+///
+/// For example, you could have a set of tabs at `/home`, with the first tab
+/// being `/home/profile`. If the user tries to navigate to `/home`, they'll be
+/// redirected to `/home/profile`.
+mixin PageContainer<T> on Page<T> {
+  /// The path of a child route to redirect to.
+  String get redirectPath;
+}
+
 /// A wrapper around a [Page] that holds additional routing information and
 /// provides navigation functions.
 class PageWrapper<T extends Page<dynamic>> {
