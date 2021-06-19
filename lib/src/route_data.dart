@@ -34,15 +34,12 @@ class RouteData {
   /// The template for this route, for instance '/profile/:id'.
   final String? pathTemplate;
 
-  final NavigationSource source;
-
   /// Initializes routing data from a path string.
   RouteData(
     String path, {
     this.pathParameters = const {},
     this.isReplacement = false,
     this.pathTemplate,
-    this.source = NavigationSource.app,
   }) : _uri = Uri.parse(path);
 
   RouteData.fromUri(
@@ -50,7 +47,6 @@ class RouteData {
     this.pathParameters = const {},
     this.isReplacement = false,
     this.pathTemplate,
-    this.source = NavigationSource.app,
   }) : _uri = uri;
 
   /// Initializes routing data from the provided router result.
@@ -58,7 +54,6 @@ class RouteData {
     RouterResult result,
     Uri uri, {
     this.isReplacement = false,
-    this.source = NavigationSource.app,
   })  : _uri = uri,
         pathParameters = result.pathParameters,
         pathTemplate = result.pathTemplate;

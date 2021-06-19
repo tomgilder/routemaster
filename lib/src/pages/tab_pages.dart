@@ -428,7 +428,6 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
       _RouteRequest(
         uri: path,
         isReplacement: routeData.isReplacement,
-        source: routeData.source,
       ),
     );
 
@@ -513,7 +512,6 @@ class _TabNotFoundPage extends PageWrapper {
           routeData: RouteData(
             request.uri.toString(),
             pathTemplate: null,
-            source: request.source,
           ),
           page: MaterialPage<void>(
             child: DefaultNotFoundPage(path: request.uri.toString()),

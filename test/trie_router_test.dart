@@ -25,7 +25,6 @@ RouteData getRouteData(RouterResult routerResult) {
   return RouteData.fromRouterResult(
     routerResult,
     Uri(path: '/'),
-    source: NavigationSource.app,
   );
 }
 
