@@ -19,6 +19,7 @@ void main() {
         pathTemplate: '/template',
       ),
       Uri.parse('/path'),
+      source: NavigationSource.app,
     );
 
     expect(data.path, '/path');
@@ -34,6 +35,7 @@ void main() {
         pathTemplate: '/template',
       ),
       Uri.parse('/path?hello=world'),
+      source: NavigationSource.app,
     );
 
     expect(data.path, '/path');
@@ -49,6 +51,7 @@ void main() {
         pathTemplate: '/template',
       ),
       Uri.parse('/one/two'),
+      source: NavigationSource.app,
     );
     final two = RouteData.fromRouterResult(
       const RouterResult(
@@ -58,6 +61,7 @@ void main() {
         pathTemplate: '/template',
       ),
       Uri.parse('/one'),
+      source: NavigationSource.app,
     );
 
     expect(one == two, isFalse);
@@ -73,6 +77,7 @@ void main() {
         pathTemplate: '/',
       ),
       Uri.parse('/'),
+      source: NavigationSource.app,
     );
     final two = RouteData.fromRouterResult(
       const RouterResult(
@@ -82,6 +87,7 @@ void main() {
         pathTemplate: '/',
       ),
       Uri.parse('/'),
+      source: NavigationSource.app,
     );
 
     expect(one == two, isTrue);
@@ -156,7 +162,7 @@ void main() {
 
   test('RouteData.toString() is correct', () {
     expect(
-      RouteData('/').toString(),
+      RouteData('/', source: NavigationSource.app).toString(),
       '/',
     );
   });

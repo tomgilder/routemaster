@@ -139,7 +139,11 @@ class BottomSheetPageOne extends StatelessWidget {
               ),
             ),
             CupertinoButton(
-              onPressed: () => FlowPage.of(context).pushNext(),
+              onPressed: () {
+                // Router.neglect(context, () {
+                FlowPage.of(context).pushNext();
+                // });
+              },
               child: Text('Next page'),
             ),
           ],

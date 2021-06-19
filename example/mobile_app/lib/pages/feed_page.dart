@@ -59,9 +59,20 @@ class FeedPage extends StatelessWidget {
               //   child: Text('Tab bar page'),
               // ),
               ElevatedButton(
+                onPressed: () => Routemaster.of(context).push('/bottom-sheet'),
+                child: Text('/bottom-sheet'),
+              ),
+              ElevatedButton(
                 onPressed: () =>
                     Routemaster.of(context).push('/bottom-sheet/one'),
-                child: Text('Show modal page'),
+                child: Text('/bottom-sheet/one'),
+              ),
+              ElevatedButton(
+                onPressed: () => WidgetsBinding.instance!
+                    .handlePushRoute('/bottom-sheet/two')
+                // Routemaster.of(context).push('/bottom-sheet/two')
+                ,
+                child: Text('/bottom-sheet/two'),
               ),
               // ElevatedButton(
               //   onPressed: () => Navigator.of(context).push(

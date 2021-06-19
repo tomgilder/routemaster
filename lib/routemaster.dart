@@ -22,6 +22,22 @@ part 'src/pages/stack_page.dart';
 part 'src/observers.dart';
 part 'src/route_data.dart';
 
+/// The source of where a navigation request came from.
+///
+///   * [app] - the request came from your code, such as via a call to `push()`.
+///
+///   * [system] - the request came from the system, such as the user entering
+///                a URL in the web browser's address bar.
+///
+enum NavigationSource {
+  /// The request came from your code, such as via a call to `push()`.
+  app,
+
+  /// The request came from the system, such as the user entering a URL in the
+  /// web browser's address bar.
+  system,
+}
+
 /// A function that builds a [Page] from given [RouteData].
 typedef PageBuilder = RouteSettings Function(RouteData route);
 
@@ -320,6 +336,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       ),
       queryParameters: queryParameters,
       isReplacement: true,
+      source: NavigationSource.app,
     );
   }
 
@@ -345,6 +362,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       queryParameters: queryParameters,
       isReplacement: false,
       navigationResult: result,
+      source: NavigationSource.app,
     );
     return result;
   }
@@ -434,7 +452,13 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   Future<void> setNewRoutePath(RouteData routeData) {
     assert(!_isDisposed);
 
-    push(routeData.fullPath);
+    _navigate(
+      uri: routeData._uri,
+      queryParameters: routeData.queryParameters,
+      isReplacement: false,
+      source: NavigationSource.system,
+    );
+
     return SynchronousFuture(null);
   }
 
@@ -460,12 +484,14 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           isReplacement: pending.isReplacement,
           navigationResult: pending.result,
           useCurrentState: false,
+          source: pending.source,
         );
       } else {
         _navigate(
           uri: currentConfiguration?._uri ?? Uri(path: '/'),
           isReplacement: false,
           useCurrentState: false,
+          source: NavigationSource.app,
         );
       }
     }
@@ -482,6 +508,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   void _navigate({
     required Uri uri,
     required bool isReplacement,
+    required NavigationSource source,
     NavigationResult? navigationResult,
     Map<String, String>? queryParameters,
     bool useCurrentState = true,
@@ -492,6 +519,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       uri: uri,
       isReplacement: isReplacement,
       result: navigationResult,
+      source: source,
     );
 
     var pages = _createAllPageWrappers(
@@ -531,6 +559,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
               navigationResult: navigationResult,
               queryParameters: queryParameters,
               isRetry: true,
+              source: source,
             );
           }
         });
@@ -596,6 +625,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         // Only the last route gets query parameters
         isLastRoute ? request.uri : Uri(path: routerData.pathSegment),
         isReplacement: request.isReplacement,
+        source: request.source,
       );
 
       // Get a page wrapper object for the current route
@@ -623,7 +653,10 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           final insertedPages =
               (page as PageInserter).getPagesToInsert(result).map(
                     (insertPath) => _getSinglePage(
-                      _RouteRequest(uri: Uri.parse(insertPath)),
+                      _RouteRequest(
+                        uri: Uri.parse(insertPath),
+                        source: request.source,
+                      ),
                     ),
                   );
 
@@ -670,6 +703,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           request: _RouteRequest(
             uri: Uri.parse(current.redirectPath),
             isReplacement: request.isReplacement,
+            source: request.source,
           ),
         );
       }
@@ -734,6 +768,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         routerResult,
         Uri.parse(requestedPath),
         isReplacement: routeRequest.isReplacement,
+        source: routeRequest.source,
       );
 
       final page = routerResult.builder(routeData);
@@ -755,12 +790,13 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           _RouteRequest(
             uri: Uri.parse(wrapper.redirectPath),
             isReplacement: routeRequest.isReplacement,
+            source: routeRequest.source,
           ),
         );
       }
     }
 
-    return _TabNotFoundPage(routeRequest.uri);
+    return _TabNotFoundPage(routeRequest);
   }
 
   _PageResult _createPageWrapper({
@@ -833,6 +869,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         request: _RouteRequest(
           uri: Uri.parse(result.redirectPath),
           isReplacement: routeRequest.isReplacement,
+          source: routeRequest.source,
         ),
       );
 
@@ -1015,11 +1052,13 @@ class _RouteRequest {
   final Uri uri;
   final bool isReplacement;
   final NavigationResult? result;
+  final NavigationSource source;
 
   _RouteRequest({
     required this.uri,
     this.isReplacement = false,
     this.result,
+    required this.source,
   });
 }
 

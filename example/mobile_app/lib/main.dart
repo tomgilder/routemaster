@@ -206,7 +206,10 @@ RouteMap _buildRouteMap(AppState appState) {
 
       '/bottom-sheet/one': (_) => MaterialPage(child: BottomSheetPageOne()),
 
-      '/bottom-sheet/two': (_) => MaterialPage(child: BottomSheetPageTwo()),
+      '/bottom-sheet/two': (route) {
+        print(route.source);
+        return MaterialPage(child: BottomSheetPageTwo());
+      },
     },
   );
 }
