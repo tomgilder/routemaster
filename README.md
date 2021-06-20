@@ -73,6 +73,7 @@ ___
 
 # Quick start API tour
 
+* [Overview](#overview)
 * [Routing](#routing)
 * [Tabs](#tabs)
 * [Cupertino tabs](#cupertino-tabs)
@@ -82,6 +83,40 @@ ___
 * [Swap routing map](#swap-routing-map)
 * [Navigation observers](#navigation-observers)
 * [Navigate without a context](#navigate-without-a-context)
+ 
+## Overview
+
+Routemaster generates pages based on the current path. This is the key concept of its path-base routing. Path structure matters.
+
+It uses the path to decide where a page should be pushed. This means the path needs to match your intended page hierarchy.
+
+For example:
+
+```dart
+'/tabs': (route) => TabPage(child: HomePage(), paths: ['one', 'two']),
+
+// First tab default page
+'/tabs/one': (route) => MaterialPage(child: TabOnePage()),
+
+// Second tab default page
+'/tabs/two': (route) => MaterialPage(child: TabTwoPage()),
+
+// Second tab sub-page: will be displayed in the 2nd tab because it
+// starts with '/tabs/two'
+'/tabs/two/subpage': (route) => MaterialPage(child: TabTwoPage()),
+
+// Not a tab page: will not be displayed in in a tab
+// because the path doesn't start with '/tabs/one' or '/tabs/two'
+'/tabs/notInATab': (route) => MaterialPage(child: NotTabPage()),
+```
+
+Any child paths that begin with `/tabs/one` or `/tabs/two` will be pushed into the correct tab. 
+
+When navigating to `/tabs/two/subpage`, the `TabPage` will be asked "hey, do you know how to handle this path?" and it'll go "sure! it starts with `/tabs/two`, so it goes in my second tab".
+
+However, navigating to `/tabs/notInATab` will **not** be displayed in a tab, but pushed on top of the tab bar.
+
+`TabPage` will be all "yeah sorry, no idea what to do with that, doesn't match any of my tab paths" and its parent will be asked to hande it.
   
 ## Routing
 
