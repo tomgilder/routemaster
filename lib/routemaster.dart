@@ -781,7 +781,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     }
 
     if (page is Redirect) {
-      return _RedirectResult(page.redirectPath);
+      return _RedirectResult(
+          _fillRedirectPathParams(page.redirectPath, routeData));
     }
 
     if (isLastRoute && page is PageContainer) {
@@ -813,6 +814,14 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return _PageWrapperResult(
       PageWrapper.fromPage(routeData: routeData, page: page),
     );
+  }
+
+  String _fillRedirectPathParams(String redirectPath, RouteData routeData) {
+    final pathSegments = pathContext.split(redirectPath);
+    final mappedSegments = pathSegments.map((segment) => segment.startsWith(':')
+        ? routeData.pathParameters[segment.substring(1)] ?? segment
+        : segment);
+    return pathContext.joinAll(mappedSegments);
   }
 
   List<PageWrapper> _onUnknownRoute(_RouteRequest routeRequest) {

@@ -331,6 +331,15 @@ RouteMap(
 )
 ```
 
+Passing path parameters from original to the redirect path:
+
+```dart
+RouteMap(routes: {
+    '/user/:id': (routeData) => MaterialPage(child: UserPage(id: id)),
+    '/profile/:uid': (routeData) => Redirect('/user/:uid'),
+})
+```
+
 ## Swap routing map
 
 You can swap the entire routing map at runtime.
