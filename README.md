@@ -413,6 +413,21 @@ void onTap() {
 }
 ```
 
+## Hero animations
+
+Hero animations will work automatically on the top-level navigator (assuming you're using `MaterialApp` or `CupertinoApp`).
+
+For any child navigators, you'll need to wrap `PageStackNavigator` in a `HeroControllerScope`, like this:
+
+```dart
+HeroControllerScope(
+  controller: MaterialApp.createMaterialHeroController(),
+  child: PageStackNavigator(
+    stack: pageStack,
+  )
+)
+```
+
 # Design goals
 
 * Integrated: work with the Flutter Navigator 2.0 API, don't try to replace it. Try to have a very Flutter-like API.
