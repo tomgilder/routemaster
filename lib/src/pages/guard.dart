@@ -70,8 +70,19 @@ class NotFound extends Page<dynamic> {
 }
 
 /// Can be returned instead of a page to redirect the router to another path.
+///
+/// Redirect path can contain path parameters that reference path parameters of
+/// the original path by name.
+///
+/// E.g. defining route `'/home/car/:id': (info) => Redirect('/cars/:id')`
+/// in [RouteMap] and then calling
+/// `Routermaster.of(context).push('/home/car/RAV4)` will result in current path
+/// being `'/cars/RAV4'`.
 class Redirect extends Page<dynamic> {
   /// The path to redirect to.
+  ///
+  /// Can contain path parameters that reference path parameters of the
+  /// original path.
   final String path;
 
   /// Query parameters to append to [path] when redirecting.

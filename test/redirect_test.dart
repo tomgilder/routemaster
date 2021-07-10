@@ -28,6 +28,31 @@ void main() {
     expect(delegate.currentConfiguration!.fullPath, '/two');
   });
 
+  testWidgets('Can use transitive redirect', (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (info) => const Redirect('/two'),
+          '/two': (info) => const Redirect('/tree'),
+          '/tree': (info) => Guard(
+            canNavigate: (info, context) => true,
+            builder: () => const MaterialPageTwo(),
+          ),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    expect(find.byType(PageTwo), findsOneWidget);
+    expect(delegate.currentConfiguration!.fullPath, '/tree');
+  });
+
   testWidgets('Deals with redirect loop', (tester) async {
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
@@ -97,5 +122,52 @@ This is an error in your routing map.""",
         },
       ),
     );
+  });
+
+  testWidgets('Redirect path parameters are filled', (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (info) => const Redirect('/two/hello/boo'),
+          '/two/:id/boo': (info) => const Redirect('/tree/:id'),
+          '/tree/:id': (info) => Guard(
+            canNavigate: (info, context) => true,
+            builder: () => const MaterialPageThree(),
+          ),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    expect(find.byType(PageThree), findsOneWidget);
+    expect(delegate.currentConfiguration!.fullPath, '/tree/hello');
+  });
+
+  testWidgets('Multiple redirect path parameters are filled', (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (info) => const Redirect('/two/hello/123'),
+          '/:tab/hello/:id': (info) => const Redirect('/tree/:id/:tab/:id'),
+          '/tree/:/two/:id': (info) => const MaterialPageThree(),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    expect(find.byType(PageThree), findsOneWidget);
+    expect(delegate.currentConfiguration!.fullPath, '/tree/123/two/123');
   });
 }
