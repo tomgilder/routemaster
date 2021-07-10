@@ -492,6 +492,11 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     bool useCurrentState = true,
     bool isRetry = false,
   }) {
+    if (_state.routeMap == null) {
+      // routeMap can be null after a hot reload
+      return;
+    }
+
     _state.pendingNavigation = null;
     final request = _RouteRequest(
       uri: uri,
