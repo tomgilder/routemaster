@@ -501,6 +501,38 @@ void main() {
     expect(find.byType(DefaultNotFoundPage), findsOneWidget);
   });
 
+  testWidgets(
+      "Doesn't rebuild page hierarchy when nested page route pushed on top",
+      (tester) async {
+    final queryParamBuilds = <String?>[];
+
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (BuildContext context) => RouteMap(
+        routes: {
+          '/': (routeData) => const Redirect(
+                '/one',
+                queryParameters: {'query1': 'val1'},
+              ),
+          '/one': (routeData) {
+            queryParamBuilds.add(routeData.queryParameters['query1']);
+            return const MaterialPageOne();
+          },
+          '/one/two': (_) => const MaterialPageTwo(),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(MaterialApp.router(
+      routeInformationParser: const RoutemasterParser(),
+      routerDelegate: delegate,
+    ));
+
+    delegate.push('/one/two');
+    await tester.pump();
+
+    expect(queryParamBuilds, ['val1']);
+  });
+
   testWidgets('Unknown startup URL redirects to another page', (tester) async {
     await tester.pumpWidget(
       MaterialApp.router(

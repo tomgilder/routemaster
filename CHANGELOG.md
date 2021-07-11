@@ -1,3 +1,7 @@
+# 0.9.5
+
+* Fixed: an issue where pages would not receive query parameters
+
 # 0.9.4
 
 * Fixed: an issue where pages were incorrectly rebuilding, causing state such as the active tab to reset

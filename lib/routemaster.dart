@@ -598,21 +598,23 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       );
 
       // Get a page wrapper object for the current route
-      final page = routerData.builder(routeData);
-      _assertIsPage(page, routeData.fullPath);
-
-      final current = isLastRoute
-          ? _createPageWrapper(
-              routeRequest: request,
-              page: page as Page,
-              routeData: routeData,
-            )
-          : _getOrCreatePageWrapper(
-              routeRequest: request,
-              routeData: routeData,
-              currentRoutes: currentRoutes,
-              routerResult: routerData,
-            );
+      late final _PageResult current;
+      if (isLastRoute) {
+        final page = routerData.builder(routeData);
+        _assertIsPage(page, routeData.fullPath);
+        current = _createPageWrapper(
+          routeRequest: request,
+          page: page as Page,
+          routeData: routeData,
+        );
+      } else {
+        current = _getOrCreatePageWrapper(
+          routeRequest: request,
+          routeData: routeData,
+          currentRoutes: currentRoutes,
+          routerResult: routerData,
+        );
+      }
 
       if (current is _PageWrapperResult) {
         final page = current.pageWrapper;
