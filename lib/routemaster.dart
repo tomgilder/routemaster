@@ -224,6 +224,10 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   /// Specifies how the top-level [Navigator] transitions between routes.
   ///
   /// If this isn't provided, a [DefaultTransitionDelegate] is used.
+  ///
+  /// This is only supplied to the top-level navigator, if you're using
+  /// nested [PageStackNavigator] widgets you'll need to pass your custom
+  /// [TransitionDelegate] to them individually.
   final TransitionDelegate? transitionDelegate;
 
   /// A function that returns a map of routes, to create pages from paths.
