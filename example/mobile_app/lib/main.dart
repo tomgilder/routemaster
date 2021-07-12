@@ -5,6 +5,7 @@ import 'package:routemaster/routemaster.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app/pages/login_page.dart';
 import 'app_state/app_state.dart';
+import 'custom_page.dart';
 import 'pages/bottom_navigation_bar_page.dart';
 import 'pages/bottom_sheet.dart';
 import 'pages/home_page.dart';
@@ -189,6 +190,10 @@ RouteMap _buildRouteMap(AppState appState) {
 
       '/stack/one': (_) => MaterialPage(child: StackPageOne()),
       '/stack/one/two': (_) => MaterialPage(child: StackPageTwo()),
+
+      '/custom-transitions': (_) => CustomPage(
+            child: MessagePage(message: 'Custom transitions'),
+          ),
     },
   );
 }
