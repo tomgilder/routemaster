@@ -2,6 +2,7 @@ library routemaster;
 
 export 'src/parser.dart';
 export 'src/pages/guard.dart';
+export 'src/pages/transition_page.dart';
 
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
