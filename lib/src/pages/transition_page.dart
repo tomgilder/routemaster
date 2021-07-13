@@ -1,14 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class PageTransition {
-  const PageTransition({
-    required this.transitionsBuilder,
-    required this.duration,
-  });
+abstract class PageTransition {
+  const PageTransition();
 
-  final PageTransitionsBuilder transitionsBuilder;
-  final Duration duration;
+  PageTransitionsBuilder get transitionsBuilder;
+  Duration get duration;
 
   /// A transition with no animation
   static PageTransition get none => const _NoPageTransition();
@@ -38,11 +35,14 @@ class PageTransition {
 }
 
 class _NoPageTransition extends PageTransition {
-  const _NoPageTransition()
-      : super(
-          transitionsBuilder: const _NoPageTransitionBuilder(),
-          duration: Duration.zero,
-        );
+  const _NoPageTransition();
+
+  @override
+  final Duration duration = Duration.zero;
+
+  @override
+  final PageTransitionsBuilder transitionsBuilder =
+      const _NoPageTransitionBuilder();
 }
 
 class _NoPageTransitionBuilder extends PageTransitionsBuilder {
@@ -61,27 +61,36 @@ class _NoPageTransitionBuilder extends PageTransitionsBuilder {
 }
 
 class _CupertinoPageTransition extends PageTransition {
-  const _CupertinoPageTransition()
-      : super(
-          transitionsBuilder: const CupertinoPageTransitionsBuilder(),
-          duration: const Duration(milliseconds: 400),
-        );
+  const _CupertinoPageTransition();
+
+  @override
+  final Duration duration = const Duration(milliseconds: 400);
+
+  @override
+  final PageTransitionsBuilder transitionsBuilder =
+      const CupertinoPageTransitionsBuilder();
 }
 
 class _FadeUpwardsPageTransition extends PageTransition {
-  const _FadeUpwardsPageTransition()
-      : super(
-          transitionsBuilder: const FadeUpwardsPageTransitionsBuilder(),
-          duration: const Duration(milliseconds: 300),
-        );
+  const _FadeUpwardsPageTransition();
+
+  @override
+  final Duration duration = const Duration(milliseconds: 300);
+
+  @override
+  final PageTransitionsBuilder transitionsBuilder =
+      const FadeUpwardsPageTransitionsBuilder();
 }
 
 class _ZoomPageTransition extends PageTransition {
-  const _ZoomPageTransition()
-      : super(
-          transitionsBuilder: const ZoomPageTransitionsBuilder(),
-          duration: const Duration(milliseconds: 300),
-        );
+  const _ZoomPageTransition();
+
+  @override
+  final Duration duration = const Duration(milliseconds: 300);
+
+  @override
+  final PageTransitionsBuilder transitionsBuilder =
+      const ZoomPageTransitionsBuilder();
 }
 
 class TransitionPage<T> extends TransitionBuilderPage<T> {
@@ -119,11 +128,11 @@ class TransitionPage<T> extends TransitionBuilderPage<T> {
 
   @override
   PageTransition buildPopTransition(BuildContext context) {
-    if (pushTransition == null) {
+    if (popTransition == null) {
       return PageTransition.platformDefault(Theme.of(context).platform);
     }
 
-    return pushTransition!;
+    return popTransition!;
   }
 
   /// The content to be shown in the [Route] created by this page.
