@@ -1,21 +1,26 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+/// A transition for a page pop or push animation.
 abstract class PageTransition {
   const PageTransition();
 
+  /// A builder that configures the animation.
   PageTransitionsBuilder get transitionsBuilder;
+
+  /// How long this transition animation lasts.
   Duration get duration;
 
-  /// A transition with no animation
+  /// A transition with no animation.
   static PageTransition get none => const _NoPageTransition();
 
-  /// Default fade upwards transition used on Android
+  /// The default fade upwards transition used on Android.
   static PageTransition get fadeUpwards => const _FadeUpwardsPageTransition();
 
-  /// Default slide-in transition used on iOS
+  /// The default slide-in transition used on iOS.
   static PageTransition get cupertino => const _CupertinoPageTransition();
 
+  /// A zoom transition matching the one used on Android 10.
   static PageTransition get zoom => const _ZoomPageTransition();
 
   /// Returns the default page transition for the given [platform].
@@ -93,6 +98,21 @@ class _ZoomPageTransition extends PageTransition {
       const ZoomPageTransitionsBuilder();
 }
 
+/// A page that can use separate push and pop animations.
+///
+/// [pushTransition] and [popAnimation] can use one of the built-in transitions:
+///
+///   * [PageTransition.none] - an immediate transition without any animation.
+///   * [PageTransition.fadeUpwards] - the default Android fade-up animation.
+///   * [PageTransition.cupertino] - the default iOS slide-in animation.
+///   * [PageTransition.zoom] - a zoom animation used on Android 10.
+///
+/// Alternatively you can subclass [PageTransition] to create your own custom
+/// animation.
+///
+/// If [pushTransition] or [popAnimation] are null, the platform default
+/// transition is used. This is the Cupertino animation on iOS and macOS, and
+/// the fade upwards animation on all other platforms.
 class TransitionPage<T> extends TransitionBuilderPage<T> {
   const TransitionPage({
     required this.child,
@@ -113,8 +133,34 @@ class TransitionPage<T> extends TransitionBuilderPage<T> {
           restorationId: restorationId,
         );
 
+  /// Configures the transition animation used when this page is pushed.
+  ///
+  /// This can be set to one of the default built-in transitions:
+  ///
+  ///   * [PageTransition.none] - an immediate transition without any animation.
+  ///   * [PageTransition.fadeUpwards] - the default Android fade-up animation.
+  ///   * [PageTransition.cupertino] - the default iOS slide-in animation.
+  ///   * [PageTransition.zoom] - a zoom animation used on Android 10.
+  ///
+  /// Alternatively you can subclass [PageTransition] to create your own custom
+  /// animation.
+  ///
+  /// If this value is null, the platform default transition is used.
   final PageTransition? pushTransition;
 
+  /// Configures the transition animation used when this page is popped.
+  ///
+  /// This can be set to one of the default built-in transitions:
+  ///
+  ///   * [PageTransition.none] - an immediate transition without any animation.
+  ///   * [PageTransition.fadeUpwards] - the default Android fade-up animation.
+  ///   * [PageTransition.cupertino] - the default iOS slide-in animation.
+  ///   * [PageTransition.zoom] - a zoom animation used on Android 10.
+  ///
+  /// Alternatively you can subclass [PageTransition] to create your own custom
+  /// animation.
+  ///
+  /// If this value is null, the platform default transition is used.
   final PageTransition? popTransition;
 
   @override
@@ -147,6 +193,7 @@ class TransitionPage<T> extends TransitionBuilderPage<T> {
   @override
   final bool fullscreenDialog;
 
+  /// {@macro flutter.widgets.TransitionRoute.opaque}
   @override
   final bool opaque;
 
@@ -156,6 +203,14 @@ class TransitionPage<T> extends TransitionBuilderPage<T> {
   }
 }
 
+/// A page that can be subclassed to provide push and pop animations.
+///
+///
+/// When a page is pushed, [buildPushTransition] is called, and the returned
+/// transition is used to animate the page onto the screen.
+///
+/// When a page is popped, [buildPopTransition] is called, and the returned
+/// transition is used to animate the page off the screen.
 abstract class TransitionBuilderPage<T> extends Page<T> {
   const TransitionBuilderPage({
     required this.child,
@@ -194,6 +249,7 @@ abstract class TransitionBuilderPage<T> extends Page<T> {
   /// {@macro flutter.widgets.PageRoute.fullscreenDialog}
   final bool fullscreenDialog;
 
+  /// {@macro flutter.widgets.TransitionRoute.opaque}
   final bool opaque;
 
   @override
@@ -205,9 +261,7 @@ abstract class TransitionBuilderPage<T> extends Page<T> {
 class TransitionBuilderPageRoute<T> extends PageRoute<T> {
   TransitionBuilderPageRoute({
     required TransitionBuilderPage<T> page,
-  }) : super(settings: page) {
-    assert(opaque);
-  }
+  }) : super(settings: page);
 
   TransitionBuilderPage<T> get _page => settings as TransitionBuilderPage<T>;
 
