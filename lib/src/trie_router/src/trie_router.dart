@@ -21,10 +21,10 @@ class TrieRouter {
   void add(String path, PageBuilder value) {
     assert(path.isNotEmpty);
 
-    var pathSegments = pathContext.split(path);
+    final pathSegments = pathContext.split(path);
     assert(pathSegments.isNotEmpty);
 
-    var list = List<String>.from(pathSegments);
+    final list = List<String>.from(pathSegments);
     var current = _trie.root;
 
     // Work downwards through the trie, adding nodes as needed, and keeping
@@ -79,11 +79,11 @@ class TrieRouter {
   }
 
   RouterResult? get(String route) {
-    var pathSegments = pathContext.split(PathParser.stripQueryString(route));
-    var parameters = <String, String>{};
+    final pathSegments = pathContext.split(PathParser.stripQueryString(route));
+    final parameters = <String, String>{};
     TrieNode<String?, PageBuilder?>? current = _trie.root;
 
-    for (var segment in pathSegments) {
+    for (final segment in pathSegments) {
       if (current!.contains(segment)) {
         current = current.get(segment);
       } else if (current.containsWhere((k) => k!.startsWith(':'))) {
@@ -107,8 +107,8 @@ class TrieRouter {
   }
 
   List<RouterResult>? getAll(String route) {
-    var pathSegments = pathContext.split(PathParser.stripQueryString(route));
-    var parameters = <String, String>{};
+    final pathSegments = pathContext.split(PathParser.stripQueryString(route));
+    final parameters = <String, String>{};
     final result = <RouterResult>[];
 
     void addToResult(int index, TrieNode<String?, PageBuilder?> node) {
@@ -126,7 +126,7 @@ class TrieRouter {
     TrieNode<String?, PageBuilder?>? current = _trie.root;
     var i = 0;
 
-    for (var segment in pathSegments) {
+    for (final segment in pathSegments) {
       i++;
 
       if (current!.contains(segment)) {

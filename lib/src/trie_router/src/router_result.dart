@@ -1,6 +1,7 @@
 import '../../../routemaster.dart';
 
 class RouterResult {
+  /// The original path template for this route, such as '/products/productId'.
   final String pathTemplate;
 
   /// The builder matching the path

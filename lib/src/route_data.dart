@@ -9,6 +9,23 @@ class RouteData {
   /// The full path that generated this route, including query string.
   String get fullPath => _uri.toString();
 
+  String? _publicPath;
+  String get publicPath {
+    if (_publicPath == null) {
+      final path = _uri.toString();
+
+      if (_privateSegmentIndex == null) {
+        _publicPath = path;
+      } else {
+        _publicPath = pathContext.joinAll(
+          pathContext.split(path).take(_privateSegmentIndex!),
+        );
+      }
+    }
+
+    return _publicPath!;
+  }
+
   /// The path component of this route, without query string.
   ///
   /// For the full path including query string, use [fullPath].
@@ -34,29 +51,55 @@ class RouteData {
   /// The template for this route, for instance '/profile/:id'.
   final String? pathTemplate;
 
+  final RequestSource requestSource;
+
   /// Initializes routing data from a path string.
   RouteData(
     String path, {
     this.pathParameters = const {},
     this.isReplacement = false,
     this.pathTemplate,
-  }) : _uri = Uri.parse(path);
+    this.requestSource = RequestSource.system,
+  })  : _uri = Uri.parse(path),
+        _privateSegmentIndex = _getPrivateSegmentIndex(pathTemplate);
 
   RouteData.fromUri(
     Uri uri, {
     this.pathParameters = const {},
     this.isReplacement = false,
     this.pathTemplate,
-  }) : _uri = uri;
+    this.requestSource = RequestSource.system,
+  })  : _uri = uri,
+        _privateSegmentIndex = _getPrivateSegmentIndex(pathTemplate);
 
   /// Initializes routing data from the provided router result.
   RouteData.fromRouterResult(
     RouterResult result,
     Uri uri, {
     this.isReplacement = false,
+    this.requestSource = RequestSource.system,
   })  : _uri = uri,
         pathParameters = result.pathParameters,
-        pathTemplate = result.pathTemplate;
+        pathTemplate = result.pathTemplate,
+        _privateSegmentIndex = _getPrivateSegmentIndex(result.pathTemplate);
+
+  final int? _privateSegmentIndex;
+  static int? _getPrivateSegmentIndex(String? pathTemplate) {
+    if (pathTemplate == null) {
+      return null;
+    }
+
+    var i = 0;
+    for (final path in pathContext.split(pathTemplate)) {
+      if (path.startsWith('_') || path.startsWith(':_')) {
+        return i;
+      }
+
+      i++;
+    }
+
+    return null;
+  }
 
   @override
   bool operator ==(Object other) => other is RouteData && _uri == other._uri;
@@ -70,11 +113,34 @@ class RouteData {
   /// Creates a [RouteInformation] object with data from this route.
   RouteInformation toRouteInformation() {
     return RouteInformation(
-      location: fullPath,
+      location: publicPath,
       state: {
         'isReplacement': isReplacement,
+        'internalPath': fullPath,
+        'requestSource': requestSource.toString(),
+        'pathTemplate': pathTemplate,
+        'pathParameters': pathParameters,
       },
     );
+  }
+
+  static RouteData fromRouteInformation(RouteInformation routeInfo) {
+    final state = routeInfo.state;
+    if (state is Map) {
+      final requestSource = state['requestSource'] as String;
+
+      return RouteData(
+        state['internalPath'] as String,
+        isReplacement: state['isReplacement'] as bool,
+        requestSource: RequestSource.values.firstWhere(
+          (source) => source.toString() == requestSource,
+        ),
+        pathTemplate: state['pathTemplate'] as String,
+        pathParameters: state['pathParameters'] as Map<String, String>,
+      );
+    }
+
+    return RouteData(routeInfo.location!);
   }
 
   /// Gets the [RouteData] for the nearest [Page] ancestor for the given

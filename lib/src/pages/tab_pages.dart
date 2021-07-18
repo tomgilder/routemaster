@@ -417,6 +417,7 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
       _RouteRequest(
         uri: path,
         isReplacement: routeData.isReplacement,
+        requestSource: RequestSource.internal,
       ),
     );
 

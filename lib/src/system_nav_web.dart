@@ -34,22 +34,19 @@ class SystemNav {
   static void replaceUrl(RouteData routeData) {
     historyProvider ??= BrowserHistoryProvider();
     historyProvider!.replaceState(
-      null,
+      routeData.toRouteInformation().state,
       '',
-      makeUrl(
-        path: routeData.path,
-        queryParameters: routeData.queryParameters,
-      ),
+      makePublicUrl(routeData),
     );
   }
 
-  static String makeUrl({
-    required String path,
-    Map<String, String>? queryParameters,
-  }) {
-    final hasQueryParameters = queryParameters?.isNotEmpty == true;
+  static String makePublicUrl(RouteData routeData) {
+    final isPrivatePath = routeData.publicPath != routeData.fullPath;
+
+    final queryParameters = routeData.queryParameters;
+    final hasQueryParameters = !isPrivatePath && queryParameters.isNotEmpty;
     final url = Uri(
-      path: path,
+      path: routeData.publicPath,
       queryParameters: hasQueryParameters ? queryParameters : null,
     );
 

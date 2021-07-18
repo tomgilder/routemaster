@@ -20,6 +20,11 @@ class MyApp extends StatelessWidget {
                   ),
               '/tabs/one': (_) => const MaterialPage<void>(child: PageOne()),
               '/tabs/two': (_) => const MaterialPage<void>(child: PageTwo()),
+              '/_private': (route) => MaterialPage<void>(
+                    child: PrivatePage(
+                      message: route.queryParameters['message'],
+                    ),
+                  ),
             },
           );
         },
@@ -72,6 +77,20 @@ class PageOne extends StatelessWidget {
             onPressed: () => Routemaster.of(context).push('/two'),
             child: const Text('Push page two'),
           ),
+          ElevatedButton(
+            onPressed: () => Routemaster.of(context).push(
+              '/_private',
+              queryParameters: {'message': 'hello from private page'},
+            ),
+            child: const Text('Push private page'),
+          ),
+          ElevatedButton(
+            onPressed: () => Routemaster.of(context).replace(
+              '/_private',
+              queryParameters: {'message': 'hello from private page'},
+            ),
+            child: const Text('Replace private page'),
+          ),
         ],
       ),
     );
@@ -114,5 +133,16 @@ class TabbedPage extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class PrivatePage extends StatelessWidget {
+  final String message;
+
+  const PrivatePage({this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(body: Text(message ?? ''));
   }
 }
