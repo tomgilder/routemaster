@@ -60,8 +60,8 @@ class _IndexedPageStateProvider extends InheritedNotifier {
         );
 }
 
-/// The current state of an [IndexedPage]. Created when the an instance of the
-/// page is shown. Provides a list of track of the currently active index.
+/// The current state of an [IndexedPage]. Created when an instance of the page
+/// is shown. Provides a list of track of the currently active index.
 ///
 ///   * [stacks] - a list of [PageStack] objects that manage the child routes.
 ///

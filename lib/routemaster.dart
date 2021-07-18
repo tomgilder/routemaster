@@ -2,9 +2,9 @@ library routemaster;
 
 export 'src/parser.dart';
 export 'src/pages/guard.dart';
+export 'src/pages/transition_page.dart';
 
 import 'dart:async';
-import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -226,6 +226,10 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   /// Specifies how the top-level [Navigator] transitions between routes.
   ///
   /// If this isn't provided, a [DefaultTransitionDelegate] is used.
+  ///
+  /// This is only supplied to the top-level navigator, if you're using
+  /// nested [PageStackNavigator] widgets you'll need to pass your custom
+  /// [TransitionDelegate] to them individually.
   final TransitionDelegate? transitionDelegate;
 
   /// A function that returns a map of routes, to create pages from paths.
@@ -494,6 +498,11 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     bool useCurrentState = true,
     bool isRetry = false,
   }) {
+    if (_state.routeMap == null) {
+      // routeMap can be null after a hot reload
+      return;
+    }
+
     _state.pendingNavigation = null;
     final request = _RouteRequest(
       uri: uri,
@@ -606,22 +615,24 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       );
 
       // Get a page wrapper object for the current route
-      final page = routerData.builder(routeData);
-      _assertIsPage(page, routeData.fullPath);
-
-      final current = isLastRoute
-          ? _createPageWrapper(
-              routeRequest: request,
-              page: page as Page,
-              routeData: routeData,
-              isLastRoute: true,
-            )
-          : _getOrCreatePageWrapper(
-              routeRequest: request,
-              routeData: routeData,
-              currentRoutes: currentRoutes,
-              routerResult: routerData,
-            );
+      late final _PageResult current;
+      if (isLastRoute) {
+        final page = routerData.builder(routeData);
+        _assertIsPage(page, routeData.fullPath);
+        current = _createPageWrapper(
+          routeRequest: request,
+          page: page as Page,
+          routeData: routeData,
+          isLastRoute: true,
+        );
+      } else {
+        current = _getOrCreatePageWrapper(
+          routeRequest: request,
+          routeData: routeData,
+          currentRoutes: currentRoutes,
+          routerResult: routerData,
+        );
+      }
 
       if (current is _PageWrapperResult) {
         final page = current.pageWrapper;
@@ -783,7 +794,17 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     }
 
     if (page is Redirect) {
-      return _RedirectResult(page.redirectPath);
+      return _RedirectResult(
+          _fillRedirectPathParams(page.redirectPath, routeData));
+    }
+
+    if (isLastRoute && page is PageContainer) {
+      return _RedirectResult(
+        pathContext.join(
+          routeRequest.uri.path,
+          page.redirectPath,
+        ),
+      );
     }
 
     if (isLastRoute && page is PageContainer) {
@@ -815,6 +836,14 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return _PageWrapperResult(
       PageWrapper.fromPage(routeData: routeData, page: page),
     );
+  }
+
+  String _fillRedirectPathParams(String redirectPath, RouteData routeData) {
+    final pathSegments = pathContext.split(redirectPath);
+    final mappedSegments = pathSegments.map((segment) => segment.startsWith(':')
+        ? routeData.pathParameters[segment.substring(1)] ?? segment
+        : segment);
+    return pathContext.joinAll(mappedSegments);
   }
 
   List<PageWrapper> _onUnknownRoute(_RouteRequest routeRequest) {

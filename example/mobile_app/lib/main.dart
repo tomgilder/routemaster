@@ -5,9 +5,9 @@ import 'package:routemaster/routemaster.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app/pages/login_page.dart';
 import 'app_state/app_state.dart';
+import 'custom_page.dart';
 import 'pages/bottom_navigation_bar_page.dart';
 import 'pages/bottom_sheet.dart';
-import 'pages/custom_flow_page.dart';
 import 'pages/home_page.dart';
 import 'pages/settings_page.dart';
 import 'pages/search_page.dart';
@@ -185,29 +185,15 @@ RouteMap _buildRouteMap(AppState appState) {
       '/stack': (_) => StackPage(
             pageBuilder: (child) => BottomSheetPage(child: child),
             child: StackBottomSheetContents(),
-            initialPath: 'one',
+            defaultPath: 'one',
           ),
 
       '/stack/one': (_) => MaterialPage(child: StackPageOne()),
       '/stack/one/two': (_) => MaterialPage(child: StackPageTwo()),
 
-      '/flow': (_) {
-        return FlowPage(
-          pageBuilder: (child) => BottomSheetPage(child: child),
-          child: FlowBottomSheetContents(),
-          paths: ['one', 'two'],
-        );
-      },
-
-      '/flow/one': (_) => MaterialPage(child: FlowPageOne()),
-      '/flow/subpage': (_) => MaterialPage(
-            child: MessagePage(message: 'Subpage'),
+      '/custom-transitions': (_) => CustomPage(
+            child: MessagePage(message: 'Custom transitions'),
           ),
-      '/flow/two': (route) => MaterialPage(child: FlowPageTwo()),
-
-      '/customflow': (_) {
-        return MaterialPage(child: CustomFlowPage());
-      },
     },
   );
 }

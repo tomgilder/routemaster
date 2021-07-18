@@ -1,3 +1,11 @@
+# 0.10.0-dev2
+
+* Added: `TransitionPage` and `TransitionBuilderPage` to make it much easier to customize page push and pop animations. 
+
+# 0.10.0-dev1
+
+* Added: `StackPage` for navigation stacks without indexed pages
+
 # 0.9.4
 
 * Fixed: an issue where pages were incorrectly rebuilding, causing state such as the active tab to reset

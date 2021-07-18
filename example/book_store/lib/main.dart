@@ -31,7 +31,7 @@ bool _isValidBookId(String? id) {
 RouteMap _buildRouteMap(BuildContext context) {
   return RouteMap(
     onUnknownRoute: (path) {
-      return MaterialPage(
+      return NoAnimationPage(
         child: PageScaffold(
           title: 'Page not found',
           body: Center(
@@ -44,18 +44,18 @@ RouteMap _buildRouteMap(BuildContext context) {
       );
     },
     routes: {
-      '/': (route) => MaterialPage(child: ShopHome()),
-      '/login': (route) => MaterialPage(
+      '/': (route) => NoAnimationPage(child: ShopHome()),
+      '/login': (route) => NoAnimationPage(
             child: LoginPage(
               redirectTo: route.queryParameters['redirectTo'],
             ),
           ),
       '/book/:id': (route) => _isValidBookId(route.pathParameters['id'])
-          ? MaterialPage(child: BookPage(id: route.pathParameters['id']!))
+          ? NoAnimationPage(child: BookPage(id: route.pathParameters['id']!))
           : NotFound(),
       '/category/:category': (route) =>
           _isValidCategory(route.pathParameters['category'])
-              ? MaterialPage(
+              ? NoAnimationPage(
                   child: CategoryPage(
                     category: BookCategory.values.firstWhere(
                       (e) => e.queryParam == route.pathParameters['category'],
@@ -63,28 +63,29 @@ RouteMap _buildRouteMap(BuildContext context) {
                   ),
                 )
               : NotFound(),
-      '/category/:category/book/:id': (route) =>
-          _isValidCategory(route.pathParameters['category']) &&
-                  _isValidBookId(route.pathParameters['id'])
-              ? MaterialPage(child: BookPage(id: route.pathParameters['id']!))
-              : NotFound(),
+      '/category/:category/book/:id': (route) => _isValidCategory(
+                  route.pathParameters['category']) &&
+              _isValidBookId(route.pathParameters['id'])
+          ? NoAnimationPage(child: BookPage(id: route.pathParameters['id']!))
+          : NotFound(),
       '/audiobooks': (route) => TabPage(
             child: AudiobookPage(),
             paths: ['all', 'picks'],
+            pageBuilder: (child) => NoAnimationPage(child: child),
           ),
-      '/audiobooks/all': (route) => MaterialPage(
+      '/audiobooks/all': (route) => NoAnimationPage(
             child: AudiobookListPage(mode: 'all'),
           ),
-      '/audiobooks/picks': (route) => MaterialPage(
+      '/audiobooks/picks': (route) => NoAnimationPage(
             child: AudiobookListPage(mode: 'picks'),
           ),
       '/audiobooks/book/:id': (route) =>
           _isValidBookId(route.pathParameters['id'])
-              ? MaterialPage(
+              ? NoAnimationPage(
                   child: BookPage(id: route.pathParameters['id']!),
                 )
               : NotFound(),
-      '/search': (route) => MaterialPage(
+      '/search': (route) => NoAnimationPage(
               child: SearchPage(
             query: route.queryParameters['query'] ?? '',
             sortOrder: SortOrder.values.firstWhere(
@@ -92,13 +93,13 @@ RouteMap _buildRouteMap(BuildContext context) {
               orElse: () => SortOrder.name,
             ),
           )),
-      '/wishlist': (route) => MaterialPage(child: WishlistHomePage()),
+      '/wishlist': (route) => NoAnimationPage(child: WishlistHomePage()),
       '/wishlist/add': (route) => AddWishlistPage(),
       '/wishlist/shared/:id': (route) {
         final appState = Provider.of<AppState>(context, listen: false);
 
         if (appState.isLoggedIn) {
-          return MaterialPage(
+          return NoAnimationPage(
             child: WishlistPage(id: route.pathParameters['id']),
           );
         }
@@ -111,9 +112,18 @@ RouteMap _buildRouteMap(BuildContext context) {
 
 final loggedOutRouteMap = RouteMap(
   routes: {
-    '/': (route) => MaterialPage(child: LoginPage()),
+    '/': (route) => NoAnimationPage(child: LoginPage()),
   },
 );
+
+class NoAnimationPage<T> extends TransitionPage<T> {
+  NoAnimationPage({required Widget child})
+      : super(
+          child: child,
+          pushTransition: PageTransition.none,
+          popTransition: PageTransition.none,
+        );
+}
 
 class BookStoreApp extends StatelessWidget {
   final String? username;
@@ -145,7 +155,6 @@ class BookStoreApp extends StatelessWidget {
         routeInformationParser: RoutemasterParser(),
         routeInformationProvider: routeInformationProvider,
         routerDelegate: RoutemasterDelegate(
-          transitionDelegate: NoAnimationTransitionDelegate(),
           routesBuilder: (context) {
             final state = Provider.of<AppState>(context);
 
@@ -156,34 +165,6 @@ class BookStoreApp extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class NoTransitionsTheme extends PageTransitionsTheme {
-  Widget buildTransitions<T>(
-    PageRoute<T> route,
-    BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-    Widget child,
-  ) {
-    return NoAnimationTransitionsBuilder()
-        .buildTransitions(route, context, animation, secondaryAnimation, child);
-  }
-}
-
-class NoAnimationTransitionsBuilder extends PageTransitionsBuilder {
-  const NoAnimationTransitionsBuilder();
-
-  @override
-  Widget buildTransitions<T>(
-    PageRoute<T> route,
-    BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-    Widget child,
-  ) {
-    return child;
   }
 }
 
@@ -212,40 +193,5 @@ class ShopHome extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-class NoAnimationTransitionDelegate extends TransitionDelegate<void> {
-  @override
-  Iterable<RouteTransitionRecord> resolve({
-    required List<RouteTransitionRecord> newPageRouteHistory,
-    required Map<RouteTransitionRecord?, RouteTransitionRecord>
-        locationToExitingPageRoute,
-    Map<RouteTransitionRecord?, List<RouteTransitionRecord>>?
-        pageRouteToPagelessRoutes,
-  }) {
-    final results = <RouteTransitionRecord>[];
-
-    for (final pageRoute in newPageRouteHistory) {
-      if (pageRoute.isWaitingForEnteringDecision) {
-        pageRoute.markForAdd();
-      }
-      results.add(pageRoute);
-    }
-
-    for (final exitingPageRoute in locationToExitingPageRoute.values) {
-      if (exitingPageRoute.isWaitingForExitingDecision) {
-        exitingPageRoute.markForRemove();
-        final pagelessRoutes = pageRouteToPagelessRoutes![exitingPageRoute];
-        if (pagelessRoutes != null) {
-          for (final pagelessRoute in pagelessRoutes) {
-            pagelessRoute.markForRemove();
-          }
-        }
-      }
-
-      results.add(exitingPageRoute);
-    }
-    return results;
   }
 }
