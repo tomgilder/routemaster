@@ -405,4 +405,63 @@ void main() {
       ),
     );
   });
+
+  test('Can get single wildcard route', () {
+    final router = TrieRouter();
+    const rootRoute = TestRoute('root');
+    const route1 = TestRoute('one');
+    const route2 = TestRoute('two');
+
+    router.add('/', (_) => rootRoute);
+    router.add('/one', (_) => route1);
+    router.add('/one/*', (_) => route2);
+
+    final dataRoot = router.get('/')!;
+    expect(dataRoot.pathSegment, '/');
+    expect(dataRoot.pathTemplate, '/');
+    expect(dataRoot.builder(getRouteData(dataRoot)), rootRoute);
+    expect(dataRoot.pathParameters.isEmpty, isTrue);
+
+    final data1 = router.get('/one')!;
+    expect(data1.pathSegment, '/one');
+    expect(data1.pathTemplate, '/one');
+    expect(data1.builder(getRouteData(data1)), route1);
+    expect(data1.pathParameters.isEmpty, isTrue);
+
+    final data2 = router.get('/one/blah')!;
+    expect(data2.pathSegment, '/one/blah');
+    expect(data2.pathTemplate, '/one/*');
+    expect(data2.builder(getRouteData(data2)), route2);
+    expect(data2.pathParameters.isEmpty, isTrue);
+  });
+
+  test('Can get all wildcard routes', () {
+    final router = TrieRouter();
+    const rootRoute = TestRoute('root');
+    const route1 = TestRoute('one');
+    const route2 = TestRoute('two');
+
+    router.add('/', (_) => rootRoute);
+    router.add('/one', (_) => route1);
+    router.add('/one/*', (_) => route2);
+
+    final routes = router.getAll('/one/blah/test')!;
+
+    // final dataRoot = router.get('/')!;
+    // expect(dataRoot.pathSegment, '/');
+    // expect(dataRoot.pathTemplate, '/');
+    // expect(dataRoot.builder(getRouteData(dataRoot)), rootRoute);
+    // expect(dataRoot.pathParameters.isEmpty, isTrue);
+
+    // final data1 = router.get('/one')!;
+    // expect(data1.pathSegment, '/one');
+    // expect(data1.pathTemplate, '/one');
+    // expect(data1.builder(getRouteData(data1)), route1);
+    // expect(data1.pathParameters.isEmpty, isTrue);
+
+    expect(routes[2].pathSegment, '/one/blah/test');
+    expect(routes[2].pathTemplate, '/one/*');
+    // expect(routes[2].builder(getRouteData(data2)), route2);
+    // expect(routes[2].pathParameters.isEmpty, isTrue);
+  });
 }
