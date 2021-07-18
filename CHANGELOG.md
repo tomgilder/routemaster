@@ -1,3 +1,7 @@
+# 0.10.0-dev2
+
+* Added: `TransitionPage` and `TransitionBuilderPage` to make it much easier to customize page push and pop animations. 
+
 # 0.10.0-dev1
 
 * Added: `StackPage` for navigation stacks without indexed pages
