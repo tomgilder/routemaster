@@ -1,5 +1,6 @@
 import 'package:routemaster/routemaster.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+import 'package:routemaster/src/path_parser.dart';
 import 'fake_html.dart' if (dart.library.js) 'dart:html';
 import 'package:flutter/foundation.dart';
 import 'system_nav.dart';
@@ -42,21 +43,13 @@ class SystemNav {
   }
 
   static String makePublicUrl(RouteData routeData) {
-    final isPrivatePath = routeData.publicPath != routeData.fullPath;
-
-    final queryParameters = routeData.queryParameters;
-    final hasQueryParameters = !isPrivatePath && queryParameters.isNotEmpty;
-
     if (_urlStrategy == null) {
       _setDefaultUrlStrategy();
     }
 
     return _urlStrategy!.prepareExternalUrl(
-      hasQueryParameters
-          ? Uri(
-              path: Uri.parse(routeData.publicPath).path,
-              queryParameters: queryParameters,
-            ).toString()
+      routeData.queryParameters.isEmpty
+          ? PathParser.stripQueryString(routeData.publicPath)
           : routeData.publicPath,
     );
   }
