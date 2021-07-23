@@ -179,6 +179,8 @@ void main() {
 
     expect(
       await recordUrlChanges(() async {
+        await tester.scrollUntilVisible(find.text('Push non-Page route'), 100);
+        await tester.pump();
         await tester.tap(
           find.text('Push non-Page route'),
         );
