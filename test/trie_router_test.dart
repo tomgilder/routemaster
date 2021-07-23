@@ -405,4 +405,34 @@ void main() {
       ),
     );
   });
+
+  test('Route with name has priority over route params when added first', () {
+    final router = TrieRouter();
+    const paramRoute = TestRoute('param');
+    const namedRoute = TestRoute('named');
+
+    router.add('/:param', (_) => paramRoute);
+    router.add('/named', (_) => namedRoute);
+
+    final namedResult = router.get('/named')!;
+    expect(namedResult.builder(RouteData('/named')), namedRoute);
+
+    final paramResult = router.get('/blah')!;
+    expect(paramResult.builder(RouteData('/blah')), paramRoute);
+  });
+
+  test('Route with name has priority over route params when added second', () {
+    final router = TrieRouter();
+    const paramRoute = TestRoute('param');
+    const namedRoute = TestRoute('named');
+
+    router.add('/named', (_) => namedRoute);
+    router.add('/:param', (_) => paramRoute);
+
+    final result = router.get('/named')!;
+    expect(result.builder(RouteData('/named')), namedRoute);
+
+    final paramResult = router.get('/blah')!;
+    expect(paramResult.builder(RouteData('/blah')), paramRoute);
+  });
 }
