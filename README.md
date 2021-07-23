@@ -83,6 +83,7 @@ ___
 * [Swap routing map](#swap-routing-map)
 * [Navigation observers](#navigation-observers)
 * [Navigate without a context](#navigate-without-a-context)
+* [Hero animations](#hero-animations) 
  
 ## Overview
 
