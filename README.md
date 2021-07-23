@@ -120,7 +120,7 @@ However, navigating to `/tabs/notInATab` will **not** be displayed in a tab, but
   
 ## Routing
 
-Basic app routing setup:
+### Basic app routing setup
 
 ```dart
 MaterialApp.router(
@@ -134,7 +134,7 @@ MaterialApp.router(
 )
 ```
 
-Navigate from within pages:
+###  Navigate from within pages
 
 ```dart
 Routemaster.of(context).push('relative-path');
@@ -144,7 +144,7 @@ Routemaster.of(context).replace('relative-path');
 Routemaster.of(context).replace('/absolute-path');
 ```
 
-Path parameters:
+### Path parameters
 
 ```dart
 // Path '/products/123' will result in ProductPage(id: '123')
@@ -152,10 +152,14 @@ RouteMap(routes: {
   '/products/:id': (route) => MaterialPage(
         child: ProductPage(id: route.pathParameters['id']),
       ),
+  '/products/myPage': (route) => MaterialPage(MyPage()),
 })
 ```
 
-Query parameters:
+Note that routes without path parameters have priority, so in the above example
+`/products/myPage` will show `MyPage`.
+
+### Query parameters
 
 ```dart
 // Path '/search?query=hello' results in SearchPage(query: 'hello')
@@ -166,7 +170,7 @@ RouteMap(routes: {
 })
 ```
 
-Get current path info within a widget:
+### Get current path info within a widget
 
 ```dart
 RouteData.of(context).path; // Full path: '/product/123?query=param'
