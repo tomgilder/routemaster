@@ -19,10 +19,7 @@ class SystemNav {
     throw UnsupportedError('Only supported on web');
   }
 
-  static String makeUrl({
-    required String path,
-    Map<String, String>? queryParameters,
-  }) {
+  static String makePublicUrl(RouteData routeData) {
     throw UnsupportedError('Only supported on web');
   }
 }

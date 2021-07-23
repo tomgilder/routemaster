@@ -46,16 +46,19 @@ class SystemNav {
 
     final queryParameters = routeData.queryParameters;
     final hasQueryParameters = !isPrivatePath && queryParameters.isNotEmpty;
-    final url = Uri(
-      path: routeData.publicPath,
-      queryParameters: hasQueryParameters ? queryParameters : null,
-    );
 
     if (_urlStrategy == null) {
       _setDefaultUrlStrategy();
     }
 
-    return _urlStrategy!.prepareExternalUrl(url.toString());
+    return _urlStrategy!.prepareExternalUrl(
+      hasQueryParameters
+          ? Uri(
+              path: Uri.parse(routeData.publicPath).path,
+              queryParameters: queryParameters,
+            ).toString()
+          : routeData.publicPath,
+    );
   }
 }
 

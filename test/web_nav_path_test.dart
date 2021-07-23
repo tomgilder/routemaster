@@ -1,6 +1,7 @@
 @TestOn('browser')
 import 'dart:html';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:routemaster/routemaster.dart';
 import 'package:routemaster/src/system_nav.dart';
 
 void main() {
@@ -9,20 +10,21 @@ void main() {
 
   test('makeUrl makes path URL with null query params', () {
     expect(
-      SystemNav.makeUrl(
-        path: '/new-path',
-        queryParameters: null,
-      ),
+      SystemNav.makePublicUrl(RouteData('/new-path')),
       '/test/new-path',
+    );
+  });
+
+  test('makeUrl makes path URL with query params', () {
+    expect(
+      SystemNav.makePublicUrl(RouteData('/new-path?one=two')),
+      '/test/new-path?one=two',
     );
   });
 
   test('makeUrl makes path URL with empty query params', () {
     expect(
-      SystemNav.makeUrl(
-        path: '/new-path',
-        queryParameters: {},
-      ),
+      SystemNav.makePublicUrl(RouteData('/new-path?')),
       '/test/new-path',
     );
   });

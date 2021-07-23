@@ -9,50 +9,21 @@ import 'helpers.dart';
 void main() {
   test('makeUrl makes hash URL with null query params', () {
     expect(
-      SystemNav.makeUrl(
-        path: '/new-path',
-        queryParameters: null,
-      ),
+      SystemNav.makePublicUrl(RouteData('/new-path')),
       '#/new-path',
     );
   });
 
   test('makeUrl makes hash URL with empty query params', () {
     expect(
-      SystemNav.makeUrl(
-        path: '/new-path',
-        queryParameters: {},
-      ),
+      SystemNav.makePublicUrl(RouteData('/new-path?')),
       '#/new-path',
     );
   });
 
   test('makeUrl makes hash URL with query params', () {
     expect(
-      SystemNav.makeUrl(
-        path: '/new-path',
-        queryParameters: {'query': 'param'},
-      ),
-      '#/new-path?query=param',
-    );
-  });
-
-  test('makeUrl makes hash URL with just query params', () {
-    expect(
-      SystemNav.makeUrl(
-        path: '/new-path',
-        queryParameters: {'query': 'param'},
-      ),
-      '#/new-path?query=param',
-    );
-  });
-
-  test('makeUrl makes hash URL with query params', () {
-    expect(
-      SystemNav.makeUrl(
-        path: '/new-path',
-        queryParameters: {'query': 'param'},
-      ),
+      SystemNav.makePublicUrl(RouteData('/new-path?query=param')),
       '#/new-path?query=param',
     );
   });

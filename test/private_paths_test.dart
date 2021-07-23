@@ -23,18 +23,18 @@ const urls = {
 };
 
 void main() {
-  testWidgets('Pushed private URL reported to system correctly',
-      (tester) async {
-    for (final mapEntry in urls.entries) {
+  for (final mapEntry in urls.entries) {
+    testWidgets(
+        'Pushed private URL reported to system correctly: ${mapEntry.key}',
+        (tester) async {
       await _expectPushedPrivateUrl(tester, mapEntry.key, mapEntry.value);
-    }
-  });
+    });
 
-  testWidgets('Trying to load private URL shows 404', (tester) async {
-    for (final mapEntry in urls.entries) {
+    testWidgets('Trying to load private URL shows 404: ${mapEntry.key}',
+        (tester) async {
       await _expectPrivateUrlNotFound(tester, mapEntry.key);
-    }
-  });
+    });
+  }
 
   testWidgets('Can use query string on pushed private URL', (tester) async {
     final delegate = RoutemasterDelegate(

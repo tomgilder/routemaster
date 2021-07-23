@@ -18,9 +18,9 @@ void main() {
     );
   });
 
-  test('SystemNav.makeUrl() throws when not on web', () {
+  test('SystemNav.makePublicUrl() throws when not on web', () {
     expect(
-      () => SystemNav.makeUrl(path: ''),
+      () => SystemNav.makePublicUrl(RouteData('/path')),
       throwsA(isA<UnsupportedError>()),
     );
   });
