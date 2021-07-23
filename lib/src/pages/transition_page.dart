@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 /// A transition for a page pop or push animation.
 abstract class PageTransition {
+  /// Initialize a transition for a page pop or push animation.
   const PageTransition();
 
   /// A builder that configures the animation.
@@ -117,6 +118,11 @@ class _ZoomPageTransition extends PageTransition {
 /// transition is used. This is the Cupertino animation on iOS and macOS, and
 /// the fade upwards animation on all other platforms.
 class TransitionPage<T> extends TransitionBuilderPage<T> {
+  /// Initialize a transition page.
+  ///
+  /// If [pushTransition] or [popAnimation] are null, the platform default
+  /// transition is used. This is the Cupertino animation on iOS and macOS, and
+  /// the fade upwards animation on all other platforms.
   const TransitionPage({
     required this.child,
     this.pushTransition,
@@ -199,15 +205,9 @@ class TransitionPage<T> extends TransitionBuilderPage<T> {
   /// {@macro flutter.widgets.TransitionRoute.opaque}
   @override
   final bool opaque;
-
-  @override
-  Route<T> createRoute(BuildContext context) {
-    return TransitionBuilderPageRoute<T>(page: this);
-  }
 }
 
 /// A page that can be subclassed to provide push and pop animations.
-///
 ///
 /// When a page is pushed, [buildPushTransition] is called, and the returned
 /// transition is used to animate the page onto the screen.
@@ -215,6 +215,7 @@ class TransitionPage<T> extends TransitionBuilderPage<T> {
 /// When a page is popped, [buildPopTransition] is called, and the returned
 /// transition is used to animate the page off the screen.
 abstract class TransitionBuilderPage<T> extends Page<T> {
+  /// Initialize a page that provides separate push and pop animations.
   const TransitionBuilderPage({
     required this.child,
     this.maintainState = true,
@@ -261,7 +262,11 @@ abstract class TransitionBuilderPage<T> extends Page<T> {
   }
 }
 
+/// The route created by by [TransitionBuilderPage], which delegates push and
+/// pop transition animations to that page.
 class TransitionBuilderPageRoute<T> extends PageRoute<T> {
+  /// Initialize a route which delegates push and pop transition animations to
+  /// the provided [page].
   TransitionBuilderPageRoute({
     required TransitionBuilderPage<T> page,
   }) : super(settings: page);
