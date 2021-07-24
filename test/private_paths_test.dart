@@ -123,6 +123,44 @@ void main() {
     );
   });
 
+  testWidgets('Shows path with underscore in middle', (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (BuildContext context) => RouteMap(
+        routes: {
+          '/': (routeData) => const MaterialPageOne(),
+          '/test_ing': (routeData) => const MaterialPageTwo(),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(MaterialApp.router(
+      routeInformationParser: const RoutemasterParser(),
+      routerDelegate: delegate,
+    ));
+
+    await setSystemUrl('/test_ing');
+    await tester.pump();
+    await tester.pump();
+    await tester.pump(kTransitionDuration);
+
+    expect(find.byType(PageTwo), findsOneWidget);
+
+    await delegate.pop();
+    await tester.pump();
+    await tester.pump(kTransitionDuration);
+
+    expect(
+      await recordUrlChanges(() async {
+        delegate.push('/test_ing');
+        await tester.pump();
+        await tester.pump(kTransitionDuration);
+
+        expect(find.byType(PageTwo), findsOneWidget);
+      }),
+      ['/test_ing'],
+    );
+  });
+
   testWidgets('Shows 404 page with unknown private url', (tester) async {
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
