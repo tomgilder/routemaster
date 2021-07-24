@@ -154,7 +154,8 @@ class RouteData {
           (source) => source.toString() == requestSource,
         ),
         pathTemplate: state['pathTemplate'] as String,
-        pathParameters: state['pathParameters'] as Map<String, String>,
+        pathParameters: (state['pathParameters'] as Map<String, dynamic>)
+            .cast<String, String>(),
       );
     }
 

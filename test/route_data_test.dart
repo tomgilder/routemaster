@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:routemaster/src/trie_router/trie_router.dart';
 import 'helpers.dart';
+import 'dart:convert';
 
 MaterialPage<void> builder(RouteData info) {
   return MaterialPage<void>(child: Container());
@@ -350,5 +351,28 @@ void main() {
     expect(routeData3.publicPath, '/product');
     expect(routeData3.fullPath, '/product/1');
     expect(routeData3.pathParameters['_id'], '1');
+  });
+
+  test('Can deserialize route from JSON', () {
+    const jsonStr = '''
+    {
+        "pathTemplate": "/public/_private",
+        "internalPath": "/public/_private",
+        "isReplacement": true,
+        "requestSource": "RequestSource.internal",
+        "pathParameters": {"path": "param"}
+      }
+    ''';
+
+    final routeData = RouteData.fromRouteInformation(RouteInformation(
+      location: '/public',
+      state: json.decode(jsonStr),
+    ));
+
+    expect(routeData.publicPath, '/public');
+    expect(routeData.fullPath, '/public/_private');
+    expect(routeData.isReplacement, true);
+    expect(routeData.requestSource, RequestSource.internal);
+    expect(routeData.pathParameters, {'path': 'param'});
   });
 }
