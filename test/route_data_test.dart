@@ -20,6 +20,8 @@ void main() {
         pathTemplate: '/template',
       ),
       Uri.parse('/path'),
+      isReplacement: false,
+      requestSource: RequestSource.system,
     );
 
     expect(data.path, '/path');
@@ -35,6 +37,8 @@ void main() {
         pathTemplate: '/template',
       ),
       Uri.parse('/path?hello=world'),
+      isReplacement: false,
+      requestSource: RequestSource.system,
     );
 
     expect(data.path, '/path');
@@ -50,6 +54,8 @@ void main() {
         pathTemplate: '/template',
       ),
       Uri.parse('/one/two'),
+      isReplacement: false,
+      requestSource: RequestSource.system,
     );
     final two = RouteData.fromRouterResult(
       const RouterResult(
@@ -59,6 +65,8 @@ void main() {
         pathTemplate: '/template',
       ),
       Uri.parse('/one'),
+      isReplacement: false,
+      requestSource: RequestSource.system,
     );
 
     expect(one == two, isFalse);
@@ -74,6 +82,8 @@ void main() {
         pathTemplate: '/',
       ),
       Uri.parse('/'),
+      isReplacement: false,
+      requestSource: RequestSource.system,
     );
     final two = RouteData.fromRouterResult(
       const RouterResult(
@@ -83,6 +93,8 @@ void main() {
         pathTemplate: '/',
       ),
       Uri.parse('/'),
+      isReplacement: false,
+      requestSource: RequestSource.system,
     );
 
     expect(one == two, isTrue);
@@ -91,21 +103,27 @@ void main() {
 
   test('Route info with different query strings are not equal', () {
     final one = RouteData.fromRouterResult(
-        const RouterResult(
-          builder: builder,
-          pathParameters: {},
-          pathSegment: '/',
-          pathTemplate: '/',
-        ),
-        Uri.parse('/?a=b'));
+      const RouterResult(
+        builder: builder,
+        pathParameters: {},
+        pathSegment: '/',
+        pathTemplate: '/',
+      ),
+      Uri.parse('/?a=b'),
+      isReplacement: false,
+      requestSource: RequestSource.system,
+    );
     final two = RouteData.fromRouterResult(
-        const RouterResult(
-          builder: builder,
-          pathParameters: {},
-          pathSegment: '/',
-          pathTemplate: '/',
-        ),
-        Uri.parse('/'));
+      const RouterResult(
+        builder: builder,
+        pathParameters: {},
+        pathSegment: '/',
+        pathTemplate: '/',
+      ),
+      Uri.parse('/'),
+      isReplacement: false,
+      requestSource: RequestSource.system,
+    );
 
     expect(one == two, isFalse);
     expect(one.hashCode == two.hashCode, isFalse);
@@ -113,21 +131,27 @@ void main() {
 
   test('Route info with same query strings are equal', () {
     final one = RouteData.fromRouterResult(
-        const RouterResult(
-          builder: builder,
-          pathParameters: {},
-          pathSegment: '/',
-          pathTemplate: '/',
-        ),
-        Uri.parse('/?a=b'));
+      const RouterResult(
+        builder: builder,
+        pathParameters: {},
+        pathSegment: '/',
+        pathTemplate: '/',
+      ),
+      Uri.parse('/?a=b'),
+      isReplacement: false,
+      requestSource: RequestSource.system,
+    );
     final two = RouteData.fromRouterResult(
-        const RouterResult(
-          builder: builder,
-          pathParameters: {},
-          pathSegment: '/',
-          pathTemplate: '/',
-        ),
-        Uri.parse('/?a=b'));
+      const RouterResult(
+        builder: builder,
+        pathParameters: {},
+        pathSegment: '/',
+        pathTemplate: '/',
+      ),
+      Uri.parse('/?a=b'),
+      isReplacement: false,
+      requestSource: RequestSource.system,
+    );
 
     expect(one == two, isTrue);
     expect(one.hashCode == two.hashCode, isTrue);
@@ -135,21 +159,27 @@ void main() {
 
   test('Route info with same path params are equal', () {
     final one = RouteData.fromRouterResult(
-        const RouterResult(
-          builder: builder,
-          pathParameters: {'a': 'b'},
-          pathSegment: '/',
-          pathTemplate: '/',
-        ),
-        Uri.parse('/'));
+      const RouterResult(
+        builder: builder,
+        pathParameters: {'a': 'b'},
+        pathSegment: '/',
+        pathTemplate: '/',
+      ),
+      Uri.parse('/'),
+      isReplacement: false,
+      requestSource: RequestSource.system,
+    );
     final two = RouteData.fromRouterResult(
-        const RouterResult(
-          builder: builder,
-          pathParameters: {'a': 'b'},
-          pathSegment: '/',
-          pathTemplate: '/',
-        ),
-        Uri.parse('/'));
+      const RouterResult(
+        builder: builder,
+        pathParameters: {'a': 'b'},
+        pathSegment: '/',
+        pathTemplate: '/',
+      ),
+      Uri.parse('/'),
+      isReplacement: false,
+      requestSource: RequestSource.system,
+    );
 
     expect(one == two, isTrue);
     expect(one.hashCode == two.hashCode, isTrue);
@@ -157,7 +187,7 @@ void main() {
 
   test('RouteData.toString() is correct', () {
     expect(
-      RouteData('/').toString(),
+      RouteData('/', pathTemplate: '').toString(),
       '/',
     );
   });
@@ -198,6 +228,7 @@ void main() {
     expect(page2RouteData.pathTemplate, '/two/:id');
     expect(page2RouteData.pathParameters['id'], 'myId');
     expect(page2RouteData.queryParameters['query'], 'param');
+    expect(page2RouteData.requestSource, RequestSource.internal);
 
     final currentRoute = Routemaster.of(pageKey2.currentContext!).currentRoute;
     expect(currentRoute.path, '/two/myId');
@@ -205,6 +236,7 @@ void main() {
     expect(currentRoute.pathTemplate, '/two/:id');
     expect(currentRoute.pathParameters['id'], 'myId');
     expect(currentRoute.queryParameters['query'], 'param');
+    expect(currentRoute.requestSource, RequestSource.internal);
   });
 
   testWidgets('Can get RouteData from context when navigating back',
@@ -316,6 +348,7 @@ void main() {
 
     expect(routeData.publicPath, '/public');
     expect(routeData.fullPath, '/public/_private');
+    expect(routeData.pathTemplate, '/public/_private');
     expect(routeData.isReplacement, true);
     expect(routeData.requestSource, RequestSource.internal);
     expect(routeData.queryParameters, isEmpty);
@@ -333,6 +366,7 @@ void main() {
 
     expect(routeData2.publicPath, '/public');
     expect(routeData2.fullPath, '/public/_private?hello=world');
+    expect(routeData2.pathTemplate, '/public/_private');
     expect(routeData2.isReplacement, false);
     expect(routeData2.requestSource, RequestSource.system);
     expect(routeData2.queryParameters['hello'], 'world');
@@ -348,6 +382,7 @@ void main() {
       },
     ));
 
+    expect(routeData3.pathTemplate, '/product/:_id');
     expect(routeData3.publicPath, '/product');
     expect(routeData3.fullPath, '/product/1');
     expect(routeData3.pathParameters['_id'], '1');
@@ -356,8 +391,8 @@ void main() {
   test('Can deserialize route from JSON', () {
     const jsonStr = '''
     {
-        "pathTemplate": "/public/_private",
-        "internalPath": "/public/_private",
+        "pathTemplate": "/public/_private/hello",
+        "internalPath": "/public/_private/hello",
         "isReplacement": true,
         "requestSource": "RequestSource.internal",
         "pathParameters": {"path": "param"}
@@ -370,7 +405,8 @@ void main() {
     ));
 
     expect(routeData.publicPath, '/public');
-    expect(routeData.fullPath, '/public/_private');
+    expect(routeData.fullPath, '/public/_private/hello');
+    expect(routeData.pathTemplate, '/public/_private/hello');
     expect(routeData.isReplacement, true);
     expect(routeData.requestSource, RequestSource.internal);
     expect(routeData.pathParameters, {'path': 'param'});

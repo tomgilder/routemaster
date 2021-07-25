@@ -18,7 +18,7 @@ void main() {
 
   test('PageWrapper getCurrentPageStates returns itself', () {
     final page = PageWrapper.fromPage(
-      routeData: RouteData(''),
+      routeData: RouteData('', pathTemplate: ''),
       page: const MaterialPageOne(),
     );
 
@@ -28,7 +28,7 @@ void main() {
   test('PageWrapper createPage returns page', () {
     const page = MaterialPageOne();
     final wrapper = PageWrapper.fromPage(
-      routeData: RouteData(''),
+      routeData: RouteData('', pathTemplate: ''),
       page: page,
     );
 

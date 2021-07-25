@@ -458,7 +458,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     _navigate(
       uri: routeData._uri,
       queryParameters: routeData.queryParameters,
-      isReplacement: false,
+      isReplacement: routeData.isReplacement,
       requestSource: routeData.requestSource,
     );
 
@@ -633,6 +633,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         // Only the last route gets query parameters
         isLastRoute ? request.uri : Uri(path: routerData.pathSegment),
         isReplacement: request.isReplacement,
+        requestSource: request.requestSource,
       );
 
       if (routeData._privateSegmentIndex != null &&
@@ -764,6 +765,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         routerResult,
         Uri.parse(requestedPath),
         isReplacement: routeRequest.isReplacement,
+        requestSource: routeRequest.requestSource,
       );
 
       final page = routerResult.builder(routeData);
@@ -893,6 +895,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         routeData: RouteData.fromUri(
           requestedPath,
           isReplacement: routeRequest.isReplacement,
+          pathTemplate: requestedPath.toString(),
         ),
         page: result as Page,
       )

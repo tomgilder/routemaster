@@ -502,7 +502,7 @@ class _TabNotFoundPage extends PageWrapper {
       : super.fromPage(
           routeData: RouteData(
             request.uri.toString(),
-            pathTemplate: null,
+            pathTemplate: request.uri.toString(),
           ),
           page: MaterialPage<void>(
             child: DefaultNotFoundPage(path: request.uri.toString()),

@@ -9,21 +9,27 @@ import 'helpers.dart';
 void main() {
   test('makeUrl makes hash URL with null query params', () {
     expect(
-      SystemNav.makePublicUrl(RouteData('/new-path')),
+      SystemNav.makePublicUrl(
+        RouteData('/new-path', pathTemplate: '/new-path'),
+      ),
       '#/new-path',
     );
   });
 
   test('makeUrl makes hash URL with empty query params', () {
     expect(
-      SystemNav.makePublicUrl(RouteData('/new-path?')),
+      SystemNav.makePublicUrl(
+        RouteData('/new-path?', pathTemplate: '/new-path'),
+      ),
       '#/new-path',
     );
   });
 
   test('makeUrl makes hash URL with query params', () {
     expect(
-      SystemNav.makePublicUrl(RouteData('/new-path?query=param')),
+      SystemNav.makePublicUrl(
+        RouteData('/new-path?query=param', pathTemplate: '/new-path'),
+      ),
       '#/new-path?query=param',
     );
   });

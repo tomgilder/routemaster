@@ -6,7 +6,7 @@ import 'package:routemaster/src/system_nav.dart';
 void main() {
   test('SystemNav.replaceUrl() throws when not on web', () {
     expect(
-      () => SystemNav.replaceUrl(RouteData('path')),
+      () => SystemNav.replaceUrl(RouteData('path', pathTemplate: '/path')),
       throwsA(isA<UnsupportedError>()),
     );
   });
@@ -20,7 +20,7 @@ void main() {
 
   test('SystemNav.makePublicUrl() throws when not on web', () {
     expect(
-      () => SystemNav.makePublicUrl(RouteData('/path')),
+      () => SystemNav.makePublicUrl(RouteData('/path', pathTemplate: '/path')),
       throwsA(isA<UnsupportedError>()),
     );
   });

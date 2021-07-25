@@ -61,7 +61,7 @@ class RouteData {
   final bool isReplacement;
 
   /// The template for this route, for instance '/profile/:id'.
-  final String? pathTemplate;
+  final String pathTemplate;
 
   /// Where the navigation request for this route originated from. See
   /// [RequestSource] for the options.
@@ -70,9 +70,9 @@ class RouteData {
   /// Initializes routing data from a path string.
   RouteData(
     String path, {
+    required this.pathTemplate,
     this.pathParameters = const {},
     this.isReplacement = false,
-    this.pathTemplate,
     this.requestSource = RequestSource.system,
   })  : _uri = Uri.parse(path),
         _privateSegmentIndex = _getPrivateSegmentIndex(pathTemplate);
@@ -80,9 +80,9 @@ class RouteData {
   /// Initializes routing data from a [Uri].
   RouteData.fromUri(
     Uri uri, {
+    required this.pathTemplate,
     this.pathParameters = const {},
     this.isReplacement = false,
-    this.pathTemplate,
     this.requestSource = RequestSource.system,
   })  : _uri = uri,
         _privateSegmentIndex = _getPrivateSegmentIndex(pathTemplate);
@@ -91,8 +91,8 @@ class RouteData {
   RouteData.fromRouterResult(
     RouterResult result,
     Uri uri, {
-    this.isReplacement = false,
-    this.requestSource = RequestSource.system,
+    required this.requestSource,
+    required this.isReplacement,
   })  : _uri = uri,
         pathParameters = result.pathParameters,
         pathTemplate = result.pathTemplate,
@@ -159,7 +159,13 @@ class RouteData {
       );
     }
 
-    return RouteData(routeInfo.location!);
+    // No state: we only got a URL from the system, so probably a
+    // manually-entered URL from the user.
+    return RouteData(
+      routeInfo.location!,
+      pathTemplate: routeInfo.location!,
+      requestSource: RequestSource.system,
+    );
   }
 
   /// Gets the [RouteData] for the nearest [Page] ancestor for the given

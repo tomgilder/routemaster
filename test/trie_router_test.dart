@@ -25,6 +25,8 @@ RouteData getRouteData(RouterResult routerResult) {
   return RouteData.fromRouterResult(
     routerResult,
     Uri(path: '/'),
+    isReplacement: false,
+    requestSource: RequestSource.system,
   );
 }
 
