@@ -12,11 +12,13 @@ class RoutemasterParser extends RouteInformationParser<RouteData> {
 
   @override
   Future<RouteData> parseRouteInformation(RouteInformation routeInformation) {
+    // System has provided new routing information
     return SynchronousFuture(RouteData.fromRouteInformation(routeInformation));
   }
 
   @override
   RouteInformation restoreRouteInformation(RouteData routeData) {
+    // Routemaster is reporting new routing information
     return routeData.toRouteInformation();
   }
 }

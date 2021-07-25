@@ -870,8 +870,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   List<PageWrapper> _onUnknownRoute(_RouteRequest routeRequest) {
     final requestedPath = routeRequest.uri;
-    final fullPath = requestedPath.toString();
-    final result = _state.routeMap!.onUnknownRoute(fullPath);
+    final fullPath = routeRequest.uri.toString();
+    final result = _state.routeMap!.onUnknownRoute(routeRequest.uri.toString());
 
     _assertIsPage(result, fullPath);
 
@@ -895,7 +895,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         routeData: RouteData.fromUri(
           requestedPath,
           isReplacement: routeRequest.isReplacement,
-          pathTemplate: requestedPath.toString(),
+          pathTemplate: null,
         ),
         page: result as Page,
       )

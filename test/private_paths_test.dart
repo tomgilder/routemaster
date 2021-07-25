@@ -177,15 +177,18 @@ void main() {
 
     expect(
       await recordUrlChanges(() async {
-        delegate.push('/_private');
+        delegate.push('/test/_private');
         await tester.pump();
         await tester.pump();
         await tester.pump(const Duration(seconds: 1));
 
         expect(find.byType(DefaultNotFoundPage), findsOneWidget);
-        expect(find.text("Page '/_private' wasn't found."), findsOneWidget);
+        expect(
+          find.text("Page '/test/_private' wasn't found."),
+          findsOneWidget,
+        );
       }),
-      ['/_private'],
+      ['/test/_private'],
     );
   });
 

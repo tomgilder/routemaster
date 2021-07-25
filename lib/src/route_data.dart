@@ -61,7 +61,10 @@ class RouteData {
   final bool isReplacement;
 
   /// The template for this route, for instance '/profile/:id'.
-  final String pathTemplate;
+  ///
+  /// Will only be null when unknown route is generated from
+  /// [RouteMap.onUnknownRoute].
+  final String? pathTemplate;
 
   /// Where the navigation request for this route originated from. See
   /// [RequestSource] for the options.
