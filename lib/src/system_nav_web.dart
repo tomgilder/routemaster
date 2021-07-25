@@ -3,6 +3,7 @@ import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'fake_html.dart' if (dart.library.js) 'dart:html';
 import 'package:flutter/foundation.dart';
 import 'system_nav.dart';
+// ignore_for_file: public_member_api_docs
 
 class SystemNav {
   static HashUrlStrategy? _urlStrategy;

@@ -1,3 +1,5 @@
+// ignore_for_file: public_member_api_docs
+
 /// A node in the trie containing multiple child nodes.
 ///
 /// [K] is the key and is unique relative to the parent, not the entire data

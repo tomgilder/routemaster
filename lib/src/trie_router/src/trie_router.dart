@@ -4,11 +4,15 @@ import 'errors.dart';
 import 'router_result.dart';
 import 'trie_node.dart';
 
+/// A router for storing and retrieving routes that uses a Trie data structure.
 class TrieRouter {
   final Trie<String, PageBuilder> _trie;
 
+  /// Initializes an empty router.
   TrieRouter() : _trie = Trie();
 
+  /// Adds all the given [routes] to the router.
+  /// The key of the map is the route.
   void addAll(Map<String, PageBuilder> routes) {
     routes.forEach((key, value) {
       add(key, value);
@@ -78,6 +82,8 @@ class TrieRouter {
     }
   }
 
+  /// Returns a single matching result from the router, or null if no match
+  /// was found.
   RouterResult? get(String route) {
     final pathSegments = pathContext.split(PathParser.stripQueryString(route));
     final parameters = <String, String>{};
@@ -106,6 +112,8 @@ class TrieRouter {
     );
   }
 
+  /// Returns all matching results from the router, or null if no match was
+  /// found.
   List<RouterResult>? getAll(String route) {
     final pathSegments = pathContext.split(PathParser.stripQueryString(route));
     final parameters = <String, String>{};

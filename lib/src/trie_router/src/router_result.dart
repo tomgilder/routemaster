@@ -1,5 +1,6 @@
 import '../../../routemaster.dart';
 
+/// A match for a path returned from [TrieRouter].
 class RouterResult {
   /// The original path template for this route, such as '/products/productId'.
   final String pathTemplate;
@@ -18,6 +19,7 @@ class RouterResult {
   ///         3. /blah/test
   final String pathSegment;
 
+  /// Initializes a router result.
   const RouterResult({
     required this.builder,
     required this.pathParameters,

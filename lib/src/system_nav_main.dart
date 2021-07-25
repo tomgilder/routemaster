@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../routemaster.dart';
 import 'system_nav.dart';
+// ignore_for_file: public_member_api_docs
 
 class SystemNav {
   static HistoryProvider? historyProvider;

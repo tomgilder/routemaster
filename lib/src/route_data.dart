@@ -9,7 +9,17 @@ class RouteData {
   /// The full path that generated this route, including query string.
   String get fullPath => _uri.toString();
 
-  String? _publicPath;
+  /// The user-visible path for this route. This is what will be displayed in a
+  /// browser's address bar.
+  ///
+  /// This will be only be different from [fullPath] if using a private route,
+  /// such as '/products/_secret/page', which will be displayed in an address
+  /// bar as '/products'; everything after the underscore is cut off.
+  ///
+  /// Private routes are useful for making pages that users cannot navigate to
+  /// directly by entering their URL. For example, you may want to prevent a
+  /// user from navigating directly to step two of a wizard, without having
+  /// filled out step one first.
   String get publicPath {
     if (_publicPath == null) {
       final path = _uri.toString();
@@ -25,6 +35,8 @@ class RouteData {
 
     return _publicPath!;
   }
+
+  String? _publicPath;
 
   /// The path component of this route, without query string.
   ///
@@ -51,6 +63,8 @@ class RouteData {
   /// The template for this route, for instance '/profile/:id'.
   final String? pathTemplate;
 
+  /// Where the navigation request for this route originated from. See
+  /// [RequestSource] for the options.
   final RequestSource requestSource;
 
   /// Initializes routing data from a path string.
@@ -63,6 +77,7 @@ class RouteData {
   })  : _uri = Uri.parse(path),
         _privateSegmentIndex = _getPrivateSegmentIndex(pathTemplate);
 
+  /// Initializes routing data from a [Uri].
   RouteData.fromUri(
     Uri uri, {
     this.pathParameters = const {},
@@ -124,6 +139,9 @@ class RouteData {
     );
   }
 
+  /// Creates a [RouteData] from a [RouteInformation].
+  ///
+  /// The [RouteInformation] will usually be provided by the system.
   static RouteData fromRouteInformation(RouteInformation routeInfo) {
     final state = routeInfo.state;
     if (state is Map) {

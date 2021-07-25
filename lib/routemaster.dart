@@ -432,7 +432,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           _update();
         }
       } else {
-        // If the pubic paths match but the private paths don't, we need to
+        // If the public paths match but the private paths don't, we need to
         // ensure a new history item is created
         final needsForceNavigate =
             routeData.publicPath == currentRouteData.publicPath &&
