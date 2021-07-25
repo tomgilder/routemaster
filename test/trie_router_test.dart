@@ -417,10 +417,16 @@ void main() {
     router.add('/named', (_) => namedRoute);
 
     final namedResult = router.get('/named')!;
-    expect(namedResult.builder(RouteData('/named')), namedRoute);
+    expect(
+      namedResult.builder(RouteData('/named', pathTemplate: '/named')),
+      namedRoute,
+    );
 
     final paramResult = router.get('/blah')!;
-    expect(paramResult.builder(RouteData('/blah')), paramRoute);
+    expect(
+      paramResult.builder(RouteData('/blah', pathTemplate: '/blah')),
+      paramRoute,
+    );
   });
 
   test('Route with name has priority over route params when added second', () {
@@ -432,9 +438,15 @@ void main() {
     router.add('/:param', (_) => paramRoute);
 
     final result = router.get('/named')!;
-    expect(result.builder(RouteData('/named')), namedRoute);
+    expect(
+      result.builder(RouteData('/named', pathTemplate: '/named')),
+      namedRoute,
+    );
 
     final paramResult = router.get('/blah')!;
-    expect(paramResult.builder(RouteData('/blah')), paramRoute);
+    expect(
+      paramResult.builder(RouteData('/blah', pathTemplate: '/blah')),
+      paramRoute,
+    );
   });
 }
