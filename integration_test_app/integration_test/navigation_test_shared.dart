@@ -77,8 +77,10 @@ void replaceTests({void Function(String) expectUrl = _default}) {
   });
 
   testWidgets('Can replace to private page', (tester) async {
+    // Starts on home page
     app.main();
 
+    // Go to page one
     await tester.pumpAndSettle();
     await tester.tap(find.text('Push page one'));
     await tester.pump();
@@ -86,6 +88,7 @@ void replaceTests({void Function(String) expectUrl = _default}) {
     expect(find.byType(PageOne), findsOneWidget);
     expectUrl('/one');
 
+    // Replace with private page
     await tester.tap(find.text('Replace private page'));
     await tester.pump();
     await tester.pumpAndSettle();
@@ -93,7 +96,7 @@ void replaceTests({void Function(String) expectUrl = _default}) {
     expect(find.text('hello from private page'), findsOneWidget);
     expectUrl('/');
 
-    // Go back to initial private page
+    // Go back to home page
     window.history.back();
     await tester.pump();
     await tester.pumpAndSettle();
@@ -112,7 +115,7 @@ void replaceTests({void Function(String) expectUrl = _default}) {
     expectUrl('/');
   });
 
-  testWidgets('Can push private page', (tester) async {
+  testWidgets('Can push private page with different URL', (tester) async {
     app.main();
 
     await tester.pumpAndSettle();
@@ -144,6 +147,34 @@ void replaceTests({void Function(String) expectUrl = _default}) {
     await tester.pumpAndSettle();
     expect(find.byType(PrivatePage), findsOneWidget);
     expect(find.text('hello from private page'), findsOneWidget);
+    expectUrl('/');
+  });
+
+  testWidgets('Can push private page with same URL', (tester) async {
+    app.main();
+
+    // Push private page
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Push private page'));
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expect(find.byType(PrivatePage), findsOneWidget);
+    expect(find.text('private page pushed from home'), findsOneWidget);
+    expectUrl('/');
+
+    // Goes back to home page
+    window.history.back();
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expect(find.byType(PrivatePage), findsNothing);
+    expectUrl('/');
+
+    // Goes forward to private page
+    window.history.forward();
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expect(find.byType(PrivatePage), findsOneWidget);
+    expect(find.text('private page pushed from home'), findsOneWidget);
     expectUrl('/');
   });
 }

@@ -35,9 +35,15 @@ class SystemNav {
 
   static void replaceUrl(RouteData routeData) {
     historyProvider ??= BrowserHistoryProvider();
+
+    // Need to add serial count for the Flutter engine to view this as an
+    // internal navigation. The count doesn't seem to be actually used, though.
     historyProvider!.replaceState(
-      routeData.toRouteInformation().state,
-      '',
+      {
+        'serialCount': 0,
+        'state': routeData.toRouteInformation().state,
+      },
+      'flutter',
       makePublicUrl(routeData),
     );
   }

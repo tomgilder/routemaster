@@ -54,6 +54,13 @@ class HomePage extends StatelessWidget {
             onPressed: () => Routemaster.of(context).push('/tabs'),
             child: const Text('Replace tabs'),
           ),
+          ElevatedButton(
+            onPressed: () => Routemaster.of(context).push(
+              '/_private?',
+              queryParameters: {'message': 'private page pushed from home'},
+            ),
+            child: const Text('Push private page'),
+          ),
         ],
       ),
     );

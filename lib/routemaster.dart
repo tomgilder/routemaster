@@ -402,7 +402,10 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }
 
   /// Reports the current path to the Flutter routing system, and any observers.
-  void _updateCurrentConfiguration({bool isReplacement = false}) {
+  void _updateCurrentConfiguration({
+    bool isReplacement = false,
+    bool isSystemNavigation = false,
+  }) {
     final currentPages = _state.stack._getCurrentPages();
 
     if (currentPages.isNotEmpty) {
@@ -436,7 +439,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         // ensure a new history item is created
         final needsForceNavigate =
             routeData.publicPath == currentRouteData.publicPath &&
-                routeData.fullPath != currentRouteData.fullPath;
+                routeData.fullPath != currentRouteData.fullPath &&
+                !isSystemNavigation;
 
         if (needsForceNavigate) {
           Router.navigate(_context, () => _update());
@@ -460,6 +464,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       queryParameters: routeData.queryParameters,
       isReplacement: routeData.isReplacement,
       requestSource: routeData.requestSource,
+      isSystemNavigation: true,
     );
 
     return SynchronousFuture(null);
@@ -516,6 +521,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     Map<String, String>? queryParameters,
     bool useCurrentState = true,
     bool isRetry = false,
+    bool isSystemNavigation = false,
   }) {
     if (_state.routeMap == null) {
       // routeMap can be null after a hot reload
@@ -568,6 +574,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
               queryParameters: queryParameters,
               requestSource: requestSource,
               isRetry: true,
+              isSystemNavigation: isSystemNavigation,
             );
           }
         });
@@ -585,6 +592,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     _updateCurrentConfiguration(
       isReplacement: pathIsSame || isReplacement,
+      isSystemNavigation: isSystemNavigation,
     );
   }
 
