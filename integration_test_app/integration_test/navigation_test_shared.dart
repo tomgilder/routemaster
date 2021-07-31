@@ -93,12 +93,22 @@ void replaceTests({void Function(String) expectUrl = _default}) {
     expect(find.text('hello from private page'), findsOneWidget);
     expectUrl('/');
 
+    // Go back to initial private page
     window.history.back();
     await tester.pump();
     await tester.pumpAndSettle();
 
     expect(find.byType(PrivatePage), findsNothing);
     expect(find.byType(PageOne), findsNothing);
+    expectUrl('/');
+
+    // Go forward to private page
+    window.history.forward();
+    await tester.pump();
+    await tester.pumpAndSettle();
+
+    expect(find.byType(PrivatePage), findsOneWidget);
+    expect(find.text('hello from private page'), findsOneWidget);
     expectUrl('/');
   });
 
@@ -128,7 +138,7 @@ void replaceTests({void Function(String) expectUrl = _default}) {
     expect(find.byType(PageOne), findsOneWidget);
     expectUrl('/one');
 
-    // // Goes forward to private page
+    // Goes forward to private page
     window.history.forward();
     await tester.pump();
     await tester.pumpAndSettle();
