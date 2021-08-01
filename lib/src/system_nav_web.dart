@@ -1,8 +1,10 @@
 import 'package:routemaster/routemaster.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+import 'package:routemaster/src/path_parser.dart';
 import 'fake_html.dart' if (dart.library.js) 'dart:html';
 import 'package:flutter/foundation.dart';
 import 'system_nav.dart';
+// ignore_for_file: public_member_api_docs
 
 class SystemNav {
   static HashUrlStrategy? _urlStrategy;
@@ -33,31 +35,29 @@ class SystemNav {
 
   static void replaceUrl(RouteData routeData) {
     historyProvider ??= BrowserHistoryProvider();
+
+    // Need to add serial count for the Flutter engine to view this as an
+    // internal navigation. The count doesn't seem to be actually used, though.
     historyProvider!.replaceState(
-      null,
-      '',
-      makeUrl(
-        path: routeData.path,
-        queryParameters: routeData.queryParameters,
-      ),
+      {
+        'serialCount': 0,
+        'state': routeData.toRouteInformation().state,
+      },
+      'flutter',
+      makePublicUrl(routeData),
     );
   }
 
-  static String makeUrl({
-    required String path,
-    Map<String, String>? queryParameters,
-  }) {
-    final hasQueryParameters = queryParameters?.isNotEmpty == true;
-    final url = Uri(
-      path: path,
-      queryParameters: hasQueryParameters ? queryParameters : null,
-    );
-
+  static String makePublicUrl(RouteData routeData) {
     if (_urlStrategy == null) {
       _setDefaultUrlStrategy();
     }
 
-    return _urlStrategy!.prepareExternalUrl(url.toString());
+    return _urlStrategy!.prepareExternalUrl(
+      routeData.queryParameters.isEmpty
+          ? PathParser.stripQueryString(routeData.publicPath)
+          : routeData.publicPath,
+    );
   }
 }
 

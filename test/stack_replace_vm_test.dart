@@ -23,7 +23,7 @@ void main() {
       ),
     );
 
-    expect(delegate.currentConfiguration, RouteData('/'));
+    expect(delegate.currentConfiguration, RouteData('/', pathTemplate: '/'));
     expect(find.byType(PageOne), findsOneWidget);
     expect(find.byType(PageTwo), findsNothing);
 
@@ -31,7 +31,8 @@ void main() {
     await tester.pump();
     await tester.pump(kTransitionDuration);
 
-    expect(delegate.currentConfiguration, RouteData('/two'));
+    expect(
+        delegate.currentConfiguration, RouteData('/two', pathTemplate: '/two'));
     expect(find.byType(PageOne), findsNothing);
     expect(find.byType(PageTwo), findsOneWidget);
   });

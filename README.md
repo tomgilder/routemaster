@@ -12,7 +12,7 @@ Hello! Routemaster is an easy-to-use router for Flutter, which wraps over Naviga
 * Really easy nested navigation support for tabs
 * Multiple route maps: for example one for a logged in user, another for logged out
 * Observers to easily listen to route changes
-* Covered by over 160 unit, widget and integration tests
+* Covered by over 200 unit, widget and integration tests
 
 Here's the entire routing setup needed for an app featuring tabs and pushed routes:
 
@@ -83,6 +83,7 @@ ___
 * [Swap routing map](#swap-routing-map)
 * [Navigation observers](#navigation-observers)
 * [Navigate without a context](#navigate-without-a-context)
+* [Hero animations](#hero-animations) 
  
 ## Overview
 
@@ -120,7 +121,7 @@ However, navigating to `/tabs/notInATab` will **not** be displayed in a tab, but
   
 ## Routing
 
-Basic app routing setup:
+### Basic app routing setup
 
 ```dart
 MaterialApp.router(
@@ -134,7 +135,7 @@ MaterialApp.router(
 )
 ```
 
-Navigate from within pages:
+###  Navigate from within pages
 
 ```dart
 Routemaster.of(context).push('relative-path');
@@ -144,7 +145,7 @@ Routemaster.of(context).replace('relative-path');
 Routemaster.of(context).replace('/absolute-path');
 ```
 
-Path parameters:
+### Path parameters
 
 ```dart
 // Path '/products/123' will result in ProductPage(id: '123')
@@ -152,10 +153,14 @@ RouteMap(routes: {
   '/products/:id': (route) => MaterialPage(
         child: ProductPage(id: route.pathParameters['id']),
       ),
+  '/products/myPage': (route) => MaterialPage(MyPage()),
 })
 ```
 
-Query parameters:
+Note that routes without path parameters have priority, so in the above example
+`/products/myPage` will show `MyPage`.
+
+### Query parameters
 
 ```dart
 // Path '/search?query=hello' results in SearchPage(query: 'hello')
@@ -166,7 +171,7 @@ RouteMap(routes: {
 })
 ```
 
-Get current path info within a widget:
+### Get current path info within a widget
 
 ```dart
 RouteData.of(context).path; // Full path: '/product/123?query=param'

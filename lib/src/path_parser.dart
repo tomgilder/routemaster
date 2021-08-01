@@ -1,8 +1,12 @@
 import 'package:path/path.dart' as path;
 
+/// Global path URL context. Should always be used to access path methods to
+/// ensure the URL style is used.
 final pathContext = path.Context(style: path.Style.url);
 
+/// Utilities for parsing paths.
 class PathParser {
+  /// Strips any query string from [path].
   static String stripQueryString(String path) {
     final indexOfQuery = path.indexOf('?');
 

@@ -107,6 +107,13 @@ class PageThree extends StatelessWidget {
   }
 }
 
+class EchoPage extends MaterialPage<void> {
+  EchoPage({required String? text})
+      : super(
+          child: Scaffold(body: Text(text ?? '')),
+        );
+}
+
 class PopPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

@@ -25,6 +25,8 @@ RouteData getRouteData(RouterResult routerResult) {
   return RouteData.fromRouterResult(
     routerResult,
     Uri(path: '/'),
+    isReplacement: false,
+    requestSource: RequestSource.system,
   );
 }
 
@@ -463,5 +465,47 @@ void main() {
     expect(routes[2].pathTemplate, '/one/*');
     // expect(routes[2].builder(getRouteData(data2)), route2);
     // expect(routes[2].pathParameters.isEmpty, isTrue);
+  });
+
+  test('Route with name has priority over route params when added first', () {
+    final router = TrieRouter();
+    const paramRoute = TestRoute('param');
+    const namedRoute = TestRoute('named');
+
+    router.add('/:param', (_) => paramRoute);
+    router.add('/named', (_) => namedRoute);
+
+    final namedResult = router.get('/named')!;
+    expect(
+      namedResult.builder(RouteData('/named', pathTemplate: '/named')),
+      namedRoute,
+    );
+
+    final paramResult = router.get('/blah')!;
+    expect(
+      paramResult.builder(RouteData('/blah', pathTemplate: '/blah')),
+      paramRoute,
+    );
+  });
+
+  test('Route with name has priority over route params when added second', () {
+    final router = TrieRouter();
+    const paramRoute = TestRoute('param');
+    const namedRoute = TestRoute('named');
+
+    router.add('/named', (_) => namedRoute);
+    router.add('/:param', (_) => paramRoute);
+
+    final result = router.get('/named')!;
+    expect(
+      result.builder(RouteData('/named', pathTemplate: '/named')),
+      namedRoute,
+    );
+
+    final paramResult = router.get('/blah')!;
+    expect(
+      paramResult.builder(RouteData('/blah', pathTemplate: '/blah')),
+      paramRoute,
+    );
   });
 }

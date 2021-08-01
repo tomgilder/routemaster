@@ -16,11 +16,19 @@ jobs:
       - run: flutter pub get
       - run: flutter test --coverage
       - run: flutter test --platform chrome
+      - run: flutter test
+        working-directory: example/book_store
+      - run: flutter test
+        working-directory: example/mobile_app
       - run: integration_test_app/run.sh
       
       - run: flutter channel master
       - run: flutter upgrade
       - run: flutter test
+      - run: flutter test
+        working-directory: example/book_store
+      - run: flutter test
+        working-directory: example/mobile_app
       - run: flutter test --platform chrome
       
       - uses: codecov/codecov-action@v1.0.2

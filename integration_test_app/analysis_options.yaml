@@ -1,0 +1,8 @@
+analyzer:
+  strong-mode:
+    implicit-casts: false
+    implicit-dynamic: true
+
+linter:
+  rules:
+    public_member_api_docs: false

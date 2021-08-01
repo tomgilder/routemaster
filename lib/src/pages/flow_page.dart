@@ -122,7 +122,10 @@ class FlowPageState extends PageState<FlowPage> with ChangeNotifier {
 
     final insertedPages = _absolutePaths.take(index).map(
           (insertPath) => routemaster._delegate._getSinglePage(
-            _RouteRequest(uri: Uri.parse(insertPath)),
+            _RouteRequest(
+              uri: Uri.parse(insertPath),
+              requestSource: routeData.requestSource,
+            ),
           ),
         );
 
