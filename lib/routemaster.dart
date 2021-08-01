@@ -304,30 +304,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return popResult;
   }
 
-  /// Replaces the current route with [path]. On the web, this prevents the user
-  /// returning to the previous route via the back button.
-  ///
-  ///   * [path] - an absolute or relative path.
-  ///
-  ///   * [queryParameters] - an optional map of parameters to be passed to the
-  ///     created page.
-  ///
-  void replace(String path, {Map<String, String>? queryParameters}) {
-    assert(!_isDisposed);
-
-    // Otherwise we do a convoluted dance which uses a custom UrlStrategy that
-    // supports replacing the URL.
-    _navigate(
-      uri: PathParser.getAbsolutePath(
-        basePath: currentConfiguration!.fullPath,
-        path: path,
-        queryParameters: queryParameters,
-      ),
-      queryParameters: queryParameters,
-      isReplacement: true,
-    );
-  }
-
   /// Pushes [path] into the navigation tree.
   ///
   ///   * [path] - an absolute or relative path.
@@ -341,6 +317,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     assert(!_isDisposed);
 
     final result = NavigationResult<T>._();
+
     _navigate(
       uri: PathParser.getAbsolutePath(
         basePath: currentConfiguration!.fullPath,
@@ -350,8 +327,33 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       queryParameters: queryParameters,
       isReplacement: false,
       navigationResult: result,
+      requestSource: RequestSource.internal,
     );
+
     return result;
+  }
+
+  /// Replaces the current route with [path]. On the web, this prevents the user
+  /// returning to the previous route via the back button.
+  ///
+  ///   * [path] - an absolute or relative path.
+  ///
+  ///   * [queryParameters] - an optional map of parameters to be passed to the
+  ///     created page.
+  ///
+  void replace(String path, {Map<String, String>? queryParameters}) {
+    assert(!_isDisposed);
+
+    _navigate(
+      uri: PathParser.getAbsolutePath(
+        basePath: currentConfiguration!.fullPath,
+        path: path,
+        queryParameters: queryParameters,
+      ),
+      queryParameters: queryParameters,
+      isReplacement: true,
+      requestSource: RequestSource.internal,
+    );
   }
 
   /// Marks the router as needing an update, for instance of the current path
@@ -400,17 +402,20 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }
 
   /// Reports the current path to the Flutter routing system, and any observers.
-  void _updateCurrentConfiguration({bool isReplacement = false}) {
+  void _updateCurrentConfiguration({
+    bool isReplacement = false,
+    bool isSystemNavigation = false,
+  }) {
     final currentPages = _state.stack._getCurrentPages();
 
     if (currentPages.isNotEmpty) {
       final pageWrapper = currentPages.last;
       final routeData = pageWrapper.routeData;
+      final currentRouteData = _state.currentConfiguration!;
 
       void _update() {
         if (_state.currentConfiguration!.fullPath != routeData.fullPath) {
           _state.currentConfiguration = routeData;
-
           _markNeedsUpdate();
 
           for (final observer in observers) {
@@ -419,14 +424,29 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         }
       }
 
-      if (kIsWeb && isReplacement) {
-        // Update without the router changing the URL or adding a history entry
-        Router.neglect(_context, _update); // coverage:ignore-line
+      if (isReplacement) {
+        if (kIsWeb) {
+          // Update without the router changing the URL or adding a history entry
+          Router.neglect(_context, _update); // coverage:ignore-line
 
-        // Set the URL directly
-        SystemNav.replaceUrl(routeData); // coverage:ignore-line
+          // Set the URL directly
+          SystemNav.replaceUrl(routeData); // coverage:ignore-line
+        } else {
+          _update();
+        }
       } else {
-        _update();
+        // If the public paths match but the private paths don't, we need to
+        // ensure a new history item is created
+        final needsForceNavigate =
+            routeData.publicPath == currentRouteData.publicPath &&
+                routeData.fullPath != currentRouteData.fullPath &&
+                !isSystemNavigation;
+
+        if (needsForceNavigate) {
+          Router.navigate(_context, () => _update());
+        } else {
+          _update();
+        }
       }
     }
   }
@@ -442,7 +462,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     _navigate(
       uri: routeData._uri,
       queryParameters: routeData.queryParameters,
-      isReplacement: false,
+      isReplacement: routeData.isReplacement,
+      requestSource: routeData.requestSource,
+      isSystemNavigation: true,
     );
 
     return SynchronousFuture(null);
@@ -470,12 +492,14 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           isReplacement: pending.isReplacement,
           navigationResult: pending.result,
           useCurrentState: false,
+          requestSource: pending.requestSource,
         );
       } else {
         _navigate(
           uri: currentConfiguration?._uri ?? Uri(path: '/'),
           isReplacement: false,
           useCurrentState: false,
+          requestSource: RequestSource.internal,
         );
       }
     }
@@ -492,10 +516,12 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   void _navigate({
     required Uri uri,
     required bool isReplacement,
+    required RequestSource requestSource,
     NavigationResult? navigationResult,
     Map<String, String>? queryParameters,
     bool useCurrentState = true,
     bool isRetry = false,
+    bool isSystemNavigation = false,
   }) {
     if (_state.routeMap == null) {
       // routeMap can be null after a hot reload
@@ -507,6 +533,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       uri: uri,
       isReplacement: isReplacement,
       result: navigationResult,
+      requestSource: requestSource,
     );
 
     var pages = _createAllPageWrappers(
@@ -545,7 +572,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
               useCurrentState: useCurrentState,
               navigationResult: navigationResult,
               queryParameters: queryParameters,
+              requestSource: requestSource,
               isRetry: true,
+              isSystemNavigation: isSystemNavigation,
             );
           }
         });
@@ -563,6 +592,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     _updateCurrentConfiguration(
       isReplacement: pathIsSame || isReplacement,
+      isSystemNavigation: isSystemNavigation,
     );
   }
 
@@ -611,7 +641,14 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         // Only the last route gets query parameters
         isLastRoute ? request.uri : Uri(path: routerData.pathSegment),
         isReplacement: request.isReplacement,
+        requestSource: request.requestSource,
       );
+
+      if (routeData._privateSegmentIndex != null &&
+          request.requestSource == RequestSource.system) {
+        // Route contains private URL, deny loading from system request
+        return null;
+      }
 
       // Get a page wrapper object for the current route
       late final _PageResult current;
@@ -671,6 +708,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           request: _RouteRequest(
             uri: Uri.parse(current.redirectPath),
             isReplacement: request.isReplacement,
+            requestSource: request.requestSource,
           ),
         );
       }
@@ -735,6 +773,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         routerResult,
         Uri.parse(requestedPath),
         isReplacement: routeRequest.isReplacement,
+        requestSource: routeRequest.requestSource,
       );
 
       final page = routerResult.builder(routeData);
@@ -756,6 +795,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           _RouteRequest(
             uri: Uri.parse(wrapper.redirectPath),
             isReplacement: routeRequest.isReplacement,
+            requestSource: routeRequest.requestSource,
           ),
         );
       }
@@ -838,8 +878,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   List<PageWrapper> _onUnknownRoute(_RouteRequest routeRequest) {
     final requestedPath = routeRequest.uri;
-    final fullPath = requestedPath.toString();
-    final result = _state.routeMap!.onUnknownRoute(fullPath);
+    final fullPath = routeRequest.uri.toString();
+    final result = _state.routeMap!.onUnknownRoute(routeRequest.uri.toString());
 
     _assertIsPage(result, fullPath);
 
@@ -848,6 +888,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         request: _RouteRequest(
           uri: Uri.parse(result.redirectPath),
           isReplacement: routeRequest.isReplacement,
+          requestSource: routeRequest.requestSource,
         ),
       );
 
@@ -862,6 +903,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         routeData: RouteData.fromUri(
           requestedPath,
           isReplacement: routeRequest.isReplacement,
+          pathTemplate: null,
         ),
         page: result as Page,
       )
@@ -1030,12 +1072,24 @@ class _RouteRequest {
   final Uri uri;
   final bool isReplacement;
   final NavigationResult? result;
+  final RequestSource requestSource;
 
   _RouteRequest({
     required this.uri,
+    required this.requestSource,
     this.isReplacement = false,
     this.result,
   });
+}
+
+/// Where the navigation request originated from.
+enum RequestSource {
+  /// Navigation request came from the system, such as the user typing a URL
+  /// into the address bar.
+  system,
+
+  /// Navigation request came from an API call, such as `.push()`.
+  internal,
 }
 
 /// Provides a [Navigator] that shows pages from a [PageStack].

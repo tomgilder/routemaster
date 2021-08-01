@@ -1,6 +1,11 @@
 # 0.10.0-dev2
 
-* Added: `TransitionPage` and `TransitionBuilderPage` to make it much easier to customize page push and pop animations. 
+* Added: `TransitionPage` and `TransitionBuilderPage` to make it much easier to
+  customize page push and pop animations. 
+
+* Added: private routes - route segments that start with an underscore are not
+  shown to the user. For example `/sign-up/_stepTwo` will be displayed as
+  `/sign-up` in the address bar, and the user can not navigate to it by URL.
 
 # 0.10.0-dev1
 

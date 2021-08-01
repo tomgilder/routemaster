@@ -394,8 +394,9 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
   /// Equivalent to `pageState.stacks[pageStage.index]`.
   PageStack get currentStack => stacks[index];
 
-  int _index = 0;
+  /// The current tab index.
   int get index => _index;
+  int _index = 0;
 
   /// The currently active index.
   set index(int value) {
@@ -417,6 +418,7 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
       _RouteRequest(
         uri: path,
         isReplacement: routeData.isReplacement,
+        requestSource: routeData.requestSource,
       ),
     );
 
@@ -500,7 +502,7 @@ class _TabNotFoundPage extends PageWrapper {
       : super.fromPage(
           routeData: RouteData(
             request.uri.toString(),
-            pathTemplate: null,
+            pathTemplate: request.uri.toString(),
           ),
           page: MaterialPage<void>(
             child: DefaultNotFoundPage(path: request.uri.toString()),
