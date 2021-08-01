@@ -2,24 +2,23 @@ part of '../routemaster.dart';
 
 /// Information generated from a specific path (URL).
 ///
-/// This object has value equality - objects are equal if the paths match.
+/// This object has value equality: objects are equal if the paths match.
 class RouteData {
   final Uri _uri;
 
   /// The full path that generated this route, including query string.
   String get fullPath => _uri.toString();
 
-  /// The user-visible path for this route. This is what will be displayed in a
-  /// browser's address bar.
+  /// The user-visible path for this route, shown in a browser's address bar.
   ///
-  /// This will be only be different from [fullPath] if using a private route,
-  /// such as '/products/_secret/page', which will be displayed in an address
-  /// bar as '/products'; everything after the underscore is cut off.
+  /// This is only different from [fullPath] when using a private route,
+  /// such as '/products/_secret/page', which will show in an address bar as
+  /// '/products'; everything after the underscore is cut off.
   ///
   /// Private routes are useful for making pages that users cannot navigate to
-  /// directly by entering their URL. For example, you may want to prevent a
-  /// user from navigating directly to step two of a wizard, without having
-  /// filled out step one first.
+  /// directly by entering a URL. For example, you may want to prevent a user
+  /// from navigating directly to step two of a wizard, without having first
+  /// completed step one.
   String get publicPath {
     if (_publicPath == null) {
       final path = _uri.toString();
@@ -62,12 +61,12 @@ class RouteData {
 
   /// The template for this route, for instance '/profile/:id'.
   ///
-  /// Will only be null when unknown route is generated from
+  /// Will only be null on unknown routes generated from
   /// [RouteMap.onUnknownRoute].
   final String? pathTemplate;
 
-  /// Where the navigation request for this route originated from. See
-  /// [RequestSource] for the options.
+  /// The source of the original navigation request for this route.
+  /// See [RequestSource] for the options.
   final RequestSource requestSource;
 
   /// Initializes routing data from a path string.
