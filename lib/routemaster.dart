@@ -20,6 +20,7 @@ part 'src/pages/page_stack.dart';
 part 'src/pages/tab_pages.dart';
 part 'src/pages/basic_pages.dart';
 part 'src/pages/stack_page.dart';
+part 'src/pages/async_page.dart';
 part 'src/observers.dart';
 part 'src/route_data.dart';
 
@@ -651,12 +652,12 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       }
 
       // Get a page wrapper object for the current route
-      late final _PageResult current;
+      late _PageResult current;
       if (isLastRoute) {
         final page = routerData.builder(routeData);
         _assertIsPage(page, routeData.fullPath);
         current = _createPageWrapper(
-          routeRequest: request,
+          uri: request.uri,
           page: page as Page,
           routeData: routeData,
           isLastRoute: true,
@@ -679,7 +680,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         }
 
         assert(page._routeData != null);
-        assert(page._page != null);
 
         if (result.isNotEmpty && page.maybeSetChildPages(result)) {
           result = [page];
@@ -719,6 +719,63 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return result;
   }
 
+  void _updateWithPage({
+    required RouteData routeData,
+    required Page page,
+    List<PageWrapper>? currentRoutes,
+    List<String>? redirects,
+  }) {
+    final pageWrapper = _createPageWrapper(
+      page: page,
+      uri: routeData._uri,
+      routeData: routeData,
+      isLastRoute: true,
+    );
+
+    // final pathIsSame =
+    //     _state.currentConfiguration!.fullPath == pages.last.routeData.fullPath;
+
+    if (pageWrapper is _PageWrapperResult) {
+      final page = pageWrapper.pageWrapper;
+
+      assert(page._routeData != null);
+
+      final wrappers = _state.stack._pageWrappers;
+      wrappers[wrappers.length - 1] = page;
+
+      _markNeedsUpdate();
+    }
+
+    // _updateCurrentConfiguration(
+    //   isReplacement: pathIsSame || isReplacement,
+    //   isSystemNavigation: isSystemNavigation,
+    // );
+
+    //   if (current is _NotFoundResult) {
+    //   return _onUnknownRoute(request);
+    // }
+
+    // if (current is _RedirectResult) {
+    //   if (kDebugMode) {
+    //     redirects = _debugCheckRedirectLoop(redirects, requestedPath);
+    //   }
+
+    //   return _createAllPageWrappers(
+    //     currentRoutes: currentRoutes,
+    //     redirects: redirects,
+    //     request: _RouteRequest(
+    //       uri: Uri.parse(current.redirectPath),
+    //       isReplacement: request.isReplacement,
+    //       requestSource: request.requestSource,
+    //     ),
+    //   );
+    // }
+
+    // assert(result.isNotEmpty, "_createAllStates can't return empty list");
+
+    // return result;
+  }
+
   /// Gets a list of results from the router. If a result can't be found, the
   /// router is rebuilt and the request retried. This is for cases where some
   /// state has updated but the map hasn't yet been rebuilt.
@@ -756,7 +813,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     // No current route, create a new one
     return _createPageWrapper(
-      routeRequest: routeRequest,
+      uri: routeRequest.uri,
       page: routerResult.builder(routeData) as Page,
       routeData: routeData,
       isLastRoute: false,
@@ -780,7 +837,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       _assertIsPage(page, routeData.fullPath);
 
       final wrapper = _createPageWrapper(
-        routeRequest: routeRequest,
+        uri: routeRequest.uri,
         page: routerResult.builder(routeData) as Page,
         routeData: routeData,
         isLastRoute: false,
@@ -805,7 +862,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }
 
   _PageResult _createPageWrapper({
-    required _RouteRequest routeRequest,
+    required Uri uri,
     required Page page,
     required RouteData routeData,
     required bool isLastRoute,
@@ -818,7 +875,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
         final result = page.onNavigationFailed!(routeData, _context);
         return _createPageWrapper(
-          routeRequest: routeRequest,
+          uri: uri,
           page: result,
           routeData: routeData,
           isLastRoute: isLastRoute,
@@ -834,13 +891,14 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     if (page is Redirect) {
       return _RedirectResult(
-          _fillRedirectPathParams(page.redirectPath, routeData));
+        _fillRedirectPathParams(page.redirectPath, routeData),
+      );
     }
 
     if (isLastRoute && page is PageContainer) {
       return _RedirectResult(
         pathContext.join(
-          routeRequest.uri.path,
+          uri.path,
           page.redirectPath,
         ),
       );
@@ -939,6 +997,13 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 }
 
 /// A union type for results from the page map.
+///
+/// There are three subtypes that need to be handled:
+///
+///   * [_PageWrapperResult]
+///   * [_RedirectResult]
+///   * [_NotFoundResult]
+///
 @immutable
 abstract class _PageResult {}
 
@@ -1178,6 +1243,7 @@ class PageStackNavigatorState extends State<PageStackNavigator> {
     setState(() {
       _updateNavigator();
     });
+    print('_updateNavigator');
   }
 
   void _updateDelegate() {

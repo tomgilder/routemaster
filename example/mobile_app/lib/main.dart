@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mobile_app/pages/async.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app/pages/login_page.dart';
@@ -194,6 +195,8 @@ RouteMap _buildRouteMap(AppState appState) {
       '/custom-transitions': (_) => CustomPage(
             child: MessagePage(message: 'Custom transitions'),
           ),
+
+      ...asyncRoutes
     },
   );
 }

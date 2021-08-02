@@ -24,17 +24,13 @@ class PageWrapper<T extends Page<dynamic>> {
     required T page,
     required RouteData routeData,
   }) {
-    _page = page;
+    _createdPage = page;
     _routeData = routeData;
   }
 
   /// Information about the current route.
   RouteData get routeData => _routeData!;
   RouteData? _routeData;
-
-  /// The page object that will be added to a [Navigator].
-  T get page => _page!;
-  T? _page;
 
   /// Called when popping a route stack. Returns `true` if this page wrapper
   /// has been able to pop a page, otherwise `false`.
@@ -66,7 +62,7 @@ class PageWrapper<T extends Page<dynamic>> {
   ///
   /// This will only be called once per [PageWrapper], and the result cached.
   Page createPage() {
-    return _page!;
+    return _createdPage!;
   }
 
   Page? _createdPage;
@@ -114,4 +110,10 @@ abstract class PageState<T extends StatefulPage<dynamic>>
   }
 
   bool _debugTypesAreRight(Page page) => page is T;
+
+  /// The page associated with this state.
+  ///
+  /// For instance if this is [TabPageState], this property is the [TabPage].
+  T get page => _page!;
+  T? _page;
 }

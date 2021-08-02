@@ -42,6 +42,29 @@ class FeedPage extends StatelessWidget {
                   child: Text('Go to /404'),
                 ),
                 ElevatedButton(
+                  onPressed: () => Routemaster.of(context).push('/async'),
+                  child: Text('async'),
+                ),
+                ElevatedButton(
+                  onPressed: () =>
+                      Routemaster.of(context).push('/async-not-found'),
+                  child: Text('async not found'),
+                ),
+                ElevatedButton(
+                  onPressed: () =>
+                      Routemaster.of(context).push('/async-redirect'),
+                  child: Text('async redirect'),
+                ),
+                ElevatedButton(
+                  onPressed: () =>
+                      Routemaster.of(context).push('/async-cancel'),
+                  child: Text('async cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Routemaster.of(context).push('/async-tabs'),
+                  child: Text('async tabs'),
+                ),
+                ElevatedButton(
                   onPressed: () =>
                       Routemaster.of(context).push('/bottom-navigation-bar'),
                   child: Text('Bottom Navigation Bar page'),
