@@ -719,63 +719,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return result;
   }
 
-  void _updateWithPage({
-    required RouteData routeData,
-    required Page page,
-    List<PageWrapper>? currentRoutes,
-    List<String>? redirects,
-  }) {
-    final pageWrapper = _createPageWrapper(
-      page: page,
-      uri: routeData._uri,
-      routeData: routeData,
-      isLastRoute: true,
-    );
-
-    // final pathIsSame =
-    //     _state.currentConfiguration!.fullPath == pages.last.routeData.fullPath;
-
-    if (pageWrapper is _PageWrapperResult) {
-      final page = pageWrapper.pageWrapper;
-
-      assert(page._routeData != null);
-
-      final wrappers = _state.stack._pageWrappers;
-      wrappers[wrappers.length - 1] = page;
-
-      _markNeedsUpdate();
-    }
-
-    // _updateCurrentConfiguration(
-    //   isReplacement: pathIsSame || isReplacement,
-    //   isSystemNavigation: isSystemNavigation,
-    // );
-
-    //   if (current is _NotFoundResult) {
-    //   return _onUnknownRoute(request);
-    // }
-
-    // if (current is _RedirectResult) {
-    //   if (kDebugMode) {
-    //     redirects = _debugCheckRedirectLoop(redirects, requestedPath);
-    //   }
-
-    //   return _createAllPageWrappers(
-    //     currentRoutes: currentRoutes,
-    //     redirects: redirects,
-    //     request: _RouteRequest(
-    //       uri: Uri.parse(current.redirectPath),
-    //       isReplacement: request.isReplacement,
-    //       requestSource: request.requestSource,
-    //     ),
-    //   );
-    // }
-
-    // assert(result.isNotEmpty, "_createAllStates can't return empty list");
-
-    // return result;
-  }
-
   /// Gets a list of results from the router. If a result can't be found, the
   /// router is rebuilt and the request retried. This is for cases where some
   /// state has updated but the map hasn't yet been rebuilt.
