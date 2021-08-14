@@ -4,23 +4,30 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Records changes in URL
-Future<List<String?>> recordUrlChanges(Future Function() callback) async {
-  final result = <String?>[];
-  final stackTraces = <StackTrace>[];
-  SystemChannels.navigation.setMockMethodCallHandler((call) async {
-    if (call.method == 'routeInformationUpdated') {
-      final location = call.arguments['location'] as String;
-      if (result.isNotEmpty && result.last == location) {
-        throw "Duplicate location recorded: '$location'.\n\nPrevious route was added from:\n\n${stackTraces.last}";
-      }
-      result.add(location);
-      stackTraces.add(StackTrace.current);
-    }
-  });
+class SystemUrlTracker {
+  String? current;
+}
 
-  await callback();
-  SystemChannels.navigation.setMockMethodCallHandler(null);
-  return result;
+/// Records changes in URL
+Future<void> recordUrlChanges(
+    Future Function(SystemUrlTracker url) callback) async {
+  try {
+    final tracker = SystemUrlTracker();
+    final stackTraces = <StackTrace>[];
+
+    SystemChannels.navigation.setMockMethodCallHandler((call) async {
+      if (call.method == 'routeInformationUpdated') {
+        final location = call.arguments['location'] as String;
+
+        tracker.current = location;
+        stackTraces.add(StackTrace.current);
+      }
+    });
+
+    await callback(tracker);
+  } finally {
+    SystemChannels.navigation.setMockMethodCallHandler(null);
+  }
 }
 
 /// Simulates pressing the system back button
@@ -51,7 +58,8 @@ class BrowserEmulatorRouteInfoProvider
   final _urlStack = Queue<RouteInformation>();
 
   @override
-  void routerReportsNewRouteInformation(RouteInformation routeInformation) {
+  void routerReportsNewRouteInformation(RouteInformation routeInformation,
+      {bool isNavigation = true}) {
     _urlStack.addLast(routeInformation);
     super.routerReportsNewRouteInformation(routeInformation);
   }

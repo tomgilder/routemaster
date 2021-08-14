@@ -28,113 +28,95 @@ final stackApp = MaterialApp.router(
 
 void main() {
   testWidgets('Can step through stack and close it', (tester) async {
-    await tester.pumpWidget(stackApp);
+    await recordUrlChanges((systemUrl) async {
+      await tester.pumpWidget(stackApp);
 
-    expect(
-      await recordUrlChanges(() async {
-        Routemaster.of(rootPageKey.currentContext!).push('/stack/one');
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
+      Routemaster.of(rootPageKey.currentContext!).push('/stack/one');
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
 
-        expect(find.byType(StackPageOne), findsOneWidget);
-      }),
-      ['/stack/one'],
-    );
+      expect(find.byType(StackPageOne), findsOneWidget);
 
-    expect(
-      await recordUrlChanges(() async {
-        Routemaster.of(rootPageKey.currentContext!).push('/stack/one/two');
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
-        expect(find.byType(StackPageTwo), findsOneWidget);
-      }),
-      ['/stack/one/two'],
-    );
+      expect(systemUrl.current, '/stack/one');
 
-    expect(
-      await recordUrlChanges(() async {
-        Routemaster.of(stackPageOneKey.currentContext!).push('/');
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
+      Routemaster.of(rootPageKey.currentContext!).push('/stack/one/two');
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
+      expect(find.byType(StackPageTwo), findsOneWidget);
 
-        expect(find.byType(StackPageTwo), findsNothing);
-      }),
-      ['/'],
-    );
+      expect(systemUrl.current, '/stack/one/two');
+
+      Routemaster.of(stackPageOneKey.currentContext!).push('/');
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
+
+      expect(find.byType(StackPageTwo), findsNothing);
+
+      expect(systemUrl.current, '/');
+    });
   });
 
   testWidgets('Can open stack via root stack page path', (tester) async {
-    await tester.pumpWidget(stackApp);
-    expect(
-      await recordUrlChanges(() async {
-        Routemaster.of(rootPageKey.currentContext!).push('/stack');
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
-        expect(find.byType(StackPageOne), findsOneWidget);
-      }),
-      ['/stack/one'],
-    );
+    await recordUrlChanges((systemUrl) async {
+      await tester.pumpWidget(stackApp);
+
+      Routemaster.of(rootPageKey.currentContext!).push('/stack');
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
+      expect(find.byType(StackPageOne), findsOneWidget);
+
+      expect(systemUrl.current, '/stack/one');
+    });
   });
 
   testWidgets('Can open stack at end and pop backwards', (tester) async {
-    await tester.pumpWidget(stackApp);
+    await recordUrlChanges((systemUrl) async {
+      await tester.pumpWidget(stackApp);
 
-    expect(
-      await recordUrlChanges(() async {
-        Routemaster.of(rootPageKey.currentContext!).push('/stack/one/two');
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
+      Routemaster.of(rootPageKey.currentContext!).push('/stack/one/two');
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
 
-        expect(find.byType(StackPageTwo), findsOneWidget);
-      }),
-      ['/stack/one/two'],
-    );
+      expect(find.byType(StackPageTwo), findsOneWidget);
 
-    expect(
-      await recordUrlChanges(() async {
-        await Routemaster.of(stackPageOneKey.currentContext!).pop();
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
-        expect(find.byType(StackPageOne), findsOneWidget);
-      }),
-      ['/stack/one'],
-    );
+      expect(systemUrl.current, '/stack/one/two');
 
-    expect(
-      await recordUrlChanges(() async {
-        Routemaster.of(stackPageOneKey.currentContext!).push('/');
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
+      await Routemaster.of(stackPageOneKey.currentContext!).pop();
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
+      expect(find.byType(StackPageOne), findsOneWidget);
 
-        expect(find.byType(StackPageTwo), findsNothing);
-      }),
-      ['/'],
-    );
+      expect(systemUrl.current, '/stack/one');
+
+      Routemaster.of(stackPageOneKey.currentContext!).push('/');
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
+
+      expect(find.byType(StackPageTwo), findsNothing);
+
+      expect(systemUrl.current, '/');
+    });
   });
 
   testWidgets('Back button pops stack', (tester) async {
-    await tester.pumpWidget(stackApp);
+    await recordUrlChanges((systemUrl) async {
+      await tester.pumpWidget(stackApp);
 
-    expect(
-      await recordUrlChanges(() async {
-        Routemaster.of(rootPageKey.currentContext!).push('/stack/one/two');
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
+      Routemaster.of(rootPageKey.currentContext!).push('/stack/one/two');
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
 
-        expect(find.byType(StackPageTwo), findsOneWidget);
-      }),
-      ['/stack/one/two'],
-    );
+      expect(find.byType(StackPageTwo), findsOneWidget);
 
-    expect(
-      await recordUrlChanges(() async {
-        await invokeSystemBack();
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
-        expect(find.byType(StackPageOne), findsOneWidget);
-      }),
-      ['/stack/one'],
-    );
+      expect(systemUrl.current, '/stack/one/two');
+
+      await invokeSystemBack();
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
+      expect(find.byType(StackPageOne), findsOneWidget);
+
+      expect(systemUrl.current, '/stack/one');
+    });
   });
 
   testWidgets('Asserts if unable to find StackPage', (tester) async {
