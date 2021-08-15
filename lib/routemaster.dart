@@ -190,8 +190,13 @@ class Routemaster {
   NavigationResult<T> push<T extends Object?>(
     String path, {
     Map<String, String>? queryParameters,
+    Object? state,
   }) {
-    return _delegate.push<T>(path, queryParameters: queryParameters);
+    return _delegate.push<T>(
+      path,
+      queryParameters: queryParameters,
+      state: state,
+    );
   }
 }
 
@@ -312,8 +317,11 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   ///     created page.
   ///
   @optionalTypeArgs
-  NavigationResult<T> push<T extends Object?>(String path,
-      {Map<String, String>? queryParameters}) {
+  NavigationResult<T> push<T extends Object?>(
+    String path, {
+    Map<String, String>? queryParameters,
+    Object? state,
+  }) {
     assert(!_isDisposed);
 
     final result = NavigationResult<T>._();
@@ -328,6 +336,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       isReplacement: false,
       navigationResult: result,
       requestSource: RequestSource.internal,
+      state: state,
     );
 
     return result;
@@ -341,7 +350,11 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   ///   * [queryParameters] - an optional map of parameters to be passed to the
   ///     created page.
   ///
-  void replace(String path, {Map<String, String>? queryParameters}) {
+  void replace(
+    String path, {
+    Map<String, String>? queryParameters,
+    Object? state,
+  }) {
     assert(!_isDisposed);
 
     _navigate(
@@ -353,6 +366,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       queryParameters: queryParameters,
       isReplacement: true,
       requestSource: RequestSource.internal,
+      state: state,
     );
   }
 
@@ -465,6 +479,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       isReplacement: routeData.isReplacement,
       requestSource: routeData.requestSource,
       isSystemNavigation: true,
+      state: routeData.state,
     );
 
     return SynchronousFuture(null);
@@ -493,6 +508,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           navigationResult: pending.result,
           useCurrentState: false,
           requestSource: pending.requestSource,
+          state: pending.state,
         );
       } else {
         _navigate(
@@ -500,6 +516,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           isReplacement: false,
           useCurrentState: false,
           requestSource: RequestSource.internal,
+          state: currentConfiguration?.state,
         );
       }
     }
@@ -517,6 +534,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     required Uri uri,
     required bool isReplacement,
     required RequestSource requestSource,
+    required Object? state,
     NavigationResult? navigationResult,
     Map<String, String>? queryParameters,
     bool useCurrentState = true,
@@ -534,6 +552,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       isReplacement: isReplacement,
       result: navigationResult,
       requestSource: requestSource,
+      state: state,
     );
 
     var pages = _createAllPageWrappers(
@@ -575,6 +594,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
               requestSource: requestSource,
               isRetry: true,
               isSystemNavigation: isSystemNavigation,
+              state: state,
             );
           }
         });
@@ -642,6 +662,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         isLastRoute ? request.uri : Uri(path: routerData.pathSegment),
         isReplacement: request.isReplacement,
         requestSource: request.requestSource,
+        state: isLastRoute ? request.state : null,
       );
 
       if (routeData._privateSegmentIndex != null &&
@@ -705,10 +726,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         return _createAllPageWrappers(
           currentRoutes: currentRoutes,
           redirects: redirects,
-          request: _RouteRequest(
+          request: request.copyWith(
             uri: Uri.parse(current.redirectPath),
-            isReplacement: request.isReplacement,
-            requestSource: request.requestSource,
           ),
         );
       }
@@ -774,6 +793,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         Uri.parse(requestedPath),
         isReplacement: routeRequest.isReplacement,
         requestSource: routeRequest.requestSource,
+        state: routeRequest.state,
       );
 
       final page = routerResult.builder(routeData);
@@ -792,11 +812,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
       if (wrapper is _RedirectResult) {
         return _getSinglePage(
-          _RouteRequest(
-            uri: Uri.parse(wrapper.redirectPath),
-            isReplacement: routeRequest.isReplacement,
-            requestSource: routeRequest.requestSource,
-          ),
+          routeRequest.copyWith(uri: Uri.parse(wrapper.redirectPath)),
         );
       }
     }
@@ -885,10 +901,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     if (result is Redirect) {
       final redirectResult = _createAllPageWrappers(
-        request: _RouteRequest(
+        request: routeRequest.copyWith(
           uri: Uri.parse(result.redirectPath),
-          isReplacement: routeRequest.isReplacement,
-          requestSource: routeRequest.requestSource,
         ),
       );
 
@@ -904,6 +918,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           requestedPath,
           isReplacement: routeRequest.isReplacement,
           pathTemplate: null,
+          state: null,
         ),
         page: result as Page,
       )
@@ -1070,16 +1085,28 @@ class RedirectLoopError extends Error {
 
 class _RouteRequest {
   final Uri uri;
+  final RequestSource requestSource;
+  final Object? state;
   final bool isReplacement;
   final NavigationResult? result;
-  final RequestSource requestSource;
 
-  _RouteRequest({
+  const _RouteRequest({
     required this.uri,
     required this.requestSource,
+    required this.state,
     this.isReplacement = false,
     this.result,
   });
+
+  _RouteRequest copyWith({Uri? uri}) {
+    return _RouteRequest(
+      uri: uri ?? this.uri,
+      requestSource: requestSource,
+      state: state,
+      isReplacement: isReplacement,
+      result: result,
+    );
+  }
 }
 
 /// Where the navigation request originated from.

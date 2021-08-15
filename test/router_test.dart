@@ -37,11 +37,15 @@ void main() {
 
     expect(() => delegate.currentConfiguration, throwsAssertionError);
     expect(
-      () => delegate.setInitialRoutePath(RouteData('', pathTemplate: '')),
+      () => delegate.setInitialRoutePath(
+        RouteData('', pathTemplate: '', state: null),
+      ),
       throwsAssertionError,
     );
     expect(
-      () => delegate.setNewRoutePath(RouteData('path', pathTemplate: '')),
+      () => delegate.setNewRoutePath(
+        RouteData('path', pathTemplate: '', state: null),
+      ),
       throwsAssertionError,
     );
     expect(() => delegate.push(''), throwsAssertionError);

@@ -69,10 +69,13 @@ class RouteData {
   /// See [RequestSource] for the options.
   final RequestSource requestSource;
 
+  final Object? state;
+
   /// Initializes routing data from a path string.
   RouteData(
     String path, {
     required this.pathTemplate,
+    this.state,
     this.pathParameters = const {},
     this.isReplacement = false,
     this.requestSource = RequestSource.system,
@@ -83,6 +86,7 @@ class RouteData {
   RouteData._fromUri(
     Uri uri, {
     required this.pathTemplate,
+    required this.state,
     this.pathParameters = const {},
     this.isReplacement = false,
     this.requestSource = RequestSource.system,
@@ -93,6 +97,7 @@ class RouteData {
   RouteData._fromRouterResult(
     RouterResult result,
     Uri uri, {
+    required this.state,
     required this.requestSource,
     required this.isReplacement,
   })  : _uri = uri,
@@ -137,6 +142,7 @@ class RouteData {
         'requestSource': requestSource.toString(),
         'pathTemplate': pathTemplate,
         'pathParameters': pathParameters,
+        'state': state,
       },
     );
   }
@@ -158,6 +164,7 @@ class RouteData {
         pathTemplate: state['pathTemplate'] as String,
         pathParameters: (state['pathParameters'] as Map<String, dynamic>)
             .cast<String, String>(),
+        state: state['state'] as Object?,
       );
     }
 
@@ -167,6 +174,7 @@ class RouteData {
       routeInfo.location!,
       pathTemplate: routeInfo.location!,
       requestSource: RequestSource.system,
+      state: routeInfo.state,
     );
   }
 

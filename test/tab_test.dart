@@ -500,8 +500,11 @@ class StubRoutemaster implements Routemaster {
   }
 
   @override
-  NavigationResult<T> push<T extends Object?>(String path,
-      {Map<String, String>? queryParameters}) {
+  NavigationResult<T> push<T extends Object?>(
+    String path, {
+    Map<String, String>? queryParameters,
+    Object? state,
+  }) {
     return StubNavigationResult<T>();
   }
 
