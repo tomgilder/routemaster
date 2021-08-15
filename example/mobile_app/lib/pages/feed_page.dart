@@ -76,6 +76,11 @@ class FeedPage extends StatelessWidget {
                   child: Text('Push non-Page route'),
                 ),
                 ElevatedButton(
+                  onPressed: () =>
+                      Routemaster.of(context).push('/submap/three'),
+                  child: Text('break'),
+                ),
+                ElevatedButton(
                   onPressed: () => Routemaster.of(context).push('/flow'),
                   child: Text('/flow'),
                 ),

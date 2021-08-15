@@ -435,6 +435,12 @@ void main() {
     expect(data2.pathTemplate, '/one/*');
     expect(data2.builder(getRouteData(data2)), route2);
     expect(data2.pathParameters.isEmpty, isTrue);
+
+    final data3 = router.get('/one/blah/test')!;
+    expect(data3.pathSegment, '/one/blah/test');
+    expect(data3.pathTemplate, '/one/*');
+    expect(data3.builder(getRouteData(data3)), route2);
+    expect(data3.pathParameters.isEmpty, isTrue);
   });
 
   test('Can get all wildcard routes', () {
@@ -449,6 +455,38 @@ void main() {
 
     final routes = router.getAll('/one/blah/test')!;
 
+    final dataRoot = router.get('/')!;
+    expect(dataRoot.pathSegment, '/');
+    expect(dataRoot.pathTemplate, '/');
+    expect(dataRoot.builder(getRouteData(dataRoot)), rootRoute);
+    expect(dataRoot.pathParameters.isEmpty, isTrue);
+
+    final data1 = router.get('/one')!;
+    expect(data1.pathSegment, '/one');
+    expect(data1.pathTemplate, '/one');
+    expect(data1.builder(getRouteData(data1)), route1);
+    expect(data1.pathParameters.isEmpty, isTrue);
+
+    final data2 = router.get('/one/blah/test')!;
+    expect(routes[2].pathSegment, '/one/blah/test');
+    expect(routes[2].pathTemplate, '/one/*');
+    expect(routes[2].builder(getRouteData(data2)), route2);
+    expect(routes[2].pathParameters.isEmpty, isTrue);
+  });
+
+  test('Can get wildcard fallback', () {
+    final router = TrieRouter();
+    const rootRoute = TestRoute('root');
+    const route1 = TestRoute('one');
+    const route2 = TestRoute('two');
+
+    router.add('/', (_) => rootRoute);
+    router.add('/*', (_) => route2);
+    router.add('/one', (_) => route1);
+
+    final routes = router.getAll('/one/blah/test')!;
+    expect(routes.isEmpty, isFalse);
+
     // final dataRoot = router.get('/')!;
     // expect(dataRoot.pathSegment, '/');
     // expect(dataRoot.pathTemplate, '/');
@@ -461,8 +499,49 @@ void main() {
     // expect(data1.builder(getRouteData(data1)), route1);
     // expect(data1.pathParameters.isEmpty, isTrue);
 
-    expect(routes[2].pathSegment, '/one/blah/test');
-    expect(routes[2].pathTemplate, '/one/*');
+    // final data2 = router.get('/one/blah/test')!;
+    // expect(routes[2].pathSegment, '/one/blah/test');
+    // expect(routes[2].pathTemplate, '/one/*');
+    // expect(routes[2].builder(getRouteData(data2)), route2);
+    // expect(routes[2].pathParameters.isEmpty, isTrue);
+  });
+
+  test('Can use wildcard fallback with relative routes', () {
+    final router = TrieRouter();
+    const rootRoute = TestRoute('root');
+    const route1 = TestRoute('one');
+    const route2 = TestRoute('two');
+
+    // const relativeRouteOne = TestRoute('rel-one');
+    // const relativeRouteTwo = TestRoute('rel-two');
+
+    router.add('/', (_) => rootRoute);
+    router.add('/feed', (_) => route1);
+    router.add('/*', (_) {
+      return RelativeRouteMap(routes: {
+        'one': (_) => const MaterialPageOne(),
+        'two': (_) => const MaterialPageTwo(),
+      });
+    });
+
+    final routes = router.getAll('/feed/one/two')!;
+    expect(routes.isEmpty, isFalse);
+
+    // final dataRoot = router.get('/')!;
+    // expect(dataRoot.pathSegment, '/');
+    // expect(dataRoot.pathTemplate, '/');
+    // expect(dataRoot.builder(getRouteData(dataRoot)), rootRoute);
+    // expect(dataRoot.pathParameters.isEmpty, isTrue);
+
+    // final data1 = router.get('/one')!;
+    // expect(data1.pathSegment, '/one');
+    // expect(data1.pathTemplate, '/one');
+    // expect(data1.builder(getRouteData(data1)), route1);
+    // expect(data1.pathParameters.isEmpty, isTrue);
+
+    // final data2 = router.get('/one/blah/test')!;
+    // expect(routes[2].pathSegment, '/one/blah/test');
+    // expect(routes[2].pathTemplate, '/one/*');
     // expect(routes[2].builder(getRouteData(data2)), route2);
     // expect(routes[2].pathParameters.isEmpty, isTrue);
   });

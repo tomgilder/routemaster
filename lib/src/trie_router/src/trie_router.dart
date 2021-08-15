@@ -107,10 +107,10 @@ class TrieRouter {
         continue;
       }
 
-      final wildcardNode = current.getWhere((k) => k == '*');
+      final wildcardNode = current.get('*');
       if (wildcardNode != null) {
         current = wildcardNode;
-        continue;
+        break;
       }
 
       return null;
@@ -126,35 +126,70 @@ class TrieRouter {
 
   /// Returns all matching results from the router, or null if no match was
   /// found.
-  List<RouterResult>? getAll(String route) {
+  List<RouterResult>? getAll(
+    String route, {
+    String? prefix,
+    bool allowRelative = false,
+  }) {
+    final results = _getAll(
+      route,
+      prefix: prefix,
+      allowRelative: allowRelative,
+    );
+
+    final list = <RouterResult>[];
+    for (final result in results) {
+      if (result == null) {
+        // Route wasn't found
+        return null;
+      }
+
+      list.add(result);
+    }
+
+    if (list.isEmpty) {
+      return null;
+    }
+
+    return list;
+  }
+
+  Iterable<RouterResult?> _getAll(
+    String route, {
+    String? prefix,
+    bool allowRelative = false,
+  }) sync* {
+    print('_getAll: $route');
     final pathSegments = pathContext.split(PathParser.stripQueryString(route));
     final parameters = <String, String>{};
-    final result = <RouterResult>[];
 
-    void addToResult(int? count, TrieNode<String?, PageBuilder?> node) {
+    RouterResult buildResult(int? count, TrieNode<String?, PageBuilder?> node) {
       final p = pathContext.joinAll(
-        count == null ? pathSegments : pathSegments.take(count),
+        count == null ? pathSegments : pathSegments.take(count + 1),
       );
-      result.add(
-        RouterResult(
-          builder: node.value!,
-          pathParameters: Map.unmodifiable(parameters),
-          pathSegment: p,
-          pathTemplate: node.template!,
-        ),
+      return RouterResult(
+        builder: node.value!,
+        pathParameters: Map.unmodifiable(parameters),
+        pathSegment: prefix != null ? pathContext.join(prefix, p) : p,
+        pathTemplate: node.template!,
       );
     }
 
     var current = _trie.root;
-    var i = 0;
+    TrieNode<String?, PageBuilder?>? lastWildcard;
 
-    for (final segment in pathSegments) {
-      i++;
+    for (var i = 0; i < pathSegments.length; i++) {
+      final segment = pathSegments[i];
+
+      final wildcardNode = current.get('*');
+      if (wildcardNode != null) {
+        lastWildcard = wildcardNode;
+      }
 
       if (current.contains(segment)) {
         current = current.get(segment)!;
         if (current.value != null) {
-          addToResult(i, current);
+          yield buildResult(i, current);
         }
 
         continue;
@@ -170,25 +205,46 @@ class TrieRouter {
         parameters[current.key!.substring(1)] = segment;
 
         final nextSegment =
-            i < pathSegments.length - 1 ? pathSegments[i] : null;
+            i < pathSegments.length - 1 ? pathSegments[i + 1] : null;
         final nextSegmentIsParam = nextSegment?.startsWith(':') ?? false;
         if (!nextSegmentIsParam && current.value != null) {
-          addToResult(i, current);
+          yield buildResult(i, current);
         }
 
         continue;
       }
 
-      final wildcardNode = current.getWhere((k) => k == '*');
       if (wildcardNode != null) {
-        addToResult(null, wildcardNode);
-        return result;
+        yield buildResult(null, wildcardNode);
+        return;
+      }
+
+      if (allowRelative) {
+        final remaining = pathSegments.skip(i);
+        if (remaining.isEmpty) {
+          return;
+        }
+
+        final done = pathSegments.take(i);
+        final newPrefix = pathContext.join(prefix!, pathContext.joinAll(done));
+
+        yield* _getAll(
+          pathContext.joinAll(remaining),
+          prefix: newPrefix,
+          allowRelative: true,
+        );
+        return;
       }
 
       // Nothing found
-      return null;
-    }
+      if (lastWildcard != null) {
+        print('building lastWildcard');
+        yield buildResult(null, lastWildcard);
+        return;
+      }
 
-    return result;
+      yield null;
+      return;
+    }
   }
 }

@@ -51,7 +51,8 @@ class BrowserEmulatorRouteInfoProvider
   final _urlStack = Queue<RouteInformation>();
 
   @override
-  void routerReportsNewRouteInformation(RouteInformation routeInformation) {
+  void routerReportsNewRouteInformation(RouteInformation routeInformation,
+      {bool isNavigation = true}) {
     _urlStack.addLast(routeInformation);
     super.routerReportsNewRouteInformation(routeInformation);
   }

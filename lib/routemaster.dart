@@ -98,6 +98,69 @@ class RouteMap {
   }
 }
 
+@immutable
+class RelativeRouteMap extends RouteSettings {
+  final UnknownRouteCallback? _onUnknownRoute;
+
+  final _router = TrieRouter();
+
+  /// Creates a standard simple routing table which takes a map of routes.
+  ///
+  ///   * [routes] - a map of paths and [PageBuilder] delegates that return
+  ///     [Page] objects to build.
+  ///
+  ///   * [onUnknownRoute] - called when there's no match for a route.
+  ///     There are two general options for this callback's operation:
+  ///
+  ///       1. Return a page, which will be displayed.
+  ///
+  ///     or
+  ///
+  ///       2. Use the routing delegate to, for instance, redirect to another
+  ///          route and return null.
+  ///
+  RelativeRouteMap({
+    required Map<String, PageBuilder> routes,
+    UnknownRouteCallback? onUnknownRoute,
+  }) : _onUnknownRoute = onUnknownRoute {
+    _router.addAll(routes);
+  }
+
+  /// Generate a single [RouteResult] for the given [path]. Returns null if the
+  /// path isn't valid.
+  RouterResult? get(String path) {
+    return _router.get(path);
+  }
+
+  /// Generate all [RouteResult] objects required to build the navigation tree
+  /// for the given [path]. Returns null if the path isn't valid.
+  List<RouterResult>? getAll(String path, String prefix) {
+    return _router.getAll(path, prefix: prefix, allowRelative: true);
+  }
+
+  /// Called when there's no match for a route. By default this returns
+  /// [DefaultNotFoundPage], a simple page not found page.
+  ///
+  /// There are two general options for this callback's operation:
+  ///
+  ///   1. Return a page, which will be displayed.
+  ///
+  /// or
+  ///
+  ///   2. Use the routing delegate to, for instance, redirect to another route
+  ///      and return null.
+  ///
+  RouteSettings onUnknownRoute(String path) {
+    if (_onUnknownRoute != null) {
+      return _onUnknownRoute!(path);
+    }
+
+    return MaterialPage<void>(
+      child: DefaultNotFoundPage(path: path),
+    );
+  }
+}
+
 /// Provides access to router functionality.
 ///
 /// For example: `Routemaster.of(context).push('/path')`
@@ -630,11 +693,11 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     }
 
     var result = <PageWrapper>[];
-    var i = 0;
 
     // Loop through routes in reverse order
-    for (final routerData in routerResult.reversed) {
-      final isLastRoute = i++ == 0;
+    for (var i = routerResult.length - 1; i >= 0; i--) {
+      final routerData = routerResult[i];
+      final isLastRoute = (i == routerResult.length - 1);
 
       // Look the route up in the routing map
       final routeData = RouteData.fromRouterResult(
@@ -653,8 +716,32 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
       // Get a page wrapper object for the current route
       late final _PageResult current;
+
       if (isLastRoute) {
         final page = routerData.builder(routeData);
+        if (page is RelativeRouteMap) {
+          final relativeRouteMap = page;
+          final previousRoute = routerResult[i - 1];
+          final subPath = pathContext.relative(
+            requestedPath,
+            from: previousRoute.pathTemplate,
+          );
+
+          final subPages = relativeRouteMap.getAll(
+            subPath,
+            previousRoute.pathTemplate,
+          );
+
+          if (subPages == null) {
+            return _onUnknownRoute(request);
+          }
+
+          routerResult.remove(routerData);
+          routerResult.addAll(subPages);
+          i = routerResult.length;
+          continue;
+        }
+
         _assertIsPage(page, routeData.fullPath);
         current = _createPageWrapper(
           routeRequest: request,
@@ -663,11 +750,18 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           isLastRoute: true,
         );
       } else {
+        // if (page is RelativeRouteMap) {
+        //   // TODO: Is this needed?
+        //   continue;
+        // }
+
+        // Not last route
         current = _getOrCreatePageWrapper(
           routeRequest: request,
           routeData: routeData,
           currentRoutes: currentRoutes,
           routerResult: routerData,
+          // page: page as Page,
         );
       }
 
@@ -689,29 +783,28 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         }
       }
 
-      if (!isLastRoute) {
+      if (isLastRoute) {
         // We only follow redirects and not found for the last route
-        continue;
-      }
 
-      if (current is _NotFoundResult) {
-        return _onUnknownRoute(request);
-      }
-
-      if (current is _RedirectResult) {
-        if (kDebugMode) {
-          redirects = _debugCheckRedirectLoop(redirects, requestedPath);
+        if (current is _NotFoundResult) {
+          return _onUnknownRoute(request);
         }
 
-        return _createAllPageWrappers(
-          currentRoutes: currentRoutes,
-          redirects: redirects,
-          request: _RouteRequest(
-            uri: Uri.parse(current.redirectPath),
-            isReplacement: request.isReplacement,
-            requestSource: request.requestSource,
-          ),
-        );
+        if (current is _RedirectResult) {
+          if (kDebugMode) {
+            redirects = _debugCheckRedirectLoop(redirects, requestedPath);
+          }
+
+          return _createAllPageWrappers(
+            currentRoutes: currentRoutes,
+            redirects: redirects,
+            request: _RouteRequest(
+              uri: Uri.parse(current.redirectPath),
+              isReplacement: request.isReplacement,
+              requestSource: request.requestSource,
+            ),
+          );
+        }
       }
     }
 
