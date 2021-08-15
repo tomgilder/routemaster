@@ -331,6 +331,101 @@ void main() {
     await tester.pump();
     expect(find.text('Stack 2'), findsOneWidget);
   });
+
+  testWidgets('Can popUntil root', (tester) async {
+    final pageKey = GlobalKey();
+    final delegate = RoutemasterDelegate(routesBuilder: (context) {
+      return RouteMap(routes: {
+        '/': (_) => const MaterialPageOne(),
+        '/two': (info) => const MaterialPageTwo(),
+        '/two/three': (info) => MaterialPage<void>(
+              child: PageThree(key: pageKey),
+            ),
+      });
+    });
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    delegate.push('/two/three');
+    await tester.pumpPageTransition();
+
+    expect(find.byType(PageThree), findsOneWidget);
+
+    final popUntilRoutes = <RouteData>[];
+    await Routemaster.of(pageKey.currentContext!).popUntil((routeData) {
+      popUntilRoutes.add(routeData);
+      return routeData.path == '/';
+    });
+    await tester.pumpPageTransition();
+
+    expect(find.byType(PageOne), findsOneWidget);
+    expect(find.byType(PageThree), findsNothing);
+    expect(popUntilRoutes.length, 3);
+
+    expect(popUntilRoutes[0].path, '/two/three');
+    expect(popUntilRoutes[1].path, '/two');
+    expect(popUntilRoutes[2].path, '/');
+  });
+
+  testWidgets('popUntil stops at root', (tester) async {
+    final delegate = RoutemasterDelegate(routesBuilder: (context) {
+      return RouteMap(routes: {
+        '/': (_) => const MaterialPageOne(),
+        '/two': (info) => const MaterialPageTwo(),
+        '/two/three': (info) => const MaterialPageThree(),
+      });
+    });
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    delegate.push('/two/three');
+    await tester.pumpPageTransition();
+
+    expect(find.byType(PageThree), findsOneWidget);
+
+    await delegate.popUntil((routeData) => false);
+    await tester.pumpPageTransition();
+
+    expect(find.byType(PageOne), findsOneWidget);
+    expect(find.byType(PageThree), findsNothing);
+  });
+
+  testWidgets('popUntil that returns true does not pop', (tester) async {
+    final delegate = RoutemasterDelegate(routesBuilder: (context) {
+      return RouteMap(routes: {
+        '/': (_) => const MaterialPageOne(),
+        '/two': (info) => const MaterialPageTwo(),
+        '/two/three': (info) => const MaterialPageThree(),
+      });
+    });
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    delegate.push('/two/three');
+    await tester.pumpPageTransition();
+
+    expect(find.byType(PageThree), findsOneWidget);
+
+    await delegate.popUntil((routeData) => true);
+    await tester.pumpPageTransition();
+
+    expect(find.byType(PageThree), findsOneWidget);
+  });
 }
 
 class StackSwapPage extends StatefulWidget {

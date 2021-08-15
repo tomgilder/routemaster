@@ -103,7 +103,8 @@ class MaterialPageThree extends MaterialPage<void> {
 }
 
 class PageThree extends StatelessWidget {
-  const PageThree();
+  const PageThree({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return const SizedBox();

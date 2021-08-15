@@ -172,6 +172,12 @@ class PhotoPage extends StatelessWidget {
               onPressed: () => Routemaster.of(context).pop(),
               child: Text('Back'),
             ),
+            ElevatedButton(
+              onPressed: () => Routemaster.of(context).popUntil(
+                (routeData) => routeData.path == '/',
+              ),
+              child: Text('Pop until root'),
+            ),
           ],
         ),
       ),
