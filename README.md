@@ -54,19 +54,9 @@ There's also a [more advanced example](https://github.com/tomgilder/routemaster/
 
 I would love any feedback you have! Please create an issue for API feedback.
 
-## Migration from 0.7 to 0.8
+# Documentation
 
-* `StackNavigator` has been renamed `PageStackNavigator`.
-* `Guard` properties have been renamed: `validate` is now `canNavigate` and `onValidationFailed` is now `onNavigationFailed`.
-* Note: `Guard` is no longer recommended. It's cleaner to use logic in the route map, like this:
-
-    ```dart
-    '/protected-route': (route) {
-      if (!isLoggedIn()) return Redirect('/login');
-      if (!canUserAccessPage) return Redirect('/no-access');
-      return ProtectedPage();
-    }
-    ```
+Begin with the quick start below, but also see the [API reference](https://pub.dev/documentation/routemaster/latest/routemaster/routemaster-library.html), [wiki](https://github.com/tomgilder/routemaster/wiki) and [FAQs](https://github.com/tomgilder/routemaster/wiki/FAQs).
 ___
 
 <img src="https://openclipart.org/download/286938/Double-Decker-Bus.svg" width="80"> 

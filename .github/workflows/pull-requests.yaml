@@ -17,6 +17,11 @@ jobs:
       - run: flutter test --coverage
       - run: flutter test --platform chrome
       - run: integration_test_app/run.sh
+      - run: flutter channel master
+      - run: flutter upgrade
+      - run: flutter test
+      - run: flutter test --platform chrome
+      - run: integration_test_app/run.sh      
       - uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}

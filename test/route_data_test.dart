@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:routemaster/routemaster.dart';
-import 'package:routemaster/src/trie_router/trie_router.dart';
 import 'helpers.dart';
 import 'dart:convert';
 
@@ -12,14 +11,10 @@ MaterialPage<void> builder(RouteData info) {
 
 void main() {
   test('Provides correct path without query string', () {
-    final data = RouteData.fromRouterResult(
-      const RouterResult(
-        builder: builder,
-        pathParameters: {},
-        pathSegment: '/path',
-        pathTemplate: '/template',
-      ),
-      Uri.parse('/path'),
+    final data = RouteData(
+      '/path',
+      pathParameters: {},
+      pathTemplate: '/template',
       isReplacement: false,
       requestSource: RequestSource.system,
     );
@@ -29,14 +24,10 @@ void main() {
   });
 
   test('Provides correct path with query string', () {
-    final data = RouteData.fromRouterResult(
-      const RouterResult(
-        builder: builder,
-        pathParameters: {},
-        pathSegment: '/path',
-        pathTemplate: '/template',
-      ),
-      Uri.parse('/path?hello=world'),
+    final data = RouteData(
+      '/path?hello=world',
+      pathParameters: {},
+      pathTemplate: '/template',
       isReplacement: false,
       requestSource: RequestSource.system,
     );
@@ -46,25 +37,17 @@ void main() {
   });
 
   test('Route info with different paths are not equal', () {
-    final one = RouteData.fromRouterResult(
-      const RouterResult(
-        builder: builder,
-        pathParameters: {},
-        pathSegment: '/one',
-        pathTemplate: '/template',
-      ),
-      Uri.parse('/one/two'),
+    final one = RouteData(
+      '/one/two',
+      pathParameters: {},
+      pathTemplate: '/template',
       isReplacement: false,
       requestSource: RequestSource.system,
     );
-    final two = RouteData.fromRouterResult(
-      const RouterResult(
-        builder: builder,
-        pathParameters: {},
-        pathSegment: '/two',
-        pathTemplate: '/template',
-      ),
-      Uri.parse('/one'),
+    final two = RouteData(
+      '/one',
+      pathParameters: {},
+      pathTemplate: '/template',
       isReplacement: false,
       requestSource: RequestSource.system,
     );
@@ -74,25 +57,17 @@ void main() {
   });
 
   test('Route info with same paths are equal', () {
-    final one = RouteData.fromRouterResult(
-      const RouterResult(
-        builder: builder,
-        pathParameters: {},
-        pathSegment: '/',
-        pathTemplate: '/',
-      ),
-      Uri.parse('/'),
+    final one = RouteData(
+      '/',
+      pathParameters: {},
+      pathTemplate: '/',
       isReplacement: false,
       requestSource: RequestSource.system,
     );
-    final two = RouteData.fromRouterResult(
-      const RouterResult(
-        builder: builder,
-        pathParameters: {},
-        pathSegment: '/',
-        pathTemplate: '/',
-      ),
-      Uri.parse('/'),
+    final two = RouteData(
+      '/',
+      pathParameters: {},
+      pathTemplate: '/',
       isReplacement: false,
       requestSource: RequestSource.system,
     );
@@ -102,25 +77,17 @@ void main() {
   });
 
   test('Route info with different query strings are not equal', () {
-    final one = RouteData.fromRouterResult(
-      const RouterResult(
-        builder: builder,
-        pathParameters: {},
-        pathSegment: '/',
-        pathTemplate: '/',
-      ),
-      Uri.parse('/?a=b'),
+    final one = RouteData(
+      '/?a=b',
+      pathParameters: {},
+      pathTemplate: '/',
       isReplacement: false,
       requestSource: RequestSource.system,
     );
-    final two = RouteData.fromRouterResult(
-      const RouterResult(
-        builder: builder,
-        pathParameters: {},
-        pathSegment: '/',
-        pathTemplate: '/',
-      ),
-      Uri.parse('/'),
+    final two = RouteData(
+      '/',
+      pathParameters: {},
+      pathTemplate: '/',
       isReplacement: false,
       requestSource: RequestSource.system,
     );
@@ -130,25 +97,17 @@ void main() {
   });
 
   test('Route info with same query strings are equal', () {
-    final one = RouteData.fromRouterResult(
-      const RouterResult(
-        builder: builder,
-        pathParameters: {},
-        pathSegment: '/',
-        pathTemplate: '/',
-      ),
-      Uri.parse('/?a=b'),
+    final one = RouteData(
+      '/?a=b',
+      pathParameters: {},
+      pathTemplate: '/',
       isReplacement: false,
       requestSource: RequestSource.system,
     );
-    final two = RouteData.fromRouterResult(
-      const RouterResult(
-        builder: builder,
-        pathParameters: {},
-        pathSegment: '/',
-        pathTemplate: '/',
-      ),
-      Uri.parse('/?a=b'),
+    final two = RouteData(
+      '/?a=b',
+      pathParameters: {},
+      pathTemplate: '/',
       isReplacement: false,
       requestSource: RequestSource.system,
     );
@@ -158,25 +117,17 @@ void main() {
   });
 
   test('Route info with same path params are equal', () {
-    final one = RouteData.fromRouterResult(
-      const RouterResult(
-        builder: builder,
-        pathParameters: {'a': 'b'},
-        pathSegment: '/',
-        pathTemplate: '/',
-      ),
-      Uri.parse('/'),
+    final one = RouteData(
+      '/',
+      pathTemplate: '/',
+      pathParameters: {'a': 'b'},
       isReplacement: false,
       requestSource: RequestSource.system,
     );
-    final two = RouteData.fromRouterResult(
-      const RouterResult(
-        builder: builder,
-        pathParameters: {'a': 'b'},
-        pathSegment: '/',
-        pathTemplate: '/',
-      ),
-      Uri.parse('/'),
+    final two = RouteData(
+      '/',
+      pathParameters: {'a': 'b'},
+      pathTemplate: '/',
       isReplacement: false,
       requestSource: RequestSource.system,
     );

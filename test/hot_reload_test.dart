@@ -7,76 +7,59 @@ import 'helpers.dart';
 
 void main() {
   testWidgets('Hot reload stays on route', (tester) async {
-    await tester.pumpWidget(MyApp());
+    await recordUrlChanges((systemUrl) async {
+      await tester.pumpWidget(MyApp());
 
-    expect(find.byType(CupertinoTabBar), findsOneWidget);
+      expect(find.byType(CupertinoTabBar), findsOneWidget);
 
-    // Go to profile page
-    expect(
-      await recordUrlChanges(() async {
-        await tester.tap(find.text('Push page'));
-        await tester.pump();
-        await tester.pump(const Duration(seconds: 1));
-      }),
-      ['/feed/profile'],
-    );
+      // Go to profile page
+      await tester.tap(find.text('Push page'));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
 
-    expect(
-      find.byType(ProfilePage),
-      findsOneWidget,
-    );
+      expect(systemUrl.current, '/feed/profile');
+      expect(
+        find.byType(ProfilePage),
+        findsOneWidget,
+      );
 
-    expect(
-      await recordUrlChanges(() async {
-        unawaited(tester.binding.reassembleApplication());
-        await tester.pump();
+      unawaited(tester.binding.reassembleApplication());
+      await tester.pump();
 
-        expect(
-          find.byType(ProfilePage),
-          findsOneWidget,
-        );
-      }),
-      <String>[],
-    );
+      expect(
+        find.byType(ProfilePage),
+        findsOneWidget,
+      );
+    });
   });
 
   testWidgets('Can navigate after hot reload', (tester) async {
-    await tester.pumpWidget(MyApp());
-    unawaited(tester.binding.reassembleApplication());
-    await tester.pump();
+    await recordUrlChanges((systemUrl) async {
+      await tester.pumpWidget(MyApp());
+      unawaited(tester.binding.reassembleApplication());
+      await tester.pump();
 
-    expect(
-      await recordUrlChanges(() async {
-        await tester.tap(find.text('Push page'));
-        await tester.pump();
-        await tester.pump(const Duration(seconds: 1));
-      }),
-      ['/feed/profile'],
-    );
+      await tester.tap(find.text('Push page'));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
 
-    expect(find.byType(ProfilePage), findsOneWidget);
+      expect(systemUrl.current, '/feed/profile');
+      expect(find.byType(ProfilePage), findsOneWidget);
 
-    expect(
-      await recordUrlChanges(() async {
-        await tester.tap(find.byType(BackButton));
-        await tester.pump();
-        await tester.pump(const Duration(seconds: 1));
-      }),
-      ['/feed'],
-    );
+      await tester.tap(find.byType(BackButton));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
 
-    expect(find.byType(ProfilePage), findsNothing);
+      expect(systemUrl.current, '/feed');
+      expect(find.byType(ProfilePage), findsNothing);
 
-    expect(
-      await recordUrlChanges(() async {
-        await tester.tap(find.text('Push page'));
-        await tester.pump();
-        await tester.pump(const Duration(seconds: 1));
-      }),
-      ['/feed/profile'],
-    );
+      await tester.tap(find.text('Push page'));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
 
-    expect(find.byType(ProfilePage), findsOneWidget);
+      expect(systemUrl.current, '/feed/profile');
+      expect(find.byType(ProfilePage), findsOneWidget);
+    });
   });
 }
 

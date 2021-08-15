@@ -22,9 +22,10 @@ class TestRoute extends Page<void> {
 }
 
 RouteData getRouteData(RouterResult routerResult) {
-  return RouteData.fromRouterResult(
-    routerResult,
-    Uri(path: '/'),
+  return RouteData(
+    '/',
+    pathTemplate: routerResult.pathTemplate,
+    pathParameters: routerResult.pathParameters,
     isReplacement: false,
     requestSource: RequestSource.system,
   );
