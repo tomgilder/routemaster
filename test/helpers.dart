@@ -30,32 +30,35 @@ class MockHistoryProvider implements HistoryProvider {
   String hash = '#';
 }
 
+class SystemUrlTracker {
+  String? current;
+}
+
 /// Records changes in URL
-Future<List<String?>> recordUrlChanges(Future Function() callback) async {
-  final result = <String?>[];
-  final stackTraces = <StackTrace>[];
+Future<void> recordUrlChanges(
+    Future Function(SystemUrlTracker url) callback) async {
+  try {
+    final tracker = SystemUrlTracker();
+    final stackTraces = <StackTrace>[];
 
-  final webHistoryProvider = MockHistoryProvider((url) {
-    result.add(url);
-  });
+    SystemNav.historyProvider = MockHistoryProvider((url) {
+      tracker.current = url;
+    });
 
-  SystemNav.historyProvider = webHistoryProvider;
+    SystemChannels.navigation.setMockMethodCallHandler((call) async {
+      if (call.method == 'routeInformationUpdated') {
+        final location = call.arguments['location'] as String;
 
-  SystemChannels.navigation.setMockMethodCallHandler((call) async {
-    if (call.method == 'routeInformationUpdated') {
-      final location = call.arguments['location'] as String;
-      if (result.isNotEmpty && result.last == location) {
-        throw "Duplicate location recorded: '$location'.\n\nPrevious route was added from:\n\n${stackTraces.last}";
+        tracker.current = location;
+        stackTraces.add(StackTrace.current);
       }
-      result.add(location);
-      stackTraces.add(StackTrace.current);
-    }
-  });
+    });
 
-  await callback();
-  SystemChannels.navigation.setMockMethodCallHandler(null);
-  SystemNav.historyProvider = null;
-  return result;
+    await callback(tracker);
+  } finally {
+    SystemChannels.navigation.setMockMethodCallHandler(null);
+    SystemNav.historyProvider = null;
+  }
 }
 
 /// Simulates pressing the system back button

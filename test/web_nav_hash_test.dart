@@ -35,39 +35,38 @@ void main() {
   });
 
   testWidgets('Replaces URL when redirecting to tabs', (tester) async {
-    final routes1 = RouteMap(
-      routes: {'/': (_) => MaterialPage<void>(child: Container())},
-    );
+    await recordUrlChanges((systemUrl) async {
+      final routes1 = RouteMap(
+        routes: {'/': (_) => MaterialPage<void>(child: Container())},
+      );
 
-    final routes2 = RouteMap(
-      routes: {
-        '/': (_) => CupertinoTabPage(
-              child: Container(),
-              paths: const ['/one', '/two'],
-            ),
-        '/one': (_) => const MaterialPageOne(),
-        '/two': (_) => const MaterialPageTwo(),
-      },
-    );
+      final routes2 = RouteMap(
+        routes: {
+          '/': (_) => CupertinoTabPage(
+                child: Container(),
+                paths: const ['/one', '/two'],
+              ),
+          '/one': (_) => const MaterialPageOne(),
+          '/two': (_) => const MaterialPageTwo(),
+        },
+      );
 
-    expect(
-      await recordUrlChanges(() async {
-        await tester.pumpWidget(
-          MaterialApp.router(
-            routerDelegate: RoutemasterDelegate(routesBuilder: (_) => routes1),
-            routeInformationParser: const RoutemasterParser(),
-          ),
-        );
+      await tester.pumpWidget(
+        MaterialApp.router(
+          routerDelegate: RoutemasterDelegate(routesBuilder: (_) => routes1),
+          routeInformationParser: const RoutemasterParser(),
+        ),
+      );
+      expect(systemUrl.current, '/');
 
-        await tester.pumpWidget(
-          MaterialApp.router(
-            routerDelegate: RoutemasterDelegate(routesBuilder: (_) => routes2),
-            routeInformationParser: const RoutemasterParser(),
-          ),
-        );
-        await tester.pump();
-      }),
-      ['/', '/one'],
-    );
+      await tester.pumpWidget(
+        MaterialApp.router(
+          routerDelegate: RoutemasterDelegate(routesBuilder: (_) => routes2),
+          routeInformationParser: const RoutemasterParser(),
+        ),
+      );
+      await tester.pump();
+      expect(systemUrl.current, '/one');
+    });
   });
 }

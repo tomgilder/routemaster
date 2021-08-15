@@ -31,109 +31,103 @@ void main() {
   });
 
   testWidgets('Can show 404 page', (tester) async {
-    final delegate = RoutemasterDelegate(
-      routesBuilder: (_) => RouteMap(
-        onUnknownRoute: (_) {
-          return MaterialPage<void>(child: NotFoundPage());
-        },
-        routes: {
-          '/': (_) => const MaterialPageOne(),
-        },
-      ),
-    );
+    await recordUrlChanges((systemUrl) async {
+      final delegate = RoutemasterDelegate(
+        routesBuilder: (_) => RouteMap(
+          onUnknownRoute: (_) {
+            return MaterialPage<void>(child: NotFoundPage());
+          },
+          routes: {
+            '/': (_) => const MaterialPageOne(),
+          },
+        ),
+      );
 
-    await tester.pumpWidget(
-      MaterialApp.router(
-        routeInformationParser: const RoutemasterParser(),
-        routerDelegate: delegate,
-      ),
-    );
+      await tester.pumpWidget(
+        MaterialApp.router(
+          routeInformationParser: const RoutemasterParser(),
+          routerDelegate: delegate,
+        ),
+      );
 
-    expect(
-      await recordUrlChanges(() async {
-        delegate.push('/unknown/nonsense');
-        await tester.pump();
-        await tester.pump();
-        await tester.pump(const Duration(seconds: 1));
+      delegate.push('/unknown/nonsense');
+      await tester.pump();
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
 
-        expect(find.byType(NotFoundPage), findsOneWidget);
-      }),
-      ['/unknown/nonsense'],
-    );
+      expect(find.byType(NotFoundPage), findsOneWidget);
+
+      expect(systemUrl.current, '/unknown/nonsense');
+    });
   });
 
   testWidgets('Can redirect to 404 page', (tester) async {
-    final delegate = RoutemasterDelegate(
-      routesBuilder: (_) => RouteMap(
-        onUnknownRoute: (path) => const Redirect('/not-found'),
-        routes: {
-          '/': (_) => const MaterialPageOne(),
-          '/not-found': (_) => MaterialPage<void>(child: NotFoundPage()),
-        },
-      ),
-    );
+    await recordUrlChanges((systemUrl) async {
+      final delegate = RoutemasterDelegate(
+        routesBuilder: (_) => RouteMap(
+          onUnknownRoute: (path) => const Redirect('/not-found'),
+          routes: {
+            '/': (_) => const MaterialPageOne(),
+            '/not-found': (_) => MaterialPage<void>(child: NotFoundPage()),
+          },
+        ),
+      );
 
-    await tester.pumpWidget(
-      MaterialApp.router(
-        routeInformationParser: const RoutemasterParser(),
-        routerDelegate: delegate,
-      ),
-    );
+      await tester.pumpWidget(
+        MaterialApp.router(
+          routeInformationParser: const RoutemasterParser(),
+          routerDelegate: delegate,
+        ),
+      );
 
-    expect(
-      await recordUrlChanges(() async {
-        delegate.push('/unknown/nonsense');
-        await tester.pump();
-        await tester.pump();
-        await tester.pump(const Duration(seconds: 1));
+      delegate.push('/unknown/nonsense');
+      await tester.pump();
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
 
-        expect(find.byType(NotFoundPage), findsOneWidget);
-      }),
-      ['/not-found'],
-    );
+      expect(find.byType(NotFoundPage), findsOneWidget);
+
+      expect(systemUrl.current, '/not-found');
+    });
   });
 
   testWidgets('Can redirect to 404 stack', (tester) async {
-    final delegate = RoutemasterDelegate(
-      routesBuilder: (_) => RouteMap(
-        onUnknownRoute: (path) => const Redirect('/not-found/sub-page'),
-        routes: {
-          '/': (_) => const MaterialPageOne(),
-          '/not-found': (_) => const MaterialPageTwo(),
-          '/not-found/sub-page': (_) =>
-              MaterialPage<void>(child: NotFoundPage()),
-        },
-      ),
-    );
+    await recordUrlChanges((systemUrl) async {
+      final delegate = RoutemasterDelegate(
+        routesBuilder: (_) => RouteMap(
+          onUnknownRoute: (path) => const Redirect('/not-found/sub-page'),
+          routes: {
+            '/': (_) => const MaterialPageOne(),
+            '/not-found': (_) => const MaterialPageTwo(),
+            '/not-found/sub-page': (_) =>
+                MaterialPage<void>(child: NotFoundPage()),
+          },
+        ),
+      );
 
-    await tester.pumpWidget(
-      MaterialApp.router(
-        routeInformationParser: const RoutemasterParser(),
-        routerDelegate: delegate,
-      ),
-    );
+      await tester.pumpWidget(
+        MaterialApp.router(
+          routeInformationParser: const RoutemasterParser(),
+          routerDelegate: delegate,
+        ),
+      );
 
-    expect(
-      await recordUrlChanges(() async {
-        delegate.push('/unknown/nonsense');
-        await tester.pump();
-        await tester.pump();
-        await tester.pump(const Duration(seconds: 1));
+      delegate.push('/unknown/nonsense');
+      await tester.pump();
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
 
-        expect(find.byType(NotFoundPage), findsOneWidget);
-      }),
-      ['/not-found/sub-page'],
-    );
+      expect(find.byType(NotFoundPage), findsOneWidget);
 
-    expect(
-      await recordUrlChanges(() async {
-        await delegate.popRoute();
-        await tester.pump();
-        await tester.pump(const Duration(seconds: 1));
-        expect(find.byType(PageTwo), findsOneWidget);
-      }),
-      ['/not-found'],
-    );
+      expect(systemUrl.current, '/not-found/sub-page');
+
+      await delegate.popRoute();
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.byType(PageTwo), findsOneWidget);
+
+      expect(systemUrl.current, '/not-found');
+    });
   });
 }
 

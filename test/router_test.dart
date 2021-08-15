@@ -125,240 +125,218 @@ void main() {
   });
 
   testWidgets('Can push just a query string', (tester) async {
-    final delegate = RoutemasterDelegate(
-      routesBuilder: (_) => RouteMap(
-        routes: {
-          '/': (_) => const MaterialPageOne(),
-          '/two': (_) => const MaterialPageTwo(),
-        },
-      ),
-    );
+    await recordUrlChanges((systemUrl) async {
+      final delegate = RoutemasterDelegate(
+        routesBuilder: (_) => RouteMap(
+          routes: {
+            '/': (_) => const MaterialPageOne(),
+            '/two': (_) => const MaterialPageTwo(),
+          },
+        ),
+      );
 
-    await tester.pumpWidget(
-      MaterialApp.router(
-        routeInformationParser: const RoutemasterParser(),
-        routerDelegate: delegate,
-      ),
-    );
+      await tester.pumpWidget(
+        MaterialApp.router(
+          routeInformationParser: const RoutemasterParser(),
+          routerDelegate: delegate,
+        ),
+      );
 
-    expect(
-      await recordUrlChanges(() async {
-        delegate.push('?query=string');
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
-      }),
-      ['/?query=string'],
-    );
+      delegate.push('?query=string');
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
+
+      expect(systemUrl.current, '/?query=string');
+    });
   });
 
   testWidgets('Can replace just a query string', (tester) async {
-    final key = GlobalKey();
-    final delegate = RoutemasterDelegate(
-      routesBuilder: (_) => RouteMap(routes: {
-        '/': (_) => MaterialPage<void>(child: Container(key: key)),
-      }),
-    );
+    await recordUrlChanges((systemUrl) async {
+      final key = GlobalKey();
+      final delegate = RoutemasterDelegate(
+        routesBuilder: (_) => RouteMap(routes: {
+          '/': (_) => MaterialPage<void>(child: Container(key: key)),
+        }),
+      );
 
-    await tester.pumpWidget(
-      MaterialApp.router(
-        routeInformationParser: const RoutemasterParser(),
-        routerDelegate: delegate,
-      ),
-    );
+      await tester.pumpWidget(
+        MaterialApp.router(
+          routeInformationParser: const RoutemasterParser(),
+          routerDelegate: delegate,
+        ),
+      );
 
-    expect(
-      await recordUrlChanges(() async {
-        delegate.replace('?query=string');
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
-      }),
-      ['/?query=string'],
-    );
+      delegate.replace('?query=string');
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
 
-    expect(
-      RouteData.of(key.currentContext!).queryParameters['query'],
-      'string',
-    );
+      expect(systemUrl.current, '/?query=string');
+
+      expect(
+        RouteData.of(key.currentContext!).queryParameters['query'],
+        'string',
+      );
+    });
   });
 
   testWidgets('Can change query string and then go back', (tester) async {
-    final key = GlobalKey();
-    final delegate = RoutemasterDelegate(
-      routesBuilder: (_) => RouteMap(
-        routes: {
-          '/': (route) => MaterialPage<void>(
-                child: Scaffold(
-                  body: Text(
-                    'Query: ' + (route.queryParameters['q'] ?? ''),
-                    key: key,
+    await recordUrlChanges((systemUrl) async {
+      final key = GlobalKey();
+      final delegate = RoutemasterDelegate(
+        routesBuilder: (_) => RouteMap(
+          routes: {
+            '/': (route) => MaterialPage<void>(
+                  child: Scaffold(
+                    body: Text(
+                      'Query: ' + (route.queryParameters['q'] ?? ''),
+                      key: key,
+                    ),
                   ),
                 ),
-              ),
-          '/two': (_) => MaterialPage<void>(child: Scaffold(appBar: AppBar())),
-        },
-      ),
-    );
+            '/two': (_) =>
+                MaterialPage<void>(child: Scaffold(appBar: AppBar())),
+          },
+        ),
+      );
 
-    await tester.pumpWidget(
-      MaterialApp.router(
-        routeInformationParser: const RoutemasterParser(),
-        routerDelegate: delegate,
-      ),
-    );
+      await tester.pumpWidget(
+        MaterialApp.router(
+          routeInformationParser: const RoutemasterParser(),
+          routerDelegate: delegate,
+        ),
+      );
 
-    expect(
-      await recordUrlChanges(() async {
-        delegate.push('?q=string');
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
-      }),
-      ['/?q=string'],
-    );
+      delegate.push('?q=string');
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
 
-    expect(find.text('Query: string'), findsOneWidget);
-    expect(RouteData.of(key.currentContext!).queryParameters['q'], 'string');
+      expect(systemUrl.current, '/?q=string');
 
-    expect(
-      await recordUrlChanges(() async {
-        delegate.push('/two');
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
-      }),
-      ['/two'],
-    );
+      expect(find.text('Query: string'), findsOneWidget);
+      expect(RouteData.of(key.currentContext!).queryParameters['q'], 'string');
 
-    expect(
-      await recordUrlChanges(() async {
-        await tester.tap(find.byType(BackButton));
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
-      }),
-      ['/?q=string'],
-    );
+      delegate.push('/two');
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
 
-    expect(find.text('Query: string'), findsOneWidget);
-    expect(RouteData.of(key.currentContext!).queryParameters['q'], 'string');
+      expect(systemUrl.current, '/two');
+
+      await tester.tap(find.byType(BackButton));
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
+
+      expect(systemUrl.current, '/?q=string');
+
+      expect(find.text('Query: string'), findsOneWidget);
+      expect(RouteData.of(key.currentContext!).queryParameters['q'], 'string');
+    });
   });
 
   testWidgets('Can change query string and then go back with path ID',
       (tester) async {
-    final key = GlobalKey();
-    final delegate = RoutemasterDelegate(
-      routesBuilder: (_) => RouteMap(
-        routes: {
-          '/': (route) => const MaterialPageOne(),
-          '/:id': (route) => MaterialPage<void>(
-                child: Scaffold(
-                  body: Text(
-                    'Query: ' + (route.queryParameters['q'] ?? ''),
-                    key: key,
+    await recordUrlChanges((systemUrl) async {
+      final key = GlobalKey();
+      final delegate = RoutemasterDelegate(
+        routesBuilder: (_) => RouteMap(
+          routes: {
+            '/': (route) => const MaterialPageOne(),
+            '/:id': (route) => MaterialPage<void>(
+                  child: Scaffold(
+                    body: Text(
+                      'Query: ' + (route.queryParameters['q'] ?? ''),
+                      key: key,
+                    ),
                   ),
                 ),
-              ),
-          '/:id/two': (_) =>
-              MaterialPage<void>(child: Scaffold(appBar: AppBar())),
-        },
-      ),
-    );
+            '/:id/two': (_) =>
+                MaterialPage<void>(child: Scaffold(appBar: AppBar())),
+          },
+        ),
+      );
 
-    await tester.pumpWidget(
-      MaterialApp.router(
-        routeInformationParser: const RoutemasterParser(),
-        routerDelegate: delegate,
-      ),
-    );
+      await tester.pumpWidget(
+        MaterialApp.router(
+          routeInformationParser: const RoutemasterParser(),
+          routerDelegate: delegate,
+        ),
+      );
 
-    expect(
-      await recordUrlChanges(() async {
-        delegate.push('/id1?q=string');
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
-      }),
-      ['/id1?q=string'],
-    );
+      delegate.push('/id1?q=string');
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
 
-    expect(find.text('Query: string'), findsOneWidget);
-    expect(RouteData.of(key.currentContext!).queryParameters['q'], 'string');
+      expect(systemUrl.current, '/id1?q=string');
 
-    expect(
-      await recordUrlChanges(() async {
-        delegate.push('two');
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
-      }),
-      ['/id1/two'],
-    );
+      expect(find.text('Query: string'), findsOneWidget);
+      expect(RouteData.of(key.currentContext!).queryParameters['q'], 'string');
 
-    expect(
-      await recordUrlChanges(() async {
-        await tester.tap(find.byType(BackButton));
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
-      }),
-      ['/id1?q=string'],
-    );
+      delegate.push('two');
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
 
-    expect(find.text('Query: string'), findsOneWidget);
-    expect(RouteData.of(key.currentContext!).queryParameters['q'], 'string');
+      expect(systemUrl.current, '/id1/two');
+
+      await tester.tap(find.byType(BackButton));
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
+
+      expect(systemUrl.current, '/id1?q=string');
+
+      expect(find.text('Query: string'), findsOneWidget);
+      expect(RouteData.of(key.currentContext!).queryParameters['q'], 'string');
+    });
   });
 
   testWidgets('Can change query string and then go back with path ID',
       (tester) async {
-    final key = GlobalKey();
-    final delegate = RoutemasterDelegate(
-      routesBuilder: (_) => RouteMap(
-        routes: {
-          '/': (route) => const MaterialPageOne(),
-          '/:id': (route) => MaterialPage<void>(
-                child: Scaffold(
-                  body: Text(
-                    'Query: ' + (route.queryParameters['q'] ?? ''),
-                    key: key,
+    await recordUrlChanges((systemUrl) async {
+      final key = GlobalKey();
+      final delegate = RoutemasterDelegate(
+        routesBuilder: (_) => RouteMap(
+          routes: {
+            '/': (route) => const MaterialPageOne(),
+            '/:id': (route) => MaterialPage<void>(
+                  child: Scaffold(
+                    body: Text(
+                      'Query: ' + (route.queryParameters['q'] ?? ''),
+                      key: key,
+                    ),
                   ),
                 ),
-              ),
-          '/:id/two': (_) =>
-              MaterialPage<void>(child: Scaffold(appBar: AppBar())),
-        },
-      ),
-    );
+            '/:id/two': (_) =>
+                MaterialPage<void>(child: Scaffold(appBar: AppBar())),
+          },
+        ),
+      );
 
-    await tester.pumpWidget(
-      MaterialApp.router(
-        routeInformationParser: const RoutemasterParser(),
-        routerDelegate: delegate,
-      ),
-    );
+      await tester.pumpWidget(
+        MaterialApp.router(
+          routeInformationParser: const RoutemasterParser(),
+          routerDelegate: delegate,
+        ),
+      );
 
-    expect(
-      await recordUrlChanges(() async {
-        delegate.push('/id1?q=string');
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
-      }),
-      ['/id1?q=string'],
-    );
+      delegate.push('/id1?q=string');
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
 
-    expect(find.text('Query: string'), findsOneWidget);
-    expect(RouteData.of(key.currentContext!).queryParameters['q'], 'string');
+      expect(systemUrl.current, '/id1?q=string');
 
-    expect(
-      await recordUrlChanges(() async {
-        delegate.push('/id2/two');
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
-      }),
-      ['/id2/two'],
-    );
+      expect(find.text('Query: string'), findsOneWidget);
+      expect(RouteData.of(key.currentContext!).queryParameters['q'], 'string');
 
-    expect(
-      await recordUrlChanges(() async {
-        await tester.tap(find.byType(BackButton));
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
-      }),
-      ['/id2'],
-    );
+      delegate.push('/id2/two');
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
+
+      expect(systemUrl.current, '/id2/two');
+
+      await tester.tap(find.byType(BackButton));
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
+
+      expect(systemUrl.current, '/id2');
+    });
   });
 
   testWidgets('Query parameters update when system URL set', (tester) async {
