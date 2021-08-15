@@ -24,6 +24,12 @@
             "type": "dart",
             "request": "launch",
             "program": "example/deep_linking/lib/main.dart"
-        }
+        },
+        {
+            "name": "Integration test",
+            "type": "dart",
+            "request": "launch",
+            "program": "integration_test_app/lib/main.dart"
+        },
     ]
 }
