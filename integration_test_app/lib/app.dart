@@ -5,29 +5,32 @@ import 'package:flutter/material.dart';
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      routeInformationParser: const RoutemasterParser(),
-      routerDelegate: RoutemasterDelegate(
-        routesBuilder: (BuildContext context) {
-          return RouteMap(
-            routes: {
-              '/': (_) => const MaterialPage<void>(child: HomePage()),
-              '/one': (_) => const MaterialPage<void>(child: PageOne()),
-              '/two': (_) => const MaterialPage<void>(child: PageTwo()),
-              '/tabs': (_) => const CupertinoTabPage(
-                    paths: const ['/tabs/one', '/tabs/two'],
-                    child: TabbedPage(),
-                  ),
-              '/tabs/one': (_) => const MaterialPage<void>(child: PageOne()),
-              '/tabs/two': (_) => const MaterialPage<void>(child: PageTwo()),
-              '/_private': (route) => MaterialPage<void>(
-                    child: PrivatePage(
-                      message: route.queryParameters['message'],
+    // ExcludeSemantics is a work-around for a bug in Flutter web engine
+    return ExcludeSemantics(
+      child: MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: RoutemasterDelegate(
+          routesBuilder: (BuildContext context) {
+            return RouteMap(
+              routes: {
+                '/': (_) => const MaterialPage<void>(child: HomePage()),
+                '/one': (_) => const MaterialPage<void>(child: PageOne()),
+                '/two': (_) => const MaterialPage<void>(child: PageTwo()),
+                '/tabs': (_) => const CupertinoTabPage(
+                      paths: const ['/tabs/one', '/tabs/two'],
+                      child: TabbedPage(),
                     ),
-                  ),
-            },
-          );
-        },
+                '/tabs/one': (_) => const MaterialPage<void>(child: PageOne()),
+                '/tabs/two': (_) => const MaterialPage<void>(child: PageTwo()),
+                '/_private': (route) => MaterialPage<void>(
+                      child: PrivatePage(
+                        message: route.queryParameters['message'],
+                      ),
+                    ),
+              },
+            );
+          },
+        ),
       ),
     );
   }
