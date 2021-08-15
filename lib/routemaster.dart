@@ -636,7 +636,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       final isLastRoute = i++ == 0;
 
       // Look the route up in the routing map
-      final routeData = RouteData.fromRouterResult(
+      final routeData = RouteData._fromRouterResult(
         routerData,
         // Only the last route gets query parameters
         isLastRoute ? request.uri : Uri(path: routerData.pathSegment),
@@ -769,7 +769,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     final routerResult = _state.routeMap!.get(requestedPath);
     if (routerResult != null) {
-      final routeData = RouteData.fromRouterResult(
+      final routeData = RouteData._fromRouterResult(
         routerResult,
         Uri.parse(requestedPath),
         isReplacement: routeRequest.isReplacement,
@@ -900,7 +900,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     // Return 404 page
     return [
       PageWrapper.fromPage(
-        routeData: RouteData.fromUri(
+        routeData: RouteData._fromUri(
           requestedPath,
           isReplacement: routeRequest.isReplacement,
           pathTemplate: null,

@@ -80,7 +80,7 @@ class RouteData {
         _privateSegmentIndex = _getPrivateSegmentIndex(pathTemplate);
 
   /// Initializes routing data from a [Uri].
-  RouteData.fromUri(
+  RouteData._fromUri(
     Uri uri, {
     required this.pathTemplate,
     this.pathParameters = const {},
@@ -90,7 +90,7 @@ class RouteData {
         _privateSegmentIndex = _getPrivateSegmentIndex(pathTemplate);
 
   /// Initializes routing data from the provided router result.
-  RouteData.fromRouterResult(
+  RouteData._fromRouterResult(
     RouterResult result,
     Uri uri, {
     required this.requestSource,
