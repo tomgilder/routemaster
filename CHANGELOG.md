@@ -1,3 +1,7 @@
+# 0.10.0-dev3
+
+* Added: `popUntil` to pop multiple times with a predicate.
+
 # 0.10.0-dev2
 
 * Added: `TransitionPage` and `TransitionBuilderPage` to make it much easier to

@@ -150,6 +150,13 @@ class Routemaster {
     return _delegate.pop(value);
   }
 
+  /// Calls [pop] repeatedly whilst the [predicate] function returns true.
+  ///
+  /// If [predicate] immediately returns false, pop won't be called.
+  Future<void> popUntil(bool Function(RouteData routeData) predicate) {
+    return _delegate.popUntil(predicate);
+  }
+
   /// Replaces the current route with [path].
   ///
   /// If the given [path] starts with a forward slash, it's treated as an
@@ -302,6 +309,18 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       _markNeedsUpdate();
     }
     return popResult;
+  }
+
+  /// Calls [pop] repeatedly whilst the [predicate] function returns true.
+  ///
+  /// If [predicate] immediately returns false, pop won't be called.
+  Future<void> popUntil(bool Function(RouteData routeData) predicate) async {
+    do {
+      final currentPages = _state.stack._getCurrentPages();
+      if (currentPages.isEmpty || predicate(currentPages.last.routeData)) {
+        return;
+      }
+    } while (await _state.stack.maybePop());
   }
 
   /// Pushes [path] into the navigation tree.
