@@ -150,7 +150,9 @@ class Routemaster {
     return _delegate.pop(value);
   }
 
-  /// Calls [pop] repeatedly until the predicate returns true.
+  /// Calls [pop] repeatedly whilst the [predicate] function returns true.
+  ///
+  /// If [predicate] immediately returns false, pop won't be called.
   Future<void> popUntil(bool Function(RouteData routeData) predicate) {
     return _delegate.popUntil(predicate);
   }
@@ -309,7 +311,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return popResult;
   }
 
-  /// Calls [pop] repeatedly until the predicate returns true.
+  /// Calls [pop] repeatedly whilst the [predicate] function returns true.
+  ///
+  /// If [predicate] immediately returns false, pop won't be called.
   Future<void> popUntil(bool Function(RouteData routeData) predicate) async {
     do {
       final currentPages = _state.stack._getCurrentPages();
