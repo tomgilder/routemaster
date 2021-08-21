@@ -44,38 +44,41 @@ Future<void> setSystemUrl(String url) {
 /// Allows us to emulate the behavior of a web browser by storing a simple
 /// stack of routes and popping them, reproducing the same behavior as a user
 /// clicking a browser back button.
-class BrowserEmulatorRouteInfoProvider
-    extends PlatformRouteInformationProvider {
-  BrowserEmulatorRouteInfoProvider({
-    RouteInformation? initialRouteInformation,
-  }) : super(
-          initialRouteInformation: initialRouteInformation ??
-              RouteInformation(
-                location: '/',
-              ),
-        );
+/// 
+/// Skipped due to API changing in Flutter master
+// class BrowserEmulatorRouteInfoProvider
+//     extends PlatformRouteInformationProvider {
+//   BrowserEmulatorRouteInfoProvider({
+//     RouteInformation? initialRouteInformation,
+//   }) : super(
+//           initialRouteInformation: initialRouteInformation ??
+//               RouteInformation(
+//                 location: '/',
+//               ),
+//         );
 
-  final _urlStack = Queue<RouteInformation>();
+//   final _urlStack = Queue<RouteInformation>();
 
-  @override
-  void routerReportsNewRouteInformation(RouteInformation routeInformation,
-      {bool isNavigation = true}) {
-    _urlStack.addLast(routeInformation);
-    super.routerReportsNewRouteInformation(routeInformation);
-  }
+//   @override
+//   void routerReportsNewRouteInformation(RouteInformation routeInformation,
+//       {dynamic isNavigation}) {
+//     _urlStack.addLast(routeInformation);
+//     super.routerReportsNewRouteInformation(routeInformation);
+//   }
 
-  @override
-  Future<bool> didPushRoute(String route) async {
-    final result = await super.didPushRoute(route);
-    if (result) {
-      _urlStack.addLast(RouteInformation(location: route));
-    }
-    return result;
-  }
+//   @override
+//   Future<bool> didPushRoute(String route) async {
+//     final result = await super.didPushRoute(route);
+//     if (result) {
+//       _urlStack.addLast(RouteInformation(location: route));
+//     }
 
-  /// Pops the current URL, as if the user clicked the browser's back button.
-  void pop() {
-    _urlStack.removeLast();
-    this.didPushRouteInformation(_urlStack.last);
-  }
-}
+//     return result;
+//   }
+
+//   /// Pops the current URL, as if the user clicked the browser's back button.
+//   void pop() {
+//     _urlStack.removeLast();
+//     this.didPushRouteInformation(_urlStack.last);
+//   }
+// }
