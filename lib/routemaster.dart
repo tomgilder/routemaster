@@ -102,9 +102,14 @@ class RouteMap {
 /// For example: `Routemaster.of(context).push('/path')`
 class Routemaster {
   // The current router delegate. This can change if the delegate is recreated.
-  late RoutemasterDelegate _delegate;
+  late final _RoutemasterState _state;
+  final BuildContext? _context;
 
-  Routemaster._();
+  Routemaster._({
+    required _RoutemasterState state,
+    BuildContext? context,
+  })  : _context = context,
+        _state = state;
 
   /// Uses [PathUrlStrategy] on the web, which removes hashes from URLs. This
   /// must be called at app startup, before `runApp` is called.
@@ -137,24 +142,24 @@ class Routemaster {
       "Couldn't get a Routemaster object from the given context.",
     );
 
-    return widget!.routemaster;
+    return widget!.routemaster._copyWith(context: context);
   }
 
   /// The current global route.
-  RouteData get currentRoute => _delegate.currentConfiguration!;
+  RouteData get currentRoute => _state.delegate.currentConfiguration!;
 
   /// Pops the current route from the router. Returns `true` if the pop was
   /// successful, or `false` if it wasn't.
   @optionalTypeArgs
   Future<bool> pop<T extends Object?>([T? value]) {
-    return _delegate.pop(value);
+    return _state.delegate.pop(value);
   }
 
   /// Calls [pop] repeatedly whilst the [predicate] function returns true.
   ///
   /// If [predicate] immediately returns false, pop won't be called.
   Future<void> popUntil(bool Function(RouteData routeData) predicate) {
-    return _delegate.popUntil(predicate);
+    return _state.delegate.popUntil(predicate);
   }
 
   /// Replaces the current route with [path].
@@ -174,7 +179,24 @@ class Routemaster {
   ///     you'll navigate to '/home'.
   ///
   void replace(String path, {Map<String, String>? queryParameters}) {
-    _delegate.replace(path, queryParameters: queryParameters);
+    if (_context != null) {
+      final routeData = RouteData.maybeOf(_context!);
+      if (routeData != null) {
+        // Use context route data for relative path
+        _state.delegate._replaceUri(
+          PathParser.getAbsolutePath(
+            basePath: routeData.fullPath,
+            path: path,
+            queryParameters: queryParameters,
+          ),
+          queryParameters: queryParameters,
+        );
+
+        return;
+      }
+    }
+
+    _state.delegate.replace(path, queryParameters: queryParameters);
   }
 
   /// Pushes [path] into the navigation tree.
@@ -198,7 +220,29 @@ class Routemaster {
     String path, {
     Map<String, String>? queryParameters,
   }) {
-    return _delegate.push<T>(path, queryParameters: queryParameters);
+    if (_context != null) {
+      final routeData = RouteData.maybeOf(_context!);
+      if (routeData != null) {
+        // Use context route data for relative path
+        return _state.delegate._pushUri<T>(
+          PathParser.getAbsolutePath(
+            basePath: routeData.fullPath,
+            path: path,
+            queryParameters: queryParameters,
+          ),
+          queryParameters: queryParameters,
+        );
+      }
+    }
+
+    return _state.delegate.push<T>(path, queryParameters: queryParameters);
+  }
+
+  Routemaster _copyWith({required BuildContext context}) {
+    return Routemaster._(
+      context: context,
+      state: _state,
+    );
   }
 }
 
@@ -265,7 +309,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     this.transitionDelegate,
     this.observers = const [],
   }) : navigatorBuilder = null {
-    _state.routemaster._delegate = this;
+    _state.delegate = this;
   }
 
   /// Initializes the delegate with a custom [PageStackNavigator] builder via
@@ -276,7 +320,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     required this.navigatorBuilder,
     this.observers = const [],
   }) : transitionDelegate = null {
-    _state.routemaster._delegate = this;
+    _state.delegate = this;
   }
 
   /// Disposes the delegate. The delegate must not be used once this method has
@@ -331,18 +375,29 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   ///     created page.
   ///
   @optionalTypeArgs
-  NavigationResult<T> push<T extends Object?>(String path,
-      {Map<String, String>? queryParameters}) {
+  NavigationResult<T> push<T extends Object?>(
+    String path, {
+    Map<String, String>? queryParameters,
+  }) {
+    return _pushUri(
+      PathParser.getAbsolutePath(
+        basePath: currentConfiguration!.fullPath,
+        path: path,
+        queryParameters: queryParameters,
+      ),
+    );
+  }
+
+  NavigationResult<T> _pushUri<T extends Object?>(
+    Uri uri, {
+    Map<String, String>? queryParameters,
+  }) {
     assert(!_isDisposed);
 
     final result = NavigationResult<T>._();
 
     _navigate(
-      uri: PathParser.getAbsolutePath(
-        basePath: currentConfiguration!.fullPath,
-        path: path,
-        queryParameters: queryParameters,
-      ),
+      uri: uri,
       queryParameters: queryParameters,
       isReplacement: false,
       navigationResult: result,
@@ -363,12 +418,20 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   void replace(String path, {Map<String, String>? queryParameters}) {
     assert(!_isDisposed);
 
-    _navigate(
-      uri: PathParser.getAbsolutePath(
+    _replaceUri(
+      PathParser.getAbsolutePath(
         basePath: currentConfiguration!.fullPath,
         path: path,
         queryParameters: queryParameters,
       ),
+    );
+  }
+
+  void _replaceUri(Uri uri, {Map<String, String>? queryParameters}) {
+    assert(!_isDisposed);
+
+    _navigate(
+      uri: uri,
       queryParameters: queryParameters,
       isReplacement: true,
       requestSource: RequestSource.internal,
@@ -982,7 +1045,7 @@ class _PushObserver extends NavigatorObserver {
 
   @override
   void didPush(Route route, Route? previousRoute) {
-    routemaster._delegate._didPush(route);
+    routemaster._state.delegate._didPush(route);
   }
 }
 
@@ -1006,11 +1069,12 @@ class _RoutemasterWidget extends InheritedWidget {
 /// Maintains the router's state so [RoutemasterDelegate] can be replaced but
 /// still maintain its state.
 class _RoutemasterState {
-  final routemaster = Routemaster._();
+  late final routemaster = Routemaster._(state: this);
   final stack = PageStack();
   RouteMap? routeMap;
   RouteData? currentConfiguration;
   _RouteRequest? pendingNavigation;
+  late RoutemasterDelegate delegate;
 
   late _PushObserver pushObserver = _PushObserver(routemaster);
 }
@@ -1053,7 +1117,7 @@ class _RoutemasterStateTrackerState extends State<_RoutemasterStateTracker> {
     if (oldDelegate != newDelegate) {
       // Update new delegate's state from old delegate's state
       newDelegate._state = oldDelegate._state;
-      newDelegate._state.routemaster._delegate = newDelegate;
+      newDelegate._state.delegate = newDelegate;
 
       newDelegate._rebuildRouter(context);
 
@@ -1200,7 +1264,7 @@ class PageStackNavigatorState extends State<PageStackNavigator> {
   }
 
   void _updateDelegate() {
-    _routemaster._delegate._markNeedsUpdate();
+    _routemaster._state.delegate._markNeedsUpdate();
   }
 
   void _updateNavigator() {
@@ -1218,9 +1282,11 @@ class PageStackNavigatorState extends State<PageStackNavigator> {
       observers: [
         _RelayingNavigatorObserver(
           () sync* {
+            final delegate = _routemaster._state.delegate;
+
             yield* widget.observers;
-            yield* _routemaster._delegate.observers;
-            yield _routemaster._delegate._state.pushObserver;
+            yield* delegate.observers;
+            yield delegate._state.pushObserver;
           },
         )
       ],
