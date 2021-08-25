@@ -13,7 +13,7 @@ void main() {
     });
 
     final result = relativeMap.getAll('one/two/three', '/base');
-    expect(result!.length, 4);
+    expect(result!.length, 3);
   });
 
   test('Can get relative routes 2', () {

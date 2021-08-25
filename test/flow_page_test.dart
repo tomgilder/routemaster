@@ -32,113 +32,85 @@ final flowApp = MaterialApp.router(
 
 void main() {
   testWidgets('Can step through flow and close it', (tester) async {
-    await tester.pumpWidget(flowApp);
+    await recordUrlChanges((systemUrl) async {
+      await tester.pumpWidget(flowApp);
 
-    expect(
-      await recordUrlChanges(() async {
-        Routemaster.of(rootPageKey.currentContext!).push('/flow/one');
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
+      Routemaster.of(rootPageKey.currentContext!).push('/flow/one');
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
 
-        expect(find.byType(FlowPageOne), findsOneWidget);
-      }),
-      ['/flow/one'],
-    );
+      expect(find.byType(FlowPageOne), findsOneWidget);
+      expect(systemUrl.current, '/flow/one');
 
-    expect(
-      await recordUrlChanges(() async {
-        FlowPage.of(flowPageOneKey.currentContext!).pushNext();
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
-        expect(find.byType(FlowPageTwo), findsOneWidget);
-      }),
-      ['/flow/two'],
-    );
+      FlowPage.of(flowPageOneKey.currentContext!).pushNext();
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
+      expect(find.byType(FlowPageTwo), findsOneWidget);
+      expect(systemUrl.current, '/flow/two');
 
-    expect(
-      await recordUrlChanges(() async {
-        Routemaster.of(flowPageOneKey.currentContext!).push('/');
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
+      Routemaster.of(flowPageOneKey.currentContext!).push('/');
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
 
-        expect(find.byType(FlowPageTwo), findsNothing);
-      }),
-      ['/'],
-    );
+      expect(find.byType(FlowPageTwo), findsNothing);
+      expect(systemUrl.current, '/');
+    });
   });
 
   testWidgets('Can open flow via root flow page path', (tester) async {
     await tester.pumpWidget(flowApp);
-    expect(
-      await recordUrlChanges(() async {
-        Routemaster.of(rootPageKey.currentContext!).push('/flow');
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
-        expect(find.byType(FlowPageOne), findsOneWidget);
-      }),
-      ['/flow/one'],
-    );
+    await recordUrlChanges((systemUrl) async {
+      Routemaster.of(rootPageKey.currentContext!).push('/flow');
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
+      expect(find.byType(FlowPageOne), findsOneWidget);
+      expect(systemUrl.current, '/flow/one');
+    });
   });
 
   testWidgets('Can open flow at end and pop backwards', (tester) async {
     await tester.pumpWidget(flowApp);
 
-    expect(
-      await recordUrlChanges(() async {
-        Routemaster.of(rootPageKey.currentContext!).push('/flow/two');
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
+    await recordUrlChanges((systemUrl) async {
+      Routemaster.of(rootPageKey.currentContext!).push('/flow/two');
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
 
-        expect(find.byType(FlowPageTwo), findsOneWidget);
-      }),
-      ['/flow/two'],
-    );
+      expect(find.byType(FlowPageTwo), findsOneWidget);
+      expect(systemUrl.current, '/flow/two');
 
-    expect(
-      await recordUrlChanges(() async {
-        FlowPage.of(flowPageOneKey.currentContext!).pop();
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
-        expect(find.byType(FlowPageOne), findsOneWidget);
-      }),
-      ['/flow/one'],
-    );
+      FlowPage.of(flowPageOneKey.currentContext!).pop();
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
+      expect(find.byType(FlowPageOne), findsOneWidget);
+      expect(systemUrl.current, '/flow/one');
 
-    expect(
-      await recordUrlChanges(() async {
-        Routemaster.of(flowPageOneKey.currentContext!).push('/');
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
+      Routemaster.of(flowPageOneKey.currentContext!).push('/');
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
 
-        expect(find.byType(FlowPageTwo), findsNothing);
-      }),
-      ['/'],
-    );
+      expect(find.byType(FlowPageTwo), findsNothing);
+      expect(systemUrl.current, '/');
+    });
   });
 
   testWidgets('Back button pops flow', (tester) async {
     await tester.pumpWidget(flowApp);
 
-    expect(
-      await recordUrlChanges(() async {
-        Routemaster.of(rootPageKey.currentContext!).push('/flow/two');
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
+    await recordUrlChanges((systemUrl) async {
+      Routemaster.of(rootPageKey.currentContext!).push('/flow/two');
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
 
-        expect(find.byType(FlowPageTwo), findsOneWidget);
-      }),
-      ['/flow/two'],
-    );
+      expect(find.byType(FlowPageTwo), findsOneWidget);
+      expect(systemUrl.current, '/flow/two');
 
-    expect(
-      await recordUrlChanges(() async {
-        await invokeSystemBack();
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
-        expect(find.byType(FlowPageOne), findsOneWidget);
-      }),
-      ['/flow/one'],
-    );
+      await invokeSystemBack();
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
+      expect(find.byType(FlowPageOne), findsOneWidget);
+      expect(systemUrl.current, '/flow/one');
+    });
   });
 
   testWidgets('Can specify absolute paths for flow', (tester) async {
@@ -163,38 +135,27 @@ void main() {
         ),
       ),
     ));
+    await recordUrlChanges((systemUrl) async {
+      Routemaster.of(rootPageKey.currentContext!).push('/flow');
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
 
-    expect(
-      await recordUrlChanges(() async {
-        Routemaster.of(rootPageKey.currentContext!).push('/flow');
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
+      expect(find.byType(FlowPageOne), findsOneWidget);
+      expect(systemUrl.current, '/flow/one');
 
-        expect(find.byType(FlowPageOne), findsOneWidget);
-      }),
-      ['/flow/one'],
-    );
+      FlowPage.of(flowPageOneKey.currentContext!).pushNext();
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
+      expect(find.byType(FlowPageTwo), findsOneWidget);
+      expect(systemUrl.current, '/flow/two');
 
-    expect(
-      await recordUrlChanges(() async {
-        FlowPage.of(flowPageOneKey.currentContext!).pushNext();
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
-        expect(find.byType(FlowPageTwo), findsOneWidget);
-      }),
-      ['/flow/two'],
-    );
+      Routemaster.of(flowPageOneKey.currentContext!).push('/');
+      await tester.pump();
+      await tester.pump(kTransitionDuration);
 
-    expect(
-      await recordUrlChanges(() async {
-        Routemaster.of(flowPageOneKey.currentContext!).push('/');
-        await tester.pump();
-        await tester.pump(kTransitionDuration);
-
-        expect(find.byType(FlowPageTwo), findsNothing);
-      }),
-      ['/'],
-    );
+      expect(find.byType(FlowPageTwo), findsNothing);
+      expect(systemUrl.current, '/');
+    });
   });
 }
 

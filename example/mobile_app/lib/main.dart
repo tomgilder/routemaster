@@ -194,15 +194,12 @@ RouteMap _buildRouteMap(AppState appState) {
       '/submap/*': (_) {
         return RelativeRouteMap(
           routes: {
-            'one': (_) => MaterialPage(
-                  child: MessagePage(message: 'Subpage one'),
-                ),
-            'one/two': (_) => MaterialPage(
-                  child: MessagePage(message: 'Subpage two'),
-                ),
-            'one/two/three': (_) => MaterialPage(
-                  child: MessagePage(message: 'Subpage three'),
-                ),
+            'one': (_) =>
+                MaterialPage(child: MessagePage(message: 'Subpage one')),
+            'one/two': (_) =>
+                MaterialPage(child: MessagePage(message: 'Subpage two')),
+            'one/two/three': (_) =>
+                MaterialPage(child: MessagePage(message: 'Subpage three')),
           },
         );
       },
