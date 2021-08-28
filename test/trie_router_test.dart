@@ -42,19 +42,19 @@ void main() {
     router.add('/one', (_) => route1);
     router.add('/one/two', (_) => route2);
 
-    final dataRoot = router.get('/')!;
+    final dataRoot = router.getAll('/')!.last;
     expect(dataRoot.pathSegment, '/');
     expect(dataRoot.pathTemplate, '/');
     expect(dataRoot.builder(getRouteData(dataRoot)), rootRoute);
     expect(dataRoot.pathParameters.isEmpty, isTrue);
 
-    final data1 = router.get('/one')!;
+    final data1 = router.getAll('/one')!.last;
     expect(data1.pathSegment, '/one');
     expect(data1.pathTemplate, '/one');
     expect(data1.builder(getRouteData(data1)), route1);
     expect(data1.pathParameters.isEmpty, isTrue);
 
-    final data2 = router.get('/one/two')!;
+    final data2 = router.getAll('/one/two')!.last;
     expect(data2.pathSegment, '/one/two');
     expect(data2.pathTemplate, '/one/two');
     expect(data2.builder(getRouteData(data2)), route2);
@@ -69,13 +69,13 @@ void main() {
     router.add('/one/two', (_) => route2);
     router.add('/one', (_) => route1);
 
-    final data1 = router.get('/one')!;
+    final data1 = router.getAll('/one')!.last;
     expect(data1.pathSegment, '/one');
     expect(data1.pathTemplate, '/one');
     expect(data1.builder(getRouteData(data1)), route1);
     expect(data1.pathParameters.isEmpty, isTrue);
 
-    final data2 = router.get('/one/two')!;
+    final data2 = router.getAll('/one/two')!.last;
     expect(data2.pathSegment, '/one/two');
     expect(data2.pathTemplate, '/one/two');
     expect(data2.builder(getRouteData(data2)), route2);
@@ -92,19 +92,19 @@ void main() {
     router.add('/one', (_) => route1);
     router.add('/', (_) => rootRoute);
 
-    final dataRoot = router.get('/')!;
+    final dataRoot = router.getAll('/')!.last;
     expect(dataRoot.pathSegment, '/');
     expect(dataRoot.pathTemplate, '/');
     expect(dataRoot.builder(getRouteData(dataRoot)), rootRoute);
     expect(dataRoot.pathParameters.isEmpty, isTrue);
 
-    final data1 = router.get('/one')!;
+    final data1 = router.getAll('/one')!.last;
     expect(data1.pathSegment, '/one');
     expect(data1.pathTemplate, '/one');
     expect(data1.builder(getRouteData(data1)), route1);
     expect(data1.pathParameters.isEmpty, isTrue);
 
-    final data2 = router.get('/one/two')!;
+    final data2 = router.getAll('/one/two')!.last;
     expect(data2.pathSegment, '/one/two');
     expect(data2.pathTemplate, '/one/two');
     expect(data2.builder(getRouteData(data2)), route2);
@@ -419,25 +419,25 @@ void main() {
     router.add('/one', (_) => route1);
     router.add('/one/*', (_) => route2);
 
-    final dataRoot = router.get('/')!;
+    final dataRoot = router.getAll('/')!.last;
     expect(dataRoot.pathSegment, '/');
     expect(dataRoot.pathTemplate, '/');
     expect(dataRoot.builder(getRouteData(dataRoot)), rootRoute);
     expect(dataRoot.pathParameters.isEmpty, isTrue);
 
-    final data1 = router.get('/one')!;
+    final data1 = router.getAll('/one')!.last;
     expect(data1.pathSegment, '/one');
     expect(data1.pathTemplate, '/one');
     expect(data1.builder(getRouteData(data1)), route1);
     expect(data1.pathParameters.isEmpty, isTrue);
 
-    final data2 = router.get('/one/blah')!;
+    final data2 = router.getAll('/one/blah')!.last;
     expect(data2.pathSegment, '/one/blah');
     expect(data2.pathTemplate, '/one/*');
     expect(data2.builder(getRouteData(data2)), route2);
     expect(data2.pathParameters.isEmpty, isTrue);
 
-    final data3 = router.get('/one/blah/test')!;
+    final data3 = router.getAll('/one/blah/test')!.last;
     expect(data3.pathSegment, '/one/blah/test');
     expect(data3.pathTemplate, '/one/*');
     expect(data3.builder(getRouteData(data3)), route2);
@@ -454,98 +454,95 @@ void main() {
     router.add('/one', (_) => route1);
     router.add('/one/*', (_) => route2);
 
-    final routes = router.getAll('/one/blah/test')!;
-
-    final dataRoot = router.get('/')!;
+    final dataRoot = router.getAll('/')!.last;
     expect(dataRoot.pathSegment, '/');
     expect(dataRoot.pathTemplate, '/');
     expect(dataRoot.builder(getRouteData(dataRoot)), rootRoute);
     expect(dataRoot.pathParameters.isEmpty, isTrue);
 
-    final data1 = router.get('/one')!;
+    final data1 = router.getAll('/one')!.last;
     expect(data1.pathSegment, '/one');
     expect(data1.pathTemplate, '/one');
     expect(data1.builder(getRouteData(data1)), route1);
     expect(data1.pathParameters.isEmpty, isTrue);
 
-    final data2 = router.get('/one/blah/test')!;
-    expect(routes[2].pathSegment, '/one/blah/test');
-    expect(routes[2].pathTemplate, '/one/*');
-    expect(routes[2].builder(getRouteData(data2)), route2);
-    expect(routes[2].pathParameters.isEmpty, isTrue);
+    final data2 = router.getAll('/one/blah/test')!.last;
+    expect(data2.pathSegment, '/one/blah/test');
+    expect(data2.pathTemplate, '/one/*');
+    expect(data2.builder(getRouteData(data2)), route2);
+    expect(data2.pathParameters.isEmpty, isTrue);
   });
 
-  test('Can get wildcard fallback', () {
-    final router = TrieRouter();
-    const rootRoute = TestRoute('root');
-    const route1 = TestRoute('one');
-    const route2 = TestRoute('two');
+  // TODO
+  // test('Can get wildcard fallback', () {
+  //   final router = TrieRouter();
+  //   const rootRoute = TestRoute('root');
+  //   const route1 = TestRoute('one');
+  //   const route2 = TestRoute('two');
 
-    router.add('/', (_) => rootRoute);
-    router.add('/*', (_) => route2);
-    router.add('/one', (_) => route1);
+  //   router.add('/', (_) => rootRoute);
+  //   router.add('/*', (_) => route2);
+  //   router.add('/one', (_) => route1);
 
-    final routes = router.getAll('/one/blah/test')!;
-    expect(routes.isEmpty, isFalse);
+  //   final routes = router.getAll('/one/blah/test')!;
+  //   expect(routes.isEmpty, isFalse);
 
-    // final dataRoot = router.get('/')!;
-    // expect(dataRoot.pathSegment, '/');
-    // expect(dataRoot.pathTemplate, '/');
-    // expect(dataRoot.builder(getRouteData(dataRoot)), rootRoute);
-    // expect(dataRoot.pathParameters.isEmpty, isTrue);
+  //   final dataRoot = router.getAll('/')!.last;
+  //   expect(dataRoot.pathSegment, '/');
+  //   expect(dataRoot.pathTemplate, '/');
+  //   expect(dataRoot.builder(getRouteData(dataRoot)), rootRoute);
+  //   expect(dataRoot.pathParameters.isEmpty, isTrue);
 
-    // final data1 = router.get('/one')!;
-    // expect(data1.pathSegment, '/one');
-    // expect(data1.pathTemplate, '/one');
-    // expect(data1.builder(getRouteData(data1)), route1);
-    // expect(data1.pathParameters.isEmpty, isTrue);
+  //   final data1 = router.getAll('/one')!.last;
+  //   expect(data1.pathSegment, '/one');
+  //   expect(data1.pathTemplate, '/one');
+  //   expect(data1.builder(getRouteData(data1)), route1);
+  //   expect(data1.pathParameters.isEmpty, isTrue);
 
-    // final data2 = router.get('/one/blah/test')!;
-    // expect(routes[2].pathSegment, '/one/blah/test');
-    // expect(routes[2].pathTemplate, '/one/*');
-    // expect(routes[2].builder(getRouteData(data2)), route2);
-    // expect(routes[2].pathParameters.isEmpty, isTrue);
-  });
+  //   final data2 = router.getAll('/one/blah/test')!.last;
+  //   expect(routes[2].pathSegment, '/one/blah/test');
+  //   expect(routes[2].pathTemplate, '/one/*');
+  //   expect(routes[2].builder(getRouteData(data2)), route2);
+  //   expect(routes[2].pathParameters.isEmpty, isTrue);
+  // });
 
-  test('Can use wildcard fallback with relative routes', () {
-    final router = TrieRouter();
-    const rootRoute = TestRoute('root');
-    const route1 = TestRoute('one');
-    const route2 = TestRoute('two');
+  // TODO
+  // test('Can use wildcard fallback with relative routes', () {
+  //   final router = TrieRouter();
+  //   const rootRoute = TestRoute('root');
+  //   const route1 = TestRoute('one');
+  //   const route2 = TestRoute('two');
 
-    // const relativeRouteOne = TestRoute('rel-one');
-    // const relativeRouteTwo = TestRoute('rel-two');
+  //   router.add('/', (_) => rootRoute);
+  //   router.add('/feed', (_) => route1);
+  //   router.add('/*', (_) {
+  //     return RelativeRouteMap(routes: {
+  //       'one': (_) => const MaterialPageOne(),
+  //       'two': (_) => const MaterialPageTwo(),
+  //     });
+  //   });
 
-    router.add('/', (_) => rootRoute);
-    router.add('/feed', (_) => route1);
-    router.add('/*', (_) {
-      return RelativeRouteMap(routes: {
-        'one': (_) => const MaterialPageOne(),
-        'two': (_) => const MaterialPageTwo(),
-      });
-    });
+  //   final routes = router.getAll('/feed/one/two')!;
+  //   expect(routes.isEmpty, isFalse);
 
-    final routes = router.getAll('/feed/one/two')!;
-    expect(routes.isEmpty, isFalse);
+  //   final dataRoot = router.getAll('/')!.last;
+  //   expect(dataRoot.pathSegment, '/');
+  //   expect(dataRoot.pathTemplate, '/');
+  //   expect(dataRoot.builder(getRouteData(dataRoot)), rootRoute);
+  //   expect(dataRoot.pathParameters.isEmpty, isTrue);
 
-    // final dataRoot = router.get('/')!;
-    // expect(dataRoot.pathSegment, '/');
-    // expect(dataRoot.pathTemplate, '/');
-    // expect(dataRoot.builder(getRouteData(dataRoot)), rootRoute);
-    // expect(dataRoot.pathParameters.isEmpty, isTrue);
+  //   final data1 = router.getAll('/one')!.last;
+  //   expect(data1.pathSegment, '/one');
+  //   expect(data1.pathTemplate, '/one');
+  //   expect(data1.builder(getRouteData(data1)), route1);
+  //   expect(data1.pathParameters.isEmpty, isTrue);
 
-    // final data1 = router.get('/one')!;
-    // expect(data1.pathSegment, '/one');
-    // expect(data1.pathTemplate, '/one');
-    // expect(data1.builder(getRouteData(data1)), route1);
-    // expect(data1.pathParameters.isEmpty, isTrue);
-
-    // final data2 = router.get('/one/blah/test')!;
-    // expect(routes[2].pathSegment, '/one/blah/test');
-    // expect(routes[2].pathTemplate, '/one/*');
-    // expect(routes[2].builder(getRouteData(data2)), route2);
-    // expect(routes[2].pathParameters.isEmpty, isTrue);
-  });
+  //   final data2 = router.getAll('/one/blah/test')!.last;
+  //   expect(routes[2].pathSegment, '/one/blah/test');
+  //   expect(routes[2].pathTemplate, '/one/*');
+  //   expect(routes[2].builder(getRouteData(data2)), route2);
+  //   expect(routes[2].pathParameters.isEmpty, isTrue);
+  // });
 
   test('Route with name has priority over route params when added first', () {
     final router = TrieRouter();
@@ -555,13 +552,13 @@ void main() {
     router.add('/:param', (_) => paramRoute);
     router.add('/named', (_) => namedRoute);
 
-    final namedResult = router.get('/named')!;
+    final namedResult = router.getAll('/named')!.last;
     expect(
       namedResult.builder(RouteData('/named', pathTemplate: '/named')),
       namedRoute,
     );
 
-    final paramResult = router.get('/blah')!;
+    final paramResult = router.getAll('/blah')!.last;
     expect(
       paramResult.builder(RouteData('/blah', pathTemplate: '/blah')),
       paramRoute,
@@ -576,13 +573,13 @@ void main() {
     router.add('/named', (_) => namedRoute);
     router.add('/:param', (_) => paramRoute);
 
-    final result = router.get('/named')!;
+    final result = router.getAll('/named')!.last;
     expect(
       result.builder(RouteData('/named', pathTemplate: '/named')),
       namedRoute,
     );
 
-    final paramResult = router.get('/blah')!;
+    final paramResult = router.getAll('/blah')!.last;
     expect(
       paramResult.builder(RouteData('/blah', pathTemplate: '/blah')),
       paramRoute,

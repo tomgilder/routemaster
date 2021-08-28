@@ -36,7 +36,7 @@ typedef UnknownRouteCallback = RouteSettings Function(String path);
 ///     [Page] objects to build.
 ///
 @immutable
-class RouteMap {
+class RouteMap extends RouteSettings {
   final UnknownRouteCallback? _onUnknownRoute;
 
   final _router = TrieRouter();
@@ -63,16 +63,10 @@ class RouteMap {
     _router.addAll(routes);
   }
 
-  /// Generate a single [RouteResult] for the given [path]. Returns null if the
-  /// path isn't valid.
-  RouterResult? get(String path) {
-    return _router.get(path);
-  }
-
   /// Generate all [RouteResult] objects required to build the navigation tree
   /// for the given [path]. Returns null if the path isn't valid.
-  List<RouterResult>? getAll(String path) {
-    return _router.getAll(path);
+  List<RouterResult>? getAll({required String path, String? parentPath}) {
+    return _router.getAll(path, prefix: parentPath);
   }
 
   /// Called when there's no match for a route. By default this returns
@@ -98,66 +92,23 @@ class RouteMap {
   }
 }
 
+/// A route map that can match relative routes recursively.
 @immutable
-class RelativeRouteMap extends RouteSettings {
-  final UnknownRouteCallback? _onUnknownRoute;
+class RelativeRouteMap extends RouteMap {
+  @override
+  final _router = TrieRouter(mode: RouterMode.relative);
 
-  final _router = TrieRouter();
-
-  /// Creates a standard simple routing table which takes a map of routes.
-  ///
-  ///   * [routes] - a map of paths and [PageBuilder] delegates that return
-  ///     [Page] objects to build.
-  ///
-  ///   * [onUnknownRoute] - called when there's no match for a route.
-  ///     There are two general options for this callback's operation:
-  ///
-  ///       1. Return a page, which will be displayed.
-  ///
-  ///     or
-  ///
-  ///       2. Use the routing delegate to, for instance, redirect to another
-  ///          route and return null.
-  ///
+  /// Creates a route map that can match relative routes recursively.
   RelativeRouteMap({
     required Map<String, PageBuilder> routes,
     UnknownRouteCallback? onUnknownRoute,
-  }) : _onUnknownRoute = onUnknownRoute {
-    _router.addAll(routes);
-  }
-
-  /// Generate a single [RouteResult] for the given [path]. Returns null if the
-  /// path isn't valid.
-  RouterResult? get(String path) {
-    return _router.get(path);
-  }
+  }) : super(routes: routes, onUnknownRoute: onUnknownRoute);
 
   /// Generate all [RouteResult] objects required to build the navigation tree
   /// for the given [path]. Returns null if the path isn't valid.
-  List<RouterResult>? getAll(String path, String prefix) {
-    return _router.getAll(path, prefix: prefix, allowRelative: true);
-  }
-
-  /// Called when there's no match for a route. By default this returns
-  /// [DefaultNotFoundPage], a simple page not found page.
-  ///
-  /// There are two general options for this callback's operation:
-  ///
-  ///   1. Return a page, which will be displayed.
-  ///
-  /// or
-  ///
-  ///   2. Use the routing delegate to, for instance, redirect to another route
-  ///      and return null.
-  ///
-  RouteSettings onUnknownRoute(String path) {
-    if (_onUnknownRoute != null) {
-      return _onUnknownRoute!(path);
-    }
-
-    return MaterialPage<void>(
-      child: DefaultNotFoundPage(path: path),
-    );
+  @override
+  List<RouterResult>? getAll({required String path, String? parentPath}) {
+    return _router.getAll(path, prefix: parentPath);
   }
 }
 
@@ -603,6 +554,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     var pages = _createAllPageWrappers(
       currentRoutes:
           useCurrentState ? _state.stack._getCurrentPages().toList() : null,
+      routerResult: _state.routeMap!.getAll(path: uri.toString()),
       request: request,
     );
 
@@ -682,11 +634,11 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   /// exist.
   List<PageWrapper>? _createAllPageWrappers({
     required _RouteRequest request,
+    required List<RouterResult>? routerResult,
     List<PageWrapper>? currentRoutes,
     List<String>? redirects,
   }) {
     final requestedPath = request.uri.toString();
-    final routerResult = _getAllRouterResults(requestedPath);
 
     if (routerResult == null || routerResult.isEmpty) {
       return null;
@@ -728,8 +680,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           );
 
           final subPages = relativeRouteMap.getAll(
-            subPath,
-            previousRoute.pathTemplate,
+            path: subPath,
+            parentPath: previousRoute.pathTemplate,
           );
 
           if (subPages == null) {
@@ -803,6 +755,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
               isReplacement: request.isReplacement,
               requestSource: request.requestSource,
             ),
+            routerResult: _state.routeMap!.getAll(path: current.redirectPath),
           );
         }
       }
@@ -817,7 +770,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   /// router is rebuilt and the request retried. This is for cases where some
   /// state has updated but the map hasn't yet been rebuilt.
   List<RouterResult>? _getAllRouterResults(String requestedPath) {
-    return _state.routeMap!.getAll(requestedPath);
+    return _state.routeMap!.getAll(path: requestedPath);
   }
 
   RouteMap _buildRoutes(BuildContext context) {
@@ -861,7 +814,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   PageWrapper _getSinglePage(_RouteRequest routeRequest) {
     final requestedPath = routeRequest.uri.toString();
 
-    final routerResult = _state.routeMap!.get(requestedPath);
+    final routerResult = _state.routeMap!.getAll(path: requestedPath)?.last;
     if (routerResult != null) {
       final routeData = RouteData._fromRouterResult(
         routerResult,
@@ -871,6 +824,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       );
 
       final page = routerResult.builder(routeData);
+
+      // TODO: Handle relative map??????
+
       _assertIsPage(page, routeData.fullPath);
 
       final wrapper = _createPageWrapper(
@@ -984,6 +940,14 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     final fullPath = routeRequest.uri.toString();
     final result = _state.routeMap!.onUnknownRoute(routeRequest.uri.toString());
 
+    if (result is RouteMap) {
+      final routerResult = result.getAll(path: fullPath);
+      return _createAllPageWrappers(
+        request: routeRequest,
+        routerResult: routerResult,
+      )!;
+    }
+
     _assertIsPage(result, fullPath);
 
     if (result is Redirect) {
@@ -993,6 +957,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           isReplacement: routeRequest.isReplacement,
           requestSource: routeRequest.requestSource,
         ),
+        routerResult: _state.routeMap!.getAll(path: result.redirectPath),
       );
 
       if (redirectResult != null) {

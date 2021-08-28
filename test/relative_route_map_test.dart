@@ -12,18 +12,24 @@ void main() {
       'one/two/three': (_) => const MaterialPageThree(),
     });
 
-    final result = relativeMap.getAll('one/two/three', '/base');
+    final result = relativeMap.getAll(
+      path: 'one/two/three',
+      parentPath: '/base',
+    );
     expect(result!.length, 3);
   });
 
-  test('Can get relative routes 2', () {
+  test('Can get relative routes 2 times', () {
     final relativeMap = RelativeRouteMap(routes: {
       'one': (_) => const MaterialPageOne(),
       'one/two': (_) => const MaterialPageTwo(),
       'one/two/three': (_) => const MaterialPageThree(),
     });
 
-    final result = relativeMap.getAll('one/two/three/one/two/three', '/base');
+    final result = relativeMap.getAll(
+      path: 'one/two/three/one/two/three',
+      parentPath: '/base',
+    );
     expect(result!.length, 6);
 
     expect(result[0].pathSegment, '/base/one');
@@ -34,7 +40,7 @@ void main() {
     expect(result[5].pathSegment, '/base/one/two/three/one/two/three');
   });
 
-  test('Can get relative routes 3', () {
+  test('Can get relative routes 3 times', () {
     final relativeMap = RelativeRouteMap(routes: {
       'one': (_) => const MaterialPageOne(),
       'one/two': (_) => const MaterialPageTwo(),
@@ -42,7 +48,9 @@ void main() {
     });
 
     final result = relativeMap.getAll(
-        'one/two/three/one/two/three/one/two/three', '/base');
+      path: 'one/two/three/one/two/three/one/two/three',
+      parentPath: '/base',
+    );
     expect(result!.length, 9);
 
     expect(result[0].pathSegment, '/base/one');
@@ -57,6 +65,34 @@ void main() {
       result[8].pathSegment,
       '/base/one/two/three/one/two/three/one/two/three',
     );
+  });
+
+  test('Can get relative routes without parent path', () {
+    final relativeMap = RelativeRouteMap(routes: {
+      'one': (_) => const MaterialPageOne(),
+      'one/two': (_) => const MaterialPageTwo(),
+      'one/two/three': (_) => const MaterialPageThree(),
+    });
+
+    final result = relativeMap.getAll(
+      path: 'one/two/three',
+      parentPath: null,
+    );
+    expect(result!.length, 3);
+  });
+
+  test('Can get relative routes without parent path with initial slash', () {
+    final relativeMap = RelativeRouteMap(routes: {
+      'one': (_) => const MaterialPageOne(),
+      'one/two': (_) => const MaterialPageTwo(),
+      'one/two/three': (_) => const MaterialPageThree(),
+    });
+
+    final result = relativeMap.getAll(
+      path: '/one/two/three',
+      parentPath: null,
+    );
+    expect(result!.length, 3);
   });
 
   testWidgets('Can combine wildcards and relative routes', (tester) async {
@@ -88,7 +124,7 @@ void main() {
     delegate.push('/feed/one/two');
   });
 
-  testWidgets('Can combine wildcards and relative routes 2', (tester) async {
+  testWidgets('Can combine root wildcard and relative routes', (tester) async {
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         routes: {
@@ -102,6 +138,34 @@ void main() {
               },
             );
           },
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    delegate.push('/one/two');
+  });
+
+  testWidgets('Can combine unknown route with relative routes', (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (_) => const MaterialPageOne(),
+        },
+        onUnknownRoute: (route) {
+          return RelativeRouteMap(
+            routes: {
+              'one': (_) => const MaterialPageOne(),
+              'one/two': (_) => const MaterialPageTwo(),
+              'one/two/three': (_) => const MaterialPageThree(),
+            },
+          );
         },
       ),
     );

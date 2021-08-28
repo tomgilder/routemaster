@@ -4,12 +4,24 @@ import 'errors.dart';
 import 'router_result.dart';
 import 'trie_node.dart';
 
+/// The mode this router is using: relative or absolute
+enum RouterMode {
+  /// Router handles absolute paths
+  absolute,
+
+  /// Router handles relative paths
+  relative,
+}
+
 /// A router for storing and retrieving routes that uses a Trie data structure.
 class TrieRouter {
+  /// The mode this router is using: relative or absolute
+  final RouterMode mode;
+
   final Trie<String, PageBuilder> _trie;
 
   /// Initializes an empty router.
-  TrieRouter() : _trie = Trie();
+  TrieRouter({this.mode = RouterMode.absolute}) : _trie = Trie();
 
   /// Adds all the given [routes] to the router.
   /// The key of the map is the route.
@@ -82,60 +94,13 @@ class TrieRouter {
     }
   }
 
-  /// Returns a single matching result from the router, or null if no match
-  /// was found.
-  RouterResult? get(String route) {
-    final pathSegments = pathContext.split(PathParser.stripQueryString(route));
-    final parameters = <String, String>{};
-    var current = _trie.root;
-
-    for (final segment in pathSegments) {
-      final nextNode = current.get(segment);
-      if (nextNode != null) {
-        current = nextNode;
-        continue;
-      }
-
-      final pathParamNode = current.getWhere((k) => k?.startsWith(':') == true);
-      if (pathParamNode != null) {
-        // If there is a segment that starts with `:`, we should match any
-        // route.
-        current = pathParamNode;
-
-        // Add the current segment to the parameters. E.g. 'id': '123'
-        parameters[current.key!.substring(1)] = segment;
-        continue;
-      }
-
-      final wildcardNode = current.get('*');
-      if (wildcardNode != null) {
-        current = wildcardNode;
-        break;
-      }
-
-      return null;
-    }
-
-    return RouterResult(
-      builder: current.value!,
-      pathParameters: parameters,
-      pathSegment: route,
-      pathTemplate: current.template!,
-    );
-  }
-
   /// Returns all matching results from the router, or null if no match was
   /// found.
   List<RouterResult>? getAll(
     String route, {
     String? prefix,
-    bool allowRelative = false,
   }) {
-    final results = _getAll(
-      route,
-      prefix: prefix,
-      allowRelative: allowRelative,
-    );
+    final results = _getAll(route, prefix: prefix);
 
     final list = <RouterResult>[];
     for (final result in results) {
@@ -157,9 +122,12 @@ class TrieRouter {
   Iterable<RouterResult?> _getAll(
     String route, {
     String? prefix,
-    bool allowRelative = false,
   }) sync* {
-    print('_getAll: $route');
+    if (mode == RouterMode.relative && pathContext.isAbsolute(route)) {
+      // Strip initial slash
+      route = route.substring(1);
+    }
+
     final pathSegments = pathContext.split(PathParser.stripQueryString(route));
     final parameters = <String, String>{};
 
@@ -219,26 +187,28 @@ class TrieRouter {
         return;
       }
 
-      if (allowRelative) {
+      if (mode == RouterMode.relative) {
         final remaining = pathSegments.skip(i);
         if (remaining.isEmpty) {
           return;
         }
 
         final done = pathSegments.take(i);
-        final newPrefix = pathContext.join(prefix!, pathContext.joinAll(done));
+        final newPrefix = prefix == null
+            ? null
+            : pathContext.join(prefix, pathContext.joinAll(done));
 
-        yield* _getAll(
-          pathContext.joinAll(remaining),
-          prefix: newPrefix,
-          allowRelative: true,
-        );
+        final nextRoute = pathContext.joinAll(remaining);
+
+        if (nextRoute != route) {
+          yield* _getAll(nextRoute, prefix: newPrefix);
+        }
+
         return;
       }
 
       // Nothing found
       if (lastWildcard != null) {
-        print('building lastWildcard');
         yield buildResult(null, lastWildcard);
         return;
       }
