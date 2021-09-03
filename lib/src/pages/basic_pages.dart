@@ -102,14 +102,12 @@ abstract class PageState<T extends StatefulPage<dynamic>>
   /// Initializes the state for a [StatefulPage].
   PageState() : super._();
 
-  /// The main [Routemaster] object that created this page state.
-  Routemaster get routemaster => _routemaster!;
-  Routemaster? _routemaster;
+  _RoutemasterState? _routemasterState;
 
   /// Called once to initialize the state of this page.
   void initState() {
     assert(_page != null);
-    assert(_routemaster != null);
+    assert(_routemasterState != null);
     assert(_routeData != null);
   }
 

@@ -510,6 +510,11 @@ class StubRoutemaster implements Routemaster {
 
   @override
   RouteData get currentRoute => throw UnimplementedError();
+
+  @override
+  Future<void> popUntil(bool Function(RouteData routeData) predicate) {
+    throw UnimplementedError();
+  }
 }
 
 class StubNavigationResult<T> implements NavigationResult<T> {

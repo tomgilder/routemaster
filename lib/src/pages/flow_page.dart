@@ -122,7 +122,7 @@ class FlowPageState extends PageState<FlowPage> with ChangeNotifier {
     }
 
     final insertedPages = _absolutePaths.take(index).map(
-          (insertPath) => routemaster._delegate._getSinglePage(
+          (insertPath) => _routemasterState!.delegate._getSinglePage(
             _RouteRequest(
               uri: Uri.parse(insertPath),
               requestSource: routeData.requestSource,
@@ -177,11 +177,11 @@ class FlowPageState extends PageState<FlowPage> with ChangeNotifier {
 
   /// Pushes the next page in this flow.
   void pushNext() {
-    routemaster.push(_absolutePaths[currentIndex + 1]);
+    _routemasterState!.delegate.push(_absolutePaths[currentIndex + 1]);
   }
 
   /// Goes back to the previous page in this flow.
   void pop() {
-    routemaster.push(_absolutePaths[currentIndex - 1]);
+    _routemasterState!.delegate.push(_absolutePaths[currentIndex - 1]);
   }
 }

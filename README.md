@@ -108,6 +108,8 @@ When navigating to `/tabs/two/subpage`, the `TabPage` will be asked "hey, do you
 However, navigating to `/tabs/notInATab` will **not** be displayed in a tab, but pushed on top of the tab bar.
 
 `TabPage` will be all "yeah sorry, no idea what to do with that, doesn't match any of my tab paths" and its parent will be asked to hande it.
+
+Path hierarchy matters, for example [changing where dialogs are displayed](https://github.com/tomgilder/routemaster/wiki/Path-hierarchy).
   
 ## Routing
 
