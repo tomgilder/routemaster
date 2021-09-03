@@ -85,6 +85,7 @@ class FlowPageState extends PageState<FlowPage> with ChangeNotifier {
   /// Initializes the state for an [FlowPage].
   FlowPageState();
 
+  /// The stack for this page, which can be passed to a [StackNavigator].
   final stack = PageStack();
 
   late List<String> _absolutePaths;
@@ -167,16 +168,19 @@ class FlowPageState extends PageState<FlowPage> with ChangeNotifier {
     yield* stack._getCurrentPages();
   }
 
+  /// The currently active index of this flow.
   int get currentIndex {
     return _absolutePaths.indexWhere(
       (path) => path == stack._pageWrappers.last.routeData.path,
     );
   }
 
+  /// Pushes the next page in this flow.
   void pushNext() {
     routemaster.push(_absolutePaths[currentIndex + 1]);
   }
 
+  /// Goes back to the previous page in this flow.
   void pop() {
     routemaster.push(_absolutePaths[currentIndex - 1]);
   }

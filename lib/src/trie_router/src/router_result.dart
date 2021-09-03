@@ -19,12 +19,22 @@ class RouterResult {
   ///         3. /blah/test
   final String pathSegment;
 
+  /// Any remaining unmatched path from this router result.
+  ///
+  /// Passed to child [RouteMap] objects to match the rest of the route.
+  final String? unmatchedPath;
+
+  /// The base path to use if this result is used as a parent route.
+  final String? basePath;
+
   /// Initializes a router result.
   const RouterResult({
     required this.builder,
     required this.pathParameters,
     required this.pathSegment,
     required this.pathTemplate,
+    this.unmatchedPath,
+    this.basePath,
   });
 
   @override

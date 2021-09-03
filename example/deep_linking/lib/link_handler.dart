@@ -24,7 +24,6 @@ class LinkHandler {
   }
 
   void _onLink(String? link) {
-    print(link);
     onLink(link!.replaceFirst('routemaster:/', ''));
   }
 

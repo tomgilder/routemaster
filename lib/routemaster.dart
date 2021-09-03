@@ -65,8 +65,11 @@ class RouteMap extends RouteSettings {
 
   /// Generate all [RouteResult] objects required to build the navigation tree
   /// for the given [path]. Returns null if the path isn't valid.
-  List<RouterResult>? getAll({required String path, String? parentPath}) {
-    return _router.getAll(path, prefix: parentPath);
+  List<RouterResult>? getAll({
+    required String path,
+    RouterResult? parent,
+  }) {
+    return _router.getAll(path, parent: parent);
   }
 
   /// Called when there's no match for a route. By default this returns
@@ -107,8 +110,11 @@ class RelativeRouteMap extends RouteMap {
   /// Generate all [RouteResult] objects required to build the navigation tree
   /// for the given [path]. Returns null if the path isn't valid.
   @override
-  List<RouterResult>? getAll({required String path, String? parentPath}) {
-    return _router.getAll(path, prefix: parentPath);
+  List<RouterResult>? getAll({
+    required String path,
+    RouterResult? parent,
+  }) {
+    return _router.getAll(path, parent: parent);
   }
 }
 
@@ -637,6 +643,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     required List<RouterResult>? routerResult,
     List<PageWrapper>? currentRoutes,
     List<String>? redirects,
+    bool lastPageOnly = false,
   }) {
     final requestedPath = request.uri.toString();
 
@@ -671,17 +678,17 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
       if (isLastRoute) {
         final page = routerData.builder(routeData);
-        if (page is RelativeRouteMap) {
-          final relativeRouteMap = page;
-          final previousRoute = routerResult[i - 1];
-          final subPath = pathContext.relative(
-            requestedPath,
-            from: previousRoute.pathTemplate,
+        if (page is RouteMap) {
+          assert(
+            routerData.unmatchedPath != null,
+            "Can't match partial route with a null unmatchedPath",
           );
 
+          final relativeRouteMap = page;
+
           final subPages = relativeRouteMap.getAll(
-            path: subPath,
-            parentPath: previousRoute.pathTemplate,
+            path: routerData.unmatchedPath!,
+            parent: routerData,
           );
 
           if (subPages == null) {
@@ -702,18 +709,12 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           isLastRoute: true,
         );
       } else {
-        // if (page is RelativeRouteMap) {
-        //   // TODO: Is this needed?
-        //   continue;
-        // }
-
         // Not last route
         current = _getOrCreatePageWrapper(
           routeRequest: request,
           routeData: routeData,
           currentRoutes: currentRoutes,
           routerResult: routerData,
-          // page: page as Page,
         );
       }
 
@@ -759,18 +760,15 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           );
         }
       }
+
+      if (lastPageOnly) {
+        return result;
+      }
     }
 
     assert(result.isNotEmpty, "_createAllStates can't return empty list");
 
     return result;
-  }
-
-  /// Gets a list of results from the router. If a result can't be found, the
-  /// router is rebuilt and the request retried. This is for cases where some
-  /// state has updated but the map hasn't yet been rebuilt.
-  List<RouterResult>? _getAllRouterResults(String requestedPath) {
-    return _state.routeMap!.getAll(path: requestedPath);
   }
 
   RouteMap _buildRoutes(BuildContext context) {
@@ -810,48 +808,32 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     );
   }
 
-  /// Called by tab pages to lazily generate their initial routes
-  PageWrapper _getSinglePage(_RouteRequest routeRequest) {
+  /// Gets single page wrappers.
+  PageWrapper _getSinglePage(
+    _RouteRequest routeRequest, {
+    RouteMap? routeMap,
+    RouterResult? parentRoute,
+  }) {
+    routeMap ??= _state.routeMap;
     final requestedPath = routeRequest.uri.toString();
+    final routerResult =
+        routeMap!.getAll(path: requestedPath, parent: parentRoute);
 
-    final routerResult = _state.routeMap!.getAll(path: requestedPath)?.last;
-    if (routerResult != null) {
-      final routeData = RouteData._fromRouterResult(
-        routerResult,
-        Uri.parse(requestedPath),
-        isReplacement: routeRequest.isReplacement,
-        requestSource: routeRequest.requestSource,
-      );
-
-      final page = routerResult.builder(routeData);
-
-      // TODO: Handle relative map??????
-
-      _assertIsPage(page, routeData.fullPath);
-
-      final wrapper = _createPageWrapper(
-        routeRequest: routeRequest,
-        page: routerResult.builder(routeData) as Page,
-        routeData: routeData,
-        isLastRoute: false,
-      );
-
-      if (wrapper is _PageWrapperResult) {
-        return wrapper.pageWrapper;
-      }
-
-      if (wrapper is _RedirectResult) {
-        return _getSinglePage(
-          _RouteRequest(
-            uri: Uri.parse(wrapper.redirectPath),
-            isReplacement: routeRequest.isReplacement,
-            requestSource: routeRequest.requestSource,
-          ),
-        );
-      }
+    if (routerResult == null) {
+      return _TabNotFoundPage(routeRequest);
     }
 
-    return _TabNotFoundPage(routeRequest);
+    final result = _createAllPageWrappers(
+      request: routeRequest,
+      routerResult: routerResult,
+      lastPageOnly: true,
+    );
+
+    if (result == null) {
+      return _TabNotFoundPage(routeRequest);
+    }
+
+    return result.last;
   }
 
   _PageResult _createPageWrapper({
@@ -884,7 +866,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     if (page is Redirect) {
       return _RedirectResult(
-          _fillRedirectPathParams(page.redirectPath, routeData));
+        _fillRedirectPathParams(page.redirectPath, routeData),
+      );
     }
 
     if (isLastRoute && page is PageContainer) {
@@ -1148,6 +1131,15 @@ class _RouteRequest {
     this.isReplacement = false,
     this.result,
   });
+
+  _RouteRequest copyWith({Uri? uri}) {
+    return _RouteRequest(
+      uri: uri ?? this.uri,
+      requestSource: requestSource,
+      isReplacement: isReplacement,
+      result: result,
+    );
+  }
 }
 
 /// Where the navigation request originated from.

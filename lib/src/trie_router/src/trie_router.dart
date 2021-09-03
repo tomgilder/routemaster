@@ -98,9 +98,9 @@ class TrieRouter {
   /// found.
   List<RouterResult>? getAll(
     String route, {
-    String? prefix,
+    RouterResult? parent,
   }) {
-    final results = _getAll(route, prefix: prefix);
+    final results = _getAll(route, parent: parent);
 
     final list = <RouterResult>[];
     for (final result in results) {
@@ -119,10 +119,7 @@ class TrieRouter {
     return list;
   }
 
-  Iterable<RouterResult?> _getAll(
-    String route, {
-    String? prefix,
-  }) sync* {
+  Iterable<RouterResult?> _getAll(String route, {RouterResult? parent}) sync* {
     if (mode == RouterMode.relative && pathContext.isAbsolute(route)) {
       // Strip initial slash
       route = route.substring(1);
@@ -130,21 +127,53 @@ class TrieRouter {
 
     final pathSegments = pathContext.split(PathParser.stripQueryString(route));
     final parameters = <String, String>{};
+    RouterResult? lastResult;
 
-    RouterResult buildResult(int? count, TrieNode<String?, PageBuilder?> node) {
-      final p = pathContext.joinAll(
+    RouterResult buildResult(
+      int? count,
+      TrieNode<String?, PageBuilder?> node, {
+      String? unmatchedPath,
+      String? basePath,
+    }) {
+      final path = pathContext.joinAll(
         count == null ? pathSegments : pathSegments.take(count + 1),
       );
-      return RouterResult(
-        builder: node.value!,
-        pathParameters: Map.unmodifiable(parameters),
-        pathSegment: prefix != null ? pathContext.join(prefix, p) : p,
-        pathTemplate: node.template!,
-      );
+
+      lastResult = parent == null
+          ? RouterResult(
+              builder: node.value!,
+              pathParameters: Map.unmodifiable(parameters),
+              pathSegment: path,
+              pathTemplate: node.template!.replaceAll('*', ''),
+              unmatchedPath: unmatchedPath,
+              basePath: basePath,
+            )
+          : RouterResult(
+              builder: node.value!,
+              pathParameters: Map.unmodifiable(
+                <String, String>{
+                  ...parent.pathParameters,
+                  ...parameters,
+                },
+              ),
+              pathSegment: pathContext.join(
+                parent.basePath ?? parent.pathSegment,
+                path,
+              ),
+              pathTemplate: pathContext.join(
+                parent.pathTemplate,
+                node.template!.replaceAll('*', ''),
+              ),
+              unmatchedPath: unmatchedPath,
+              basePath: basePath,
+            );
+
+      return lastResult!;
     }
 
     var current = _trie.root;
     TrieNode<String?, PageBuilder?>? lastWildcard;
+    int? lastWildcardIndex;
 
     for (var i = 0; i < pathSegments.length; i++) {
       final segment = pathSegments[i];
@@ -152,6 +181,7 @@ class TrieRouter {
       final wildcardNode = current.get('*');
       if (wildcardNode != null) {
         lastWildcard = wildcardNode;
+        lastWildcardIndex = i;
       }
 
       if (current.contains(segment)) {
@@ -183,7 +213,16 @@ class TrieRouter {
       }
 
       if (wildcardNode != null) {
-        yield buildResult(null, wildcardNode);
+        yield buildResult(
+          null,
+          wildcardNode,
+          unmatchedPath: pathContext.joinAll(
+            pathSegments.skip(lastWildcardIndex!),
+          ),
+          basePath: pathContext.joinAll(
+            pathSegments.take(lastWildcardIndex),
+          ),
+        );
         return;
       }
 
@@ -193,15 +232,13 @@ class TrieRouter {
           return;
         }
 
-        final done = pathSegments.take(i);
-        final newPrefix = prefix == null
-            ? null
-            : pathContext.join(prefix, pathContext.joinAll(done));
-
         final nextRoute = pathContext.joinAll(remaining);
 
         if (nextRoute != route) {
-          yield* _getAll(nextRoute, prefix: newPrefix);
+          yield* _getAll(
+            nextRoute,
+            parent: lastResult ?? parent,
+          );
         }
 
         return;
@@ -209,7 +246,16 @@ class TrieRouter {
 
       // Nothing found
       if (lastWildcard != null) {
-        yield buildResult(null, lastWildcard);
+        yield buildResult(
+          null,
+          lastWildcard,
+          unmatchedPath: pathContext.joinAll(
+            pathSegments.skip(lastWildcardIndex!),
+          ),
+          basePath: pathContext.joinAll(
+            pathSegments.take(lastWildcardIndex),
+          ),
+        );
         return;
       }
 
