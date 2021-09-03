@@ -404,7 +404,7 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
       _index = value;
 
       notifyListeners();
-      routemaster._state.delegate._markNeedsUpdate();
+      _routemasterState!.delegate._markNeedsUpdate();
     }
   }
 
@@ -414,7 +414,7 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
       path: stackPath,
     );
 
-    final route = routemaster._state.delegate._getSinglePage(
+    final route = _routemasterState!.delegate._getSinglePage(
       _RouteRequest(
         uri: path,
         isReplacement: routeData.isReplacement,

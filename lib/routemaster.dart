@@ -103,11 +103,11 @@ class RouteMap {
 class Routemaster {
   // The current router delegate. This can change if the delegate is recreated.
   late final _RoutemasterState _state;
-  final BuildContext? _context;
+  final BuildContext _context;
 
   Routemaster._({
     required _RoutemasterState state,
-    BuildContext? context,
+    required BuildContext context,
   })  : _context = context,
         _state = state;
 
@@ -142,7 +142,10 @@ class Routemaster {
       "Couldn't get a Routemaster object from the given context.",
     );
 
-    return widget!.routemaster._copyWith(context: context);
+    return Routemaster._(
+      state: widget!.state,
+      context: context,
+    );
   }
 
   /// The current global route.
@@ -179,21 +182,19 @@ class Routemaster {
   ///     you'll navigate to '/home'.
   ///
   void replace(String path, {Map<String, String>? queryParameters}) {
-    if (_context != null) {
-      final routeData = RouteData.maybeOf(_context!);
-      if (routeData != null) {
-        // Use context route data for relative path
-        _state.delegate._replaceUri(
-          PathParser.getAbsolutePath(
-            basePath: routeData.fullPath,
-            path: path,
-            queryParameters: queryParameters,
-          ),
+    final routeData = RouteData.maybeOf(_context);
+    if (routeData != null) {
+      // Use context route data for relative path
+      _state.delegate._replaceUri(
+        PathParser.getAbsolutePath(
+          basePath: routeData.fullPath,
+          path: path,
           queryParameters: queryParameters,
-        );
+        ),
+        queryParameters: queryParameters,
+      );
 
-        return;
-      }
+      return;
     }
 
     _state.delegate.replace(path, queryParameters: queryParameters);
@@ -220,29 +221,20 @@ class Routemaster {
     String path, {
     Map<String, String>? queryParameters,
   }) {
-    if (_context != null) {
-      final routeData = RouteData.maybeOf(_context!);
-      if (routeData != null) {
-        // Use context route data for relative path
-        return _state.delegate._pushUri<T>(
-          PathParser.getAbsolutePath(
-            basePath: routeData.fullPath,
-            path: path,
-            queryParameters: queryParameters,
-          ),
+    final routeData = RouteData.maybeOf(_context);
+    if (routeData != null) {
+      // Use context route data for relative path
+      return _state.delegate._pushUri<T>(
+        PathParser.getAbsolutePath(
+          basePath: routeData.fullPath,
+          path: path,
           queryParameters: queryParameters,
-        );
-      }
+        ),
+        queryParameters: queryParameters,
+      );
     }
 
     return _state.delegate.push<T>(path, queryParameters: queryParameters);
-  }
-
-  Routemaster _copyWith({required BuildContext context}) {
-    return Routemaster._(
-      context: context,
-      state: _state,
-    );
   }
 }
 
@@ -460,7 +452,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       delegate: this,
       builder: (context) {
         return _RoutemasterWidget(
-          routemaster: _state.routemaster,
+          state: _state,
           routeData: currentConfiguration!,
           child: navigatorBuilder != null
               ? navigatorBuilder!(context, _state.stack)
@@ -937,8 +929,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       );
 
       state._page = page;
-      state._routemaster = _state.routemaster;
       state._routeData = routeData;
+      state._routemasterState = _state;
       state.initState();
 
       return _PageWrapperResult(state);
@@ -1039,24 +1031,24 @@ class _RedirectResult extends _PageResult {
 }
 
 class _PushObserver extends NavigatorObserver {
-  final Routemaster routemaster;
+  final _RoutemasterState state;
 
-  _PushObserver(this.routemaster);
+  _PushObserver(this.state);
 
   @override
   void didPush(Route route, Route? previousRoute) {
-    routemaster._state.delegate._didPush(route);
+    state.delegate._didPush(route);
   }
 }
 
 /// Used internally so descendent widgets can use `Routemaster.of(context)`.
 class _RoutemasterWidget extends InheritedWidget {
-  final Routemaster routemaster;
+  final _RoutemasterState state;
   final RouteData routeData;
 
   const _RoutemasterWidget({
     required Widget child,
-    required this.routemaster,
+    required this.state,
     required this.routeData,
   }) : super(child: child);
 
@@ -1069,14 +1061,13 @@ class _RoutemasterWidget extends InheritedWidget {
 /// Maintains the router's state so [RoutemasterDelegate] can be replaced but
 /// still maintain its state.
 class _RoutemasterState {
-  late final routemaster = Routemaster._(state: this);
   final stack = PageStack();
   RouteMap? routeMap;
   RouteData? currentConfiguration;
   _RouteRequest? pendingNavigation;
   late RoutemasterDelegate delegate;
 
-  late _PushObserver pushObserver = _PushObserver(routemaster);
+  late _PushObserver pushObserver = _PushObserver(this);
 }
 
 class _RoutemasterStateTracker extends StatefulWidget {
