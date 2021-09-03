@@ -180,4 +180,17 @@ class RouteData {
     final page = modalRoute!.settings as Page;
     return PageStackNavigator.of(context).routeDataFor(page)!;
   }
+
+  /// Gets the [RouteData] for the nearest [Page] ancestor for the given
+  /// context, or null if the given context doesn't have associated RouteData.
+  static RouteData? maybeOf(BuildContext context) {
+    final modalRoute = ModalRoute.of(context);
+    final page = modalRoute?.settings;
+
+    if (page is Page) {
+      return PageStackNavigator.of(context).routeDataFor(page);
+    }
+
+    return null;
+  }
 }

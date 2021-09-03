@@ -593,6 +593,104 @@ void main() {
       "Route builders must return a Page object. The route builder for '/' instead returned an object of type 'NotAPage'.",
     );
   });
+
+  testWidgets('Can push when context has no associated RouteData',
+      (tester) async {
+    final pageOne = Builder(
+      builder: (context) {
+        return Scaffold(
+          body: ElevatedButton(
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (context) {
+                return Scaffold(
+                  body: ElevatedButton(
+                    onPressed: () {
+                      Routemaster.of(context).push('/two');
+                    },
+                    child: const Text('Push 2'),
+                  ),
+                );
+              }),
+            ),
+            child: const Text('Push 1'),
+          ),
+        );
+      },
+    );
+
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (context) => RouteMap(
+        routes: {
+          '/': (_) => MaterialPage<void>(child: pageOne),
+          '/two': (_) => const MaterialPageTwo(),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    await tester.tap(find.text('Push 1'));
+    await tester.pumpPageTransition();
+
+    await tester.tap(find.text('Push 2'));
+    await tester.pumpPageTransition();
+
+    expect(find.byType(PageTwo), findsOneWidget);
+  });
+
+  testWidgets('Can replace when context has no associated RouteData',
+      (tester) async {
+    final pageOne = Builder(
+      builder: (context) {
+        return Scaffold(
+          body: ElevatedButton(
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (context) {
+                return Scaffold(
+                  body: ElevatedButton(
+                    onPressed: () {
+                      Routemaster.of(context).replace('/two');
+                    },
+                    child: const Text('Replace'),
+                  ),
+                );
+              }),
+            ),
+            child: const Text('Push'),
+          ),
+        );
+      },
+    );
+
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (context) => RouteMap(
+        routes: {
+          '/': (_) => MaterialPage<void>(child: pageOne),
+          '/two': (_) => const MaterialPageTwo(),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    await tester.tap(find.text('Push'));
+    await tester.pumpPageTransition();
+
+    await tester.tap(find.text('Replace'));
+    await tester.pumpPageTransition();
+
+    expect(find.byType(PageTwo), findsOneWidget);
+  });
 }
 
 class QueryParamEcho extends StatelessWidget {

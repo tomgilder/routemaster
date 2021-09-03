@@ -1,6 +1,8 @@
 # 0.10.0-dev3
 
 * Added: `popUntil` to pop multiple times with a predicate.
+* Fixed: when navigating to relative route, use the current context's path as
+  the base, instead of the router's current path.
 
 # 0.10.0-dev2
 
