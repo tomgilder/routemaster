@@ -953,15 +953,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       );
     }
 
-    if (isLastRoute && page is PageContainer) {
-      return _RedirectResult(
-        pathContext.join(
-          routeRequest.uri.path,
-          page.redirectPath,
-        ),
-      );
-    }
-
     if (page is StatefulPage) {
       final state = page.createState();
 
@@ -1205,15 +1196,6 @@ class _RouteRequest {
     this.isReplacement = false,
     this.result,
   });
-
-  _RouteRequest copyWith({Uri? uri}) {
-    return _RouteRequest(
-      uri: uri ?? this.uri,
-      requestSource: requestSource,
-      isReplacement: isReplacement,
-      result: result,
-    );
-  }
 }
 
 /// Where the navigation request originated from.
