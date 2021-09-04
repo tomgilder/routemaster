@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:routemaster/routemaster.dart';
+import 'package:routemaster/src/not_found_page.dart';
 import 'package:routemaster/src/trie_router/trie_router.dart';
 
 import 'helpers.dart';
@@ -168,7 +169,6 @@ void main() {
     );
 
     delegate.push('/one/two');
-    await tester.pump();
     await tester.pumpPageTransition();
 
     expect(find.byType(PageTwo), findsOneWidget);
@@ -212,7 +212,6 @@ void main() {
     );
 
     delegate.push('/myId1/one/myId2/three?query=string');
-    await tester.pump();
     await tester.pumpPageTransition();
     expect(find.byType(PageThree), findsOneWidget);
 
@@ -261,7 +260,6 @@ void main() {
     );
 
     delegate.push('/myId1/one/myId2/three/one/myId3/three?query=string');
-    await tester.pump();
     await tester.pumpPageTransition();
     expect(find.byType(PageThree), findsOneWidget);
 
@@ -309,7 +307,6 @@ void main() {
     );
 
     delegate.push('/one/two/three');
-    await tester.pump();
     await tester.pumpPageTransition();
 
     expect(find.byType(PageThree), findsOneWidget);
@@ -342,7 +339,6 @@ void main() {
     );
 
     delegate.push('/one/myId/three');
-    await tester.pump();
     await tester.pumpPageTransition();
 
     expect(find.byType(PageThree), findsOneWidget);
@@ -376,7 +372,6 @@ void main() {
     );
 
     delegate.push('/section/one/two/three');
-    await tester.pump();
     await tester.pumpPageTransition();
 
     expect(find.byType(PageThree), findsOneWidget);
@@ -416,7 +411,6 @@ void main() {
     );
 
     delegate.push('/myId1/one/myId2/three');
-    await tester.pump();
     await tester.pumpPageTransition();
 
     expect(find.byType(PageThree), findsOneWidget);
@@ -479,7 +473,6 @@ void main() {
       ),
     );
     delegate.push('/tabs/two');
-    await tester.pump();
     await tester.pumpPageTransition();
 
     expect(find.byType(PageTwo), findsOneWidget);
@@ -516,7 +509,6 @@ void main() {
       ),
     );
     delegate.push('/tabs');
-    await tester.pump();
     await tester.pumpPageTransition();
 
     expect(find.byType(PageOne), findsOneWidget);
@@ -567,6 +559,65 @@ void main() {
   //   expect(route.pathTemplate, '/tabs/one');
   //   expect(route.queryParameters, {'query': 'string'});
   // });
+
+  testWidgets("Shows 404 page when subroute doesn't match", (tester) async {
+    var subrouteCalled = false;
+
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (_) => const MaterialPageOne(),
+          '/*': (_) {
+            subrouteCalled = true;
+            return RelativeRouteMap(routes: const {});
+          },
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    delegate.push('/404');
+    await tester.pump();
+    await tester.pumpPageTransition();
+
+    expect(subrouteCalled, isTrue);
+    expect(find.byType(DefaultNotFoundPage), findsOneWidget);
+  });
+
+  testWidgets("Shows 404 page when subroute doesn't match in tab",
+      (tester) async {
+    var subrouteCalled = false;
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (_) => MaterialPage<void>(child: Container()),
+          '/tabs': (_) => TabPage(child: MyTabPage(), paths: const ['one']),
+          '/tabs/*': (_) {
+            subrouteCalled = true;
+            return RelativeRouteMap(routes: const {});
+          },
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+    delegate.push('/tabs');
+    await tester.pumpPageTransition();
+
+    expect(subrouteCalled, isTrue);
+    expect(find.byType(DefaultNotFoundPage), findsOneWidget);
+  });
 }
 
 class MyTabPage extends StatelessWidget {

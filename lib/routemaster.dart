@@ -632,9 +632,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     );
 
     var pages = _createAllPageWrappers(
+      routeMap: _state.routeMap!,
       currentRoutes:
           useCurrentState ? _state.stack._getCurrentPages().toList() : null,
-      routerResult: _state.routeMap!.getAll(path: uri.toString()),
       request: request,
     );
 
@@ -713,18 +713,23 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   /// pages. It attempts to reuse current pages from [currentRoutes] if they
   /// exist.
   List<PageWrapper>? _createAllPageWrappers({
+    required RouteMap routeMap,
     required _RouteRequest request,
-    required List<RouterResult>? routerResult,
+    RouterResult? parentRoute,
     List<PageWrapper>? currentRoutes,
     List<String>? redirects,
     bool lastPageOnly = false,
   }) {
-    final requestedPath = request.uri.toString();
+    final routerResult = routeMap.getAll(
+      path: request.uri.toString(),
+      parent: parentRoute,
+    );
 
     if (routerResult == null || routerResult.isEmpty) {
       return null;
     }
 
+    final requestedPath = request.uri.toString();
     var result = <PageWrapper>[];
 
     // Loop through routes in reverse order
@@ -753,6 +758,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       if (isLastRoute) {
         final page = routerData.builder(routeData);
         if (page is RouteMap) {
+          // Handle child routing map
           assert(
             routerData.unmatchedPath != null,
             "Can't match partial route with a null unmatchedPath",
@@ -823,6 +829,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           }
 
           return _createAllPageWrappers(
+            routeMap: _state.routeMap!,
             currentRoutes: currentRoutes,
             redirects: redirects,
             request: _RouteRequest(
@@ -830,7 +837,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
               isReplacement: request.isReplacement,
               requestSource: request.requestSource,
             ),
-            routerResult: _state.routeMap!.getAll(path: current.redirectPath),
           );
         }
       }
@@ -888,18 +894,10 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     RouteMap? routeMap,
     RouterResult? parentRoute,
   }) {
-    routeMap ??= _state.routeMap;
-    final requestedPath = routeRequest.uri.toString();
-    final routerResult =
-        routeMap!.getAll(path: requestedPath, parent: parentRoute);
-
-    if (routerResult == null) {
-      return _TabNotFoundPage(routeRequest);
-    }
-
     final result = _createAllPageWrappers(
+      routeMap: routeMap ?? _state.routeMap!,
       request: routeRequest,
-      routerResult: routerResult,
+      parentRoute: parentRoute,
       lastPageOnly: true,
     );
 
@@ -975,11 +973,14 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     );
   }
 
-  String _fillRedirectPathParams(String redirectPath, RouteData routeData) {
+  static String _fillRedirectPathParams(
+      String redirectPath, RouteData routeData) {
     final pathSegments = pathContext.split(redirectPath);
-    final mappedSegments = pathSegments.map((segment) => segment.startsWith(':')
-        ? routeData.pathParameters[segment.substring(1)] ?? segment
-        : segment);
+    final mappedSegments = pathSegments.map(
+      (segment) => segment.startsWith(':')
+          ? routeData.pathParameters[segment.substring(1)] ?? segment
+          : segment,
+    );
     return pathContext.joinAll(mappedSegments);
   }
 
@@ -989,10 +990,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     final result = _state.routeMap!.onUnknownRoute(routeRequest.uri.toString());
 
     if (result is RouteMap) {
-      final routerResult = result.getAll(path: fullPath);
       return _createAllPageWrappers(
+        routeMap: result,
         request: routeRequest,
-        routerResult: routerResult,
       )!;
     }
 
@@ -1000,12 +1000,12 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     if (result is Redirect) {
       final redirectResult = _createAllPageWrappers(
+        routeMap: _state.routeMap!,
         request: _RouteRequest(
           uri: Uri.parse(result.redirectPath),
           isReplacement: routeRequest.isReplacement,
           requestSource: routeRequest.requestSource,
         ),
-        routerResult: _state.routeMap!.getAll(path: result.redirectPath),
       );
 
       if (redirectResult != null) {
@@ -1026,7 +1026,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     ];
   }
 
-  List<String> _debugCheckRedirectLoop(
+  static List<String> _debugCheckRedirectLoop(
       List<String>? redirects, String requestedPath) {
     if (redirects == null) {
       return [requestedPath];
