@@ -358,4 +358,22 @@ void main() {
     await tester.pump();
     expect(find.text("Couldn't find page '/book/123'"), findsOneWidget);
   });
+
+  testWidgets('Can log in', (tester) async {
+    // Login and redirect to root
+    await tester.pumpWidget(BookStoreApp());
+    await tester.pump();
+
+    await tester.tap(find.text('Log in'));
+    await tester.pump();
+    await tester.pump(Duration(seconds: 1));
+
+    // User logs in
+    await tester.enterText(find.byKey(LoginPage.usernameFieldKey), 'dash');
+    await tester.pump();
+    await tester.tap(find.byKey(LoginPage.loginButtonKey));
+    await tester.pump();
+
+    expect(find.byType(ShopHome), findsOneWidget);
+  });
 }
