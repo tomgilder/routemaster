@@ -63,20 +63,13 @@ class FlowPage extends StatefulPage<void> with PageContainer {
 }
 
 /// Injected into the widget tree to provide `IndexedPage.of(context)`
-class _FlowPageStateProvider extends InheritedWidget {
+class _FlowPageStateProvider extends InheritedNotifier {
   final FlowPageState pageState;
 
   const _FlowPageStateProvider({
     required Widget child,
     required this.pageState,
-  }) : super(
-          child: child,
-        );
-
-  @override
-  bool updateShouldNotify(covariant _FlowPageStateProvider oldWidget) {
-    return oldWidget.pageState != pageState;
-  }
+  }) : super(child: child);
 }
 
 /// The current state of an [FlowPage]. Created when the an instance of the

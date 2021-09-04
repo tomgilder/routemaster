@@ -157,6 +157,23 @@ void main() {
       expect(systemUrl.current, '/');
     });
   });
+
+  testWidgets('Asserts when no FlowPage widget found', (tester) async {
+    late BuildContext context;
+    await tester.pumpWidget(Builder(
+      builder: (c) {
+        context = c;
+        return const SizedBox();
+      },
+    ));
+
+    expect(
+        () => FlowPage.of(context),
+        throwsA(predicate((e) =>
+            e is AssertionError &&
+            e.message ==
+                "Couldn't find an FlowPageState from the given context.")));
+  });
 }
 
 class BottomSheetPage extends Page<void> {

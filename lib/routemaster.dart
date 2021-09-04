@@ -65,10 +65,7 @@ class RouteMap extends RouteSettings {
 
   /// Generate all [RouteResult] objects required to build the navigation tree
   /// for the given [path]. Returns null if the path isn't valid.
-  List<RouterResult>? getAll({
-    required String path,
-    RouterResult? parent,
-  }) {
+  List<RouterResult>? getAll({required String path, RouterResult? parent}) {
     return _router.getAll(path, parent: parent);
   }
 
@@ -110,10 +107,7 @@ class RelativeRouteMap extends RouteMap {
   /// Generate all [RouteResult] objects required to build the navigation tree
   /// for the given [path]. Returns null if the path isn't valid.
   @override
-  List<RouterResult>? getAll({
-    required String path,
-    RouterResult? parent,
-  }) {
+  List<RouterResult>? getAll({required String path, RouterResult? parent}) {
     return _router.getAll(path, parent: parent);
   }
 }
@@ -715,15 +709,11 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   List<PageWrapper>? _createAllPageWrappers({
     required RouteMap routeMap,
     required _RouteRequest request,
-    RouterResult? parentRoute,
     List<PageWrapper>? currentRoutes,
     List<String>? redirects,
     bool lastPageOnly = false,
   }) {
-    final routerResult = routeMap.getAll(
-      path: request.uri.toString(),
-      parent: parentRoute,
-    );
+    final routerResult = routeMap.getAll(path: request.uri.toString());
 
     if (routerResult == null || routerResult.isEmpty) {
       return null;
@@ -889,15 +879,10 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }
 
   /// Gets single page wrappers.
-  PageWrapper _getSinglePage(
-    _RouteRequest routeRequest, {
-    RouteMap? routeMap,
-    RouterResult? parentRoute,
-  }) {
+  PageWrapper _getSinglePage(_RouteRequest routeRequest, {RouteMap? routeMap}) {
     final result = _createAllPageWrappers(
       routeMap: routeMap ?? _state.routeMap!,
       request: routeRequest,
-      parentRoute: parentRoute,
       lastPageOnly: true,
     );
 
