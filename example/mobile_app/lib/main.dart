@@ -223,14 +223,12 @@ RouteMap _buildRouteMap(AppState appState) {
       '/flow': (_) => FlowPage(
             pageBuilder: (child) => BottomSheetPage(child: child),
             child: FlowBottomSheetContents(),
-            paths: ['one', 'two', 'three'],
+            paths: ['one', 'two'],
           ),
 
-      '/flow/one': (_) => MaterialPage(child: FlowPageTwo()),
-      '/flow/two': (_) => MaterialPage(
-            child: MessagePage(message: 'Subpage'),
-          ),
-      '/flow/three': (_) => MaterialPage(
+      '/flow/one': (_) => MaterialPage(child: FlowPageOne()),
+      '/flow/two': (_) => MaterialPage(child: FlowPageTwo()),
+      '/flow/subpage': (_) => MaterialPage(
             child: MessagePage(message: 'Subpage'),
           ),
 
