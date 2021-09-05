@@ -105,10 +105,6 @@ class FeedPage extends StatelessWidget {
                       Routemaster.of(context).push('/stack/one/two'),
                   child: Text('/stack/one/two'),
                 ),
-                ElevatedButton(
-                  onPressed: () => Routemaster.of(context).push('/customflow'),
-                  child: Text('/customflow'),
-                ),
               ],
             )
           ],
