@@ -1,35 +1,8 @@
-import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:routemaster/src/trie_router/trie_router.dart';
 
 import 'helpers.dart';
-
-class TestRoute extends Page<void> {
-  final String id;
-
-  const TestRoute(this.id);
-
-  @override
-  String toString() {
-    return "Test route '$id'";
-  }
-
-  @override
-  Route<void> createRoute(BuildContext context) {
-    throw UnimplementedError();
-  }
-}
-
-RouteData getRouteData(RouterResult routerResult) {
-  return RouteData(
-    '/',
-    pathTemplate: routerResult.pathTemplate,
-    pathParameters: routerResult.pathParameters,
-    isReplacement: false,
-    requestSource: RequestSource.system,
-  );
-}
 
 void main() {
   test('Can add and get single routes', () {
@@ -546,5 +519,111 @@ void main() {
       paramResult.builder(RouteData('/blah', pathTemplate: '/blah')),
       paramRoute,
     );
+  });
+
+  test('Can input /one/two and match /one/two', () {
+    final router = TrieRouter()
+      ..add('/one', (_) => route1)
+      ..add('/one/two', (_) => route2);
+
+    expectRoute1(router.getAll('/one')!.single);
+
+    final results2 = router.getAll('/one/two')!;
+    expect(results2.length, 2);
+    expectRoute1(results2[0]);
+    expectRoute2(results2[1]);
+  });
+
+  test('Can input /one/two and match one/two', () {
+    final router = TrieRouter()
+      ..add('/one', (_) => route1)
+      ..add('/one/two', (_) => route2);
+
+    expectRoute1(router.getAll('/one')!.single);
+
+    final results2 = router.getAll('/one/two')!;
+    expect(results2.length, 2);
+    expectRoute1(results2[0]);
+    expectRoute2(results2[1]);
+  });
+
+  test('Can input / and /one/two and match /one/two', () {
+    final router = TrieRouter()
+      ..add('/', (_) => rootRoute)
+      ..add('/one', (_) => route1)
+      ..add('/one/two', (_) => route2);
+
+    expectRootRoute(router.getAll('/')!.single);
+
+    final results1 = router.getAll('/one')!;
+    expect(results1.length, 2);
+    expectRootRoute(results1[0]);
+    expectRoute1(results1[1]);
+
+    final results2 = router.getAll('/one/two')!;
+    expect(results2.length, 3);
+    expectRootRoute(results2[0]);
+    expectRoute1(results2[1]);
+    expectRoute2(results2[2]);
+  });
+
+  test('Can input / and /one/two and match one/two', () {
+    final router = TrieRouter()
+      ..add('/', (_) => rootRoute)
+      ..add('/one', (_) => route1)
+      ..add('/one/two', (_) => route2);
+
+    expectRootRoute(router.getAll('/')!.single);
+
+    final results1 = router.getAll('one')!;
+    expect(results1.length, 2);
+    expectRootRoute(results1[0]);
+    expectRoute1(results1[1]);
+
+    final results2 = router.getAll('one/two')!;
+    expect(results2.length, 3);
+    expectRootRoute(results2[0]);
+    expectRoute1(results2[1]);
+    expectRoute2(results2[2]);
+  });
+
+  test('Can input / and one/two and match /one/two', () {
+    final router = TrieRouter()
+      ..add('/', (_) => rootRoute)
+      ..add('one', (_) => route1)
+      ..add('one/two', (_) => route2);
+
+    expectRootRoute(router.getAll('/')!.single);
+
+    final results1 = router.getAll('/one')!;
+    expect(results1.length, 2);
+    expectRootRoute(results1[0]);
+    expectRoute1(results1[1]);
+
+    final results2 = router.getAll('/one/two')!;
+    expect(results2.length, 3);
+    expectRootRoute(results2[0]);
+    expectRoute1(results2[1]);
+    expectRoute2(results2[2]);
+  });
+
+  test('Can input / and one/two and match one/two', () {
+    final router = TrieRouter()
+      ..add('/', (_) => rootRoute)
+      ..add('one', (_) => route1)
+      ..add('one/two', (_) => route2);
+
+    expectRootRoute(router.getAll('/')!.single);
+
+    final results1 = router.getAll('one')!;
+    expect(results1.length, 2);
+    expectRootRoute(results1[0]);
+    expectRoute1(results1[1]);
+
+    final results2 = router.getAll('one/two')!;
+    expect(results2.length, 3);
+    expectRootRoute(results2[0]);
+    expectRoute1(results2[1]);
+    expectRoute2(results2[2]);
   });
 }

@@ -192,14 +192,30 @@ RouteMap _buildRouteMap(AppState appState) {
       '/stack/one/two': (_) => MaterialPage(child: StackPageTwo()),
 
       '/submap/*': (_) {
+        return RouteMap(
+          routes: {
+            '/': (_) => MaterialPage(
+                  child: MessagePage(message: 'Submap root'),
+                ),
+            'one': (_) => MaterialPage(
+                  child: MessagePage(message: 'Submap page one'),
+                ),
+            'one/two': (_) => MaterialPage(
+                  child: MessagePage(message: 'Submap page two'),
+                ),
+          },
+        );
+      },
+
+      '/relative-submap/*': (_) {
         return RelativeRouteMap(
           routes: {
             'one': (_) =>
-                MaterialPage(child: MessagePage(message: 'Subpage one')),
+                MaterialPage(child: MessagePage(message: 'Relative one')),
             'one/two': (_) =>
-                MaterialPage(child: MessagePage(message: 'Subpage two')),
+                MaterialPage(child: MessagePage(message: 'Relative two')),
             'one/two/three': (_) =>
-                MaterialPage(child: MessagePage(message: 'Subpage three')),
+                MaterialPage(child: MessagePage(message: 'Relative three')),
           },
         );
       },

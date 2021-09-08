@@ -37,6 +37,8 @@ class TrieRouter {
   void add(String path, PageBuilder value) {
     assert(path.isNotEmpty);
 
+    path = _ensureInitialSlash(path);
+
     final pathSegments = pathContext.split(path);
     assert(pathSegments.isNotEmpty);
 
@@ -120,10 +122,7 @@ class TrieRouter {
   }
 
   Iterable<RouterResult?> _getAll(String route, {RouterResult? parent}) sync* {
-    if (mode == RouterMode.relative && pathContext.isAbsolute(route)) {
-      // Strip initial slash
-      route = route.substring(1);
-    }
+    route = _ensureInitialSlash(route);
 
     final pathSegments = pathContext.split(PathParser.stripQueryString(route));
     final parameters = <String, String>{};
@@ -138,6 +137,16 @@ class TrieRouter {
       final path = pathContext.joinAll(
         count == null ? pathSegments : pathSegments.take(count + 1),
       );
+
+      // if (mode == RouterMode.relative) {
+      //   final pathFinal = pathContext.join(
+      //     parent!.basePath ?? parent.pathSegment,
+      //     path,
+      //   );
+
+      //   print("Parent: '${parent.basePath ?? parent.pathSegment}'");
+      //   print("path: '$path' / Final path: '$pathFinal'\n");
+      // }
 
       lastResult = parent == null
           ? RouterResult(
@@ -158,11 +167,11 @@ class TrieRouter {
               ),
               pathSegment: pathContext.join(
                 parent.basePath ?? parent.pathSegment,
-                path,
+                _stripInitialSlash(path),
               ),
               pathTemplate: pathContext.join(
                 parent.pathTemplate,
-                node.template!.replaceAll('*', ''),
+                _stripInitialSlash(node.template!.replaceAll('*', '')),
               ),
               unmatchedPath: unmatchedPath,
               basePath: basePath,
@@ -262,5 +271,29 @@ class TrieRouter {
       yield null;
       return;
     }
+  }
+
+  static String _ensureInitialSlash(String input) {
+    if (input == '/') {
+      return '/';
+    }
+
+    if (input[0] != '/') {
+      return '/$input';
+    }
+
+    return input;
+  }
+
+  static String _stripInitialSlash(String input) {
+    if (input == '/') {
+      return '';
+    }
+
+    if (input[0] == '/') {
+      return input.substring(1);
+    }
+
+    return input;
   }
 }

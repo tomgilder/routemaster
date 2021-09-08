@@ -77,8 +77,13 @@ class FeedPage extends StatelessWidget {
                 ),
                 ElevatedButton(
                   onPressed: () =>
-                      Routemaster.of(context).push('/submap/three'),
-                  child: Text('break'),
+                      Routemaster.of(context).push('/submap/one/two'),
+                  child: Text('submap'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Routemaster.of(context)
+                      .push('/relative-submap/one/two/three'),
+                  child: Text('relative-submap'),
                 ),
                 ElevatedButton(
                   onPressed: () => Routemaster.of(context).push('/flow'),
@@ -104,6 +109,10 @@ class FeedPage extends StatelessWidget {
                   onPressed: () =>
                       Routemaster.of(context).push('/stack/one/two'),
                   child: Text('/stack/one/two'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Routemaster.of(context).push('/flow/two'),
+                  child: Text('/flow/two'),
                 ),
               ],
             )

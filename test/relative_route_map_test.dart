@@ -618,6 +618,112 @@ void main() {
     expect(subrouteCalled, isTrue);
     expect(find.byType(DefaultNotFoundPage), findsOneWidget);
   });
+
+  test('Can input /one/two and match /one/two', () {
+    final router = TrieRouter(mode: RouterMode.relative)
+      ..add('/one', (_) => route1)
+      ..add('/one/two', (_) => route2);
+
+    expectRoute1(router.getAll('/one')!.single);
+
+    final results2 = router.getAll('/one/two')!;
+    expect(results2.length, 2);
+    expectRoute1(results2[0]);
+    expectRoute2(results2[1]);
+  });
+
+  test('Can input /one/two and match one/two', () {
+    final router = TrieRouter(mode: RouterMode.relative)
+      ..add('/one', (_) => route1)
+      ..add('/one/two', (_) => route2);
+
+    expectRoute1(router.getAll('/one')!.single);
+
+    final results2 = router.getAll('/one/two')!;
+    expect(results2.length, 2);
+    expectRoute1(results2[0]);
+    expectRoute2(results2[1]);
+  });
+
+  test('Can input / and /one/two and match /one/two', () {
+    final router = TrieRouter(mode: RouterMode.relative)
+      ..add('/', (_) => rootRoute)
+      ..add('/one', (_) => route1)
+      ..add('/one/two', (_) => route2);
+
+    expectRootRoute(router.getAll('/')!.single);
+
+    final results1 = router.getAll('/one')!;
+    expect(results1.length, 2);
+    expectRootRoute(results1[0]);
+    expectRoute1(results1[1]);
+
+    final results2 = router.getAll('/one/two')!;
+    expect(results2.length, 3);
+    expectRootRoute(results2[0]);
+    expectRoute1(results2[1]);
+    expectRoute2(results2[2]);
+  });
+
+  test('Can input / and /one/two and match one/two', () {
+    final router = TrieRouter(mode: RouterMode.relative)
+      ..add('/', (_) => rootRoute)
+      ..add('/one', (_) => route1)
+      ..add('/one/two', (_) => route2);
+
+    expectRootRoute(router.getAll('/')!.single);
+
+    final results1 = router.getAll('one')!;
+    expect(results1.length, 2);
+    expectRootRoute(results1[0]);
+    expectRoute1(results1[1]);
+
+    final results2 = router.getAll('one/two')!;
+    expect(results2.length, 3);
+    expectRootRoute(results2[0]);
+    expectRoute1(results2[1]);
+    expectRoute2(results2[2]);
+  });
+
+  test('Can input / and one/two and match /one/two', () {
+    final router = TrieRouter(mode: RouterMode.relative)
+      ..add('/', (_) => rootRoute)
+      ..add('one', (_) => route1)
+      ..add('one/two', (_) => route2);
+
+    expectRootRoute(router.getAll('/')!.single);
+
+    final results1 = router.getAll('/one')!;
+    expect(results1.length, 2);
+    expectRootRoute(results1[0]);
+    expectRoute1(results1[1]);
+
+    final results2 = router.getAll('/one/two')!;
+    expect(results2.length, 3);
+    expectRootRoute(results2[0]);
+    expectRoute1(results2[1]);
+    expectRoute2(results2[2]);
+  });
+
+  test('Can input / and one/two and match one/two', () {
+    final router = TrieRouter(mode: RouterMode.relative)
+      ..add('/', (_) => rootRoute)
+      ..add('one', (_) => route1)
+      ..add('one/two', (_) => route2);
+
+    expectRootRoute(router.getAll('/')!.single);
+
+    final results1 = router.getAll('one')!;
+    expect(results1.length, 2);
+    expectRootRoute(results1[0]);
+    expectRoute1(results1[1]);
+
+    final results2 = router.getAll('one/two')!;
+    expect(results2.length, 3);
+    expectRootRoute(results2[0]);
+    expectRoute1(results2[1]);
+    expectRoute2(results2[2]);
+  });
 }
 
 class MyTabPage extends StatelessWidget {
