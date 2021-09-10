@@ -1119,11 +1119,11 @@ class PageStackNavigator extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  PageStackNavigatorState createState() => PageStackNavigatorState();
+  _PageStackNavigatorState createState() => _PageStackNavigatorState();
 
-  /// Retrieves the nearest [PageStackNavigatorState] ancestor.
-  static PageStackNavigatorState of(BuildContext context) {
-    final state = context.findAncestorStateOfType<PageStackNavigatorState>();
+  /// Retrieves the nearest [_PageStackNavigatorState] ancestor.
+  static _PageStackNavigatorState of(BuildContext context) {
+    final state = context.findAncestorStateOfType<_PageStackNavigatorState>();
     assert(state != null, "Couldn't find a StackNavigatorState");
     return state!;
   }
@@ -1131,13 +1131,13 @@ class PageStackNavigator extends StatefulWidget {
 
 /// The state for a [PageStackNavigator]. Watches for changes in the stack
 /// and rebuilds the [Navigator] when required.
-class PageStackNavigatorState extends State<PageStackNavigator> {
+class _PageStackNavigatorState extends State<PageStackNavigator> {
   late _StackNavigator _widget;
   late Routemaster _routemaster;
 
   /// The state for a [PageStackNavigator]. Watches for changes in the stack
   /// and rebuilds the [Navigator] when required.
-  PageStackNavigatorState();
+  _PageStackNavigatorState();
 
   @override
   void initState() {

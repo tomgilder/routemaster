@@ -46,11 +46,11 @@ class StackPage extends StatefulPage<void> with PageContainer {
 
   @override
   PageState createState() {
-    return StackPageState();
+    return _StackPageState();
   }
 
-  /// Retrieves the [StackPageState] from the closest [StackPage] ancestor.
-  static StackPageState of(BuildContext context) {
+  /// Retrieves the [_StackPageState] from the closest [StackPage] ancestor.
+  static _StackPageState of(BuildContext context) {
     final provider =
         context.dependOnInheritedWidgetOfExactType<_StackPageStateProvider>();
 
@@ -65,7 +65,7 @@ class StackPage extends StatefulPage<void> with PageContainer {
 
 /// Injected into the widget tree to provide `StackPage.of(context)`
 class _StackPageStateProvider extends InheritedNotifier {
-  final StackPageState pageState;
+  final _StackPageState pageState;
 
   _StackPageStateProvider({
     required Widget child,
@@ -78,10 +78,7 @@ class _StackPageStateProvider extends InheritedNotifier {
 
 /// The current state of an [StackPage]. Created when an instance of the page
 /// is shown.
-class StackPageState extends PageState<StackPage> with ChangeNotifier {
-  /// Initializes the state for an [StackPage].
-  StackPageState();
-
+class _StackPageState extends PageState<StackPage> with ChangeNotifier {
   /// The stack for this page, which can be passed to a [StackNavigator].
   final stack = PageStack();
 

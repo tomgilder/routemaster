@@ -69,9 +69,6 @@ class _IndexedPageStateProvider extends InheritedNotifier {
 ///
 class IndexedPageState extends PageState<IndexedPage>
     with ChangeNotifier, IndexedPageStateMixIn {
-  /// Initializes the state for an [IndexedPage].
-  IndexedPageState();
-
   @override
   void initState() {
     super.initState();
@@ -111,11 +108,11 @@ class TabPage extends StatefulPage<void> with IndexedRouteMixIn {
 
   @override
   PageState createState() {
-    return TabPageState();
+    return _TabPageState();
   }
 
-  /// Retrieves the nearest [TabPageState] ancestor.
-  static TabPageState of(BuildContext context) {
+  /// Retrieves the nearest [_TabPageState] ancestor.
+  static _TabPageState of(BuildContext context) {
     final provider =
         context.dependOnInheritedWidgetOfExactType<_TabPageStateProvider>();
 
@@ -129,7 +126,7 @@ class TabPage extends StatefulPage<void> with IndexedRouteMixIn {
 }
 
 class _TabPageStateProvider extends InheritedNotifier {
-  final TabPageState pageState;
+  final _TabPageState pageState;
 
   const _TabPageStateProvider({
     required Widget child,
@@ -142,11 +139,8 @@ class _TabPageStateProvider extends InheritedNotifier {
 
 /// The state for a [TabPage]. Creates and manages a [TabController] that can be
 /// retrieved via `TabPage.of(context).controller`.
-class TabPageState extends PageState<TabPage>
+class _TabPageState extends PageState<TabPage>
     with ChangeNotifier, IndexedPageStateMixIn {
-  /// Initializes the state for a [TabPage].
-  TabPageState();
-
   @override
   void initState() {
     super.initState();
@@ -181,10 +175,10 @@ class TabPageState extends PageState<TabPage>
   TabController? _controller;
 }
 
-/// Creates a [TabController] for [TabPageState]
+/// Creates a [TabController] for [_TabPageState]
 class _TabControllerProvider extends StatefulWidget {
   final Widget child;
-  final TabPageState pageState;
+  final _TabPageState pageState;
 
   const _TabControllerProvider({
     required this.child,
@@ -281,11 +275,11 @@ class CupertinoTabPage extends StatefulPage<void> with IndexedRouteMixIn {
 
   @override
   PageState createState() {
-    return CupertinoTabPageState();
+    return _CupertinoTabPageState();
   }
 
-  /// Retrieves the nearest [CupertinoTabPageState] ancestor.
-  static CupertinoTabPageState of(BuildContext context) {
+  /// Retrieves the nearest [_CupertinoTabPageState] ancestor.
+  static _CupertinoTabPageState of(BuildContext context) {
     final provider = context
         .dependOnInheritedWidgetOfExactType<_CupertinoTabPageStateProvider>();
 
@@ -299,7 +293,7 @@ class CupertinoTabPage extends StatefulPage<void> with IndexedRouteMixIn {
 }
 
 class _CupertinoTabPageStateProvider extends InheritedNotifier {
-  final CupertinoTabPageState pageState;
+  final _CupertinoTabPageState pageState;
 
   const _CupertinoTabPageStateProvider({
     required Widget child,
@@ -313,11 +307,8 @@ class _CupertinoTabPageStateProvider extends InheritedNotifier {
 /// The state for a [CupertinoTabPage]. Creates and manages a
 /// [CupertinoTabController] that can be accessed by calling
 /// `CupertinoTabPage.of(context).controller`.
-class CupertinoTabPageState extends PageState<CupertinoTabPage>
+class _CupertinoTabPageState extends PageState<CupertinoTabPage>
     with ChangeNotifier, IndexedPageStateMixIn {
-  /// Initializes the state for a [CupertinoTabPage].
-  CupertinoTabPageState();
-
   /// A tab controller that is managed by this page state.
   ///
   /// Normally accessed by calling `CupertinoTabPage.of(context).controller`.
