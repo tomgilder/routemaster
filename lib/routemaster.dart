@@ -1,26 +1,28 @@
 library routemaster;
 
-export 'src/parser.dart';
-export 'src/pages/guard.dart';
-export 'src/pages/transition_page.dart';
-
 import 'dart:async';
+
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:collection/collection.dart';
+
 import 'src/not_found_page.dart';
 import 'src/pages/guard.dart';
 import 'src/path_parser.dart';
 import 'src/system_nav.dart';
 import 'src/trie_router/trie_router.dart';
 
-part 'src/pages/page_stack.dart';
-part 'src/pages/tab_pages.dart';
-part 'src/pages/basic_pages.dart';
-part 'src/pages/stack_page.dart';
+export 'src/pages/guard.dart';
+export 'src/pages/transition_page.dart';
+export 'src/parser.dart';
+
 part 'src/observers.dart';
+part 'src/pages/basic_pages.dart';
+part 'src/pages/page_stack.dart';
+part 'src/pages/stack_page.dart';
+part 'src/pages/tab_pages.dart';
 part 'src/route_data.dart';
 
 /// A function that builds a [Page] from given [RouteData].

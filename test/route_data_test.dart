@@ -1,9 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:routemaster/routemaster.dart';
+
 import 'helpers.dart';
-import 'dart:convert';
 
 MaterialPage<void> builder(RouteData info) {
   return MaterialPage<void>(child: Container());

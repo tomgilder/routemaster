@@ -1,9 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:routemaster/routemaster.dart';
-import 'helpers.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_test/flutter_test.dart' as test;
+import 'package:routemaster/routemaster.dart';
+
+import 'helpers.dart';
 
 void main() {
   testWidgets('Can get observer updates from both RouterDelegate and Navigator',

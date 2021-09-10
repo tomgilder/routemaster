@@ -1,4 +1,4 @@
-import 'package:routemaster/routemaster.dart';
+import '../../../routemaster.dart';
 import '../../path_parser.dart';
 import 'errors.dart';
 import 'router_result.dart';

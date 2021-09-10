@@ -7,8 +7,10 @@ analyzer:
 
 linter:
   rules:
+    - directives_ordering
     - prefer_const_constructors
     - prefer_const_constructors_in_immutables
     - prefer_const_declarations
     - prefer_const_literals_to_create_immutables
+    - prefer_relative_imports
     - public_member_api_docs
