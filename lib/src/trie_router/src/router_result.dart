@@ -1,4 +1,4 @@
-import '../../../routemaster.dart';
+import '../../core.dart';
 
 /// A match for a path returned from [TrieRouter].
 class RouterResult {

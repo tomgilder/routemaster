@@ -1,4 +1,4 @@
-part of '../../routemaster.dart';
+part of '../core.dart';
 
 /// Creates a page that can provide a stack of inner pages.
 ///

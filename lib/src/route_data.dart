@@ -1,4 +1,4 @@
-part of '../routemaster.dart';
+part of 'core.dart';
 
 /// Information generated from a specific path (URL).
 ///

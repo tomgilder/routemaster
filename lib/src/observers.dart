@@ -1,4 +1,4 @@
-part of '../routemaster.dart';
+part of 'core.dart';
 
 /// An observer of changes in navigation.
 ///

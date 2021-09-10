@@ -1,4 +1,4 @@
-part of '../../routemaster.dart';
+part of '../core.dart';
 
 Page _defaultPageBuilder(Widget child) {
   return MaterialPage<void>(child: child);

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../routemaster.dart';
+
+import '../core.dart';
 
 /// Provides functionality to block pages being loaded. Generally it's cleaner
 /// to **not to use this class**, and just use logic within the route map

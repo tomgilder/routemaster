@@ -1,4 +1,4 @@
-part of '../../routemaster.dart';
+part of '../core.dart';
 
 /// Manages a stack of pages. Used by [PageStackNavigator].
 class PageStack extends ChangeNotifier {

@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
-import '../routemaster.dart';
+import 'core.dart';
 import 'fake_html.dart' if (dart.library.js) 'dart:html';
 import 'path_parser.dart';
 import 'system_nav.dart';

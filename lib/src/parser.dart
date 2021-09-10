@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
-import '../routemaster.dart';
+import 'core.dart';
 
 /// A delegate that is used by the [Router] widget to parse URLs.
 ///

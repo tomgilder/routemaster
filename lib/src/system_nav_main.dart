@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
-import '../routemaster.dart';
+
+import 'core.dart';
 import 'system_nav.dart';
 // ignore_for_file: public_member_api_docs
 

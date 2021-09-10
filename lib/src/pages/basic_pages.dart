@@ -1,4 +1,4 @@
-part of '../../routemaster.dart';
+part of '../core.dart';
 
 /// Marks a page as not being navigable to directly. It cannot be the top-level
 /// page, and if navigated to directly will redirect to a child page.
