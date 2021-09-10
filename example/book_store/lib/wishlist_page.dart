@@ -48,7 +48,12 @@ class WishlistHomePage extends StatelessWidget {
           SizedBox(height: 50),
           Center(
             child: ElevatedButton(
-              onPressed: () => Routemaster.of(context).push('add'),
+              onPressed: () {
+                Routemaster.of(Routemaster.of(context).currentContext!).push('add');
+                // showDialog(context: Routemaster.of(context).currentContext!, builder: (context){
+                //   return AddWishlistDialog();
+                // });
+              },
               child: Text('Add a new wishlist'),
             ),
           ),

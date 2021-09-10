@@ -151,6 +151,10 @@ class Routemaster {
   /// The current global route.
   RouteData get currentRoute => _state.delegate.currentConfiguration!;
 
+  /// The current context of the app
+  BuildContext? get currentContext => _state.delegate.navigatorKey?.currentContext;
+
+
   /// Pops the current route from the router. Returns `true` if the pop was
   /// successful, or `false` if it wasn't.
   @optionalTypeArgs
@@ -264,7 +268,7 @@ class NavigationResult<T extends Object?> {
 
 /// A delegate that is used by the [Router] widget to manage navigation.
 class RoutemasterDelegate extends RouterDelegate<RouteData>
-    with ChangeNotifier {
+    with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouteData> {
   /// Specifies how the top-level [Navigator] transitions between routes.
   ///
   /// If this isn't provided, a [DefaultTransitionDelegate] is used.
@@ -301,6 +305,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     this.transitionDelegate,
     this.observers = const [],
   }) : navigatorBuilder = null {
+    _navigatorKey = GlobalKey<NavigatorState>();
     _state.delegate = this;
   }
 
@@ -457,6 +462,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           child: navigatorBuilder != null
               ? navigatorBuilder!(context, _state.stack)
               : PageStackNavigator(
+                  navigatorKey:_navigatorKey,
                   stack: _state.stack,
                   transitionDelegate: transitionDelegate ??
                       const DefaultTransitionDelegate<dynamic>(),
@@ -1010,6 +1016,17 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       completer.complete(route);
     }
   }
+
+  /// it will be passed to PageStackNavigator() which is going to be used as 'key' for Navigator()
+  late GlobalKey<NavigatorState>? _navigatorKey;
+
+  @override
+  GlobalKey<NavigatorState>? get navigatorKey => _navigatorKey;
+
+  /// gives us access to current context
+  BuildContext? get currentContext => _navigatorKey?.currentContext;
+
+
 }
 
 /// A union type for results from the page map.
@@ -1181,12 +1198,15 @@ class PageStackNavigator extends StatefulWidget {
   /// A list of [NavigatorObserver] that will be passed to the [Navigator].
   final List<NavigatorObserver> observers;
 
+  ///
+  final GlobalKey? navigatorKey;
   /// Provides a [Navigator] that shows pages from a [PageStack].
   const PageStackNavigator({
     Key? key,
     required this.stack,
     this.transitionDelegate = const DefaultTransitionDelegate<dynamic>(),
     this.observers = const [],
+    this.navigatorKey
   }) : super(key: key);
 
   @override
@@ -1260,6 +1280,7 @@ class PageStackNavigatorState extends State<PageStackNavigator> {
 
   void _updateNavigator() {
     _widget = _StackNavigator(
+      key:widget.navigatorKey,
       stack: widget.stack,
       onPopPage: (route, dynamic result) {
         final didPop = widget.stack.onPopPage(route, result);
