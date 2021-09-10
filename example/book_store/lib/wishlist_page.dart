@@ -49,8 +49,19 @@ class WishlistHomePage extends StatelessWidget {
           Center(
             child: ElevatedButton(
               onPressed: () {
+                ///maybe this would not make much sense in this example project because we do have access
+                ///to context here. but what if we don't?
                 Routemaster.of(Routemaster.of(context).currentContext!).push('add');
+
+                ///so now we can do something like this
                 // showDialog(context: Routemaster.of(context).currentContext!, builder: (context){
+                //   return AddWishlistDialog();
+                // });
+
+                /// which is useful in my app architecture because I separate Logic from View
+                /// (NavigatorService is just a class in my app which is loaded as Singleton to make it easy
+                /// working with navigator)
+                // showDialog(context: locator<NavigatorService>().routeMasterDelegate.currentContext!, builder: (context){
                 //   return AddWishlistDialog();
                 // });
               },
