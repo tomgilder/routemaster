@@ -18,8 +18,8 @@ class RoutemasterParser extends RouteInformationParser<RouteData> {
   }
 
   @override
-  RouteInformation restoreRouteInformation(RouteData routeData) {
+  RouteInformation restoreRouteInformation(RouteData configuration) {
     // Routemaster is reporting new routing information
-    return routeData.toRouteInformation();
+    return configuration.toRouteInformation();
   }
 }

@@ -459,14 +459,14 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   //
   // This method then modifies the state based on that information.
   @override
-  Future<void> setNewRoutePath(RouteData routeData) {
+  Future<void> setNewRoutePath(RouteData configuration) {
     assert(!_isDisposed);
 
     _navigate(
-      uri: routeData._uri,
-      queryParameters: routeData.queryParameters,
-      isReplacement: routeData.isReplacement,
-      requestSource: routeData.requestSource,
+      uri: configuration._uri,
+      queryParameters: configuration.queryParameters,
+      isReplacement: configuration.isReplacement,
+      requestSource: configuration.requestSource,
       isSystemNavigation: true,
     );
 

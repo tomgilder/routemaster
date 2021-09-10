@@ -11,9 +11,9 @@ class PageStack extends ChangeNotifier {
       return;
     }
 
-    _listenedToRoutes.forEach((route) {
+    for (var route in _listenedToRoutes) {
       route.removeListener(notifyListeners);
-    });
+    }
 
     _listenedToRoutes = newPages.whereType<Listenable>().toList()
       ..forEach((route) {

@@ -1,7 +1,10 @@
+// ignore_for_file: use_key_in_widget_constructors
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:routemaster/routemaster.dart';
+
 import 'helpers.dart';
 
 void main() {
@@ -539,7 +542,7 @@ class MyTabPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final stack = TabPage.of(context).stacks[0];
 
-    return Container(
+    return SizedBox(
       height: 300,
       child: PageStackNavigator(stack: stack),
     );
