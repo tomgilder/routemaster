@@ -138,16 +138,6 @@ class TrieRouter {
         count == null ? pathSegments : pathSegments.take(count + 1),
       );
 
-      // if (mode == RouterMode.relative) {
-      //   final pathFinal = pathContext.join(
-      //     parent!.basePath ?? parent.pathSegment,
-      //     path,
-      //   );
-
-      //   print("Parent: '${parent.basePath ?? parent.pathSegment}'");
-      //   print("path: '$path' / Final path: '$pathFinal'\n");
-      // }
-
       lastResult = parent == null
           ? RouterResult(
               builder: node.value!,

@@ -153,30 +153,30 @@ const rootRoute = TestRoute('root');
 const route1 = TestRoute('one');
 const route2 = TestRoute('two');
 
-void expectRootRoute(RouterResult result) {
+void expectRootRoute(RouterResult result, {String prefix = ''}) {
   expectRoute(
     result,
     route: rootRoute,
-    pathTemplate: '/',
-    pathSegment: '/',
+    pathTemplate: '$prefix/',
+    pathSegment: '$prefix/',
   );
 }
 
-void expectRoute1(RouterResult result) {
+void expectRoute1(RouterResult result, {String prefix = ''}) {
   expectRoute(
     result,
     route: route1,
-    pathTemplate: '/one',
-    pathSegment: '/one',
+    pathTemplate: '$prefix/one',
+    pathSegment: '$prefix/one',
   );
 }
 
-void expectRoute2(RouterResult result) {
+void expectRoute2(RouterResult result, {String prefix = ''}) {
   expectRoute(
     result,
     route: route2,
-    pathTemplate: '/one/two',
-    pathSegment: '/one/two',
+    pathTemplate: '$prefix/one/two',
+    pathSegment: '$prefix/one/two',
   );
 }
 
