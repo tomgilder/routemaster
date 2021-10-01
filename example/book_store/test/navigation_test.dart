@@ -263,7 +263,7 @@ void main() {
 
       // Tap back button
 
-      await tester.tap(find.byType(BackButton));
+      await tester.tap(find.byType(CupertinoNavigationBarBackButton));
       await tester.pump();
       await tester.pump(Duration(seconds: 1));
 
@@ -369,7 +369,7 @@ void main() {
 
       // Tap back button, expect to go back to home page
 
-      await tester.tap(find.byType(BackButton));
+      await tester.tap(find.byType(CupertinoNavigationBarBackButton));
       await tester.pump();
       await tester.pump(Duration(seconds: 1));
 

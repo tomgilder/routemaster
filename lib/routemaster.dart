@@ -22,6 +22,7 @@ part 'src/pages/basic_pages.dart';
 part 'src/pages/stack_page.dart';
 part 'src/observers.dart';
 part 'src/route_data.dart';
+part 'src/history_manager.dart';
 
 /// A function that builds a [Page] from given [RouteData].
 typedef PageBuilder = RouteSettings Function(RouteData route);
@@ -158,6 +159,9 @@ class Routemaster {
     return _state.delegate.pop(value);
   }
 
+  /// Allows navigating through the router's chronological history.
+  RouteHistory get history => _state.history;
+
   /// Calls [pop] repeatedly whilst the [predicate] function returns true.
   ///
   /// If [predicate] immediately returns false, pop won't be called.
@@ -287,6 +291,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     PageStack stack,
   )? navigatorBuilder;
 
+  /// Allows navigating through the router's chronological history.
+  RouteHistory get history => _state.history;
+
   _RoutemasterState _state = _RoutemasterState();
   bool _isBuilding = false;
   bool _isDisposed = false;
@@ -324,10 +331,12 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }
 
   /// Called by the [Router] when the [Router.backButtonDispatcher] reports that
-  /// the operating system is requesting that the current route be popped.
+  /// the operating system is requesting that the current route be popped, for
+  /// instance on Android when the user presses the device's back button.
   @override
   Future<bool> popRoute() async {
     assert(!_isDisposed);
+
     return pop();
   }
 
@@ -479,6 +488,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   void _updateCurrentConfiguration({
     bool isReplacement = false,
     bool isSystemNavigation = false,
+    bool isHistoryNavigation = false,
   }) {
     final currentPages = _state.stack._getCurrentPages();
 
@@ -490,11 +500,22 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       void _update() {
         if (_state.currentConfiguration!.fullPath != routeData.fullPath) {
           _state.currentConfiguration = routeData;
+
+          if (!isHistoryNavigation) {
+            if (isReplacement) {
+              _state.history._didReplace(routeData);
+            } else {
+              _state.history._didPush(routeData);
+            }
+          }
+
           _markNeedsUpdate();
 
           for (final observer in observers) {
             observer.didChangeRoute(routeData, pageWrapper._getOrCreatePage());
           }
+        } else if (_state.history._isEmpty) {
+          _state.history._didPush(routeData);
         }
       }
 
@@ -596,6 +617,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     bool useCurrentState = true,
     bool isRetry = false,
     bool isSystemNavigation = false,
+    bool isHistoryNavigation = false,
   }) {
     if (_state.routeMap == null) {
       // routeMap can be null after a hot reload
@@ -649,6 +671,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
               requestSource: requestSource,
               isRetry: true,
               isSystemNavigation: isSystemNavigation,
+              isHistoryNavigation: isHistoryNavigation,
             );
           }
         });
@@ -667,6 +690,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     _updateCurrentConfiguration(
       isReplacement: pathIsSame || isReplacement,
       isSystemNavigation: isSystemNavigation,
+      isHistoryNavigation: isHistoryNavigation,
     );
   }
 
@@ -1062,6 +1086,7 @@ class _RoutemasterWidget extends InheritedWidget {
 /// still maintain its state.
 class _RoutemasterState {
   final stack = PageStack();
+  late final history = RouteHistory._(this);
   RouteMap? routeMap;
   RouteData? currentConfiguration;
   _RouteRequest? pendingNavigation;

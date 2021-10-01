@@ -56,6 +56,9 @@ class _PageScaffoldState extends State<PageScaffold> {
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
+    final routemaster = Routemaster.of(context);
+    final canGoBack = routemaster.history.canGoBack;
+    final canGoForward = routemaster.history.canGoForward;
 
     return LayoutBuilder(builder: (context, constraints) {
       final isMobile = constraints.maxWidth < 600;
@@ -114,11 +117,33 @@ class _PageScaffoldState extends State<PageScaffold> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  SizedBox(width: 20),
                   Container(
-                    width: 70,
-                    child: ModalRoute.of(context)!.canPop
-                        ? const BackButton(color: Colors.white)
+                    width: 40,
+                    child: InkWell(
+                      onTap:
+                          canGoBack ? () => routemaster.history.back() : null,
+                      child: Icon(
+                        Icons.arrow_back_ios,
+                        color: canGoBack
+                            ? Colors.white
+                            : Colors.white.withAlpha(30),
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: canGoForward
+                        ? () => routemaster.history.forward()
                         : null,
+                    child: Container(
+                      width: 40,
+                      child: Icon(
+                        Icons.arrow_forward_ios,
+                        color: canGoForward
+                            ? Colors.white
+                            : Colors.white.withAlpha(30),
+                      ),
+                    ),
                   ),
                   Expanded(
                     child: Row(
@@ -190,9 +215,18 @@ class _PageScaffoldState extends State<PageScaffold> {
                       ),
                     ),
                   Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: widget.body,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (ModalRoute.of(context)?.canPop == true)
+                          CupertinoNavigationBarBackButton(),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: widget.body,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
