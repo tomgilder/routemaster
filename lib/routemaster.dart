@@ -22,7 +22,7 @@ part 'src/pages/basic_pages.dart';
 part 'src/pages/stack_page.dart';
 part 'src/observers.dart';
 part 'src/route_data.dart';
-part 'src/history_manager.dart';
+part 'src/route_history.dart';
 
 /// A function that builds a [Page] from given [RouteData].
 typedef PageBuilder = RouteSettings Function(RouteData route);
