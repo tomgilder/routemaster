@@ -515,6 +515,9 @@ class StubRoutemaster implements Routemaster {
   Future<void> popUntil(bool Function(RouteData routeData) predicate) {
     throw UnimplementedError();
   }
+
+  @override
+  RouteHistory get history => throw UnimplementedError();
 }
 
 class StubNavigationResult<T> implements NavigationResult<T> {

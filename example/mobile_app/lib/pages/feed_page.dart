@@ -19,7 +19,7 @@ class FeedPage extends StatelessWidget {
                     final result = await Routemaster.of(context)
                         .push<String?>('profile/1')
                         .result;
-                    print(result);
+                    print("Profile result: '$result'");
                   },
                   child: Text('Push profile page with ID 1'),
                 ),
@@ -124,8 +124,16 @@ class ProfilePage extends StatelessWidget {
               child: Text('Photo page (custom animation)'),
             ),
             ElevatedButton(
-              onPressed: () => Routemaster.of(context).pop(),
+              onPressed: () => Routemaster.of(context).push('/feed/profile/2'),
+              child: Text('Go to profile page 2'),
+            ),
+            ElevatedButton(
+              onPressed: () => Routemaster.of(context).history.back(),
               child: Text('Back'),
+            ),
+            ElevatedButton(
+              onPressed: () => Routemaster.of(context).pop(),
+              child: Text('Pop'),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop('hello!'),
