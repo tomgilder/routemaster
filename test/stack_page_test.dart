@@ -102,9 +102,11 @@ void main() {
     await recordUrlChanges((systemUrl) async {
       await tester.pumpWidget(stackApp);
 
+      Routemaster.of(rootPageKey.currentContext!).push('/stack/one');
+      await tester.pumpPageTransition();
+
       Routemaster.of(rootPageKey.currentContext!).push('/stack/one/two');
-      await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await tester.pumpPageTransition();
 
       expect(find.byType(StackPageTwo), findsOneWidget);
 

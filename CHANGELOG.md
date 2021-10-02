@@ -1,4 +1,15 @@
-# 0.10.0-dev3
+# 0.10.0-dev4
+
+**Important:** this release has some major breaking changes with how Routemaster
+interacts with the system back button on Android and web.
+
+* Breaking change: by default, the Android system back button now navigates
+  backwards chronologically, instead of just popping the navigation stack.
+
+* Breaking change: by default, tabs no longer add an entry to the web history
+  stack. This means the browser back button will not navigate between tabs.
+  To use the previous behavior, specify `backBehavior: TabBackBehavior.history` in
+  the tab page's constructor.
 
 * Added: `history` property on `Routemaster` for chronological history navigation,
   for example `Routemaster.of(context).history.back()`.

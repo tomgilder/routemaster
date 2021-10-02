@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile_app/main.dart';
 import 'helpers.dart';
@@ -28,7 +29,7 @@ void main() {
       await tester.pump(Duration(seconds: 1));
       expect(systemUrl.current, '/bottom-navigation-bar/one');
 
-      await invokeSystemBack();
+      await tester.tap(find.byType(BackButton));
       await tester.pump();
       await tester.pump(Duration(seconds: 1));
       expect(systemUrl.current, '/feed');

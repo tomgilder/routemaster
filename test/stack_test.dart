@@ -264,12 +264,15 @@ void main() {
         routeInformationParser: const RoutemasterParser(),
         routeInformationProvider: PlatformRouteInformationProvider(
           initialRouteInformation: const RouteInformation(
-            location: '/tabs/one/subpage',
+            location: '/tabs/one',
           ),
         ),
         routerDelegate: delegate,
       ),
     );
+
+    delegate.push('subpage');
+    await tester.pumpPageTransition();
 
     expect(find.byType(PageThree), findsOneWidget);
     await invokeSystemBack();

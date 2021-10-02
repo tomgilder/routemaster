@@ -48,9 +48,13 @@ class RouteHistory {
   }
 
   void _didPush(RouteData route) {
-    _history.add(route);
-    _index++;
-    _clearForwardEntries();
+    final routeHasChanged = _history.isEmpty || route != _history[_index];
+
+    if (routeHasChanged) {
+      _history.add(route);
+      _index++;
+      _clearForwardEntries();
+    }
   }
 
   void _didReplace(RouteData route) {

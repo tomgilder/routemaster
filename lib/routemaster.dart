@@ -159,7 +159,9 @@ class Routemaster {
     return _state.delegate.pop(value);
   }
 
-  /// Allows navigating through the router's chronological history.
+  /// Allows navigating through the chronological history of routes.
+  ///
+  /// This is the routes that the user has recently seen.
   RouteHistory get history => _state.history;
 
   /// Calls [pop] repeatedly whilst the [predicate] function returns true.
@@ -291,7 +293,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     PageStack stack,
   )? navigatorBuilder;
 
-  /// Allows navigating through the router's chronological history.
+  /// Allows navigating through the chronological history of routes.
+  ///
+  /// This is the routes that the user has recently seen.
   RouteHistory get history => _state.history;
 
   _RoutemasterState _state = _RoutemasterState();
@@ -337,7 +341,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   Future<bool> popRoute() async {
     assert(!_isDisposed);
 
-    return pop();
+    return history.back();
   }
 
   /// Attempts to pops the top-level route. Returns `true` if a route was
@@ -441,10 +445,12 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   /// Marks the router as needing an update, for instance of the current path
   /// has changed.
-  void _markNeedsUpdate() {
+  void _markNeedsUpdate({bool isReplacement = false}) {
     assert(!_isDisposed);
 
-    _updateCurrentConfiguration();
+    _updateCurrentConfiguration(
+      isReplacement: isReplacement,
+    );
 
     if (!_isBuilding) {
       notifyListeners();
