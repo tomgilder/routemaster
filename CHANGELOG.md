@@ -3,6 +3,8 @@
 **Important:** this release has some major breaking changes with how Routemaster
 interacts with the system back button on Android and web.
 
+* Minimum supported Flutter version is now 2.5.0.
+
 * Breaking change: by default, the Android system back button now navigates
   backwards chronologically, instead of just popping the navigation stack.
 

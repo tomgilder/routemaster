@@ -32,7 +32,7 @@ void main() {
     expect(app.delegate.history.canGoBack, isFalse);
   });
 
-  testWidgets('Can use TabBackBehavior.history with cupertino tabs',
+  testWidgets('Can use TabBackBehavior.history with Cupertino tabs',
       (tester) async {
     final app = CupertinoApp(
       tabBackBehavior: TabBackBehavior.history,
@@ -45,34 +45,43 @@ void main() {
     await tester.tap(find.text('Three'));
     await tester.pump();
     expect(find.byType(PageThree), findsOneWidget);
+    expect(app.delegate.history.canGoBack, isTrue);
+    expect(app.delegate.history.canGoForward, isFalse);
 
     // Go to page 2
     await tester.tap(find.text('Two'));
     await tester.pump();
     expect(find.byType(PageTwo), findsOneWidget);
+    expect(app.delegate.history.canGoBack, isTrue);
+    expect(app.delegate.history.canGoForward, isFalse);
 
     // Go back to page 3
     final result = app.delegate.history.back();
     expect(result, isTrue);
     await tester.pump();
     expect(find.byType(PageThree), findsOneWidget);
+    expect(app.delegate.history.canGoBack, isTrue);
+    expect(app.delegate.history.canGoForward, isTrue);
 
     // Go back to feed page
     app.delegate.history.back();
     await tester.pump();
     expect(find.byType(FeedPage), findsOneWidget);
     expect(app.delegate.history.canGoBack, isFalse);
+    expect(app.delegate.history.canGoForward, isTrue);
 
     // Go forward to page 3
     app.delegate.history.forward();
     await tester.pump();
     expect(find.byType(PageThree), findsOneWidget);
+    expect(app.delegate.history.canGoBack, isTrue);
+    expect(app.delegate.history.canGoForward, isTrue);
 
     // Go forward to page 2
     app.delegate.history.forward();
     await tester.pump();
     expect(find.byType(PageTwo), findsOneWidget);
-
+    expect(app.delegate.history.canGoBack, isTrue);
     expect(app.delegate.history.canGoForward, isFalse);
   });
 
