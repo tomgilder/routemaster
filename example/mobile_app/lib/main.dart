@@ -88,7 +88,7 @@ RouteMap _buildRouteMap(AppState appState) {
               '/notifications',
               '/settings',
             ],
-            backBehavior: TabBackBehavior.history,
+            backBehavior: TabBackBehavior.none,
           ),
       '/feed': (_) => MaterialPage(
             name: 'Feed',

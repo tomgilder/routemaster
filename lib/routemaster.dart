@@ -505,7 +505,11 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
       void _update() {
         if (_state.currentConfiguration!.fullPath != routeData.fullPath) {
-          _state.currentConfiguration = routeData;
+          _state.currentConfiguration = routeData._copyWith(
+            historyIndex: isReplacement
+                ? _state.history._index
+                : _state.history._index + 1,
+          );
 
           if (!isHistoryNavigation) {
             if (isReplacement) {
@@ -526,15 +530,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       }
 
       if (isReplacement) {
-        if (kIsWeb) {
-          // Update without the router changing the URL or adding a history entry
-          Router.neglect(_context, _update); // coverage:ignore-line
-
-          // Set the URL directly
-          SystemNav.replaceUrl(routeData); // coverage:ignore-line
-        } else {
-          _update();
-        }
+        Router.neglect(_context, _update);
       } else {
         // If the public paths match but the private paths don't, we need to
         // ensure a new history item is created
@@ -560,13 +556,20 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   Future<void> setNewRoutePath(RouteData routeData) {
     assert(!_isDisposed);
 
-    _navigate(
-      uri: routeData._uri,
-      queryParameters: routeData.queryParameters,
-      isReplacement: routeData.isReplacement,
-      requestSource: routeData.requestSource,
-      isSystemNavigation: true,
-    );
+    final historyIndex = routeData._historyIndex;
+
+    if (kIsWeb && historyIndex != null) {
+      // Navigation came from web browser back or forward buttons
+      history._goToIndex(historyIndex);
+    } else {
+      _navigate(
+        uri: routeData._uri,
+        queryParameters: routeData.queryParameters,
+        isReplacement: routeData.isReplacement,
+        requestSource: routeData.requestSource,
+        isSystemNavigation: true,
+      );
+    }
 
     return SynchronousFuture(null);
   }
@@ -575,7 +578,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   Future<void> setInitialRoutePath(RouteData configuration) {
     assert(!_isDisposed);
 
-    _state.currentConfiguration = configuration;
+    _state.currentConfiguration = configuration._copyWith(historyIndex: 0);
     return SynchronousFuture(null);
   }
 

@@ -3,41 +3,43 @@ import 'package:routemaster/routemaster.dart';
 import 'package:flutter/material.dart';
 
 class MyApp extends StatelessWidget {
+  final delegate = RoutemasterDelegate(
+    routesBuilder: (BuildContext context) {
+      return RouteMap(
+        routes: {
+          '/': (_) => MaterialPage<void>(child: HomePage()),
+          '/one': (_) => const MaterialPage<void>(child: PageOne()),
+          '/two': (_) => const MaterialPage<void>(child: PageTwo()),
+          '/tabs': (_) => const CupertinoTabPage(
+                paths: const ['/tabs/one', '/tabs/two'],
+                child: TabbedPage(),
+              ),
+          '/tabs/one': (_) => const MaterialPage<void>(child: PageOne()),
+          '/tabs/two': (_) => const MaterialPage<void>(child: PageTwo()),
+          '/_private': (route) => MaterialPage<void>(
+                child: PrivatePage(
+                  message: route.queryParameters['message'],
+                ),
+              ),
+        },
+      );
+    },
+  );
+
   @override
   Widget build(BuildContext context) {
     // ExcludeSemantics is a work-around for a bug in Flutter web engine
     return ExcludeSemantics(
       child: MaterialApp.router(
         routeInformationParser: const RoutemasterParser(),
-        routerDelegate: RoutemasterDelegate(
-          routesBuilder: (BuildContext context) {
-            return RouteMap(
-              routes: {
-                '/': (_) => const MaterialPage<void>(child: HomePage()),
-                '/one': (_) => const MaterialPage<void>(child: PageOne()),
-                '/two': (_) => const MaterialPage<void>(child: PageTwo()),
-                '/tabs': (_) => const CupertinoTabPage(
-                      paths: const ['/tabs/one', '/tabs/two'],
-                      child: TabbedPage(),
-                    ),
-                '/tabs/one': (_) => const MaterialPage<void>(child: PageOne()),
-                '/tabs/two': (_) => const MaterialPage<void>(child: PageTwo()),
-                '/_private': (route) => MaterialPage<void>(
-                      child: PrivatePage(
-                        message: route.queryParameters['message'],
-                      ),
-                    ),
-              },
-            );
-          },
-        ),
+        routerDelegate: delegate,
       ),
     );
   }
 }
 
 class HomePage extends StatelessWidget {
-  const HomePage({Key key}) : super(key: key);
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +73,7 @@ class HomePage extends StatelessWidget {
 }
 
 class PageOne extends StatelessWidget {
-  const PageOne({Key key}) : super(key: key);
+  const PageOne({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +110,7 @@ class PageOne extends StatelessWidget {
 }
 
 class PageTwo extends StatelessWidget {
-  const PageTwo({Key key}) : super(key: key);
+  const PageTwo({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +124,7 @@ class PageTwo extends StatelessWidget {
 }
 
 class TabbedPage extends StatelessWidget {
-  const TabbedPage({Key key}) : super(key: key);
+  const TabbedPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -147,7 +149,7 @@ class TabbedPage extends StatelessWidget {
 }
 
 class PrivatePage extends StatelessWidget {
-  final String message;
+  final String? message;
 
   const PrivatePage({this.message});
 
