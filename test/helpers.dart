@@ -37,7 +37,6 @@ Future<void> recordUrlChanges(
     SystemChannels.navigation.setMockMethodCallHandler((call) async {
       if (call.method == 'routeInformationUpdated') {
         final location = call.arguments['location'] as String;
-        print('*** Updated location: $location');
         tracker.current = location;
       }
     });
