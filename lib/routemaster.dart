@@ -490,7 +490,16 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return _state.currentConfiguration;
   }
 
+  /// Ensures that we don't call Router.neglect and Router.navigate in the same
+  /// frame, which throws an error.
   _ReportType _reported = _ReportType.none;
+
+  void _setHasReported(_ReportType reportType) {
+    _reported = reportType;
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      _reported = _ReportType.none;
+    });
+  }
 
   /// Reports the current path to the Flutter routing system, and any observers.
   void _updateCurrentConfiguration({
@@ -552,13 +561,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         }
       }
     }
-  }
-
-  void _setHasReported(_ReportType reportType) {
-    _reported = reportType;
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
-      _reported = _ReportType.none;
-    });
   }
 
   // Called when a new URL is set. The RouteInformationParser will parse the
