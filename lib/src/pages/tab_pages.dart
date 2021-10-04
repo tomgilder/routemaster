@@ -442,7 +442,7 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
       _index = value;
 
       notifyListeners();
-      _routemasterState!.delegate._markNeedsUpdate(
+      _routemasterState!.delegate._updateCurrentConfiguration(
         isReplacement: backBehavior == TabBackBehavior.none,
       );
     }

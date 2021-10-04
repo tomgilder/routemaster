@@ -117,7 +117,7 @@ class RouteHistory {
 
     _index--;
 
-    if (kIsWeb && SystemNav.enabled) {
+    if (kIsWeb && SystemNav.enabled && _history.last == route) {
       SystemNav.back(); // coverage:ignore-line
     }
   }

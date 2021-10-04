@@ -10,6 +10,7 @@ class MyApp extends StatelessWidget {
           '/': (_) => MaterialPage<void>(child: HomePage()),
           '/one': (_) => const MaterialPage<void>(child: PageOne()),
           '/two': (_) => const MaterialPage<void>(child: PageTwo()),
+          '/one/two': (_) => const MaterialPage<void>(child: PageTwo()),
           '/tabs': (_) => const CupertinoTabPage(
                 paths: const ['/tabs/one', '/tabs/two'],
                 child: TabbedPage(),
@@ -88,6 +89,10 @@ class PageOne extends StatelessWidget {
           ElevatedButton(
             onPressed: () => Routemaster.of(context).push('/two'),
             child: const Text('Push page two'),
+          ),
+          ElevatedButton(
+            onPressed: () => Routemaster.of(context).push('/one/two'),
+            child: const Text('Push /one/two'),
           ),
           ElevatedButton(
             onPressed: () => Routemaster.of(context).push(

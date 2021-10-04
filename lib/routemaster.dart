@@ -355,7 +355,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     final popResult = await _state.stack.maybePop<T>(result);
     if (popResult) {
-      _markNeedsUpdate();
+      _updateCurrentConfiguration();
     }
     return popResult;
   }
@@ -443,20 +443,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     );
   }
 
-  /// Marks the router as needing an update, for instance of the current path
-  /// has changed.
-  void _markNeedsUpdate({bool isReplacement = false}) {
-    assert(!_isDisposed);
-
-    _updateCurrentConfiguration(
-      isReplacement: isReplacement,
-    );
-
-    if (!_isBuilding) {
-      notifyListeners();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     assert(!_isDisposed);
@@ -514,13 +500,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       final routeData = pageWrapper.routeData;
       final currentRouteData = _state.currentConfiguration!;
 
-      // If the public paths match but the private paths don't, we need to
-      // ensure a new history item is created
-      final needsForceNavigate =
-          routeData.publicPath == currentRouteData.publicPath &&
-              routeData.fullPath != currentRouteData.fullPath &&
-              !isSystemNavigation;
-
       if (!isHistoryNavigation) {
         _state.history._didNavigate(
           route: routeData,
@@ -531,6 +510,18 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       _state.currentConfiguration = routeData._copyWith(
         historyIndex: _state.history._index,
       );
+
+      if (currentRouteData.fullPath != routeData.fullPath) {
+        for (final observer in observers) {
+          observer.didChangeRoute(routeData, pageWrapper._getOrCreatePage());
+        }
+      }
+
+      if (kIsWeb && SystemNav.enabled && isHistoryNavigation) {
+        // Navigated via browser back/forwards buttons, so we don't need to
+        // update the router.
+        return;
+      }
 
       if (_isBuilding) {
         // Schedule update
@@ -546,18 +537,19 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           Router.neglect(_context, notifyListeners);
           _setHasReported(_ReportType.neglect);
         } else {
+          // If the public paths match but the private paths don't, we need to
+          // ensure a new history item is created
+          final needsForceNavigate =
+              routeData.publicPath == currentRouteData.publicPath &&
+                  routeData.fullPath != currentRouteData.fullPath &&
+                  !isSystemNavigation;
+
           if (needsForceNavigate && _reported != _ReportType.neglect) {
             _setHasReported(_ReportType.navigate);
             Router.navigate(_context, notifyListeners);
           } else {
             notifyListeners();
           }
-        }
-      }
-
-      if (currentRouteData.fullPath != routeData.fullPath) {
-        for (final observer in observers) {
-          observer.didChangeRoute(routeData, pageWrapper._getOrCreatePage());
         }
       }
     }
@@ -731,7 +723,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     // Already building; schedule rebuild for next frame
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      _markNeedsUpdate();
+      _updateCurrentConfiguration();
     });
   }
 
@@ -1303,8 +1295,10 @@ class PageStackNavigatorState extends State<PageStackNavigator> {
     });
   }
 
-  void _updateDelegate() {
-    _routemaster._state.delegate._markNeedsUpdate();
+  void _didPop() {
+    _routemaster._state.delegate._updateCurrentConfiguration(
+      isHistoryNavigation: true,
+    );
   }
 
   void _updateNavigator() {
@@ -1313,7 +1307,7 @@ class PageStackNavigatorState extends State<PageStackNavigator> {
       onPopPage: (route, dynamic result) {
         final didPop = widget.stack.onPopPage(route, result);
         if (didPop) {
-          _updateDelegate();
+          _didPop();
         }
         return didPop;
       },

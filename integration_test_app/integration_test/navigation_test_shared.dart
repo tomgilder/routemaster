@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test_app/main.dart' as app;
@@ -336,5 +337,50 @@ void replaceTests({required void Function(String) expectUrl}) {
     expect(find.byType(PageTwo), findsOneWidget);
     expect(history.canGoBack, isTrue);
     expect(history.canGoForward, isFalse);
+  });
+
+  testWidgets('Navigator pop then forward works correctly', (tester) async {
+    final app = MyApp();
+    runApp(app);
+    await tester.pumpAndSettle();
+
+    final history = app.delegate.history;
+
+    // Push: / -> /one
+    await tester.tap(find.text('Push page one'));
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expect(find.byType(PageOne), findsOneWidget);
+
+    // Push: /one -> /one/two
+    await tester.tap(find.text('Push /one/two'));
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/one/two');
+    expect(find.byType(PageTwo), findsOneWidget);
+
+    // Pop with navigator: /one/two -> /one
+    await tester.tap(find.byType(BackButton));
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/one');
+    expect(find.byType(PageOne), findsOneWidget);
+
+    // Go forward: /one -> /one/two
+    window.history.forward();
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/one/two');
+    expect(find.byType(PageTwo), findsOneWidget);
+    expect(history.canGoBack, isTrue);
+    expect(history.canGoForward, isFalse);
+    expect(history.forward(), isFalse);
+
+    // Try to go forward again: shouldn't do anything
+    window.history.forward();
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/one/two');
+    expect(find.byType(PageTwo), findsOneWidget);
   });
 }
