@@ -28,4 +28,18 @@ void main() {
   test('Routemaster.setPathUrlStrategy() does nothing when not on web', () {
     Routemaster.setPathUrlStrategy();
   });
+
+  test('SystemNav.back() throws when not on web', () {
+    expect(
+      () => SystemNav.back(),
+      throwsA(isA<UnsupportedError>()),
+    );
+  });
+
+  test('SystemNav.forward() throws when not on web', () {
+    expect(
+      () => SystemNav.forward(),
+      throwsA(isA<UnsupportedError>()),
+    );
+  });
 }
