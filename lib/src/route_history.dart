@@ -107,4 +107,16 @@ class RouteHistory {
       requestSource: RequestSource.internal,
     );
   }
+
+  void _didPop(RouteData route) {
+    if (!canGoBack) {
+      return;
+    }
+
+    _index--;
+
+    if (kIsWeb && SystemNav.enabled) {
+      SystemNav.back();
+    }
+  }
 }

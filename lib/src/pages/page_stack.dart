@@ -2,7 +2,7 @@ part of '../../routemaster.dart';
 
 /// Manages a stack of pages. Used by [PageStackNavigator].
 class PageStack extends ChangeNotifier {
-  NavigatorState? _attachedNavigator;
+  _StackNavigatorState? _attachedNavigator;
 
   List<PageWrapper>? __pageWrappers;
   List<PageWrapper> get _pageWrappers => __pageWrappers!;
@@ -77,8 +77,8 @@ class PageStack extends ChangeNotifier {
   /// Passed to [Navigator] widgets for them to inform this stack of a pop
   bool onPopPage(Route<dynamic> route, dynamic result) {
     if (route.didPop(result)) {
-      _pageWrappers.removeLast();
-
+      final removed = _pageWrappers.removeLast();
+      _attachedNavigator?.didPop(removed.routeData);
       // We don't need to notify listeners, the Navigator will rebuild itself
       return true;
     }
@@ -93,7 +93,9 @@ class PageStack extends ChangeNotifier {
   /// parameter.
   Future<bool> maybePop<T extends Object?>([T? result]) async {
     // First try delegating the pop to the last child route.
-    if (await _pageWrappers.last.maybePop(result)) {
+    final lastRoute = _pageWrappers.last;
+    if (await lastRoute.maybePop(result)) {
+      _attachedNavigator?.didPop(lastRoute.routeData);
       return SynchronousFuture(true);
     }
 
@@ -105,7 +107,8 @@ class PageStack extends ChangeNotifier {
     // Pop the stack as a last resort
     if (_pageWrappers.length > 1) {
       _pageWrappers.removeLast();
-      notifyListeners();
+      _attachedNavigator?.didPop(lastRoute.routeData);
+
       return SynchronousFuture(true);
     }
 

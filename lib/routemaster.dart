@@ -1385,6 +1385,10 @@ class _StackNavigatorState extends NavigatorState {
     (widget as _StackNavigator).stack._attachedNavigator = null;
     super.dispose();
   }
+
+  void didPop(RouteData routeData) {
+    Routemaster.of(context).history._didPop(routeData);
+  }
 }
 
 void _assertIsPage(RouteSettings page, String route) {
