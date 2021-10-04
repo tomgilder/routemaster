@@ -9,8 +9,6 @@ class RouteHistory {
   int _index = -1;
   final _history = <RouteData>[];
 
-  bool get _isEmpty => _history.isEmpty;
-
   /// Whether there's a previous chronological history entry.
   bool get canGoBack => _index > 0;
 
