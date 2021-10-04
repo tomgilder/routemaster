@@ -9,6 +9,9 @@ import 'system_nav.dart';
 class SystemNav {
   static HashUrlStrategy? _urlStrategy;
 
+  /// Used to disable system navigation from tests when running in Chrome
+  static bool enabled = true;
+
   static void setPathUrlStrategy() {
     _urlStrategy = PathUrlStrategy();
     setUrlStrategy(_urlStrategy);
@@ -23,22 +26,22 @@ class SystemNav {
   /// Attempts to guess the current URL strategy based on whether a hash is set
   /// or not. This is to deal with users directly setting the URL strategy.
   static void _setDefaultUrlStrategy() {
-    _urlStrategy = historyProvider.hash.isNotEmpty
+    _urlStrategy = historyProvider!.hash.isNotEmpty
         ? const HashUrlStrategy()
         : PathUrlStrategy();
   }
 
   static void back() {
-    historyProvider.back();
+    historyProvider!.back();
   }
 
   static void forward() {
-    historyProvider.forward();
+    historyProvider!.forward();
   }
 
   /// Allows tests to mock browser history
   @visibleForTesting
-  static HistoryProvider historyProvider = BrowserHistoryProvider();
+  static HistoryProvider? historyProvider = BrowserHistoryProvider();
 
   static String makePublicUrl(RouteData routeData) {
     if (_urlStrategy == null) {

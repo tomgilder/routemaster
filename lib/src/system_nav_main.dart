@@ -6,6 +6,9 @@ import 'system_nav.dart';
 class SystemNav {
   static HistoryProvider? historyProvider;
 
+  /// Used to disable system navigation from tests when running in Chrome
+  static bool enabled = true;
+
   static void setPathUrlStrategy() {
     throw UnsupportedError('Only supported on web');
   }

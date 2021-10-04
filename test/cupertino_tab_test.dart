@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:routemaster/routemaster.dart';
-
 import 'helpers.dart';
 
 void main() {
@@ -43,14 +42,14 @@ void main() {
 
     // Go to page 3
     await tester.tap(find.text('Three'));
-    await tester.pump();
+    await tester.pumpPageTransition();
     expect(find.byType(PageThree), findsOneWidget);
     expect(app.delegate.history.canGoBack, isTrue);
     expect(app.delegate.history.canGoForward, isFalse);
 
     // Go to page 2
     await tester.tap(find.text('Two'));
-    await tester.pump();
+    await tester.pumpPageTransition();
     expect(find.byType(PageTwo), findsOneWidget);
     expect(app.delegate.history.canGoBack, isTrue);
     expect(app.delegate.history.canGoForward, isFalse);
@@ -58,28 +57,28 @@ void main() {
     // Go back to page 3
     final result = app.delegate.history.back();
     expect(result, isTrue);
-    await tester.pump();
+    await tester.pumpPageTransition();
     expect(find.byType(PageThree), findsOneWidget);
     expect(app.delegate.history.canGoBack, isTrue);
     expect(app.delegate.history.canGoForward, isTrue);
 
     // Go back to feed page
     app.delegate.history.back();
-    await tester.pump();
+    await tester.pumpPageTransition();
     expect(find.byType(FeedPage), findsOneWidget);
     expect(app.delegate.history.canGoBack, isFalse);
     expect(app.delegate.history.canGoForward, isTrue);
 
     // Go forward to page 3
     app.delegate.history.forward();
-    await tester.pump();
+    await tester.pumpPageTransition();
     expect(find.byType(PageThree), findsOneWidget);
     expect(app.delegate.history.canGoBack, isTrue);
     expect(app.delegate.history.canGoForward, isTrue);
 
     // Go forward to page 2
     app.delegate.history.forward();
-    await tester.pump();
+    await tester.pumpPageTransition();
     expect(find.byType(PageTwo), findsOneWidget);
     expect(app.delegate.history.canGoBack, isTrue);
     expect(app.delegate.history.canGoForward, isFalse);

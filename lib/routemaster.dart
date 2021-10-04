@@ -490,6 +490,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return _state.currentConfiguration;
   }
 
+  _ReportType _reported = _ReportType.none;
+
   /// Reports the current path to the Flutter routing system, and any observers.
   void _updateCurrentConfiguration({
     bool isReplacement = false,
@@ -503,49 +505,60 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       final routeData = pageWrapper.routeData;
       final currentRouteData = _state.currentConfiguration!;
 
-      void _update() {
-        if (_state.currentConfiguration!.fullPath != routeData.fullPath) {
-          _state.currentConfiguration = routeData._copyWith(
-            historyIndex: isReplacement
-                ? _state.history._index
-                : _state.history._index + 1,
+      // If the public paths match but the private paths don't, we need to
+      // ensure a new history item is created
+      final needsForceNavigate =
+          routeData.publicPath == currentRouteData.publicPath &&
+              routeData.fullPath != currentRouteData.fullPath &&
+              !isSystemNavigation;
+
+      if (!isHistoryNavigation) {
+        _state.history._didNavigate(
+          route: routeData,
+          isReplacement: isReplacement,
+        );
+      }
+
+      _state.currentConfiguration = routeData._copyWith(
+        historyIndex: _state.history._index,
+      );
+
+      if (_isBuilding) {
+        // Schedule update
+        WidgetsBinding.instance?.addPostFrameCallback((_) {
+          _updateCurrentConfiguration(
+            isHistoryNavigation: isHistoryNavigation,
+            isSystemNavigation: isSystemNavigation,
+            isReplacement: isReplacement,
           );
-
-          if (!isHistoryNavigation) {
-            if (isReplacement) {
-              _state.history._didReplace(routeData);
-            } else {
-              _state.history._didPush(routeData);
-            }
+        });
+      } else {
+        if (isReplacement && _reported != _ReportType.navigate) {
+          Router.neglect(_context, notifyListeners);
+          _setHasReported(_ReportType.neglect);
+        } else {
+          if (needsForceNavigate && _reported != _ReportType.neglect) {
+            _setHasReported(_ReportType.navigate);
+            Router.navigate(_context, notifyListeners);
+          } else {
+            notifyListeners();
           }
-
-          _markNeedsUpdate();
-
-          for (final observer in observers) {
-            observer.didChangeRoute(routeData, pageWrapper._getOrCreatePage());
-          }
-        } else if (_state.history._isEmpty) {
-          _state.history._didPush(routeData);
         }
       }
 
-      if (isReplacement) {
-        Router.neglect(_context, _update);
-      } else {
-        // If the public paths match but the private paths don't, we need to
-        // ensure a new history item is created
-        final needsForceNavigate =
-            routeData.publicPath == currentRouteData.publicPath &&
-                routeData.fullPath != currentRouteData.fullPath &&
-                !isSystemNavigation;
-
-        if (needsForceNavigate) {
-          Router.navigate(_context, () => _update());
-        } else {
-          _update();
+      if (currentRouteData.fullPath != routeData.fullPath) {
+        for (final observer in observers) {
+          observer.didChangeRoute(routeData, pageWrapper._getOrCreatePage());
         }
       }
     }
+  }
+
+  void _setHasReported(_ReportType reportType) {
+    _reported = reportType;
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      _reported = _ReportType.none;
+    });
   }
 
   // Called when a new URL is set. The RouteInformationParser will parse the
@@ -582,7 +595,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return SynchronousFuture(null);
   }
 
-  void _initRouter(BuildContext context) {
+  void _initRouter(BuildContext context, {bool isReplacement = false}) {
     final routerNeedsBuilding = _state.routeMap == null;
 
     if (routerNeedsBuilding) {
@@ -601,7 +614,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       } else {
         _navigate(
           uri: currentConfiguration?._uri ?? Uri(path: '/'),
-          isReplacement: false,
+          isReplacement: isReplacement,
           useCurrentState: false,
           requestSource: RequestSource.internal,
         );
@@ -613,7 +626,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     _state.routeMap = null;
 
     _isBuilding = true;
-    _initRouter(context);
+    _initRouter(context, isReplacement: true);
     _isBuilding = false;
   }
 
@@ -1377,4 +1390,10 @@ void _assertIsPage(RouteSettings page, String route) {
     page is Page,
     "Route builders must return a Page object. The route builder for '$route' instead returned an object of type '${page.runtimeType}'.",
   );
+}
+
+enum _ReportType {
+  none,
+  navigate,
+  neglect,
 }

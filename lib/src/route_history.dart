@@ -29,7 +29,7 @@ class RouteHistory {
 
     _index--;
 
-    if (kIsWeb) {
+    if (kIsWeb && SystemNav.enabled) {
       SystemNav.back();
     } else {
       _navigate(_history[_index]);
@@ -50,7 +50,7 @@ class RouteHistory {
 
     _index++;
 
-    if (kIsWeb) {
+    if (kIsWeb && SystemNav.enabled) {
       SystemNav.forward();
     } else {
       _navigate(_history[_index]);
@@ -62,6 +62,14 @@ class RouteHistory {
   void _goToIndex(int index) {
     _index = index;
     _navigate(_history[_index]);
+  }
+
+  void _didNavigate({required RouteData route, required bool isReplacement}) {
+    if (isReplacement) {
+      _didReplace(route);
+    } else {
+      _didPush(route);
+    }
   }
 
   void _didPush(RouteData route) {
