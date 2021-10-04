@@ -28,7 +28,7 @@ class RouteHistory {
     _index--;
 
     if (kIsWeb && SystemNav.enabled) {
-      SystemNav.back();
+      SystemNav.back(); // coverage:ignore-line
     } else {
       _navigate(_history[_index]);
     }
@@ -49,7 +49,7 @@ class RouteHistory {
     _index++;
 
     if (kIsWeb && SystemNav.enabled) {
-      SystemNav.forward();
+      SystemNav.forward(); // coverage:ignore-line
     } else {
       _navigate(_history[_index]);
     }
@@ -57,10 +57,12 @@ class RouteHistory {
     return true;
   }
 
+// coverage:ignore-start
   void _goToIndex(int index) {
     _index = index;
     _navigate(_history[_index]);
   }
+// coverage:ignore-end
 
   void _didNavigate({required RouteData route, required bool isReplacement}) {
     if (isReplacement) {
@@ -116,7 +118,7 @@ class RouteHistory {
     _index--;
 
     if (kIsWeb && SystemNav.enabled) {
-      SystemNav.back();
+      SystemNav.back(); // coverage:ignore-line
     }
   }
 }

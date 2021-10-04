@@ -575,7 +575,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     if (kIsWeb && historyIndex != null) {
       // Navigation came from web browser back or forward buttons
-      history._goToIndex(historyIndex);
+      history._goToIndex(historyIndex); // coverage:ignore-line
     } else {
       _navigate(
         uri: routeData._uri,
