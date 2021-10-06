@@ -111,6 +111,7 @@ class PageStack extends ChangeNotifier {
     // Pop the stack as a last resort
     if (_pageWrappers.length > 1) {
       _pageWrappers.removeLast();
+      notifyListeners();
       return SynchronousFuture(true);
     }
 
