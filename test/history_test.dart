@@ -392,4 +392,43 @@ void main() {
     expect(routemaster.history.canGoForward, isFalse);
     expect(routemaster.history.forward(), isFalse);
   });
+
+  testWidgets('Changing second route works correctly', (tester) async {
+    final delegate = RoutemasterDelegate(routesBuilder: (_) => routeMap);
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    final routemaster = Routemaster.of(pageOneKey.currentContext!);
+    final history = routemaster.history;
+
+    // Go to /two
+    routemaster.push('/two');
+    await tester.pumpPageTransition();
+    expect(find.byType(PageTwo), findsOneWidget);
+
+    // Go back to /
+    history.back();
+    await tester.pumpPageTransition();
+    expect(find.byType(PageOne), findsOneWidget);
+
+    // Go to /three
+    routemaster.push('/three');
+    await tester.pumpPageTransition();
+    expect(find.byType(PageThree), findsOneWidget);
+
+    // Go back to /
+    history.back();
+    await tester.pumpPageTransition();
+    expect(find.byType(PageOne), findsOneWidget);
+
+    // Go forward to /three
+    history.forward();
+    await tester.pumpPageTransition();
+    expect(find.byType(PageThree), findsOneWidget);
+  });
 }

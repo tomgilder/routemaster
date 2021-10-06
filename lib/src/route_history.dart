@@ -83,9 +83,9 @@ class RouteHistory {
     final routeHasChanged = _history.isEmpty || route != _history[_index];
 
     if (routeHasChanged) {
+      _clearForwardEntries();
       _history.add(route);
       _index++;
-      _clearForwardEntries();
     }
   }
 
