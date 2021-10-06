@@ -873,23 +873,23 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }
 
   /// Called by tab pages to lazily generate their initial routes
-  PageWrapper _getSinglePage(_RouteRequest routeRequest) {
-    final requestedPath = routeRequest.uri.toString();
+  PageWrapper _getSinglePage(_RouteRequest request) {
+    final requestedPath = request.uri.toString();
 
     final routerResult = _state.routeMap!.get(requestedPath);
     if (routerResult != null) {
       final routeData = RouteData._fromRouterResult(
         routerResult,
         Uri.parse(requestedPath),
-        isReplacement: routeRequest.isReplacement,
-        requestSource: routeRequest.requestSource,
+        isReplacement: request.isReplacement,
+        requestSource: request.requestSource,
       );
 
       final page = routerResult.builder(routeData);
       _assertIsPage(page, routeData.fullPath);
 
       final wrapper = _createPageWrapper(
-        routeRequest: routeRequest,
+        routeRequest: request,
         page: routerResult.builder(routeData) as Page,
         routeData: routeData,
         isLastRoute: false,
@@ -903,15 +903,15 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         return _getSinglePage(
           _RouteRequest(
             uri: Uri.parse(wrapper.redirectPath),
-            isReplacement: routeRequest.isReplacement,
-            requestSource: routeRequest.requestSource,
-            isBrowserHistoryNavigation: routeRequest.isBrowserHistoryNavigation,
+            isReplacement: request.isReplacement,
+            requestSource: request.requestSource,
+            isBrowserHistoryNavigation: request.isBrowserHistoryNavigation,
           ),
         );
       }
     }
 
-    return _TabNotFoundPage(routeRequest);
+    return _TabNotFoundPage(request);
   }
 
   _PageResult _createPageWrapper({
@@ -986,10 +986,10 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return pathContext.joinAll(mappedSegments);
   }
 
-  List<PageWrapper> _onUnknownRoute(_RouteRequest routeRequest) {
-    final requestedPath = routeRequest.uri;
-    final fullPath = routeRequest.uri.toString();
-    final result = _state.routeMap!.onUnknownRoute(routeRequest.uri.toString());
+  List<PageWrapper> _onUnknownRoute(_RouteRequest request) {
+    final requestedPath = request.uri;
+    final fullPath = request.uri.toString();
+    final result = _state.routeMap!.onUnknownRoute(request.uri.toString());
 
     _assertIsPage(result, fullPath);
 
@@ -997,9 +997,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       final redirectResult = _createAllPageWrappers(
         request: _RouteRequest(
           uri: Uri.parse(result.redirectPath),
-          isReplacement: routeRequest.isReplacement,
-          requestSource: routeRequest.requestSource,
-          isBrowserHistoryNavigation: routeRequest.isBrowserHistoryNavigation,
+          isReplacement: request.isReplacement,
+          requestSource: request.requestSource,
+          isBrowserHistoryNavigation: request.isBrowserHistoryNavigation,
         ),
       );
 
@@ -1013,7 +1013,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       PageWrapper.fromPage(
         routeData: RouteData._fromUri(
           requestedPath,
-          isReplacement: routeRequest.isReplacement,
+          isReplacement: request.isReplacement,
           pathTemplate: null,
         ),
         page: result as Page,

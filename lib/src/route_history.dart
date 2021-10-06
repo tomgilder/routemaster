@@ -30,10 +30,7 @@ class RouteHistory {
     } else {
       _index--;
 
-      _navigate(
-        _history[_index],
-        isBrowserHistoryNavigation: false,
-      );
+      _navigate(_history[_index]);
     }
 
     return true;
