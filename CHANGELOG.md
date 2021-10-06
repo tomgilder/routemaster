@@ -1,3 +1,7 @@
+# 0.10.0-dev4
+
+* Fixes a bug with forward history navigation.
+
 # 0.10.0-dev3
 
 **Important:** this release has some major breaking changes with how Routemaster
