@@ -42,7 +42,7 @@ void main() {
   });
 
   test('Zoom transition is correct', () {
-    final zoomTransition = PageTransition.zoom;
+    const zoomTransition = PageTransition.zoom;
     expect(zoomTransition.duration, const Duration(milliseconds: 300));
     expect(
       zoomTransition.transitionsBuilder,
@@ -212,8 +212,8 @@ void main() {
         routesBuilder: (_) => RouteMap(
           routes: {
             '/': (info) => const MaterialPageOne(),
-            '/subpage': (info) => TransitionPage<void>(
-                  child: const PageTwo(),
+            '/subpage': (info) => const TransitionPage<void>(
+                  child: PageTwo(),
                   pushTransition: PageTransition.none,
                   popTransition: PageTransition.none,
                 ),
@@ -258,8 +258,8 @@ void main() {
         routesBuilder: (_) => RouteMap(
           routes: {
             '/': (info) => const MaterialPageOne(),
-            '/subpage': (info) => TransitionPage<void>(
-                  child: const PageTwo(),
+            '/subpage': (info) => const TransitionPage<void>(
+                  child: PageTwo(),
                   pushTransition: PageTransition.fadeUpwards,
                   popTransition: PageTransition.cupertino,
                 ),
