@@ -1,4 +1,4 @@
-# 0.10.0-dev4
+# 0.10.0-dev3
 
 **Important:** this release has some major breaking changes with how Routemaster
 interacts with the system back button on Android and web.
@@ -16,9 +16,8 @@ interacts with the system back button on Android and web.
 * Added: `history` property on `Routemaster` for chronological history navigation,
   for example `Routemaster.of(context).history.back()`.
 
-# 0.10.0-dev3
-
 * Added: `popUntil` to pop multiple times with a predicate.
+
 * Fixed: when navigating to a relative route, use the current context's path as
   the base, instead of the router's current path.
 
