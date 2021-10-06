@@ -75,10 +75,15 @@ class PageStack extends ChangeNotifier {
   }
 
   /// Passed to [Navigator] widgets for them to inform this stack of a pop
-  bool onPopPage(Route<dynamic> route, dynamic result) {
+  bool onPopPage(
+      Route<dynamic> route, dynamic result, Routemaster routemaster) {
     if (route.didPop(result)) {
-      final removed = _pageWrappers.removeLast();
-      _attachedNavigator?.didPop(removed.routeData);
+      _pageWrappers.removeLast();
+
+      routemaster.history._onPopPage(
+        newRoute: _pageWrappers.last.routeData,
+      );
+
       // We don't need to notify listeners, the Navigator will rebuild itself
       return true;
     }
@@ -95,7 +100,6 @@ class PageStack extends ChangeNotifier {
     // First try delegating the pop to the last child route.
     final lastRoute = _pageWrappers.last;
     if (await lastRoute.maybePop(result)) {
-      _attachedNavigator?.didPop(lastRoute.routeData);
       return SynchronousFuture(true);
     }
 
@@ -107,8 +111,6 @@ class PageStack extends ChangeNotifier {
     // Pop the stack as a last resort
     if (_pageWrappers.length > 1) {
       _pageWrappers.removeLast();
-      _attachedNavigator?.didPop(lastRoute.routeData);
-
       return SynchronousFuture(true);
     }
 

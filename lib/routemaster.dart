@@ -350,14 +350,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   /// An optional value can be passed to the previous route via the [result]
   /// parameter.
   @optionalTypeArgs
-  Future<bool> pop<T extends Object?>([T? result]) async {
+  Future<bool> pop<T extends Object?>([T? result]) {
     assert(!_isDisposed);
-
-    final popResult = await _state.stack.maybePop<T>(result);
-    if (popResult) {
-      _updateCurrentConfiguration();
-    }
-    return popResult;
+    return _state.stack.maybePop<T>(result);
   }
 
   /// Calls [pop] repeatedly whilst the [predicate] function returns true.
@@ -489,9 +484,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   /// Reports the current path to the Flutter routing system, and any observers.
   void _updateCurrentConfiguration({
+    bool isBrowserHistoryNavigation = false,
     bool isReplacement = false,
-    bool isSystemNavigation = false,
-    bool isHistoryNavigation = false,
+    RequestSource requestSource = RequestSource.internal,
   }) {
     final currentPages = _state.stack._getCurrentPages();
 
@@ -500,7 +495,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       final routeData = pageWrapper.routeData;
       final currentRouteData = _state.currentConfiguration!;
 
-      if (!isHistoryNavigation) {
+      if (!isBrowserHistoryNavigation) {
         _state.history._didNavigate(
           route: routeData,
           isReplacement: isReplacement,
@@ -517,8 +512,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         }
       }
 
-      if (kIsWeb && SystemNav.enabled && isHistoryNavigation) {
-        // Navigated via browser back/forwards buttons, so we don't need to
+      if (isBrowserHistoryNavigation) {
+        // Navigated via browser back/forward button, so we don't need to
         // update the router.
         return;
       }
@@ -527,9 +522,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         // Schedule update
         WidgetsBinding.instance?.addPostFrameCallback((_) {
           _updateCurrentConfiguration(
-            isHistoryNavigation: isHistoryNavigation,
-            isSystemNavigation: isSystemNavigation,
+            requestSource: requestSource,
             isReplacement: isReplacement,
+            isBrowserHistoryNavigation: isBrowserHistoryNavigation,
           );
         });
       } else {
@@ -542,7 +537,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           final needsForceNavigate =
               routeData.publicPath == currentRouteData.publicPath &&
                   routeData.fullPath != currentRouteData.fullPath &&
-                  !isSystemNavigation;
+                  requestSource != RequestSource.system;
 
           if (needsForceNavigate && _reported != _ReportType.neglect) {
             _setHasReported(_ReportType.navigate);
@@ -574,7 +569,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         queryParameters: routeData.queryParameters,
         isReplacement: routeData.isReplacement,
         requestSource: routeData.requestSource,
-        isSystemNavigation: true,
       );
     }
 
@@ -604,6 +598,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           navigationResult: pending.result,
           useCurrentState: false,
           requestSource: pending.requestSource,
+          isBrowserHistoryNavigation: pending.isBrowserHistoryNavigation,
         );
       } else {
         _navigate(
@@ -632,8 +627,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     Map<String, String>? queryParameters,
     bool useCurrentState = true,
     bool isRetry = false,
-    bool isSystemNavigation = false,
-    bool isHistoryNavigation = false,
+    bool isBrowserHistoryNavigation = false,
   }) {
     if (_state.routeMap == null) {
       // routeMap can be null after a hot reload
@@ -646,6 +640,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       isReplacement: isReplacement,
       result: navigationResult,
       requestSource: requestSource,
+      isBrowserHistoryNavigation: isBrowserHistoryNavigation,
     );
 
     var pages = _createAllPageWrappers(
@@ -686,8 +681,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
               queryParameters: queryParameters,
               requestSource: requestSource,
               isRetry: true,
-              isSystemNavigation: isSystemNavigation,
-              isHistoryNavigation: isHistoryNavigation,
+              isBrowserHistoryNavigation: isBrowserHistoryNavigation,
             );
           }
         });
@@ -705,8 +699,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     _updateCurrentConfiguration(
       isReplacement: pathIsSame || isReplacement,
-      isSystemNavigation: isSystemNavigation,
-      isHistoryNavigation: isHistoryNavigation,
+      isBrowserHistoryNavigation: isBrowserHistoryNavigation,
+      requestSource: requestSource,
     );
   }
 
@@ -823,6 +817,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
             uri: Uri.parse(current.redirectPath),
             isReplacement: request.isReplacement,
             requestSource: request.requestSource,
+            isBrowserHistoryNavigation: request.isBrowserHistoryNavigation,
           ),
         );
       }
@@ -910,6 +905,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
             uri: Uri.parse(wrapper.redirectPath),
             isReplacement: routeRequest.isReplacement,
             requestSource: routeRequest.requestSource,
+            isBrowserHistoryNavigation: routeRequest.isBrowserHistoryNavigation,
           ),
         );
       }
@@ -1003,6 +999,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           uri: Uri.parse(result.redirectPath),
           isReplacement: routeRequest.isReplacement,
           requestSource: routeRequest.requestSource,
+          isBrowserHistoryNavigation: routeRequest.isBrowserHistoryNavigation,
         ),
       );
 
@@ -1188,10 +1185,12 @@ class _RouteRequest {
   final bool isReplacement;
   final NavigationResult? result;
   final RequestSource requestSource;
+  final bool isBrowserHistoryNavigation;
 
   _RouteRequest({
     required this.uri,
     required this.requestSource,
+    required this.isBrowserHistoryNavigation,
     this.isReplacement = false,
     this.result,
   });
@@ -1295,21 +1294,11 @@ class PageStackNavigatorState extends State<PageStackNavigator> {
     });
   }
 
-  void _didPop() {
-    _routemaster._state.delegate._updateCurrentConfiguration(
-      isHistoryNavigation: true,
-    );
-  }
-
   void _updateNavigator() {
     _widget = _StackNavigator(
       stack: widget.stack,
       onPopPage: (route, dynamic result) {
-        final didPop = widget.stack.onPopPage(route, result);
-        if (didPop) {
-          _didPop();
-        }
-        return didPop;
+        return widget.stack.onPopPage(route, result, _routemaster);
       },
       transitionDelegate: widget.transitionDelegate,
       pages: widget.stack.createPages(),
@@ -1378,10 +1367,6 @@ class _StackNavigatorState extends NavigatorState {
   void dispose() {
     (widget as _StackNavigator).stack._attachedNavigator = null;
     super.dispose();
-  }
-
-  void didPop(RouteData routeData) {
-    Routemaster.of(context).history._didPop(routeData);
   }
 }
 

@@ -25,12 +25,15 @@ class RouteHistory {
       return false;
     }
 
-    _index--;
-
     if (kIsWeb && SystemNav.enabled) {
       SystemNav.back(); // coverage:ignore-line
     } else {
-      _navigate(_history[_index]);
+      _index--;
+
+      _navigate(
+        _history[_index],
+        isBrowserHistoryNavigation: false,
+      );
     }
 
     return true;
@@ -46,11 +49,11 @@ class RouteHistory {
       return false;
     }
 
-    _index++;
-
     if (kIsWeb && SystemNav.enabled) {
       SystemNav.forward(); // coverage:ignore-line
     } else {
+      _index++;
+
       _navigate(_history[_index]);
     }
 
@@ -59,8 +62,15 @@ class RouteHistory {
 
 // coverage:ignore-start
   void _goToIndex(int index) {
+    if (index == _index) {
+      return;
+    }
+
     _index = index;
-    _navigate(_history[_index]);
+    _navigate(
+      _history[_index],
+      isBrowserHistoryNavigation: true,
+    );
   }
 // coverage:ignore-end
 
@@ -96,29 +106,38 @@ class RouteHistory {
   }
 
   void _clearForwardEntries() {
-    if (_history.length > _index) {
-      _history.removeRange(_index, _history.length - 1);
+    if (_history.length > _index + 1) {
+      _history.removeRange(_index + 1, _history.length);
     }
   }
 
-  void _navigate(RouteData route) {
+  void _navigate(
+    RouteData route, {
+    bool isBrowserHistoryNavigation = false,
+  }) {
     _state.delegate._navigate(
       uri: route._uri,
-      isReplacement: true,
-      isHistoryNavigation: true,
+      isReplacement: false,
       requestSource: RequestSource.internal,
+      isBrowserHistoryNavigation: isBrowserHistoryNavigation,
     );
   }
 
-  void _didPop(RouteData route) {
-    if (!canGoBack) {
-      return;
-    }
+  void _onPopPage({required RouteData newRoute}) {
+    final previousRouteMatches = _index > 0 && _history[_index - 1] == newRoute;
 
-    _index--;
-
-    if (kIsWeb && SystemNav.enabled && _history.last == route) {
-      SystemNav.back(); // coverage:ignore-line
+    if (previousRouteMatches) {
+      if (kIsWeb && SystemNav.enabled) {
+        // Use system navigation so forward button works
+        SystemNav.back(); // coverage:ignore-line
+      } else {
+        _index--;
+        _navigate(_history[_index]);
+      }
+    } else {
+      _state.delegate._updateCurrentConfiguration(
+        isReplacement: true,
+      );
     }
   }
 }

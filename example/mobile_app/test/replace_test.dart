@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile_app/main.dart';
+import 'package:mobile_app/pages/feed_page.dart';
 import 'helpers.dart';
 
 Future pumpBottomNavigationPage(WidgetTester tester) async {
@@ -32,6 +33,7 @@ void main() {
       await tester.tap(find.byType(BackButton));
       await tester.pump();
       await tester.pump(Duration(seconds: 1));
+      expect(find.byType(FeedPage), findsOneWidget);
       expect(systemUrl.current, '/feed');
     });
   });

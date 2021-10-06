@@ -58,30 +58,42 @@ void main() {
     final history = delegate.history;
     final navigator = Navigator.of(pageOneKey.currentContext!);
 
-    // Push: one -> two
+    // Push: / -> /two
     delegate.push('/two');
     await tester.pumpPageTransition();
     expect(find.byType(PageTwo), findsOneWidget);
 
-    // Push: two -> tree
+    // Push: /two -> /two/three
     delegate.push('/two/three');
     await tester.pumpPageTransition();
     expect(find.byType(PageThree), findsOneWidget);
 
-    // Pop: three -> two
+    // Current page is three
+    // History stack should be: ['/', '/two', '/two/three']
+    // History index should be 2
+    // Pop: /two/three -> /two
     navigator.pop();
     await tester.pumpPageTransition();
-    expect(find.byType(PageTwo), findsOneWidget);
     expect(history.canGoBack, isTrue);
     expect(history.canGoForward, isTrue);
+    expect(find.byType(PageTwo), findsOneWidget);
 
+    // Current page is two
+    // History stack should be: ['/', '/two', '/two/three']
+    // History index should be 1
     // Pop: two -> one
     navigator.pop();
     await tester.pumpPageTransition();
+
+    // Current page is one
+    // History stack should be: ['/', '/two', '/two/three']
+    // History index should be 0
     expect(find.byType(PageOne), findsOneWidget);
     expect(history.canGoBack, isFalse);
     expect(history.canGoForward, isTrue);
 
+    // History stack should be: ['/', '/two', '/two/three']
+    // History index should be 0
     // Forward: one -> two
     final forwardResult1 = history.forward();
     await tester.pumpPageTransition();
