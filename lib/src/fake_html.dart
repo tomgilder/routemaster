@@ -10,6 +10,10 @@ class Window {
 
 class History {
   void replaceState(dynamic data, String title, String? url) {}
+
+  void back() {}
+
+  void forward() {}
 }
 
 class Location {
