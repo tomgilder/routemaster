@@ -14,16 +14,16 @@ abstract class PageTransition {
   Duration get duration;
 
   /// A transition with no animation.
-  static PageTransition get none => const _NoPageTransition();
+  static const PageTransition none = _NoPageTransition();
 
   /// The default fade upwards transition used on Android.
-  static PageTransition get fadeUpwards => const _FadeUpwardsPageTransition();
+  static const PageTransition fadeUpwards = _FadeUpwardsPageTransition();
 
   /// The default slide-in transition used on iOS.
-  static PageTransition get cupertino => const _CupertinoPageTransition();
+  static const PageTransition cupertino = _CupertinoPageTransition();
 
   /// A zoom transition matching the one used on Android 10.
-  static PageTransition get zoom => const _ZoomPageTransition();
+  static const PageTransition zoom = _ZoomPageTransition();
 
   /// Returns the default page transition for the given [platform].
   static PageTransition platformDefault(TargetPlatform platform) {
