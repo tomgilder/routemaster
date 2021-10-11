@@ -218,11 +218,11 @@ void main() {
     final lastRouteData = RouteData('/last', pathTemplate: '/last');
     final stack = PageStack(
       routes: [
-        PageWrapper.fromPage(
+        StatelessPage(
           page: const MaterialPageOne(),
           routeData: RouteData('/', pathTemplate: '/'),
         ),
-        PageWrapper.fromPage(
+        StatelessPage(
           page: const MaterialPageTwo(),
           routeData: lastRouteData,
         ),
@@ -235,7 +235,7 @@ void main() {
   test('Stack.maybePop() returns false with one child', () async {
     final stack = PageStack(
       routes: [
-        PageWrapper.fromPage(
+        StatelessPage(
           page: const MaterialPageOne(),
           routeData: RouteData('/', pathTemplate: '/'),
         ),
@@ -282,8 +282,8 @@ void main() {
   });
 
   test('Removes listener from routes on replace', () {
-    final page1 = TestPageWrapper();
-    final page2 = TestPageWrapper();
+    final page1 = TestPageContainer();
+    final page2 = TestPageContainer();
     final stack = PageStack(routes: [page1]);
 
     // ignore: invalid_use_of_protected_member
@@ -445,14 +445,14 @@ class StackSwapPageState extends State<StackSwapPage> {
   }
 
   final _stack1 = PageStack(routes: [
-    PageWrapper.fromPage(
+    StatelessPage(
       page: const MaterialPage<void>(child: Text('Stack 1')),
       routeData: RouteData('/', pathTemplate: '/'),
     )
   ]);
 
   final _stack2 = PageStack(routes: [
-    PageWrapper.fromPage(
+    StatelessPage(
       page: const MaterialPage<void>(child: Text('Stack 2')),
       routeData: RouteData('/', pathTemplate: '/'),
     )
@@ -464,35 +464,9 @@ class StackSwapPageState extends State<StackSwapPage> {
   }
 }
 
-class TestPageWrapper with ChangeNotifier implements PageWrapper {
-  @override
-  Page createPage() {
-    throw UnimplementedError();
-  }
-
-  @override
-  Iterable<PageWrapper> getCurrentPages() {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<bool> maybePop<T extends Object?>([T? result]) {
-    throw UnimplementedError();
-  }
-
-  @override
-  bool maybeSetChildPages(Iterable<PageWrapper> pages) {
-    throw UnimplementedError();
-  }
-
+class TestPageContainer with ChangeNotifier implements StatelessPage {
   @override
   RouteData get routeData => throw UnimplementedError();
-
-  @override
-  NavigationResult<Object?>? result;
-
-  @override
-  Page get page => throw UnimplementedError();
 }
 
 class MyTabPage extends StatelessWidget {

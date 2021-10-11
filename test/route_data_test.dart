@@ -190,6 +190,31 @@ void main() {
     expect(currentRoute.requestSource, RequestSource.internal);
   });
 
+  testWidgets('Can get RouteData from context with regular Navigator',
+      (tester) async {
+    final pageKey = GlobalKey();
+
+    final delegate = RoutemasterDelegate(routesBuilder: (context) {
+      return RouteMap(
+        routes: {
+          '/': (_) =>
+              const StackPage(child: ContainerPage(), defaultPath: '/two'),
+          '/two': (route) => MaterialPage<void>(child: PageTwo(key: pageKey)),
+        },
+      );
+    });
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    expect(RouteData.of(pageKey.currentContext!).fullPath, '/two');
+    expect(RouteData.of(pageKey.currentContext!).pathTemplate, '/two');
+  });
+
   testWidgets('Can get RouteData from context when navigating back',
       (tester) async {
     final delegate = RoutemasterDelegate(
@@ -362,4 +387,18 @@ void main() {
     expect(routeData.requestSource, RequestSource.internal);
     expect(routeData.pathParameters, {'path': 'param'});
   });
+}
+
+class ContainerPage extends StatelessWidget {
+  const ContainerPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final stack = StackPage.of(context).stack.createPages();
+
+    return Navigator(
+      pages: stack,
+      onPopPage: (_, dynamic __) => false,
+    );
+  }
 }
