@@ -251,6 +251,39 @@ void main() {
     await tester.pumpAndSettle();
   });
 
+  testWidgets('Asserts if unable to get RouteData', (tester) async {
+    final key = GlobalKey();
+
+    final delegate = RoutemasterDelegate(routesBuilder: (context) {
+      return RouteMap(
+        routes: {
+          '/': (_) => MaterialPage<void>(
+                child: Navigator(
+                  onPopPage: (_, dynamic __) => false,
+                  pages: [
+                    MaterialPage<void>(child: SizedBox(key: key)),
+                  ],
+                ),
+              )
+        },
+      );
+    });
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    expect(
+      () => RouteData.of(key.currentContext!),
+      throwsA(predicate((e) =>
+          e is AssertionError &&
+          e.message == "Couldn't find RouteData for page")),
+    );
+  });
+
   testWidgets('Asserts if unable to get modal route', (tester) async {
     late BuildContext context;
     await tester.pumpWidget(Builder(builder: (c) {

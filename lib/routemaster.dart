@@ -1048,18 +1048,10 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }
 
   /// Attempts to find the current route data for the given [context].
-  RouteData? _routeDataFor(BuildContext context) {
-    final modalRoute = ModalRoute.of(context);
-    if (modalRoute == null) {
-      return null;
-    }
-
-    final settings = modalRoute.settings;
-    if (settings is Page) {
-      return _state.stack._getRouteData(settings);
-    }
-
-    return null;
+  ///
+  /// Returns `null` if no route data is found.
+  RouteData? _maybeRouteDataFor(Page page) {
+    return _state.stack._getRouteData(page);
   }
 }
 
