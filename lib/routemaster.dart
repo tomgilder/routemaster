@@ -284,7 +284,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   final RouteMap Function(BuildContext context) routesBuilder;
 
   /// A list of observers for the router, and nested [Navigator] widgets.
-  final List<RoutemasterObserver> observers;
+  ///
+  /// Use [RoutemasterObserver] for additional `didChangeRoute` functionality.
+  final List<NavigatorObserver> observers;
 
   /// A function that returns the top-level navigator widgets. Normally this
   /// function would return a [PageStackNavigator].
@@ -507,7 +509,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       );
 
       if (currentRouteData.fullPath != routeData.fullPath) {
-        for (final observer in observers) {
+        for (final observer in observers.whereType<RoutemasterObserver>()) {
           observer.didChangeRoute(routeData, pageEntry._getOrCreatePage());
         }
       }
@@ -1227,6 +1229,7 @@ class PageStackNavigator extends StatefulWidget {
   /// A list of [NavigatorObserver] that will be passed to the [Navigator].
   final List<NavigatorObserver> observers;
 
+  // TODO
   final List<Page> Function(List<Page>)? stackTransform;
 
   /// Provides a [Navigator] that shows pages from a [PageStack].
