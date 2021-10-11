@@ -1229,8 +1229,8 @@ class PageStackNavigator extends StatefulWidget {
   /// A list of [NavigatorObserver] that will be passed to the [Navigator].
   final List<NavigatorObserver> observers;
 
-  // TODO
-  final List<Page> Function(List<Page>)? stackTransform;
+  /// A function that can filter or transform the list of pages from the stack.
+  final Iterable<Page> Function(List<Page>)? builder;
 
   /// Provides a [Navigator] that shows pages from a [PageStack].
   const PageStackNavigator({
@@ -1238,7 +1238,19 @@ class PageStackNavigator extends StatefulWidget {
     required this.stack,
     this.transitionDelegate = const DefaultTransitionDelegate<dynamic>(),
     this.observers = const [],
-    this.stackTransform,
+  })  : builder = null,
+        super(key: key);
+
+  /// Provides a [Navigator] that shows pages from a [PageStack].
+  ///
+  /// This constructor provides an additional `builder` function that can filter
+  /// or transform the list of pages from the stack.
+  const PageStackNavigator.builder({
+    Key? key,
+    required this.stack,
+    required this.builder,
+    this.transitionDelegate = const DefaultTransitionDelegate<dynamic>(),
+    this.observers = const [],
   }) : super(key: key);
 
   @override
@@ -1309,7 +1321,7 @@ class PageStackNavigatorState extends State<PageStackNavigator> {
   void _updateNavigator() {
     final pages = widget.stack.createPages();
     final filteredPages =
-        widget.stackTransform == null ? pages : widget.stackTransform!(pages);
+        widget.builder == null ? pages : widget.builder!(pages).toList();
 
     _widget = _StackNavigator(
       stack: widget.stack,
