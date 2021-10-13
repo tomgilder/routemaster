@@ -600,7 +600,7 @@ void main() {
     expect(delegate.history.canGoForward, isFalse);
   });
 
-  testWidgets('Can get RouteData for inactive tab', (tester) async {
+  testWidgets('Can get RouteData for first inactive tab', (tester) async {
     final pageOneKey = GlobalKey();
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
@@ -628,6 +628,33 @@ void main() {
     expect(find.byType(PageTwo), findsOneWidget);
     final routeData = RouteData.of(pageOneKey.currentContext!);
     expect(routeData.fullPath, '/one');
+  });
+
+  testWidgets('Can get RouteData for last inactive tab', (tester) async {
+    final pageTwoKey = GlobalKey();
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (_) => const TabPage(
+                child: BothTabsPage(),
+                paths: ['/one', '/two'],
+              ),
+          '/one': (_) => const MaterialPageOne(),
+          '/two': (_) => MaterialPage<void>(child: PageTwo(key: pageTwoKey)),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    expect(find.byType(PageOne), findsOneWidget);
+    final routeData = RouteData.of(pageTwoKey.currentContext!);
+    expect(routeData.fullPath, '/two');
   });
 }
 
