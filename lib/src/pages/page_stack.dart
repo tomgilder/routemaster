@@ -24,6 +24,9 @@ class PageStack extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// The count of how many pages this stack will generate.
+  int get length => _pageContainers.length;
+
   List<Listenable> _listenedToRoutes = [];
 
   /// A map so we can keep track of each page's route data. This can be used by
@@ -69,16 +72,18 @@ class PageStack extends ChangeNotifier {
   }
 
   Iterable<PageContainer> _getCurrentPages() sync* {
-    if (_pageContainers.isNotEmpty) {
-      yield* _pageContainers;
+    if (_pageContainers.isEmpty) {
+      return;
+    }
 
-      final lastPage = _pageContainers.last;
+    yield* _pageContainers;
 
-      if (lastPage is MultiChildPageContainer) {
-        yield* lastPage.getCurrentPages();
-      } else {
-        yield lastPage;
-      }
+    final lastPage = _pageContainers.last;
+    if (lastPage is MultiChildPageContainer) {
+      // Delegate getting pages to last route
+      yield* lastPage.getCurrentPages();
+    } else {
+      yield lastPage;
     }
   }
 

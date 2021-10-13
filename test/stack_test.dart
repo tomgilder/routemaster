@@ -214,6 +214,28 @@ void main() {
     expect(routeData.queryParameters['query'], 'string');
   });
 
+  test('PageStack returns length of page containers', () async {
+    final stack = PageStack(
+      routes: [
+        StatelessPage(
+          page: const MaterialPageOne(),
+          routeData: RouteData('/', pathTemplate: '/'),
+        ),
+        StatelessPage(
+          page: const MaterialPageTwo(),
+          routeData: RouteData('/one', pathTemplate: '/one'),
+        ),
+      ],
+    );
+
+    expect(stack.length, 2);
+  });
+
+  test('PageStack length returns zero for no containers', () async {
+    final stack = PageStack();
+    expect(stack.length, 0);
+  });
+
   test('Stack.maybePop() pops with no navigator', () async {
     final lastRouteData = RouteData('/last', pathTemplate: '/last');
     final stack = PageStack(
