@@ -26,9 +26,11 @@ mixin PageContainer<T extends Page<dynamic>> {
   Page _getOrCreatePage();
 }
 
-/// A page that maintains no state.
+/// A [PageContainer] for a regular [Page] that maintains no state.
+///
+/// Page containers associate [RouteData] with a page.
 class StatelessPage<T extends Page<dynamic>> with PageContainer {
-  /// Creates a stateless wrapper from the given page and routing data.
+  /// Creates a stateless page container from the given page and routing data.
   StatelessPage({
     required T page,
     required RouteData routeData,
@@ -45,8 +47,8 @@ class StatelessPage<T extends Page<dynamic>> with PageContainer {
   final RouteData? _routeData;
 }
 
-/// A [Page] object that can create a state, for instance to keep track of
-/// the current tab index. Similar to [StatefulWidget].
+/// A [Page] that can create a state, for instance to keep track of the current
+/// tab index. Similar to [StatefulWidget].
 abstract class StatefulPage<T> extends Page<T> {
   /// Initializes a stateful page.
   const StatefulPage();
