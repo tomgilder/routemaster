@@ -82,8 +82,6 @@ class PageStack extends ChangeNotifier {
     if (lastPage is MultiChildPageContainer) {
       // Delegate getting pages to last route
       yield* lastPage.getCurrentPages();
-    } else {
-      yield lastPage;
     }
   }
 
