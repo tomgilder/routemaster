@@ -547,12 +547,12 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
       return routeData;
     }
 
-    var i = 0;
-    for (final stack in stacks) {
-      if (i++ == index) {
+    for (var i = 0; i < stacks.length; i++) {
+      if (i == index) {
         continue;
       }
 
+      final stack = stacks[i];
       final routeData = stack._getRouteData(page);
       if (routeData != null) {
         return routeData;
