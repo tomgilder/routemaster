@@ -67,7 +67,9 @@ void main() {
         ),
       );
 
-      const page = TransitionPage<void>(child: SizedBox());
+      // Doesn't use const to fix code coverage
+      // ignore: prefer_const_constructors
+      final page = TransitionPage<void>(child: SizedBox());
 
       final pushTransition = page.buildPushTransition(context);
       expect(

@@ -413,7 +413,8 @@ mixin IndexedRouteMixIn<T> on StatefulPage<T> {
 /// Provides functionality for indexed pages, including managing the active
 /// index and a list of [PageStack] objects.
 mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
-    on PageState<T>, ChangeNotifier {
+    on PageState<T>, ChangeNotifier
+    implements MultiChildPageContainer<T> {
   late final List<PageStack?> _routes;
 
   List<PageStack>? _stacks;
@@ -472,7 +473,7 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
   /// If it does, it sets that stack's pages to the routes, and switches the
   /// current index to that tab.
   @override
-  bool maybeSetChildPages(Iterable<PageWrapper> pages) {
+  bool maybeSetChildPages(Iterable<PageContainer> pages) {
     assert(
       pages.isNotEmpty,
       "Don't call maybeSetPageStates with an empty list",
@@ -532,15 +533,37 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
   }
 
   @override
-  Iterable<PageWrapper> getCurrentPages() sync* {
+  Iterable<PageContainer> getCurrentPages() sync* {
     yield this;
     yield* stacks[index]._getCurrentPages();
   }
+
+  @override
+  RouteData? _getRouteData(Page page) {
+    // It's  likely the route data will be in the currently active page so
+    // check that first
+    final routeData = stacks[index]._getRouteData(page);
+    if (routeData != null) {
+      return routeData;
+    }
+
+    for (var i = 0; i < stacks.length; i++) {
+      if (i == index) {
+        continue;
+      }
+
+      final stack = stacks[i];
+      final routeData = stack._getRouteData(page);
+      if (routeData != null) {
+        return routeData;
+      }
+    }
+  }
 }
 
-class _TabNotFoundPage extends PageWrapper {
+class _TabNotFoundPage extends StatelessPage {
   _TabNotFoundPage(_RouteRequest request)
-      : super.fromPage(
+      : super(
           routeData: RouteData(
             request.uri.toString(),
             pathTemplate: request.uri.toString(),

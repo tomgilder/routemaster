@@ -599,6 +599,63 @@ void main() {
     expect(delegate.history.canGoBack, isTrue);
     expect(delegate.history.canGoForward, isFalse);
   });
+
+  testWidgets('Can get RouteData for first inactive tab', (tester) async {
+    final pageOneKey = GlobalKey();
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (_) => const TabPage(
+                child: BothTabsPage(),
+                paths: ['/one', '/two'],
+              ),
+          '/one': (_) => MaterialPage<void>(child: PageOne(key: pageOneKey)),
+          '/two': (_) => const MaterialPageTwo(),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    delegate.push('/two');
+    await tester.pump();
+
+    expect(find.byType(PageTwo), findsOneWidget);
+    final routeData = RouteData.of(pageOneKey.currentContext!);
+    expect(routeData.fullPath, '/one');
+  });
+
+  testWidgets('Can get RouteData for last inactive tab', (tester) async {
+    final pageTwoKey = GlobalKey();
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (_) => const TabPage(
+                child: BothTabsPage(),
+                paths: ['/one', '/two'],
+              ),
+          '/one': (_) => const MaterialPageOne(),
+          '/two': (_) => MaterialPage<void>(child: PageTwo(key: pageTwoKey)),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    expect(find.byType(PageOne), findsOneWidget);
+    final routeData = RouteData.of(pageTwoKey.currentContext!);
+    expect(routeData.fullPath, '/two');
+  });
 }
 
 class StubRoutemaster implements Routemaster {
@@ -666,6 +723,23 @@ class BasicTabPage extends StatelessWidget {
 
     return Scaffold(
       body: PageStackNavigator(stack: stack),
+    );
+  }
+}
+
+class BothTabsPage extends StatelessWidget {
+  const BothTabsPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Expanded(
+          child: PageStackNavigator(stack: TabPage.of(context).stacks[0]),
+        ),
+        Expanded(
+            child: PageStackNavigator(stack: TabPage.of(context).stacks[1])),
+      ],
     );
   }
 }

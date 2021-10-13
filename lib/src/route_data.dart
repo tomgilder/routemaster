@@ -184,20 +184,30 @@ class RouteData {
   static RouteData of(BuildContext context) {
     final modalRoute = ModalRoute.of(context);
     assert(modalRoute != null, "Couldn't get modal route");
-    assert(modalRoute!.settings is Page, "Modal route isn't a page route");
 
-    final page = modalRoute!.settings as Page;
-    return PageStackNavigator.of(context).routeDataFor(page)!;
+    final settings = modalRoute!.settings;
+    assert(settings is Page, "Modal route isn't a page route");
+
+    final routemaster = Routemaster.of(context)._state.delegate;
+    final routeData = routemaster._maybeRouteDataFor(settings as Page);
+
+    assert(routeData != null, "Couldn't find RouteData for page");
+
+    return routeData!;
   }
 
   /// Gets the [RouteData] for the nearest [Page] ancestor for the given
   /// context, or null if the given context doesn't have associated RouteData.
   static RouteData? maybeOf(BuildContext context) {
     final modalRoute = ModalRoute.of(context);
-    final page = modalRoute?.settings;
+    if (modalRoute == null) {
+      return null;
+    }
 
-    if (page is Page) {
-      return PageStackNavigator.of(context).routeDataFor(page);
+    final routemaster = Routemaster.of(context)._state.delegate;
+    final settings = modalRoute.settings;
+    if (settings is Page) {
+      return routemaster._maybeRouteDataFor(settings);
     }
 
     return null;
