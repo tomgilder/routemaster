@@ -93,7 +93,6 @@ class PageStack extends ChangeNotifier {
     } else {
       // It's more likely the route data will be in the currently active page
       // so go through pages in reverse order
-
       final multiChildChildren =
           _pageContainers.reversed.whereType<MultiChildPageContainer>();
 

@@ -16,7 +16,7 @@ mixin RedirectingPage<T> on Page<T> {
 
 /// Provides routing information about a [Page].
 mixin PageContainer<T extends Page<dynamic>> {
-  /// Information about the current route.
+  /// Route information for this page.
   RouteData get routeData;
 
   /// Provides access to the [Route] created from this page, and any result
@@ -41,7 +41,7 @@ class StatelessPage<T extends Page<dynamic>> with PageContainer {
   Page _getOrCreatePage() => _page;
   final Page _page;
 
-  /// Information about the current route.
+  /// Route information for this page.
   @override
   RouteData get routeData => _routeData!;
   final RouteData? _routeData;
