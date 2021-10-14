@@ -121,7 +121,7 @@ void main() {
 
       expect(systemUrl.current, '/not-found/sub-page');
 
-      await delegate.popRoute();
+      await delegate.pop();
       await tester.pump();
       await tester.pump(const Duration(seconds: 1));
       expect(find.byType(PageTwo), findsOneWidget);

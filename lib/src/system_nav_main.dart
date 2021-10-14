@@ -6,9 +6,8 @@ import 'system_nav.dart';
 class SystemNav {
   static HistoryProvider? historyProvider;
 
-  static void replaceUrl(RouteData routeData) {
-    throw UnsupportedError('Only supported on web');
-  }
+  /// Used to disable system navigation from tests when running in Chrome
+  static bool enabled = true;
 
   static void setPathUrlStrategy() {
     throw UnsupportedError('Only supported on web');
@@ -20,6 +19,14 @@ class SystemNav {
   }
 
   static String makePublicUrl(RouteData routeData) {
+    throw UnsupportedError('Only supported on web');
+  }
+
+  static String back() {
+    throw UnsupportedError('Only supported on web');
+  }
+
+  static String forward() {
     throw UnsupportedError('Only supported on web');
   }
 }

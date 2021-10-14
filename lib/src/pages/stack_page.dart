@@ -19,7 +19,7 @@ part of '../../routemaster.dart';
 /// ```
 ///   PageStackNavigator(stack: StackPage.of(context).stack)
 /// ```
-class StackPage extends StatefulPage<void> with PageContainer {
+class StackPage extends StatefulPage<void> with RedirectingPage {
   /// The content to be shown in the [Route] created by this page.
   final Widget child;
 
@@ -78,7 +78,8 @@ class _StackPageStateProvider extends InheritedNotifier {
 
 /// The current state of an [StackPage]. Created when an instance of the page
 /// is shown.
-class StackPageState extends PageState<StackPage> with ChangeNotifier {
+class StackPageState extends PageState<StackPage>
+    with ChangeNotifier, MultiChildPageContainer {
   /// Initializes the state for an [StackPage].
   StackPageState();
 
@@ -96,7 +97,7 @@ class StackPageState extends PageState<StackPage> with ChangeNotifier {
   }
 
   @override
-  bool maybeSetChildPages(Iterable<PageWrapper> pages) {
+  bool maybeSetChildPages(Iterable<PageContainer> pages) {
     return stack.maybeSetChildPages(pages);
   }
 
@@ -106,8 +107,13 @@ class StackPageState extends PageState<StackPage> with ChangeNotifier {
   }
 
   @override
-  Iterable<PageWrapper> getCurrentPages() sync* {
+  Iterable<PageContainer> getCurrentPages() sync* {
     yield this;
     yield* stack._getCurrentPages();
+  }
+
+  @override
+  RouteData? _getRouteData(Page page) {
+    return stack._getRouteData(page);
   }
 }

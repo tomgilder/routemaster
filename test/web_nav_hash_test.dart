@@ -59,13 +59,15 @@ void main() {
       );
       expect(systemUrl.current, '/');
 
+      final delegate2 = RoutemasterDelegate(routesBuilder: (_) => routes2);
       await tester.pumpWidget(
         MaterialApp.router(
-          routerDelegate: RoutemasterDelegate(routesBuilder: (_) => routes2),
+          routerDelegate: delegate2,
           routeInformationParser: const RoutemasterParser(),
         ),
       );
       await tester.pump();
+      expect(delegate2.currentConfiguration!.fullPath, '/one');
       expect(systemUrl.current, '/one');
     });
   });

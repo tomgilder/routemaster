@@ -52,7 +52,7 @@ void main() {
       await tester.pump();
       expect(systemUrl.current, '/feed/profile/1/photo');
 
-      await invokeSystemBack();
+      await tester.tap(find.byType(BackButton));
       await tester.pumpAndSettle();
       expect(systemUrl.current, '/feed/profile/1');
 
@@ -112,7 +112,7 @@ void main() {
       );
 
       // Goes back to profile
-      await invokeSystemBack();
+      await tester.tap(find.byType(BackButton));
 
       await tester.pump();
       await tester.pump(Duration(seconds: 1));
@@ -122,7 +122,7 @@ void main() {
       expect(find.byType(PhotoPage), findsNothing);
 
       // Goes back to feed home
-      await invokeSystemBack();
+      await tester.tap(find.byType(BackButton));
       await tester.pumpAndSettle();
       expect(systemUrl.current, '/feed');
     });
@@ -150,7 +150,7 @@ void main() {
 
     expect(find.text('Non-Page route'), findsOneWidget);
 
-    await invokeSystemBack();
+    await tester.tap(find.byType(BackButton));
     await tester.pump();
     await tester.pump(Duration(seconds: 1));
 

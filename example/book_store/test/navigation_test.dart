@@ -6,7 +6,6 @@ import 'package:book_store/models.dart';
 import 'package:book_store/search_page.dart';
 import 'package:book_store/wishlist_page.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'helpers.dart';
 
@@ -263,7 +262,7 @@ void main() {
 
       // Tap back button
 
-      await tester.tap(find.byType(BackButton));
+      await tester.tap(find.byType(CupertinoNavigationBarBackButton));
       await tester.pump();
       await tester.pump(Duration(seconds: 1));
 
@@ -369,7 +368,7 @@ void main() {
 
       // Tap back button, expect to go back to home page
 
-      await tester.tap(find.byType(BackButton));
+      await tester.tap(find.byType(CupertinoNavigationBarBackButton));
       await tester.pump();
       await tester.pump(Duration(seconds: 1));
 
