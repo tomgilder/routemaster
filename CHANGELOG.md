@@ -1,3 +1,17 @@
+# 0.10.0-dev5
+
+* Added: length property to PageStack to find out how many pages the stack
+  will generate.
+
+* Added: `PageStackNavigator.builder` constructor for advanced scenarios 
+  to filter which pages are shown in the navigator.
+
+* Fixed: an issue with getting `RouteData.of(context)` in some advanced
+  circumstances.
+
+* Breaking change: renamed and refactored some core Routemaster objects.
+  Unlikely to affect anyone unless you're making custom stateful pages.
+
 # 0.10.0-dev4
 
 * Fixes a bug with forward history navigation.
