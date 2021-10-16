@@ -1,5 +1,19 @@
 part of '../../routemaster.dart';
 
+/// Specifies how tabs behave when used with the system back button.
+enum TabBackBehavior {
+  /// Switching tabs will not affect the route history.
+  ///
+  /// The system back button will never navigate between tabs.
+  none,
+
+  /// Switching tabs will add routes to the route history.
+  ///
+  /// The system back button will navigate backwards through tabs
+  /// chronologically, in the order the user visited them.
+  history,
+}
+
 Page _defaultPageBuilder(Widget child) {
   return MaterialPage<void>(child: child);
 }
@@ -20,12 +34,16 @@ class IndexedPage extends StatefulPage<void> with IndexedRouteMixIn {
   /// If this is null, a [MaterialPage] is used.
   final Page Function(Widget child) pageBuilder;
 
+  /// Specifies how tabs behave when used with the system back button.
+  final TabBackBehavior backBehavior;
+
   /// Initializes the page with a list of child [paths]. The provided [child]
   /// will normally show some kind of indexed navigation, such as tabs.
   const IndexedPage({
     required this.child,
     required this.paths,
     this.pageBuilder = _defaultPageBuilder,
+    this.backBehavior = TabBackBehavior.none,
   });
 
   @override
@@ -73,6 +91,9 @@ class IndexedPageState extends PageState<IndexedPage>
   IndexedPageState();
 
   @override
+  TabBackBehavior get backBehavior => page.backBehavior;
+
+  @override
   void initState() {
     super.initState();
     _routes = List.filled(page.paths.length, null);
@@ -102,11 +123,15 @@ class TabPage extends StatefulPage<void> with IndexedRouteMixIn {
   /// If this is null, a [MaterialPage] is used.
   final Page Function(Widget child) pageBuilder;
 
+  /// Specifies how tabs behave when used with the system back button.
+  final TabBackBehavior backBehavior;
+
   /// Initializes the page with a list of child [paths].
   const TabPage({
     required this.child,
     required this.paths,
     this.pageBuilder = _defaultPageBuilder,
+    this.backBehavior = TabBackBehavior.none,
   });
 
   @override
@@ -146,6 +171,9 @@ class TabPageState extends PageState<TabPage>
     with ChangeNotifier, IndexedPageStateMixIn {
   /// Initializes the state for a [TabPage].
   TabPageState();
+
+  @override
+  TabBackBehavior get backBehavior => page.backBehavior;
 
   @override
   void initState() {
@@ -272,11 +300,15 @@ class CupertinoTabPage extends StatefulPage<void> with IndexedRouteMixIn {
   /// If this is null, a [MaterialPage] is used.
   final Page Function(Widget child) pageBuilder;
 
+  /// Specifies how tabs behave when used with the system back button.
+  final TabBackBehavior backBehavior;
+
   /// Initializes the page with a list of child [paths].
   const CupertinoTabPage({
     required this.child,
     required this.paths,
     this.pageBuilder = _defaultPageBuilder,
+    this.backBehavior = TabBackBehavior.none,
   });
 
   @override
@@ -322,6 +354,9 @@ class CupertinoTabPageState extends PageState<CupertinoTabPage>
   ///
   /// Normally accessed by calling `CupertinoTabPage.of(context).controller`.
   final CupertinoTabController controller = CupertinoTabController();
+
+  @override
+  TabBackBehavior get backBehavior => page.backBehavior;
 
   @override
   void initState() {
@@ -378,7 +413,8 @@ mixin IndexedRouteMixIn<T> on StatefulPage<T> {
 /// Provides functionality for indexed pages, including managing the active
 /// index and a list of [PageStack] objects.
 mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
-    on PageState<T>, ChangeNotifier {
+    on PageState<T>, ChangeNotifier
+    implements MultiChildPageContainer<T> {
   late final List<PageStack?> _routes;
 
   List<PageStack>? _stacks;
@@ -398,13 +434,18 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
   int get index => _index;
   int _index = 0;
 
+  /// How the back button should be handled.
+  final TabBackBehavior backBehavior = TabBackBehavior.none;
+
   /// The currently active index.
   set index(int value) {
     if (value != _index) {
       _index = value;
 
       notifyListeners();
-      _routemasterState!.delegate._markNeedsUpdate();
+      _routemasterState!.delegate._updateCurrentConfiguration(
+        isReplacement: backBehavior == TabBackBehavior.none,
+      );
     }
   }
 
@@ -419,6 +460,7 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
         uri: path,
         isReplacement: routeData.isReplacement,
         requestSource: routeData.requestSource,
+        isBrowserHistoryNavigation: false,
       ),
     );
 
@@ -431,7 +473,7 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
   /// If it does, it sets that stack's pages to the routes, and switches the
   /// current index to that tab.
   @override
-  bool maybeSetChildPages(Iterable<PageWrapper> pages) {
+  bool maybeSetChildPages(Iterable<PageContainer> pages) {
     assert(
       pages.isNotEmpty,
       "Don't call maybeSetPageStates with an empty list",
@@ -491,15 +533,37 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
   }
 
   @override
-  Iterable<PageWrapper> getCurrentPages() sync* {
+  Iterable<PageContainer> getCurrentPages() sync* {
     yield this;
     yield* stacks[index]._getCurrentPages();
   }
+
+  @override
+  RouteData? _getRouteData(Page page) {
+    // It's  likely the route data will be in the currently active page so
+    // check that first
+    final routeData = stacks[index]._getRouteData(page);
+    if (routeData != null) {
+      return routeData;
+    }
+
+    for (var i = 0; i < stacks.length; i++) {
+      if (i == index) {
+        continue;
+      }
+
+      final stack = stacks[i];
+      final routeData = stack._getRouteData(page);
+      if (routeData != null) {
+        return routeData;
+      }
+    }
+  }
 }
 
-class _TabNotFoundPage extends PageWrapper {
+class _TabNotFoundPage extends StatelessPage {
   _TabNotFoundPage(_RouteRequest request)
-      : super.fromPage(
+      : super(
           routeData: RouteData(
             request.uri.toString(),
             pathTemplate: request.uri.toString(),

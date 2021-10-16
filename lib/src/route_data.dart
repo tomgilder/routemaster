@@ -37,6 +37,9 @@ class RouteData {
 
   String? _publicPath;
 
+  /// History index to detect navigation by browser back/forward buttons.
+  int? _historyIndex;
+
   /// The path component of this route, without query string.
   ///
   /// For the full path including query string, use [fullPath].
@@ -71,13 +74,15 @@ class RouteData {
 
   /// Initializes routing data from a path string.
   RouteData(
-    String path, {
+    String fullPath, {
     required this.pathTemplate,
     this.pathParameters = const {},
     this.isReplacement = false,
     this.requestSource = RequestSource.system,
-  })  : _uri = Uri.parse(path),
-        _privateSegmentIndex = _getPrivateSegmentIndex(pathTemplate);
+    int? historyIndex,
+  })  : _uri = Uri.parse(fullPath),
+        _privateSegmentIndex = _getPrivateSegmentIndex(pathTemplate),
+        _historyIndex = historyIndex;
 
   /// Initializes routing data from a [Uri].
   RouteData._fromUri(
@@ -86,8 +91,10 @@ class RouteData {
     this.pathParameters = const {},
     this.isReplacement = false,
     this.requestSource = RequestSource.system,
+    int? historyIndex,
   })  : _uri = uri,
-        _privateSegmentIndex = _getPrivateSegmentIndex(pathTemplate);
+        _privateSegmentIndex = _getPrivateSegmentIndex(pathTemplate),
+        _historyIndex = historyIndex;
 
   /// Initializes routing data from the provided router result.
   RouteData._fromRouterResult(
@@ -137,6 +144,7 @@ class RouteData {
         'requestSource': requestSource.toString(),
         'pathTemplate': pathTemplate,
         'pathParameters': pathParameters,
+        'historyIndex': _historyIndex,
       },
     );
   }
@@ -158,6 +166,7 @@ class RouteData {
         pathTemplate: state['pathTemplate'] as String,
         pathParameters: (state['pathParameters'] as Map<String, dynamic>)
             .cast<String, String>(),
+        historyIndex: state['historyIndex'] as int?,
       );
     }
 
@@ -175,22 +184,43 @@ class RouteData {
   static RouteData of(BuildContext context) {
     final modalRoute = ModalRoute.of(context);
     assert(modalRoute != null, "Couldn't get modal route");
-    assert(modalRoute!.settings is Page, "Modal route isn't a page route");
 
-    final page = modalRoute!.settings as Page;
-    return PageStackNavigator.of(context).routeDataFor(page)!;
+    final settings = modalRoute!.settings;
+    assert(settings is Page, "Modal route isn't a page route");
+
+    final routemaster = Routemaster.of(context)._state.delegate;
+    final routeData = routemaster._maybeRouteDataFor(settings as Page);
+
+    assert(routeData != null, "Couldn't find RouteData for page");
+
+    return routeData!;
   }
 
   /// Gets the [RouteData] for the nearest [Page] ancestor for the given
   /// context, or null if the given context doesn't have associated RouteData.
   static RouteData? maybeOf(BuildContext context) {
     final modalRoute = ModalRoute.of(context);
-    final page = modalRoute?.settings;
+    if (modalRoute == null) {
+      return null;
+    }
 
-    if (page is Page) {
-      return PageStackNavigator.of(context).routeDataFor(page);
+    final routemaster = Routemaster.of(context)._state.delegate;
+    final settings = modalRoute.settings;
+    if (settings is Page) {
+      return routemaster._maybeRouteDataFor(settings);
     }
 
     return null;
+  }
+
+  RouteData _copyWith({required int historyIndex}) {
+    return RouteData._fromUri(
+      _uri,
+      pathTemplate: pathTemplate,
+      pathParameters: pathParameters,
+      isReplacement: isReplacement,
+      requestSource: requestSource,
+      historyIndex: historyIndex,
+    );
   }
 }

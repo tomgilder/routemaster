@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:routemaster/routemaster.dart';
-
 import 'helpers.dart';
 
 void main() {
@@ -10,11 +9,79 @@ void main() {
     await tester.pumpWidget(CupertinoApp());
     expect(find.byType(FeedPage), findsOneWidget);
 
-    await tester.tap(find.text('Settings'));
+    await tester.tap(find.text('Two'));
     await tester.pump();
 
     expect(find.byType(FeedPage), findsNothing);
-    expect(find.byType(SettingsPage), findsOneWidget);
+    expect(find.byType(PageTwo), findsOneWidget);
+  });
+
+  testWidgets('No history entries created with TabBackBehavior.none',
+      (tester) async {
+    var app = CupertinoApp(
+      tabBackBehavior: TabBackBehavior.none,
+    );
+    await tester.pumpWidget(app);
+    expect(find.byType(FeedPage), findsOneWidget);
+
+    await tester.tap(find.text('Two'));
+    await tester.pump();
+
+    expect(find.byType(PageTwo), findsOneWidget);
+    expect(app.delegate.history.canGoBack, isFalse);
+  });
+
+  testWidgets('Can use TabBackBehavior.history with Cupertino tabs',
+      (tester) async {
+    final app = CupertinoApp(
+      tabBackBehavior: TabBackBehavior.history,
+    );
+    await tester.pumpWidget(app);
+
+    expect(find.byType(FeedPage), findsOneWidget);
+
+    // Go to page 3
+    await tester.tap(find.text('Three'));
+    await tester.pumpPageTransition();
+    expect(find.byType(PageThree), findsOneWidget);
+    expect(app.delegate.history.canGoBack, isTrue);
+    expect(app.delegate.history.canGoForward, isFalse);
+
+    // Go to page 2
+    await tester.tap(find.text('Two'));
+    await tester.pumpPageTransition();
+    expect(find.byType(PageTwo), findsOneWidget);
+    expect(app.delegate.history.canGoBack, isTrue);
+    expect(app.delegate.history.canGoForward, isFalse);
+
+    // Go back to page 3
+    final result = app.delegate.history.back();
+    expect(result, isTrue);
+    await tester.pumpPageTransition();
+    expect(find.byType(PageThree), findsOneWidget);
+    expect(app.delegate.history.canGoBack, isTrue);
+    expect(app.delegate.history.canGoForward, isTrue);
+
+    // Go back to feed page
+    app.delegate.history.back();
+    await tester.pumpPageTransition();
+    expect(find.byType(FeedPage), findsOneWidget);
+    expect(app.delegate.history.canGoBack, isFalse);
+    expect(app.delegate.history.canGoForward, isTrue);
+
+    // Go forward to page 3
+    app.delegate.history.forward();
+    await tester.pumpPageTransition();
+    expect(find.byType(PageThree), findsOneWidget);
+    expect(app.delegate.history.canGoBack, isTrue);
+    expect(app.delegate.history.canGoForward, isTrue);
+
+    // Go forward to page 2
+    app.delegate.history.forward();
+    await tester.pumpPageTransition();
+    expect(find.byType(PageTwo), findsOneWidget);
+    expect(app.delegate.history.canGoBack, isTrue);
+    expect(app.delegate.history.canGoForward, isFalse);
   });
 
   testWidgets('Can push into cupertino tab', (tester) async {
@@ -99,23 +166,34 @@ void main() {
   });
 }
 
-final routes = RouteMap(
-  routes: {
-    '/': (_) => CupertinoTabPage(
-          child: HomePage(),
-          paths: const ['feed', 'settings'],
-        ),
-    '/feed': (_) => MaterialPage<void>(child: FeedPage()),
-    '/feed/profile/:id': (_) => MaterialPage<void>(child: ProfilePage()),
-    '/settings': (_) => MaterialPage<void>(child: SettingsPage()),
-  },
-);
-
 class CupertinoApp extends StatelessWidget {
+  final TabBackBehavior tabBackBehavior;
+
+  CupertinoApp({
+    Key? key,
+    this.tabBackBehavior = TabBackBehavior.none,
+  }) : super(key: key);
+
+  late final delegate = RoutemasterDelegate(
+    routesBuilder: (_) => RouteMap(
+      routes: {
+        '/': (_) => CupertinoTabPage(
+              child: HomePage(),
+              paths: const ['feed', 'two', 'three'],
+              backBehavior: tabBackBehavior,
+            ),
+        '/feed': (_) => MaterialPage<void>(child: FeedPage()),
+        '/feed/profile/:id': (_) => MaterialPage<void>(child: ProfilePage()),
+        '/two': (_) => const MaterialPageTwo(),
+        '/three': (_) => const MaterialPageThree(),
+      },
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      routerDelegate: RoutemasterDelegate(routesBuilder: (_) => routes),
+      routerDelegate: delegate,
       routeInformationParser: const RoutemasterParser(),
     );
   }
@@ -136,8 +214,12 @@ class HomePage extends StatelessWidget {
             icon: Icon(CupertinoIcons.list_bullet),
           ),
           BottomNavigationBarItem(
-            label: 'Settings',
+            label: 'Two',
             icon: Icon(CupertinoIcons.search),
+          ),
+          BottomNavigationBarItem(
+            label: 'Three',
+            icon: Icon(CupertinoIcons.person_3),
           ),
         ],
       ),
@@ -176,13 +258,6 @@ class ProfilePage extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class SettingsPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: Text('Settings page')));
   }
 }
 

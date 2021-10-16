@@ -16,19 +16,14 @@ extension PumpExtension on WidgetTester {
 }
 
 class MockHistoryProvider implements HistoryProvider {
-  final void Function(String) onReplaceState;
-
-  MockHistoryProvider(this.onReplaceState);
-
-  @override
-  void replaceState(dynamic data, String title, String? url) {
-    if (url != null) {
-      onReplaceState(url.startsWith('#') ? url.substring(1) : url);
-    }
-  }
-
   @override
   String hash = '#';
+
+  @override
+  void back() {}
+
+  @override
+  void forward() {}
 }
 
 class SystemUrlTracker {
@@ -40,18 +35,10 @@ Future<void> recordUrlChanges(
     Future Function(SystemUrlTracker url) callback) async {
   try {
     final tracker = SystemUrlTracker();
-    final stackTraces = <StackTrace>[];
-
-    SystemNav.historyProvider = MockHistoryProvider((url) {
-      tracker.current = url;
-    });
-
     SystemChannels.navigation.setMockMethodCallHandler((call) async {
       if (call.method == 'routeInformationUpdated') {
         final location = call.arguments['location'] as String;
-
         tracker.current = location;
-        stackTraces.add(StackTrace.current);
       }
     });
 

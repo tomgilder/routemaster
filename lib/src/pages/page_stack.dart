@@ -2,12 +2,12 @@ part of '../../routemaster.dart';
 
 /// Manages a stack of pages. Used by [PageStackNavigator].
 class PageStack extends ChangeNotifier {
-  NavigatorState? _attachedNavigator;
+  _StackNavigatorState? _attachedNavigator;
 
-  List<PageWrapper>? __pageWrappers;
-  List<PageWrapper> get _pageWrappers => __pageWrappers!;
-  set _pageWrappers(List<PageWrapper> newPages) {
-    if (newPages == __pageWrappers) {
+  List<PageContainer>? __pageContainers;
+  List<PageContainer> get _pageContainers => __pageContainers!;
+  set _pageContainers(List<PageContainer> newPages) {
+    if (newPages == __pageContainers) {
       return;
     }
 
@@ -20,9 +20,12 @@ class PageStack extends ChangeNotifier {
         route.addListener(notifyListeners);
       });
 
-    __pageWrappers = newPages;
+    __pageContainers = newPages;
     notifyListeners();
   }
+
+  /// The count of how many pages this stack will generate.
+  int get length => _pageContainers.length;
 
   List<Listenable> _listenedToRoutes = [];
 
@@ -31,26 +34,27 @@ class PageStack extends ChangeNotifier {
   Map<Page, RouteData> _routeMap = {};
 
   /// Manages a stack of pages.
-  PageStack({List<PageWrapper> routes = const <PageWrapper>[]}) {
-    _pageWrappers = routes;
+  PageStack({List<PageContainer> routes = const <PageContainer>[]}) {
+    _pageContainers = routes;
   }
 
   /// Generates a list of pages for the list of routes provided to this object.
   List<Page> createPages() {
-    assert(_pageWrappers.isNotEmpty, "Can't generate pages with no routes");
+    assert(_pageContainers.isNotEmpty, "Can't generate pages with no routes");
 
     final newRouteMap = <Page, RouteData>{};
+    final pages = _pageContainers.map(
+      (pageState) {
+        final page = pageState._getOrCreatePage();
 
-    final pages = _pageWrappers.map((pageState) {
-      final page = pageState._getOrCreatePage();
-
-      // We need to keep any removed pages in the route map as they may still
-      // rebuild whilst being removed - so for this build, the route map
-      // contains both new and removed pages
-      newRouteMap[page] = pageState.routeData;
-      _routeMap[page] = pageState.routeData;
-      return page;
-    }).toList();
+        // We need to keep any removed pages in the route map as they may still
+        // rebuild whilst being removed - so for this build, the route map
+        // contains both new and removed pages
+        newRouteMap[page] = pageState.routeData;
+        _routeMap[page] = pageState.routeData;
+        return page;
+      },
+    ).toList();
 
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
       // Flushes out any removed pages
@@ -62,22 +66,54 @@ class PageStack extends ChangeNotifier {
   }
 
   /// Replaces the list of routes.
-  bool maybeSetChildPages(Iterable<PageWrapper> pages) {
-    _pageWrappers = pages.toList();
+  bool maybeSetChildPages(Iterable<PageContainer> pages) {
+    _pageContainers = pages.toList();
     return true;
   }
 
-  Iterable<PageWrapper> _getCurrentPages() sync* {
-    if (_pageWrappers.isNotEmpty) {
-      yield* _pageWrappers;
-      yield* _pageWrappers.last.getCurrentPages();
+  Iterable<PageContainer> _getCurrentPages() sync* {
+    if (_pageContainers.isEmpty) {
+      return;
+    }
+
+    yield* _pageContainers;
+
+    final lastPage = _pageContainers.last;
+    if (lastPage is MultiChildPageContainer) {
+      // Delegate getting pages to last route
+      yield* lastPage.getCurrentPages();
+    }
+  }
+
+  RouteData? _getRouteData(Page page) {
+    var route = _routeMap[page];
+
+    if (route != null) {
+      return route;
+    } else {
+      // It's more likely the route data will be in the currently active page
+      // so go through pages in reverse order
+      final multiChildChildren =
+          _pageContainers.reversed.whereType<MultiChildPageContainer>();
+
+      for (final container in multiChildChildren) {
+        route = container._getRouteData(page);
+        if (route != null) {
+          return route;
+        }
+      }
     }
   }
 
   /// Passed to [Navigator] widgets for them to inform this stack of a pop
-  bool onPopPage(Route<dynamic> route, dynamic result) {
+  bool onPopPage(
+      Route<dynamic> route, dynamic result, Routemaster routemaster) {
     if (route.didPop(result)) {
-      _pageWrappers.removeLast();
+      _pageContainers.removeLast();
+
+      routemaster.history._onPopPage(
+        newRoute: _pageContainers.last.routeData,
+      );
 
       // We don't need to notify listeners, the Navigator will rebuild itself
       return true;
@@ -93,7 +129,9 @@ class PageStack extends ChangeNotifier {
   /// parameter.
   Future<bool> maybePop<T extends Object?>([T? result]) async {
     // First try delegating the pop to the last child route.
-    if (await _pageWrappers.last.maybePop(result)) {
+    final lastRoute = _pageContainers.last;
+    if (lastRoute is MultiChildPageContainer &&
+        await lastRoute.maybePop(result)) {
       return SynchronousFuture(true);
     }
 
@@ -103,8 +141,8 @@ class PageStack extends ChangeNotifier {
     }
 
     // Pop the stack as a last resort
-    if (_pageWrappers.length > 1) {
-      _pageWrappers.removeLast();
+    if (_pageContainers.length > 1) {
+      _pageContainers.removeLast();
       notifyListeners();
       return SynchronousFuture(true);
     }

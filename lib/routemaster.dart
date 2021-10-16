@@ -18,11 +18,12 @@ import 'src/trie_router/trie_router.dart';
 
 part 'src/pages/page_stack.dart';
 part 'src/pages/tab_pages.dart';
-part 'src/pages/basic_pages.dart';
+part 'src/pages/pages.dart';
 part 'src/pages/stack_page.dart';
 part 'src/pages/flow_page.dart';
 part 'src/observers.dart';
 part 'src/route_data.dart';
+part 'src/route_history.dart';
 
 /// A function that builds a [Page] from given [RouteData].
 typedef PageBuilder = RouteSettings Function(RouteData route);
@@ -173,6 +174,11 @@ class Routemaster {
     return _state.delegate.pop(value);
   }
 
+  /// Allows navigating through the chronological history of routes.
+  ///
+  /// This is the routes that the user has recently seen.
+  RouteHistory get history => _state.history;
+
   /// Calls [pop] repeatedly whilst the [predicate] function returns true.
   ///
   /// If [predicate] immediately returns false, pop won't be called.
@@ -293,7 +299,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   final RouteMap Function(BuildContext context) routesBuilder;
 
   /// A list of observers for the router, and nested [Navigator] widgets.
-  final List<RoutemasterObserver> observers;
+  ///
+  /// Use [RoutemasterObserver] for additional `didChangeRoute` functionality.
+  final List<NavigatorObserver> observers;
 
   /// A function that returns the top-level navigator widgets. Normally this
   /// function would return a [PageStackNavigator].
@@ -301,6 +309,11 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     BuildContext context,
     PageStack stack,
   )? navigatorBuilder;
+
+  /// Allows navigating through the chronological history of routes.
+  ///
+  /// This is the routes that the user has recently seen.
+  RouteHistory get history => _state.history;
 
   _RoutemasterState _state = _RoutemasterState();
   bool _isBuilding = false;
@@ -339,11 +352,13 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }
 
   /// Called by the [Router] when the [Router.backButtonDispatcher] reports that
-  /// the operating system is requesting that the current route be popped.
+  /// the operating system is requesting that the current route be popped, for
+  /// instance on Android when the user presses the device's back button.
   @override
   Future<bool> popRoute() async {
     assert(!_isDisposed);
-    return pop();
+
+    return history.back();
   }
 
   /// Attempts to pops the top-level route. Returns `true` if a route was
@@ -352,14 +367,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   /// An optional value can be passed to the previous route via the [result]
   /// parameter.
   @optionalTypeArgs
-  Future<bool> pop<T extends Object?>([T? result]) async {
+  Future<bool> pop<T extends Object?>([T? result]) {
     assert(!_isDisposed);
-
-    final popResult = await _state.stack.maybePop<T>(result);
-    if (popResult) {
-      _markNeedsUpdate();
-    }
-    return popResult;
+    return _state.stack.maybePop<T>(result);
   }
 
   /// Calls [pop] repeatedly whilst the [predicate] function returns true.
@@ -445,18 +455,6 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     );
   }
 
-  /// Marks the router as needing an update, for instance of the current path
-  /// has changed.
-  void _markNeedsUpdate() {
-    assert(!_isDisposed);
-
-    _updateCurrentConfiguration();
-
-    if (!_isBuilding) {
-      notifyListeners();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     assert(!_isDisposed);
@@ -490,51 +488,80 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return _state.currentConfiguration;
   }
 
+  /// Ensures that we don't call Router.neglect and Router.navigate in the same
+  /// frame, which throws an error.
+  _ReportType _reported = _ReportType.none;
+
+  void _setHasReported(_ReportType reportType) {
+    _reported = reportType;
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      _reported = _ReportType.none;
+    });
+  }
+
   /// Reports the current path to the Flutter routing system, and any observers.
   void _updateCurrentConfiguration({
+    bool isBrowserHistoryNavigation = false,
     bool isReplacement = false,
-    bool isSystemNavigation = false,
+    RequestSource requestSource = RequestSource.internal,
   }) {
     final currentPages = _state.stack._getCurrentPages();
 
     if (currentPages.isNotEmpty) {
-      final pageWrapper = currentPages.last;
-      final routeData = pageWrapper.routeData;
+      final pageEntry = currentPages.last;
+      final routeData = pageEntry.routeData;
       final currentRouteData = _state.currentConfiguration!;
 
-      void _update() {
-        if (_state.currentConfiguration!.fullPath != routeData.fullPath) {
-          _state.currentConfiguration = routeData;
-          _markNeedsUpdate();
+      if (!isBrowserHistoryNavigation) {
+        _state.history._didNavigate(
+          route: routeData,
+          isReplacement: isReplacement,
+        );
+      }
 
-          for (final observer in observers) {
-            observer.didChangeRoute(routeData, pageWrapper._getOrCreatePage());
-          }
+      _state.currentConfiguration = routeData._copyWith(
+        historyIndex: _state.history._index,
+      );
+
+      if (currentRouteData.fullPath != routeData.fullPath) {
+        for (final observer in observers.whereType<RoutemasterObserver>()) {
+          observer.didChangeRoute(routeData, pageEntry._getOrCreatePage());
         }
       }
 
-      if (isReplacement) {
-        if (kIsWeb) {
-          // Update without the router changing the URL or adding a history entry
-          Router.neglect(_context, _update); // coverage:ignore-line
+      if (isBrowserHistoryNavigation) {
+        // Navigated via browser back/forward button, so we don't need to
+        // update the router.
+        return;
+      }
 
-          // Set the URL directly
-          SystemNav.replaceUrl(routeData); // coverage:ignore-line
-        } else {
-          _update();
-        }
+      if (_isBuilding) {
+        // Schedule update
+        WidgetsBinding.instance?.addPostFrameCallback((_) {
+          _updateCurrentConfiguration(
+            requestSource: requestSource,
+            isReplacement: isReplacement,
+            isBrowserHistoryNavigation: isBrowserHistoryNavigation,
+          );
+        });
       } else {
-        // If the public paths match but the private paths don't, we need to
-        // ensure a new history item is created
-        final needsForceNavigate =
-            routeData.publicPath == currentRouteData.publicPath &&
-                routeData.fullPath != currentRouteData.fullPath &&
-                !isSystemNavigation;
-
-        if (needsForceNavigate) {
-          Router.navigate(_context, () => _update());
+        if (isReplacement && _reported != _ReportType.navigate) {
+          Router.neglect(_context, notifyListeners);
+          _setHasReported(_ReportType.neglect);
         } else {
-          _update();
+          // If the public paths match but the private paths don't, we need to
+          // ensure a new history item is created
+          final needsForceNavigate =
+              routeData.publicPath == currentRouteData.publicPath &&
+                  routeData.fullPath != currentRouteData.fullPath &&
+                  requestSource != RequestSource.system;
+
+          if (needsForceNavigate && _reported != _ReportType.neglect) {
+            _setHasReported(_ReportType.navigate);
+            Router.navigate(_context, notifyListeners);
+          } else {
+            notifyListeners();
+          }
         }
       }
     }
@@ -548,13 +575,19 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   Future<void> setNewRoutePath(RouteData routeData) {
     assert(!_isDisposed);
 
-    _navigate(
-      uri: routeData._uri,
-      queryParameters: routeData.queryParameters,
-      isReplacement: routeData.isReplacement,
-      requestSource: routeData.requestSource,
-      isSystemNavigation: true,
-    );
+    final historyIndex = routeData._historyIndex;
+
+    if (kIsWeb && historyIndex != null) {
+      // Navigation came from web browser back or forward buttons
+      history._goToIndex(historyIndex); // coverage:ignore-line
+    } else {
+      _navigate(
+        uri: routeData._uri,
+        queryParameters: routeData.queryParameters,
+        isReplacement: routeData.isReplacement,
+        requestSource: routeData.requestSource,
+      );
+    }
 
     return SynchronousFuture(null);
   }
@@ -563,11 +596,11 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   Future<void> setInitialRoutePath(RouteData configuration) {
     assert(!_isDisposed);
 
-    _state.currentConfiguration = configuration;
+    _state.currentConfiguration = configuration._copyWith(historyIndex: 0);
     return SynchronousFuture(null);
   }
 
-  void _initRouter(BuildContext context) {
+  void _initRouter(BuildContext context, {bool isReplacement = false}) {
     final routerNeedsBuilding = _state.routeMap == null;
 
     if (routerNeedsBuilding) {
@@ -582,11 +615,12 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           navigationResult: pending.result,
           useCurrentState: false,
           requestSource: pending.requestSource,
+          isBrowserHistoryNavigation: pending.isBrowserHistoryNavigation,
         );
       } else {
         _navigate(
           uri: currentConfiguration?._uri ?? Uri(path: '/'),
-          isReplacement: false,
+          isReplacement: isReplacement,
           useCurrentState: false,
           requestSource: RequestSource.internal,
         );
@@ -598,7 +632,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     _state.routeMap = null;
 
     _isBuilding = true;
-    _initRouter(context);
+    _initRouter(context, isReplacement: true);
     _isBuilding = false;
   }
 
@@ -610,7 +644,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     Map<String, String>? queryParameters,
     bool useCurrentState = true,
     bool isRetry = false,
-    bool isSystemNavigation = false,
+    bool isBrowserHistoryNavigation = false,
   }) {
     if (_state.routeMap == null) {
       // routeMap can be null after a hot reload
@@ -623,9 +657,10 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       isReplacement: isReplacement,
       result: navigationResult,
       requestSource: requestSource,
+      isBrowserHistoryNavigation: isBrowserHistoryNavigation,
     );
 
-    var pages = _createAllPageWrappers(
+    var pages = _createAllPages(
       routeMap: _state.routeMap!,
       currentRoutes:
           useCurrentState ? _state.stack._getCurrentPages().toList() : null,
@@ -664,7 +699,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
               queryParameters: queryParameters,
               requestSource: requestSource,
               isRetry: true,
-              isSystemNavigation: isSystemNavigation,
+              isBrowserHistoryNavigation: isBrowserHistoryNavigation,
             );
           }
         });
@@ -675,14 +710,15 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     assert(pages.isNotEmpty);
 
-    _state.stack._pageWrappers = pages;
+    _state.stack._pageContainers = pages;
 
     final pathIsSame =
         _state.currentConfiguration!.fullPath == pages.last.routeData.fullPath;
 
     _updateCurrentConfiguration(
       isReplacement: pathIsSame || isReplacement,
-      isSystemNavigation: isSystemNavigation,
+      isBrowserHistoryNavigation: isBrowserHistoryNavigation,
+      requestSource: requestSource,
     );
   }
 
@@ -699,17 +735,17 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     // Already building; schedule rebuild for next frame
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      _markNeedsUpdate();
+      _updateCurrentConfiguration();
     });
   }
 
   /// The main Routemaster algorithm that turns a route request into a list of
   /// pages. It attempts to reuse current pages from [currentRoutes] if they
   /// exist.
-  List<PageWrapper>? _createAllPageWrappers({
+  List<PageContainer>? _createAllPages({
     required RouteMap routeMap,
     required _RouteRequest request,
-    List<PageWrapper>? currentRoutes,
+    List<PageContainer>? currentRoutes,
     List<String>? redirects,
     bool lastPageOnly = false,
   }) {
@@ -720,7 +756,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     }
 
     final requestedPath = request.uri.toString();
-    var result = <PageWrapper>[];
+    var result = <PageContainer>[];
 
     // Loop through routes in reverse order
     for (var i = routerResult.length - 1; i >= 0; i--) {
@@ -742,7 +778,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         return null;
       }
 
-      // Get a page wrapper object for the current route
+      // Get a page container object for the current route
       late final _PageResult current;
 
       if (isLastRoute) {
@@ -772,15 +808,14 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         }
 
         _assertIsPage(page, routeData.fullPath);
-        current = _createPageWrapper(
+        current = _createPageContainer(
           routeRequest: request,
           page: page as Page,
           routeData: routeData,
           isLastRoute: true,
         );
       } else {
-        // Not last route
-        current = _getOrCreatePageWrapper(
+        current = _getOrCreatePageContainer(
           routeRequest: request,
           routeData: routeData,
           currentRoutes: currentRoutes,
@@ -788,18 +823,17 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         );
       }
 
-      if (current is _PageWrapperResult) {
-        final page = current.pageWrapper;
+      if (current is _PageEntryResult) {
+        final page = current.page;
 
         if (isLastRoute) {
           // Set the page result for popped return values
-          page.result = request.result;
+          page._result = request.result;
         }
 
-        assert(page._routeData != null);
-        assert(page._page != null);
-
-        if (result.isNotEmpty && page.maybeSetChildPages(result)) {
+        if (result.isNotEmpty &&
+            page is MultiChildPageContainer &&
+            page.maybeSetChildPages(result)) {
           result = [page];
         } else {
           result.insert(0, page);
@@ -818,7 +852,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
             redirects = _debugCheckRedirectLoop(redirects, requestedPath);
           }
 
-          return _createAllPageWrappers(
+          return _createAllPages(
             routeMap: _state.routeMap!,
             currentRoutes: currentRoutes,
             redirects: redirects,
@@ -826,6 +860,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
               uri: Uri.parse(current.redirectPath),
               isReplacement: request.isReplacement,
               requestSource: request.requestSource,
+              isBrowserHistoryNavigation: request.isBrowserHistoryNavigation,
             ),
           );
         }
@@ -853,10 +888,10 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   /// If there's a current route matching the path in the tree, return it.
   /// Otherwise create a new one. This could possibly be made more efficient
   /// By using a map rather than iterating over all currentRoutes.
-  _PageResult _getOrCreatePageWrapper({
+  _PageResult _getOrCreatePageContainer({
     required _RouteRequest routeRequest,
     required RouteData routeData,
-    required List<PageWrapper>? currentRoutes,
+    required List<PageContainer>? currentRoutes,
     required RouterResult routerResult,
   }) {
     if (currentRoutes != null) {
@@ -865,12 +900,12 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       );
 
       if (currentState != null) {
-        return _PageWrapperResult(currentState);
+        return _PageEntryResult(currentState);
       }
     }
 
     // No current route, create a new one
-    return _createPageWrapper(
+    return _createPageContainer(
       routeRequest: routeRequest,
       page: routerResult.builder(routeData) as Page,
       routeData: routeData,
@@ -878,9 +913,12 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     );
   }
 
-  /// Gets single page wrappers.
-  PageWrapper _getSinglePage(_RouteRequest routeRequest, {RouteMap? routeMap}) {
-    final result = _createAllPageWrappers(
+  /// Called by tab pages to lazily generate their initial routes
+  PageContainer _getSinglePage(
+    _RouteRequest routeRequest, {
+    RouteMap? routeMap,
+  }) {
+    final result = _createAllPages(
       routeMap: routeMap ?? _state.routeMap!,
       request: routeRequest,
       lastPageOnly: true,
@@ -893,7 +931,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return result.last;
   }
 
-  _PageResult _createPageWrapper({
+  _PageResult _createPageContainer({
     required _RouteRequest routeRequest,
     required Page page,
     required RouteData routeData,
@@ -906,7 +944,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         }
 
         final result = page.onNavigationFailed!(routeData, _context);
-        return _createPageWrapper(
+        return _createPageContainer(
           routeRequest: routeRequest,
           page: result,
           routeData: routeData,
@@ -927,7 +965,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       );
     }
 
-    if (isLastRoute && page is PageContainer) {
+    if (isLastRoute && page is RedirectingPage) {
       return _RedirectResult(
         pathContext.join(
           routeRequest.uri.path,
@@ -949,12 +987,12 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       state._routemasterState = _state;
       state.initState();
 
-      return _PageWrapperResult(state);
+      return _PageEntryResult(state);
     }
 
-    // Page is just a standard Flutter page, create a wrapper for it
-    return _PageWrapperResult(
-      PageWrapper.fromPage(routeData: routeData, page: page),
+    // Page is just a standard Flutter page, create a StatelessPage for it
+    return _PageEntryResult(
+      StatelessPage(routeData: routeData, page: page),
     );
   }
 
@@ -969,27 +1007,27 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return pathContext.joinAll(mappedSegments);
   }
 
-  List<PageWrapper> _onUnknownRoute(_RouteRequest routeRequest) {
-    final requestedPath = routeRequest.uri;
-    final fullPath = routeRequest.uri.toString();
-    final result = _state.routeMap!.onUnknownRoute(routeRequest.uri.toString());
+  List<PageContainer> _onUnknownRoute(_RouteRequest request) {
+    final requestedPath = request.uri;
+    final fullPath = request.uri.toString();
+    final result = _state.routeMap!.onUnknownRoute(request.uri.toString());
 
     if (result is RouteMap) {
-      return _createAllPageWrappers(
+      return _createAllPages(
         routeMap: result,
-        request: routeRequest,
+        request: request,
       )!;
     }
-
     _assertIsPage(result, fullPath);
 
     if (result is Redirect) {
-      final redirectResult = _createAllPageWrappers(
+      final redirectResult = _createAllPages(
         routeMap: _state.routeMap!,
         request: _RouteRequest(
           uri: Uri.parse(result.redirectPath),
-          isReplacement: routeRequest.isReplacement,
-          requestSource: routeRequest.requestSource,
+          isReplacement: request.isReplacement,
+          requestSource: request.requestSource,
+          isBrowserHistoryNavigation: request.isBrowserHistoryNavigation,
         ),
       );
 
@@ -1000,10 +1038,10 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     // Return 404 page
     return [
-      PageWrapper.fromPage(
+      StatelessPage(
         routeData: RouteData._fromUri(
           requestedPath,
-          isReplacement: routeRequest.isReplacement,
+          isReplacement: request.isReplacement,
           pathTemplate: null,
         ),
         page: result as Page,
@@ -1012,7 +1050,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }
 
   static List<String> _debugCheckRedirectLoop(
-      List<String>? redirects, String requestedPath) {
+    List<String>? redirects,
+    String requestedPath,
+  ) {
     if (redirects == null) {
       return [requestedPath];
     }
@@ -1032,10 +1072,17 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         ._getCurrentPages()
         .firstWhereOrNull((e) => e._getOrCreatePage() == page);
 
-    final completer = current?.result?._routeCompleter;
+    final completer = current?._result?._routeCompleter;
     if (completer != null && !completer.isCompleted) {
       completer.complete(route);
     }
+  }
+
+  /// Attempts to find the current route data for the given [context].
+  ///
+  /// Returns `null` if no route data is found.
+  RouteData? _maybeRouteDataFor(Page page) {
+    return _state.stack._getRouteData(page);
   }
 }
 
@@ -1043,10 +1090,10 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 @immutable
 abstract class _PageResult {}
 
-class _PageWrapperResult extends _PageResult {
-  final PageWrapper pageWrapper;
+class _PageEntryResult extends _PageResult {
+  final PageContainer page;
 
-  _PageWrapperResult(this.pageWrapper);
+  _PageEntryResult(this.page);
 }
 
 class _NotFoundResult extends _PageResult {}
@@ -1089,6 +1136,7 @@ class _RoutemasterWidget extends InheritedWidget {
 /// still maintain its state.
 class _RoutemasterState {
   final stack = PageStack();
+  late final history = RouteHistory._(this);
   RouteMap? routeMap;
   RouteData? currentConfiguration;
   _RouteRequest? pendingNavigation;
@@ -1174,10 +1222,12 @@ class _RouteRequest {
   final bool isReplacement;
   final NavigationResult? result;
   final RequestSource requestSource;
+  final bool isBrowserHistoryNavigation;
 
   _RouteRequest({
     required this.uri,
     required this.requestSource,
+    required this.isBrowserHistoryNavigation,
     this.isReplacement = false,
     this.result,
   });
@@ -1208,10 +1258,26 @@ class PageStackNavigator extends StatefulWidget {
   /// A list of [NavigatorObserver] that will be passed to the [Navigator].
   final List<NavigatorObserver> observers;
 
+  /// A function that can filter or transform the list of pages from the stack.
+  final Iterable<Page> Function(List<Page>)? builder;
+
   /// Provides a [Navigator] that shows pages from a [PageStack].
   const PageStackNavigator({
     Key? key,
     required this.stack,
+    this.transitionDelegate = const DefaultTransitionDelegate<dynamic>(),
+    this.observers = const [],
+  })  : builder = null,
+        super(key: key);
+
+  /// Provides a [Navigator] that shows pages from a [PageStack].
+  ///
+  /// This constructor provides an additional `builder` function that can filter
+  /// or transform the list of pages from the stack.
+  const PageStackNavigator.builder({
+    Key? key,
+    required this.stack,
+    required this.builder,
     this.transitionDelegate = const DefaultTransitionDelegate<dynamic>(),
     this.observers = const [],
   }) : super(key: key);
@@ -1281,22 +1347,18 @@ class PageStackNavigatorState extends State<PageStackNavigator> {
     });
   }
 
-  void _updateDelegate() {
-    _routemaster._state.delegate._markNeedsUpdate();
-  }
-
   void _updateNavigator() {
+    final pages = widget.stack.createPages();
+    final filteredPages =
+        widget.builder == null ? pages : widget.builder!(pages).toList();
+
     _widget = _StackNavigator(
       stack: widget.stack,
       onPopPage: (route, dynamic result) {
-        final didPop = widget.stack.onPopPage(route, result);
-        if (didPop) {
-          _updateDelegate();
-        }
-        return didPop;
+        return widget.stack.onPopPage(route, result, _routemaster);
       },
       transitionDelegate: widget.transitionDelegate,
-      pages: widget.stack.createPages(),
+      pages: filteredPages,
       observers: [
         _RelayingNavigatorObserver(
           () sync* {
@@ -1314,11 +1376,6 @@ class PageStackNavigatorState extends State<PageStackNavigator> {
   @override
   Widget build(BuildContext context) {
     return _widget;
-  }
-
-  /// Retrieves the routing data for the given page.
-  RouteData? routeDataFor(Page page) {
-    return widget.stack._routeMap[page];
   }
 }
 
@@ -1370,4 +1427,10 @@ void _assertIsPage(RouteSettings page, String route) {
     page is Page,
     "Route builders must return a Page object. The route builder for '$route' instead returned an object of type '${page.runtimeType}'.",
   );
+}
+
+enum _ReportType {
+  none,
+  navigate,
+  neglect,
 }

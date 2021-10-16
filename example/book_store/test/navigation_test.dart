@@ -6,7 +6,6 @@ import 'package:book_store/models.dart';
 import 'package:book_store/search_page.dart';
 import 'package:book_store/wishlist_page.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'helpers.dart';
 
@@ -19,6 +18,7 @@ void main() {
 
       await tester.tap(find.text('Of Hummingbirds And Men'));
       await tester.pump();
+      await tester.pump(Duration(seconds: 1));
 
       expect(systemUrl.current, '/book/2');
 
@@ -37,6 +37,7 @@ void main() {
     await tester.pumpWidget(BookStoreApp());
     await setSystemUrl('/book/2');
     await tester.pump();
+    await tester.pump(Duration(seconds: 1));
 
     expect(
       find.byWidgetPredicate(
@@ -55,6 +56,7 @@ void main() {
 
       await tester.tap(find.text('Search'));
       await tester.pump();
+      await tester.pump(Duration(seconds: 1));
 
       expect(systemUrl.current, '/search?query=gone+with');
 
@@ -73,6 +75,7 @@ void main() {
     await tester.pumpWidget(BookStoreApp());
     await setSystemUrl('/search?query=gone+with');
     await tester.pump();
+    await tester.pump(Duration(seconds: 1));
 
     expect(
       find.byWidgetPredicate(
@@ -88,6 +91,7 @@ void main() {
     await tester.pumpWidget(BookStoreApp(username: 'dash'));
     await setSystemUrl('/wishlist/shared/123');
     await tester.pump();
+    await tester.pump(Duration(seconds: 1));
 
     // Expect wishlist page is shown
     expect(
@@ -108,6 +112,7 @@ void main() {
 
       await setSystemUrl('/wishlist/shared/123');
       await tester.pump();
+      await tester.pump(Duration(seconds: 1));
 
       expect(systemUrl.current, '/login?redirectTo=%2Fwishlist%2Fshared%2F123');
 
@@ -117,6 +122,7 @@ void main() {
 
       await tester.tap(find.byKey(LoginPage.loginButtonKey));
       await tester.pump();
+      await tester.pump(Duration(seconds: 1));
 
       expect(systemUrl.current, '/wishlist/shared/123');
 
@@ -136,12 +142,14 @@ void main() {
 
       await tester.pumpWidget(BookStoreApp(siteBlockedWithoutLogin: true));
       await tester.pump();
+      await tester.pump(Duration(seconds: 1));
 
       // User logs in
       await tester.enterText(find.byKey(LoginPage.usernameFieldKey), 'dash');
       await tester.pump();
       await tester.tap(find.byKey(LoginPage.loginButtonKey));
       await tester.pump();
+      await tester.pump(Duration(seconds: 1));
 
       expect(find.byType(ShopHome), findsOneWidget);
     });
@@ -201,11 +209,13 @@ void main() {
 
       await tester.pumpWidget(BookStoreApp(username: 'dash'));
       await tester.pump();
+      await tester.pump(Duration(seconds: 1));
 
       // Go to wishlists page
 
       await tester.tap(find.text('Wishlists'));
       await tester.pump();
+      await tester.pump(Duration(seconds: 1));
 
       expect(systemUrl.current, '/wishlist');
 
@@ -213,6 +223,7 @@ void main() {
 
       await tester.tap(find.text('Add a new wishlist'));
       await tester.pump();
+      await tester.pump(Duration(seconds: 1));
 
       expect(systemUrl.current, '/wishlist/add');
 
@@ -220,6 +231,7 @@ void main() {
 
       await invokeSystemBack();
       await tester.pump();
+      await tester.pump(Duration(seconds: 1));
 
       expect(systemUrl.current, '/wishlist');
     });
@@ -236,6 +248,7 @@ void main() {
 
       await tester.tap(find.text('Search'));
       await tester.pump();
+      await tester.pump(Duration(seconds: 1));
 
       expect(systemUrl.current, '/search?query=non-fiction');
 
@@ -243,13 +256,15 @@ void main() {
 
       await tester.tap(find.text('Hummingbirds for Dummies'));
       await tester.pump();
+      await tester.pump(Duration(seconds: 1));
 
       expect(systemUrl.current, '/category/nonfiction/book/1');
 
       // Tap back button
 
-      await tester.tap(find.byType(BackButton));
+      await tester.tap(find.byType(CupertinoNavigationBarBackButton));
       await tester.pump();
+      await tester.pump(Duration(seconds: 1));
 
       expect(systemUrl.current, '/category/nonfiction');
 
@@ -271,11 +286,13 @@ void main() {
 
       await tester.pumpWidget(BookStoreApp(username: 'dash'));
       await tester.pump();
+      await tester.pump(Duration(seconds: 1));
 
       // Go to wishlists page
 
       await tester.tap(find.text('Wishlists'));
       await tester.pump();
+      await tester.pump(Duration(seconds: 1));
 
       expect(systemUrl.current, '/wishlist');
 
@@ -283,6 +300,7 @@ void main() {
 
       await tester.tap(find.text('Add a new wishlist'));
       await tester.pump();
+      await tester.pump(Duration(seconds: 1));
 
       expect(systemUrl.current, '/wishlist/add');
 
@@ -295,6 +313,7 @@ void main() {
       );
       await tester.tap(find.text('Hummingbirds for Dummies'));
       await tester.pump();
+      await tester.pump(Duration(seconds: 1));
 
       // Click add wishlist
 
@@ -309,6 +328,7 @@ void main() {
 
       await tester.tap(find.text('Wishlist name'));
       await tester.pump();
+      await tester.pump(Duration(seconds: 1));
 
       expect(systemUrl.current, '/wishlist/shared/list-2');
 
@@ -330,23 +350,27 @@ void main() {
 
       await tester.tap(find.text('Non-fiction'));
       await tester.pump();
+      await tester.pump(Duration(seconds: 1));
 
       expect(systemUrl.current, '/category/nonfiction');
 
       await tester.tap(find.text('Fiction'));
       await tester.pump();
+      await tester.pump(Duration(seconds: 1));
 
       expect(systemUrl.current, '/category/fiction');
 
       await tester.tap(find.text('Non-fiction'));
       await tester.pump();
+      await tester.pump(Duration(seconds: 1));
 
       expect(systemUrl.current, '/category/nonfiction');
 
       // Tap back button, expect to go back to home page
 
-      await tester.tap(find.byType(BackButton));
+      await tester.tap(find.byType(CupertinoNavigationBarBackButton));
       await tester.pump();
+      await tester.pump(Duration(seconds: 1));
 
       expect(systemUrl.current, '/');
     });
@@ -357,5 +381,23 @@ void main() {
     await setSystemUrl('/book/123');
     await tester.pump();
     expect(find.text("Couldn't find page '/book/123'"), findsOneWidget);
+  });
+
+  testWidgets('Can log in', (tester) async {
+    // Login and redirect to root
+    await tester.pumpWidget(BookStoreApp());
+    await tester.pump();
+
+    await tester.tap(find.text('Log in'));
+    await tester.pump();
+    await tester.pump(Duration(seconds: 1));
+
+    // User logs in
+    await tester.enterText(find.byKey(LoginPage.usernameFieldKey), 'dash');
+    await tester.pump();
+    await tester.tap(find.byKey(LoginPage.loginButtonKey));
+    await tester.pump();
+
+    expect(find.byType(ShopHome), findsOneWidget);
   });
 }

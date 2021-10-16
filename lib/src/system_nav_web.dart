@@ -9,6 +9,9 @@ import 'system_nav.dart';
 class SystemNav {
   static HashUrlStrategy? _urlStrategy;
 
+  /// Used to disable system navigation from tests when running in Chrome
+  static bool enabled = true;
+
   static void setPathUrlStrategy() {
     _urlStrategy = PathUrlStrategy();
     setUrlStrategy(_urlStrategy);
@@ -23,30 +26,22 @@ class SystemNav {
   /// Attempts to guess the current URL strategy based on whether a hash is set
   /// or not. This is to deal with users directly setting the URL strategy.
   static void _setDefaultUrlStrategy() {
-    historyProvider ??= BrowserHistoryProvider();
     _urlStrategy = historyProvider!.hash.isNotEmpty
         ? const HashUrlStrategy()
         : PathUrlStrategy();
   }
 
+  static void back() {
+    historyProvider!.back();
+  }
+
+  static void forward() {
+    historyProvider!.forward();
+  }
+
   /// Allows tests to mock browser history
   @visibleForTesting
-  static HistoryProvider? historyProvider;
-
-  static void replaceUrl(RouteData routeData) {
-    historyProvider ??= BrowserHistoryProvider();
-
-    // Need to add serial count for the Flutter engine to view this as an
-    // internal navigation. The count doesn't seem to be actually used, though.
-    historyProvider!.replaceState(
-      {
-        'serialCount': 0,
-        'state': routeData.toRouteInformation().state,
-      },
-      'flutter',
-      makePublicUrl(routeData),
-    );
-  }
+  static HistoryProvider? historyProvider = BrowserHistoryProvider();
 
   static String makePublicUrl(RouteData routeData) {
     if (_urlStrategy == null) {
@@ -63,10 +58,11 @@ class SystemNav {
 
 class BrowserHistoryProvider implements HistoryProvider {
   @override
-  void replaceState(dynamic data, String title, String? url) {
-    window.history.replaceState(data, title, url);
-  }
+  String get hash => window.location.hash;
 
   @override
-  String get hash => window.location.hash;
+  void back() => window.history.back();
+
+  @override
+  void forward() => window.history.forward();
 }

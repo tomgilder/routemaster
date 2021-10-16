@@ -1,14 +1,11 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test_app/main.dart' as app;
 import 'package:integration_test_app/app.dart';
 import 'dart:html';
 
-// Work-around for Flutter running with with null-safety enabled
-void _default(String _) {
-  throw 'required';
-}
-
-void replaceTests({void Function(String) expectUrl = _default}) {
+void replaceTests({required void Function(String) expectUrl}) {
   testWidgets('After replace, skips page going back', (tester) async {
     app.main();
 
@@ -176,5 +173,302 @@ void replaceTests({void Function(String) expectUrl = _default}) {
     expect(find.byType(PrivatePage), findsOneWidget);
     expect(find.text('private page pushed from home'), findsOneWidget);
     expectUrl('/');
+  });
+
+  testWidgets('Can navigate with Routemaster history back and forward',
+      (tester) async {
+    final app = MyApp();
+    runApp(app);
+    await tester.pumpAndSettle();
+
+    final history = app.delegate.history;
+
+    await tester.tap(find.text('Push page one'));
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/one');
+    expect(find.byType(PageOne), findsOneWidget);
+    expect(history.canGoBack, isTrue);
+    expect(history.canGoForward, isFalse);
+
+    await tester.tap(find.text('Push page two'));
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/two');
+    expect(find.byType(PageTwo), findsOneWidget);
+    expect(history.canGoBack, isTrue);
+    expect(history.canGoForward, isFalse);
+
+    history.back();
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/one');
+    expect(find.byType(PageOne), findsOneWidget);
+    expect(history.canGoBack, isTrue);
+    expect(history.canGoForward, isTrue);
+
+    history.back();
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/');
+    expect(find.byType(HomePage), findsOneWidget);
+    expect(history.canGoBack, isFalse);
+    expect(history.canGoForward, isTrue);
+
+    history.forward();
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/one');
+    expect(find.byType(PageOne), findsOneWidget);
+    expect(history.canGoBack, isTrue);
+    expect(history.canGoForward, isTrue);
+
+    history.forward();
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/two');
+    expect(find.byType(PageTwo), findsOneWidget);
+    expect(history.canGoBack, isTrue);
+    expect(history.canGoForward, isFalse);
+  });
+
+  testWidgets('Can navigate with browser history back and forward',
+      (tester) async {
+    final app = MyApp();
+    runApp(app);
+    await tester.pumpAndSettle();
+
+    final history = app.delegate.history;
+
+    // Push: root -> one
+    await tester.tap(find.text('Push page one'));
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/one');
+    expect(find.byType(PageOne), findsOneWidget);
+    expect(history.canGoBack, isTrue);
+    expect(history.canGoForward, isFalse);
+
+    // Push: one -> two
+    await tester.tap(find.text('Push page two'));
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/two');
+    expect(find.byType(PageTwo), findsOneWidget);
+    expect(history.canGoBack, isTrue);
+    expect(history.canGoForward, isFalse);
+
+    // Go back: two -> one
+    window.history.back();
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/one');
+    expect(find.byType(PageOne), findsOneWidget);
+    expect(history.canGoBack, isTrue);
+    expect(history.canGoForward, isTrue);
+
+    // Go back: one -> root
+    window.history.back();
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/');
+    expect(find.byType(HomePage), findsOneWidget);
+    expect(history.canGoBack, isFalse);
+    expect(history.canGoForward, isTrue);
+
+    // Go forward: root -> one
+    window.history.forward();
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/one');
+    expect(find.byType(PageOne), findsOneWidget);
+    expect(history.canGoBack, isTrue);
+    expect(history.canGoForward, isTrue);
+
+    // Go forward: one -> two
+    window.history.forward();
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/two');
+    expect(find.byType(PageTwo), findsOneWidget);
+    expect(history.canGoBack, isTrue);
+    expect(history.canGoForward, isFalse);
+  });
+
+  testWidgets('Can navigate with browser history go()', (tester) async {
+    final app = MyApp();
+    runApp(app);
+    await tester.pumpAndSettle();
+
+    final history = app.delegate.history;
+
+    // Push: root -> one
+    await tester.tap(find.text('Push page one'));
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/one');
+    expect(find.byType(PageOne), findsOneWidget);
+    expect(history.canGoBack, isTrue);
+    expect(history.canGoForward, isFalse);
+
+    // Push: one -> two
+    await tester.tap(find.text('Push page two'));
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/two');
+    expect(find.byType(PageTwo), findsOneWidget);
+    expect(history.canGoBack, isTrue);
+    expect(history.canGoForward, isFalse);
+
+    // Back twice: two -> root
+    window.history.go(-2);
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/');
+    expect(find.byType(HomePage), findsOneWidget);
+    expect(history.canGoBack, isFalse);
+    expect(history.canGoForward, isTrue);
+
+    // Forward twice: two -> root
+    window.history.go(2);
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/two');
+    expect(find.byType(PageTwo), findsOneWidget);
+    expect(history.canGoBack, isTrue);
+    expect(history.canGoForward, isFalse);
+  });
+
+  testWidgets('Navigator pop then forward works correctly', (tester) async {
+    final app = MyApp();
+    runApp(app);
+    await tester.pumpAndSettle();
+
+    final history = app.delegate.history;
+
+    // Push: / -> /one
+    await tester.tap(find.text('Push page one'));
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expect(find.byType(PageOne), findsOneWidget);
+
+    // Push: /one -> /one/two
+    await tester.tap(find.text('Push /one/two'));
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/one/two');
+    expect(find.byType(PageTwo), findsOneWidget);
+
+    // Pop with navigator: /one/two -> /one
+    await tester.tap(find.byType(BackButton));
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/one');
+    expect(find.byType(PageOne), findsOneWidget);
+    expect(history.canGoBack, isTrue);
+    expect(history.canGoForward, isTrue);
+
+    // Go forward: /one -> /one/two
+    window.history.forward();
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/one/two');
+    expect(find.byType(PageTwo), findsOneWidget);
+    expect(history.canGoBack, isTrue);
+    expect(history.canGoForward, isFalse);
+    expect(history.forward(), isFalse);
+
+    // Try to go forward again: shouldn't do anything
+    window.history.forward();
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/one/two');
+    expect(find.byType(PageTwo), findsOneWidget);
+  });
+
+  testWidgets('Navigator pop then forward works correctly via delegate',
+      (tester) async {
+    final app = MyApp();
+    runApp(app);
+    await tester.pumpAndSettle();
+
+    final history = app.delegate.history;
+
+    // Push: / -> /one
+    await tester.tap(find.text('Push page one'));
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expect(find.byType(PageOne), findsOneWidget);
+
+    // Push: /one -> /one/two
+    await tester.tap(find.text('Push /one/two'));
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/one/two');
+    expect(find.byType(PageTwo), findsOneWidget);
+
+    // Pop with delegate: /one/two -> /one
+    app.delegate.pop();
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/one');
+    expect(find.byType(PageOne), findsOneWidget);
+    expect(history.canGoBack, isTrue);
+    expect(history.canGoForward, isTrue);
+
+    // Go forward: /one -> /one/two
+    window.history.forward();
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/one/two');
+    expect(find.byType(PageTwo), findsOneWidget);
+    expect(history.canGoBack, isTrue);
+    expect(history.canGoForward, isFalse);
+    expect(history.forward(), isFalse);
+
+    // Try to go forward again: shouldn't do anything
+    window.history.forward();
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/one/two');
+    expect(find.byType(PageTwo), findsOneWidget);
+  });
+
+  testWidgets(
+      'Pop does not use history.back() if previous route not in history stack',
+      (tester) async {
+    final app = MyApp();
+    runApp(app);
+    await tester.pumpAndSettle();
+
+    final history = app.delegate.history;
+
+    // Push: / -> /one/two
+    app.delegate.push('/tabs');
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expect(find.byType(TabbedPage), findsOneWidget);
+
+    app.delegate.push('/one/two');
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/one/two');
+
+    // Pop with navigator: /one/two -> /one
+    await tester.tap(find.byType(BackButton));
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/one');
+
+    expect(find.byType(PageOne), findsOneWidget);
+    expect(history.canGoBack, isTrue);
+    expect(history.canGoForward, isFalse);
+
+    // Pop with navigator: /one -> /
+    await tester.tap(find.byType(BackButton));
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expectUrl('/');
+    expect(find.byType(HomePage), findsOneWidget);
   });
 }

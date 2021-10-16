@@ -18,7 +18,7 @@ part of '../../routemaster.dart';
 ///
 ///   '/flow/two': (route) => MaterialPage(child: FlowPageTwo());
 /// ```
-class FlowPage extends StatefulPage<void> with PageContainer {
+class FlowPage extends StatefulPage<void> with RedirectingPage {
   /// The content to be shown in the [Route] created by this page.
   final Widget child;
 
@@ -37,7 +37,7 @@ class FlowPage extends StatefulPage<void> with PageContainer {
 
   /// Initializes the page with a list of child [paths]. The provided [child]
   /// will normally show some kind of indexed navigation, such as tabs.
-  const FlowPage({
+  FlowPage({
     required this.child,
     required this.paths,
     this.pageBuilder = _defaultPageBuilder,
@@ -74,7 +74,8 @@ class _FlowPageStateProvider extends InheritedNotifier {
 
 /// The current state of an [FlowPage]. Created when the an instance of the
 /// page is shown.
-class FlowPageState extends PageState<FlowPage> with ChangeNotifier {
+class FlowPageState extends PageState<FlowPage>
+    with MultiChildPageContainer, ChangeNotifier {
   /// Initializes the state for an [FlowPage].
   FlowPageState();
 
@@ -99,7 +100,7 @@ class FlowPageState extends PageState<FlowPage> with ChangeNotifier {
   }
 
   @override
-  bool maybeSetChildPages(Iterable<PageWrapper> pages) {
+  bool maybeSetChildPages(Iterable<PageContainer> pages) {
     final tabPagePath = routeData.path;
     final subPagePath = pages.first.routeData.path;
 
@@ -119,6 +120,7 @@ class FlowPageState extends PageState<FlowPage> with ChangeNotifier {
             _RouteRequest(
               uri: Uri.parse(insertPath),
               requestSource: routeData.requestSource,
+              isBrowserHistoryNavigation: false, // TODO: Check?
             ),
           ),
         );
@@ -156,7 +158,7 @@ class FlowPageState extends PageState<FlowPage> with ChangeNotifier {
   }
 
   @override
-  Iterable<PageWrapper> getCurrentPages() sync* {
+  Iterable<PageContainer> getCurrentPages() sync* {
     yield this;
     yield* stack._getCurrentPages();
   }
@@ -164,7 +166,7 @@ class FlowPageState extends PageState<FlowPage> with ChangeNotifier {
   /// The currently active index of this flow.
   int get currentIndex {
     return _absolutePaths.indexWhere(
-      (path) => path == stack._pageWrappers.last.routeData.path,
+      (path) => path == stack._pageContainers.last.routeData.path,
     );
   }
 
@@ -176,5 +178,10 @@ class FlowPageState extends PageState<FlowPage> with ChangeNotifier {
   /// Goes back to the previous page in this flow.
   void pop() {
     _routemasterState!.delegate.push(_absolutePaths[currentIndex - 1]);
+  }
+
+  @override
+  RouteData? _getRouteData(Page page) {
+    return stack._getRouteData(page);
   }
 }

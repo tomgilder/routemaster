@@ -92,6 +92,35 @@ void main() {
     });
   });
 
+  testWidgets("Can navigate when public URL doesn't change", (tester) async {
+    await recordUrlChanges((systemUrl) async {
+      final delegate = RoutemasterDelegate(
+        routesBuilder: (BuildContext context) => RouteMap(
+          routes: {
+            '/': (routeData) => const MaterialPageOne(),
+            '/_two': (routeData) => const MaterialPageTwo(),
+            '/_three': (routeData) => const MaterialPageThree(),
+          },
+        ),
+      );
+
+      await tester.pumpWidget(MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ));
+
+      delegate.push('/_two');
+      await tester.pumpPageTransition();
+      expect(find.byType(PageTwo), findsOneWidget);
+      expect(systemUrl.current, '/');
+
+      delegate.push('/_three');
+      await tester.pumpPageTransition();
+      expect(find.byType(PageThree), findsOneWidget);
+      expect(systemUrl.current, '/');
+    });
+  });
+
   testWidgets('Can have private path parameter', (tester) async {
     await recordUrlChanges((systemUrl) async {
       final delegate = RoutemasterDelegate(
