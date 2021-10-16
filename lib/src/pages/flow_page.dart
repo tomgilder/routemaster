@@ -120,7 +120,7 @@ class FlowPageState extends PageState<FlowPage>
             _RouteRequest(
               uri: Uri.parse(insertPath),
               requestSource: routeData.requestSource,
-              isBrowserHistoryNavigation: false, // TODO: Check?
+              isBrowserHistoryNavigation: false,
             ),
           ),
         );

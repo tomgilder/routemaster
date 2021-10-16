@@ -272,16 +272,4 @@ class TrieRouter {
 
     return input;
   }
-
-  static String _stripInitialSlash(String input) {
-    if (input == '/') {
-      return '';
-    }
-
-    if (input[0] == '/') {
-      return input.substring(1);
-    }
-
-    return input;
-  }
 }
