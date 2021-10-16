@@ -155,14 +155,11 @@ class TrieRouter {
                   ...parameters,
                 },
               ),
-              pathSegment: pathContext.join(
-                parent.basePath ?? parent.pathSegment,
-                _stripInitialSlash(path),
-              ),
-              pathTemplate: pathContext.join(
-                parent.pathTemplate,
-                _stripInitialSlash(node.template!.replaceAll('*', '')),
-              ),
+              pathSegment: (parent.basePath ?? parent.pathSegment) + path,
+              pathTemplate:
+                  // TODO: This feels hacky and fragile
+                  (parent.pathTemplate + node.template!.replaceAll('*', ''))
+                      .replaceAll('//', '/'),
               unmatchedPath: unmatchedPath,
               basePath: basePath,
             );
@@ -226,6 +223,7 @@ class TrieRouter {
       }
 
       if (mode == RouterMode.relative) {
+        // Nothing found yet, see if there's a recursive route
         final remaining = pathSegments.skip(i);
         if (remaining.isEmpty) {
           return;
