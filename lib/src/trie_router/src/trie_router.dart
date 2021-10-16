@@ -64,7 +64,7 @@ class TrieRouter {
       if (current.contains(pathSegment)) {
         if (isLastSegment) {
           if (current.get(pathSegment)!.value != null) {
-            throw DuplicatePathError(pathContext.joinAll(pathSegments));
+            throw DuplicatePathError(PathParser.joinAllRelative(pathSegments));
           }
 
           // A child node has already been created, need to update it so it
@@ -134,7 +134,7 @@ class TrieRouter {
       String? unmatchedPath,
       String? basePath,
     }) {
-      final path = pathContext.joinAll(
+      final path = PathParser.joinAllRelative(
         count == null ? pathSegments : pathSegments.take(count + 1),
       );
 
@@ -156,10 +156,10 @@ class TrieRouter {
                 },
               ),
               pathSegment: (parent.basePath ?? parent.pathSegment) + path,
-              pathTemplate:
-                  // TODO: This feels hacky and fragile
-                  (parent.pathTemplate + node.template!.replaceAll('*', ''))
-                      .replaceAll('//', '/'),
+              pathTemplate: PathParser.joinRelative(
+                parent.pathTemplate,
+                node.template!.replaceAll('*', ''),
+              ),
               unmatchedPath: unmatchedPath,
               basePath: basePath,
             );
@@ -212,10 +212,10 @@ class TrieRouter {
         yield buildResult(
           null,
           wildcardNode,
-          unmatchedPath: pathContext.joinAll(
+          unmatchedPath: PathParser.joinAllRelative(
             pathSegments.skip(lastWildcardIndex!),
           ),
-          basePath: pathContext.joinAll(
+          basePath: PathParser.joinAllRelative(
             pathSegments.take(lastWildcardIndex),
           ),
         );
@@ -229,7 +229,7 @@ class TrieRouter {
           return;
         }
 
-        final nextRoute = pathContext.joinAll(remaining);
+        final nextRoute = PathParser.joinAllRelative(remaining);
 
         if (nextRoute != route) {
           yield* _getAll(
@@ -246,10 +246,10 @@ class TrieRouter {
         yield buildResult(
           null,
           lastWildcard,
-          unmatchedPath: pathContext.joinAll(
+          unmatchedPath: PathParser.joinAllRelative(
             pathSegments.skip(lastWildcardIndex!),
           ),
-          basePath: pathContext.joinAll(
+          basePath: PathParser.joinAllRelative(
             pathSegments.take(lastWildcardIndex),
           ),
         );

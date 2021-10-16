@@ -17,8 +17,8 @@ class ConflictingPathError extends RouteConfigurationError {
 
   @override
   String toString() {
-    return "Attempt to add '${pathContext.joinAll(segmentsToAdd)}' but a path containing "
-        "'${pathContext.joinAll(segmentsAlreadyAdded.where((element) => element != null).map((e) => e!))}' has already been added. Adding two paths "
+    return "Attempt to add '${PathParser.joinAllRelative(segmentsToAdd)}' but a path containing "
+        "'${PathParser.joinAllRelative(segmentsAlreadyAdded.where((element) => element != null).map((e) => e!))}' has already been added. Adding two paths "
         "prefixed with ':' at the same index is not allowed.";
   }
 }

@@ -94,20 +94,18 @@ void main() {
     });
   });
 
-  testWidgets('Back button pops flow', (tester) async {
+  testWidgets('Global pop pops flow', (tester) async {
     await tester.pumpWidget(flowApp);
 
     await recordUrlChanges((systemUrl) async {
       Routemaster.of(rootPageKey.currentContext!).push('/flow/two');
-      await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await tester.pumpPageTransition();
 
       expect(find.byType(FlowPageTwo), findsOneWidget);
       expect(systemUrl.current, '/flow/two');
 
-      await invokeSystemBack();
-      await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await Routemaster.of(rootPageKey.currentContext!).pop();
+      await tester.pumpPageTransition();
       expect(find.byType(FlowPageOne), findsOneWidget);
       expect(systemUrl.current, '/flow/one');
     });
