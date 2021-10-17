@@ -656,6 +656,36 @@ void main() {
     final routeData = RouteData.of(pageTwoKey.currentContext!);
     expect(routeData.fullPath, '/two');
   });
+
+  testWidgets('Tabs redirect to first path with query string', (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (_) => MaterialPage<void>(child: Container()),
+          '/tabs': (_) => TabPage(child: MyTabPage(), paths: const ['one']),
+          '/tabs/one': (_) => const MaterialPageOne(),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+    delegate.push('/tabs/?query=string');
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(find.byType(MyTabPage), findsOneWidget);
+    expect(find.byType(PageOne), findsOneWidget);
+
+    final route = delegate.currentConfiguration!;
+    expect(route.path, '/tabs/one');
+    expect(route.fullPath, '/tabs/one?query=string');
+    expect(route.publicPath, '/tabs/one?query=string');
+  });
 }
 
 class StubRoutemaster implements Routemaster {

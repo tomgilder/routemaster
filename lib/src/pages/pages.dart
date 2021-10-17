@@ -6,6 +6,8 @@ part of '../../routemaster.dart';
 /// If the router tries to show this page as the top page, it'll redirect to
 /// [redirectPath].
 ///
+/// Any query parameters will be retained when redirecting.
+///
 /// For example, you could have a set of tabs at `/home`, with the first tab
 /// being `/home/profile`. If the user tries to navigate to `/home`, they'll be
 /// redirected to `/home/profile`.

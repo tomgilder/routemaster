@@ -131,6 +131,37 @@ void main() {
     expect(find.byKey(key), findsOneWidget);
   });
 
+  testWidgets('Index page redirects to first path with query string',
+      (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/tabs': (_) => const IndexedPage(
+                paths: ['one', 'two'],
+                child: BasicTabPage(),
+              ),
+          '/tabs/one': (_) => const MaterialPage<void>(child: PageOne()),
+          '/tabs/two': (_) => const MaterialPage<void>(child: PageTwo()),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    delegate.push('/tabs?query=string');
+    await tester.pumpPageTransition();
+
+    final route = delegate.currentConfiguration!;
+    expect(route.path, '/tabs/one');
+    expect(route.fullPath, '/tabs/one?query=string');
+    expect(route.publicPath, '/tabs/one?query=string');
+  });
+
   testWidgets('No history entries created with TabBackBehavior.none',
       (tester) async {
     final pageKey = GlobalKey();

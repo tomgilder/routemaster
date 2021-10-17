@@ -520,45 +520,40 @@ void main() {
     expect(route.pathTemplate, '/tabs/one');
   });
 
-  // TODO: Fix
-  // testWidgets(
-  //     'Can combine relative routes with tabs with default tab route and query string',
-  //     (tester) async {
-  //   final delegate = RoutemasterDelegate(
-  //     routesBuilder: (_) => RouteMap(
-  //       routes: {
-  //         '/': (_) => MaterialPage<void>(child: Container()),
-  //         '/tabs': (_) =>
-  //             TabPage(child: MyTabPage(), paths: const ['one', 'two']),
-  //         '/tabs/*': (_) {
-  //           return RelativeRouteMap(
-  //             routes: {'one': (_) => const MaterialPageOne()},
-  //           );
-  //         },
-  //         '/tabs/two': (_) => const MaterialPageTwo(),
-  //       },
-  //     ),
-  //   );
+  testWidgets(
+      'Can combine relative routes, tabs, default tab route and query string',
+      (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (_) => MaterialPage<void>(child: Container()),
+          '/tabs': (_) => TabPage(child: MyTabPage(), paths: const ['one']),
+          '/tabs/*': (_) => RelativeRouteMap(
+                routes: {'one': (_) => const MaterialPageOne()},
+              ),
+        },
+      ),
+    );
 
-  //   await tester.pumpWidget(
-  //     MaterialApp.router(
-  //       routeInformationParser: const RoutemasterParser(),
-  //       routerDelegate: delegate,
-  //     ),
-  //   );
-  //   delegate.push('/tabs?query=string');
-  //   await tester.pump();
-  //   await tester.pumpPageTransition();
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+    delegate.push('/tabs?query=string');
+    await tester.pump();
+    await tester.pumpPageTransition();
 
-  //   expect(find.byType(PageOne), findsOneWidget);
+    expect(find.byType(PageOne), findsOneWidget);
 
-  //   final route = delegate.currentConfiguration!;
-  //   expect(route.fullPath, '/tabs/one');
-  //   expect(route.path, '/tabs/one');
-  //   expect(route.publicPath, '/tabs/one');
-  //   expect(route.pathTemplate, '/tabs/one');
-  //   expect(route.queryParameters, {'query': 'string'});
-  // });
+    final route = delegate.currentConfiguration!;
+    expect(route.fullPath, '/tabs/one?query=string');
+    expect(route.path, '/tabs/one');
+    expect(route.publicPath, '/tabs/one?query=string');
+    expect(route.pathTemplate, '/tabs/one');
+    expect(route.queryParameters, {'query': 'string'});
+  });
 
   testWidgets("Shows 404 page when subroute doesn't match", (tester) async {
     var subrouteCalled = false;

@@ -23,9 +23,13 @@ Page _defaultPageBuilder(Widget child) {
 ///
 /// This class is only for very custom cases that don't require a
 /// [TabController] or [CupertinoTabController].
-class IndexedPage extends StatefulPage<void> with IndexedRouteMixIn {
+class IndexedPage extends StatefulPage<void>
+    with RedirectingPage, IndexedRouteMixIn {
   /// The content to be shown in the [Route] created by this page.
   final Widget child;
+
+  @override
+  String get redirectPath => paths[0];
 
   @override
   final List<String> paths;
@@ -112,7 +116,8 @@ class IndexedPageState extends PageState<IndexedPage>
 
 /// A page used to manage tab views. Its state object creates and manages a
 /// [TabController] that can be retrieved via `TabPage.of(context).controller`.
-class TabPage extends StatefulPage<void> with IndexedRouteMixIn {
+class TabPage extends StatefulPage<void>
+    with IndexedRouteMixIn, RedirectingPage {
   /// The content to be shown in the [Route] created by this page.
   final Widget child;
 
@@ -125,6 +130,9 @@ class TabPage extends StatefulPage<void> with IndexedRouteMixIn {
 
   /// Specifies how tabs behave when used with the system back button.
   final TabBackBehavior backBehavior;
+
+  @override
+  String get redirectPath => paths[0];
 
   /// Initializes the page with a list of child [paths].
   const TabPage({
@@ -289,12 +297,16 @@ class _TabControllerProviderState extends State<_TabControllerProvider>
 ///   ),
 /// );
 /// ```
-class CupertinoTabPage extends StatefulPage<void> with IndexedRouteMixIn {
+class CupertinoTabPage extends StatefulPage<void>
+    with RedirectingPage, IndexedRouteMixIn {
   /// The child [Widget] that will display the [CupertinoTabBar].
   final Widget child;
 
   @override
   final List<String> paths;
+
+  @override
+  String get redirectPath => paths[0];
 
   /// Optional function to customize the [Page] created for this route.
   /// If this is null, a [MaterialPage] is used.
