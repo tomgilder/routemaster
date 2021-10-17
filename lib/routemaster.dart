@@ -966,13 +966,24 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     }
 
     if (isLastRoute && page is RedirectingPage) {
-      return _RedirectResult(Uri(
-        path: pathContext.join(
+      if (routeRequest.uri.queryParameters.isNotEmpty) {
+        return _RedirectResult(
+          Uri(
+            path: pathContext.join(
+              routeRequest.uri.path,
+              page.redirectPath,
+            ),
+            queryParameters: routeRequest.uri.queryParameters,
+          ).toString(),
+        );
+      }
+
+      return _RedirectResult(
+        pathContext.join(
           routeRequest.uri.path,
           page.redirectPath,
         ),
-        queryParameters: routeRequest.uri.queryParameters,
-      ).toString());
+      );
     }
 
     if (page is StatefulPage) {
