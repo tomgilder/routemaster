@@ -132,11 +132,13 @@ class PageStack extends ChangeNotifier {
     final lastRoute = _pageContainers.last;
     if (lastRoute is MultiChildPageContainer &&
         await lastRoute.maybePop(result)) {
+      notifyListeners();
       return SynchronousFuture(true);
     }
 
     // Child wasn't interested, ask the navigator
     if (await _attachedNavigator?.maybePop(result) == true) {
+      notifyListeners();
       return SynchronousFuture(true);
     }
 

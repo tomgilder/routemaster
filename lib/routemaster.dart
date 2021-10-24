@@ -453,7 +453,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           state: _state,
           routeData: currentConfiguration!,
           child: navigatorBuilder != null
-              ? navigatorBuilder!(context, _state.stack)
+              ? Builder(builder: (context) {
+                  return navigatorBuilder!(context, _state.stack);
+                })
               : PageStackNavigator(
                   stack: _state.stack,
                   transitionDelegate: transitionDelegate ??
