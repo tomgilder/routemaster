@@ -506,8 +506,20 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
       return false;
     }
 
+    if (_stacks == null) {
+      // Create other stacks but not the one we have pages for
+      _stacks = page.paths.mapIndexed((i, e) {
+        if (i == index) {
+          return PageStack(routes: pages.toList());
+        }
+
+        return _createInitialStackState(e);
+      }).toList();
+    } else {
+      stacks[index].maybeSetChildPages(pages.toList());
+    }
+
     // Handle route
-    stacks[index].maybeSetChildPages(pages.toList());
     this.index = index;
     return true;
   }

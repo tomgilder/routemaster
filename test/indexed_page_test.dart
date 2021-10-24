@@ -77,6 +77,8 @@ void main() {
       ),
     );
 
+    debugDumpApp();
+
     expect(find.text("Page '/not-found' wasn't found."), findsOneWidget);
   });
 

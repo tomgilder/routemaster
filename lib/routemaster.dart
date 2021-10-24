@@ -660,14 +660,17 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       isBrowserHistoryNavigation: isBrowserHistoryNavigation,
     );
 
-    var pages = _createAllPages(
+    late List<PageContainer> pages;
+    var result = _createAllPages(
       routeMap: _state.routeMap!,
       currentRoutes:
           useCurrentState ? _state.stack._getCurrentPages().toList() : null,
       request: request,
     );
 
-    if (pages == null) {
+    if (result is _PagesResult) {
+      pages = result.pages;
+    } else if (result is _PagesNotFoundResult) {
       final noCurrentPages = _state.stack._getCurrentPages().isEmpty;
 
       // No page found from router
@@ -742,20 +745,20 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   /// The main Routemaster algorithm that turns a route request into a list of
   /// pages. It attempts to reuse current pages from [currentRoutes] if they
   /// exist.
-  List<PageContainer>? _createAllPages({
+  _AllPagesResult _createAllPages({
     required RouteMap routeMap,
     required _RouteRequest request,
     List<PageContainer>? currentRoutes,
     List<String>? redirects,
     bool lastPageOnly = false,
   }) {
-    final routerResult = routeMap.getAll(path: request.uri.toString());
+    final requestedPath = request.uri.toString();
+    final routerResult = routeMap.getAll(path: requestedPath);
 
     if (routerResult == null || routerResult.isEmpty) {
-      return null;
+      return _PagesNotFoundResult(request.uri.toString());
     }
 
-    final requestedPath = request.uri.toString();
     var result = <PageContainer>[];
 
     // Loop through routes in reverse order
@@ -775,7 +778,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       if (routeData._privateSegmentIndex != null &&
           request.requestSource == RequestSource.system) {
         // Route contains private URL, deny loading from system request
-        return null;
+        return _PagesNotFoundResult(request.uri.toString());
       }
 
       // Get a page container object for the current route
@@ -798,7 +801,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           );
 
           if (subPages == null) {
-            return _onUnknownRoute(request);
+            return _PagesNotFoundResult(''); // TODO URL
           }
 
           routerResult.remove(routerData);
@@ -844,7 +847,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         // We only follow redirects and not found for the last route
 
         if (current is _NotFoundResult) {
-          return _onUnknownRoute(request);
+          return _PagesNotFoundResult(''); // TODO URL
         }
 
         if (current is _RedirectResult) {
@@ -867,13 +870,13 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       }
 
       if (lastPageOnly) {
-        return result;
+        return _PagesResult(result);
       }
     }
 
     assert(result.isNotEmpty, "_createAllStates can't return empty list");
 
-    return result;
+    return _PagesResult(result);
   }
 
   RouteMap _buildRoutes(BuildContext context) {
@@ -928,7 +931,12 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       return _TabNotFoundPage(routeRequest);
     }
 
-    return result.last;
+    if (result is _PagesResult) {
+      assert(result.pages.length == 1);
+      return result.pages.first;
+    }
+
+    throw 'Unknown result';
   }
 
   _PageResult _createPageContainer({
@@ -1025,10 +1033,14 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     final result = _state.routeMap!.onUnknownRoute(request.uri.toString());
 
     if (result is RouteMap) {
-      return _createAllPages(
+      final routeMapResult = _createAllPages(
         routeMap: result,
         request: request,
-      )!;
+      );
+
+      if (routeMapResult is _PagesResult) {
+        return routeMapResult.pages;
+      }
     }
     _assertIsPage(result, fullPath);
 
@@ -1043,8 +1055,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         ),
       );
 
-      if (redirectResult != null) {
-        return redirectResult;
+      if (redirectResult is _PagesResult) {
+        return redirectResult.pages;
       }
     }
 
@@ -1096,6 +1108,22 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   RouteData? _maybeRouteDataFor(Page page) {
     return _state.stack._getRouteData(page);
   }
+}
+
+/// A union type for results from the page map.
+@immutable
+abstract class _AllPagesResult {}
+
+class _PagesNotFoundResult extends _AllPagesResult {
+  final String route;
+
+  _PagesNotFoundResult(this.route);
+}
+
+class _PagesResult extends _AllPagesResult {
+  final List<PageContainer> pages;
+
+  _PagesResult(this.pages);
 }
 
 /// A union type for results from the page map.
