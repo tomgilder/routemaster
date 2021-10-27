@@ -352,21 +352,45 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   /// An optional value can be passed to the previous route via the [result]
   /// parameter.
   @optionalTypeArgs
-  Future<bool> pop<T extends Object?>([T? result]) {
+  Future<bool> pop<T extends Object?>([T? result]) async {
     assert(!_isDisposed);
-    return _state.stack.maybePop<T>(result);
+    final popResult = await _state.stack.maybePop<T>(result);
+
+    if (popResult) {
+      _updateCurrentConfiguration();
+    }
+
+    return popResult;
   }
 
   /// Calls [pop] repeatedly whilst the [predicate] function returns true.
   ///
   /// If [predicate] immediately returns false, pop won't be called.
   Future<void> popUntil(bool Function(RouteData routeData) predicate) async {
+    var hasPopped = false;
+
+    Future<bool> doPop() async {
+      final popResult = await _state.stack.maybePop();
+      if (popResult) {
+        hasPopped = true;
+      }
+      return popResult;
+    }
+
     do {
       final currentPages = _state.stack._getCurrentPages();
       if (currentPages.isEmpty || predicate(currentPages.last.routeData)) {
+        if (hasPopped) {
+          _updateCurrentConfiguration();
+        }
+
         return;
       }
-    } while (await _state.stack.maybePop());
+    } while (await doPop());
+
+    if (hasPopped) {
+      _updateCurrentConfiguration();
+    }
   }
 
   /// Pushes [path] into the navigation tree.
