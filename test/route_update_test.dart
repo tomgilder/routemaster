@@ -124,19 +124,23 @@ void main() {
 
       delegate.push('/stack');
       await tester.pumpPageTransition();
-      // expect(tracker.buildCount, 2);
+      expect(tracker.outerBuildCount, 1);
+      expect(tracker.buildCount, 2);
       expect(tracker.systemUrl, '/stack/one');
       expect(tracker.buildFullPath, '/stack/one');
 
       delegate.push('/stack/one/two');
       await tester.pumpPageTransition();
+      expect(tracker.outerBuildCount, 1);
+      expect(tracker.buildCount, 3);
       expect(tracker.systemUrl, '/stack/one/two');
       expect(tracker.buildFullPath, '/stack/one/two');
 
       await delegate.pop();
       await tester.pump();
 
-      // expect(tracker.buildCount, 3);
+      expect(tracker.outerBuildCount, 1);
+      expect(tracker.buildCount, 4);
       expect(tracker.systemUrl, '/stack/one');
       expect(tracker.buildFullPath, '/stack/one');
     });
@@ -147,8 +151,14 @@ class RouteTracker {
   late final RoutemasterDelegate delegate;
   late String systemUrl;
   late String buildFullPath;
+
+  /// Build count of the outer Builder widget. Makes sure only the inner Builder
+  /// is being rebuilt.
   int outerBuildCount = 0;
+
+  /// Build count of the inner Builder widget.
   int buildCount = 0;
+
   int changeUpdateCount = 0;
 }
 
@@ -159,16 +169,19 @@ Future<void> trackRoute(
         callback) async {
   try {
     final tracker = RouteTracker();
+
+    // Nested builders - makes sure it's actually the inner builder is being
+    // made dirty and rebuilding.
     final trackerWidget = Builder(
-      builder: (BuildContext context) {
+      builder: (context) {
         tracker.outerBuildCount++;
 
         return Builder(
-          builder: (BuildContext context) {
+          builder: (context) {
             tracker.buildCount++;
             tracker.buildFullPath =
                 Routemaster.of(context).currentRoute.fullPath;
-            return Container();
+            return const SizedBox();
           },
         );
       },

@@ -129,7 +129,6 @@ class RouteHistory {
         SystemNav.back(); // coverage:ignore-line
       } else {
         _index--;
-        _navigate(_history[_index]);
       }
     } else {
       _state.delegate._updateCurrentConfiguration(
