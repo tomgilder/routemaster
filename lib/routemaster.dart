@@ -357,7 +357,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     final popResult = await _state.stack.maybePop<T>(result);
 
     if (popResult) {
-      _updateCurrentConfiguration();
+      _updateCurrentConfiguration(updateHistory: false);
     }
 
     return popResult;
@@ -381,7 +381,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       final currentPages = _state.stack._getCurrentPages();
       if (currentPages.isEmpty || predicate(currentPages.last.routeData)) {
         if (hasPopped) {
-          _updateCurrentConfiguration();
+          _updateCurrentConfiguration(updateHistory: false);
         }
 
         return;
@@ -389,7 +389,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     } while (await doPop());
 
     if (hasPopped) {
-      _updateCurrentConfiguration();
+      _updateCurrentConfiguration(updateHistory: false);
     }
   }
 
@@ -515,6 +515,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     bool isBrowserHistoryNavigation = false,
     bool isReplacement = false,
     RequestSource requestSource = RequestSource.internal,
+    bool updateHistory = true,
   }) {
     final currentPages = _state.stack._getCurrentPages();
 
@@ -523,7 +524,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       final routeData = pageEntry.routeData;
       final currentRouteData = _state.currentConfiguration!;
 
-      if (!isBrowserHistoryNavigation) {
+      if (!isBrowserHistoryNavigation && updateHistory) {
         _state.history._didNavigate(
           route: routeData,
           isReplacement: isReplacement,

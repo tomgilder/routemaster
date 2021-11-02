@@ -105,8 +105,6 @@ class PageStack extends ChangeNotifier {
         newRoute: _pageContainers.last.routeData,
       );
 
-      routemaster._state.delegate._updateCurrentConfiguration();
-
       // We don't need to call notifyListeners() listeners, the Navigator will
       // rebuild its page list automatically.
       return true;
