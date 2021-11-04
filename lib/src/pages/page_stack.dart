@@ -11,23 +11,12 @@ class PageStack extends ChangeNotifier {
       return;
     }
 
-    _listenedToRoutes.forEach((route) {
-      route.removeListener(notifyListeners);
-    });
-
-    _listenedToRoutes = newPages.whereType<Listenable>().toList()
-      ..forEach((route) {
-        route.addListener(notifyListeners);
-      });
-
     __pageContainers = newPages;
     notifyListeners();
   }
 
   /// The count of how many pages this stack will generate.
   int get length => _pageContainers.length;
-
-  List<Listenable> _listenedToRoutes = [];
 
   /// A map so we can keep track of each page's route data. This can be used by
   /// users to get the current page's [RouteData] via `RouteData.of(context)`.
@@ -105,7 +94,8 @@ class PageStack extends ChangeNotifier {
     }
   }
 
-  /// Passed to [Navigator] widgets for them to inform this stack of a pop
+  /// Passed to [Navigator] widgets for the Navigator to inform this stack when
+  /// a page is popped.
   bool onPopPage(
       Route<dynamic> route, dynamic result, Routemaster routemaster) {
     if (route.didPop(result)) {
@@ -115,7 +105,8 @@ class PageStack extends ChangeNotifier {
         newRoute: _pageContainers.last.routeData,
       );
 
-      // We don't need to notify listeners, the Navigator will rebuild itself
+      // We don't need to call notifyListeners() listeners, the Navigator will
+      // rebuild its page list automatically.
       return true;
     }
 
@@ -132,11 +123,13 @@ class PageStack extends ChangeNotifier {
     final lastRoute = _pageContainers.last;
     if (lastRoute is MultiChildPageContainer &&
         await lastRoute.maybePop(result)) {
+      notifyListeners();
       return SynchronousFuture(true);
     }
 
     // Child wasn't interested, ask the navigator
     if (await _attachedNavigator?.maybePop(result) == true) {
+      notifyListeners();
       return SynchronousFuture(true);
     }
 
