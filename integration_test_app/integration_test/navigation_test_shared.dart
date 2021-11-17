@@ -5,6 +5,8 @@ import 'package:integration_test_app/main.dart' as app;
 import 'package:integration_test_app/app.dart';
 import 'dart:html';
 
+import '../lib/app.dart';
+
 void replaceTests({required void Function(String) expectUrl}) {
   testWidgets('After replace, skips page going back', (tester) async {
     app.main();

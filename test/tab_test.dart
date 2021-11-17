@@ -683,6 +683,9 @@ class StubRoutemaster implements Routemaster {
 
   @override
   RouteHistory get history => throw UnimplementedError();
+
+  @override
+  BuildContext? get currentContext => throw UnimplementedError();
 }
 
 class StubNavigationResult<T> implements NavigationResult<T> {
