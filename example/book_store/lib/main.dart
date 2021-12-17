@@ -73,7 +73,7 @@ RouteMap _buildRouteMap(BuildContext context) {
             child: AudiobookPage(),
             paths: ['all', 'picks'],
             pageBuilder: (child) => NoAnimationPage(child: child),
-            initialIndex: 2,
+            initialIndex: 1,
           ),
       '/audiobooks/all': (route) => NoAnimationPage(
             child: AudiobookListPage(mode: 'all'),

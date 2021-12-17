@@ -126,7 +126,7 @@ class TabPage extends StatefulPage<void> with IndexedRouteMixIn {
   /// Specifies how tabs behave when used with the system back button.
   final TabBackBehavior backBehavior;
 
-  /// Index for the tab in the home page.
+  /// Index for the initial tab selected.
   final int initialIndex;
 
   /// Initializes the page with a list of child [paths].
@@ -140,7 +140,7 @@ class TabPage extends StatefulPage<void> with IndexedRouteMixIn {
 
   @override
   PageState createState() {
-    return TabPageState(initialIndex: initialIndex);
+    return TabPageState();
   }
 
   /// Retrieves the nearest [TabPageState] ancestor.
@@ -174,10 +174,7 @@ class _TabPageStateProvider extends InheritedNotifier {
 class TabPageState extends PageState<TabPage>
     with ChangeNotifier, IndexedPageStateMixIn {
   /// Initializes the state for a [TabPage].
-  TabPageState({this.initialIndex});
-
-  /// Initial value for the Tab controller
-  final int? initialIndex;
+  TabPageState();
 
   @override
   TabBackBehavior get backBehavior => page.backBehavior;
@@ -186,8 +183,8 @@ class TabPageState extends PageState<TabPage>
   void initState() {
     super.initState();
     _routes = List.filled(page.paths.length, null);
-    if (initialIndex != null && initialIndex! < page.paths.length) {
-      index = initialIndex!;
+    if (page.initialIndex < page.paths.length) {
+      index = page.initialIndex;
     }
   }
 
