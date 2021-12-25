@@ -380,6 +380,7 @@ void main() {
     await tester.pumpWidget(BookStoreApp());
     await setSystemUrl('/book/123');
     await tester.pump();
+    await tester.pump();
     expect(find.text("Couldn't find page '/book/123'"), findsOneWidget);
   });
 
