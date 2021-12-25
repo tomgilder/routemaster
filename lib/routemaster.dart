@@ -19,6 +19,7 @@ part 'src/pages/page_stack.dart';
 part 'src/pages/tab_pages.dart';
 part 'src/pages/pages.dart';
 part 'src/pages/stack_page.dart';
+part 'src/pages/flow_page.dart';
 part 'src/observers.dart';
 part 'src/route_data.dart';
 part 'src/route_history.dart';
@@ -35,7 +36,7 @@ typedef UnknownRouteCallback = RouteSettings Function(String path);
 ///     [Page] objects to build.
 ///
 @immutable
-class RouteMap {
+class RouteMap extends RouteSettings {
   final UnknownRouteCallback? _onUnknownRoute;
 
   final _router = TrieRouter();
@@ -62,16 +63,10 @@ class RouteMap {
     _router.addAll(routes);
   }
 
-  /// Generate a single [RouteResult] for the given [path]. Returns null if the
-  /// path isn't valid.
-  RouterResult? get(String path) {
-    return _router.get(path);
-  }
-
   /// Generate all [RouteResult] objects required to build the navigation tree
   /// for the given [path]. Returns null if the path isn't valid.
-  List<RouterResult>? getAll(String path) {
-    return _router.getAll(path);
+  List<RouterResult>? getAll({required String path, RouterResult? parent}) {
+    return _router.getAll(path, parent: parent);
   }
 
   /// Called when there's no match for a route. By default this returns
@@ -94,6 +89,26 @@ class RouteMap {
     return MaterialPage<void>(
       child: DefaultNotFoundPage(path: path),
     );
+  }
+}
+
+/// A route map that can match relative routes recursively.
+@immutable
+class RelativeRouteMap extends RouteMap {
+  @override
+  final _router = TrieRouter(mode: RouterMode.relative);
+
+  /// Creates a route map that can match relative routes recursively.
+  RelativeRouteMap({
+    required Map<String, PageBuilder> routes,
+    UnknownRouteCallback? onUnknownRoute,
+  }) : super(routes: routes, onUnknownRoute: onUnknownRoute);
+
+  /// Generate all [RouteResult] objects required to build the navigation tree
+  /// for the given [path]. Returns null if the path isn't valid.
+  @override
+  List<RouterResult>? getAll({required String path, RouterResult? parent}) {
+    return _router.getAll(path, parent: parent);
   }
 }
 
@@ -671,13 +686,17 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       isBrowserHistoryNavigation: isBrowserHistoryNavigation,
     );
 
-    var pages = _createAllPages(
+    late List<PageContainer> pages;
+    var result = _createAllPages(
+      routeMap: _state.routeMap!,
       currentRoutes:
           useCurrentState ? _state.stack._getCurrentPages().toList() : null,
       request: request,
     );
 
-    if (pages == null) {
+    if (result is _PagesResult) {
+      pages = result.pages;
+    } else if (result is _PagesNotFoundResult) {
       final noCurrentPages = _state.stack._getCurrentPages().isEmpty;
 
       // No page found from router
@@ -752,24 +771,26 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   /// The main Routemaster algorithm that turns a route request into a list of
   /// pages. It attempts to reuse current pages from [currentRoutes] if they
   /// exist.
-  List<PageContainer>? _createAllPages({
+  _AllPagesResult _createAllPages({
+    required RouteMap routeMap,
     required _RouteRequest request,
     List<PageContainer>? currentRoutes,
     List<String>? redirects,
+    bool lastPageOnly = false,
   }) {
     final requestedPath = request.uri.toString();
-    final routerResult = _getAllRouterResults(requestedPath);
+    final routerResult = routeMap.getAll(path: requestedPath);
 
     if (routerResult == null || routerResult.isEmpty) {
-      return null;
+      return _PagesNotFoundResult(request.uri.toString());
     }
 
     var result = <PageContainer>[];
-    var i = 0;
 
     // Loop through routes in reverse order
-    for (final routerData in routerResult.reversed) {
-      final isLastRoute = i++ == 0;
+    for (var i = routerResult.length - 1; i >= 0; i--) {
+      final routerData = routerResult[i];
+      final isLastRoute = (i == routerResult.length - 1);
 
       // Look the route up in the routing map
       final routeData = RouteData._fromRouterResult(
@@ -783,13 +804,38 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       if (routeData._privateSegmentIndex != null &&
           request.requestSource == RequestSource.system) {
         // Route contains private URL, deny loading from system request
-        return null;
+        return _PagesNotFoundResult(request.uri.toString());
       }
 
       // Get a page container object for the current route
       late final _PageResult current;
+
       if (isLastRoute) {
         final page = routerData.builder(routeData);
+        if (page is RouteMap) {
+          // Handle child routing map
+          assert(
+            routerData.unmatchedPath != null,
+            "Can't match partial route with a null unmatchedPath",
+          );
+
+          final relativeRouteMap = page;
+
+          final subPages = relativeRouteMap.getAll(
+            path: routerData.unmatchedPath!,
+            parent: routerData,
+          );
+
+          if (subPages == null) {
+            return _PagesNotFoundResult(''); // TODO URL
+          }
+
+          routerResult.remove(routerData);
+          routerResult.addAll(subPages);
+          i = routerResult.length;
+          continue;
+        }
+
         _assertIsPage(page, routeData.fullPath);
         current = _createPageContainer(
           routeRequest: request,
@@ -823,43 +869,40 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         }
       }
 
-      if (!isLastRoute) {
+      if (isLastRoute) {
         // We only follow redirects and not found for the last route
-        continue;
-      }
 
-      if (current is _NotFoundResult) {
-        return _onUnknownRoute(request);
-      }
-
-      if (current is _RedirectResult) {
-        if (kDebugMode) {
-          redirects = _debugCheckRedirectLoop(redirects, requestedPath);
+        if (current is _NotFoundResult) {
+          return _PagesNotFoundResult(''); // TODO URL
         }
 
-        return _createAllPages(
-          currentRoutes: currentRoutes,
-          redirects: redirects,
-          request: _RouteRequest(
-            uri: Uri.parse(current.redirectPath),
-            isReplacement: request.isReplacement,
-            requestSource: request.requestSource,
-            isBrowserHistoryNavigation: request.isBrowserHistoryNavigation,
-          ),
-        );
+        if (current is _RedirectResult) {
+          if (kDebugMode) {
+            redirects = _debugCheckRedirectLoop(redirects, requestedPath);
+          }
+
+          return _createAllPages(
+            routeMap: _state.routeMap!,
+            currentRoutes: currentRoutes,
+            redirects: redirects,
+            request: _RouteRequest(
+              uri: Uri.parse(current.redirectPath),
+              isReplacement: request.isReplacement,
+              requestSource: request.requestSource,
+              isBrowserHistoryNavigation: request.isBrowserHistoryNavigation,
+            ),
+          );
+        }
+      }
+
+      if (lastPageOnly) {
+        return _PagesResult(result);
       }
     }
 
     assert(result.isNotEmpty, "_createAllStates can't return empty list");
 
-    return result;
-  }
-
-  /// Gets a list of results from the router. If a result can't be found, the
-  /// router is rebuilt and the request retried. This is for cases where some
-  /// state has updated but the map hasn't yet been rebuilt.
-  List<RouterResult>? _getAllRouterResults(String requestedPath) {
-    return _state.routeMap!.getAll(requestedPath);
+    return _PagesResult(result);
   }
 
   RouteMap _buildRoutes(BuildContext context) {
@@ -900,45 +943,26 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }
 
   /// Called by tab pages to lazily generate their initial routes
-  PageContainer _getSinglePage(_RouteRequest request) {
-    final requestedPath = request.uri.toString();
+  PageContainer _getSinglePage(
+    _RouteRequest routeRequest, {
+    RouteMap? routeMap,
+  }) {
+    final result = _createAllPages(
+      routeMap: routeMap ?? _state.routeMap!,
+      request: routeRequest,
+      lastPageOnly: true,
+    );
 
-    final routerResult = _state.routeMap!.get(requestedPath);
-    if (routerResult != null) {
-      final routeData = RouteData._fromRouterResult(
-        routerResult,
-        Uri.parse(requestedPath),
-        isReplacement: request.isReplacement,
-        requestSource: request.requestSource,
-      );
-
-      final page = routerResult.builder(routeData);
-      _assertIsPage(page, routeData.fullPath);
-
-      final result = _createPageContainer(
-        routeRequest: request,
-        page: routerResult.builder(routeData) as Page,
-        routeData: routeData,
-        isLastRoute: false,
-      );
-
-      if (result is _PageEntryResult) {
-        return result.page;
-      }
-
-      if (result is _RedirectResult) {
-        return _getSinglePage(
-          _RouteRequest(
-            uri: Uri.parse(result.redirectPath),
-            isReplacement: request.isReplacement,
-            requestSource: request.requestSource,
-            isBrowserHistoryNavigation: request.isBrowserHistoryNavigation,
-          ),
-        );
-      }
+    if (result == null) {
+      return _TabNotFoundPage(routeRequest);
     }
 
-    return _TabNotFoundPage(request);
+    if (result is _PagesResult) {
+      assert(result.pages.length == 1);
+      return result.pages.first;
+    }
+
+    throw 'Unknown result';
   }
 
   _PageResult _createPageContainer({
@@ -971,10 +995,23 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     if (page is Redirect) {
       return _RedirectResult(
-          _fillRedirectPathParams(page.redirectPath, routeData));
+        _fillRedirectPathParams(page.redirectPath, routeData),
+      );
     }
 
     if (isLastRoute && page is RedirectingPage) {
+      if (routeRequest.uri.queryParameters.isNotEmpty) {
+        return _RedirectResult(
+          Uri(
+            path: pathContext.join(
+              routeRequest.uri.path,
+              page.redirectPath,
+            ),
+            queryParameters: routeRequest.uri.queryParameters,
+          ).toString(),
+        );
+      }
+
       return _RedirectResult(
         pathContext.join(
           routeRequest.uri.path,
@@ -1005,11 +1042,14 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     );
   }
 
-  String _fillRedirectPathParams(String redirectPath, RouteData routeData) {
+  static String _fillRedirectPathParams(
+      String redirectPath, RouteData routeData) {
     final pathSegments = pathContext.split(redirectPath);
-    final mappedSegments = pathSegments.map((segment) => segment.startsWith(':')
-        ? routeData.pathParameters[segment.substring(1)] ?? segment
-        : segment);
+    final mappedSegments = pathSegments.map(
+      (segment) => segment.startsWith(':')
+          ? routeData.pathParameters[segment.substring(1)] ?? segment
+          : segment,
+    );
     return pathContext.joinAll(mappedSegments);
   }
 
@@ -1018,10 +1058,21 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     final fullPath = request.uri.toString();
     final result = _state.routeMap!.onUnknownRoute(request.uri.toString());
 
+    if (result is RouteMap) {
+      final routeMapResult = _createAllPages(
+        routeMap: result,
+        request: request,
+      );
+
+      if (routeMapResult is _PagesResult) {
+        return routeMapResult.pages;
+      }
+    }
     _assertIsPage(result, fullPath);
 
     if (result is Redirect) {
       final redirectResult = _createAllPages(
+        routeMap: _state.routeMap!,
         request: _RouteRequest(
           uri: Uri.parse(result.redirectPath),
           isReplacement: request.isReplacement,
@@ -1030,8 +1081,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
         ),
       );
 
-      if (redirectResult != null) {
-        return redirectResult;
+      if (redirectResult is _PagesResult) {
+        return redirectResult.pages;
       }
     }
 
@@ -1048,8 +1099,10 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     ];
   }
 
-  List<String> _debugCheckRedirectLoop(
-      List<String>? redirects, String requestedPath) {
+  static List<String> _debugCheckRedirectLoop(
+    List<String>? redirects,
+    String requestedPath,
+  ) {
     if (redirects == null) {
       return [requestedPath];
     }
@@ -1081,6 +1134,22 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   RouteData? _maybeRouteDataFor(Page page) {
     return _state.stack._getRouteData(page);
   }
+}
+
+/// A union type for results from the page map.
+@immutable
+abstract class _AllPagesResult {}
+
+class _PagesNotFoundResult extends _AllPagesResult {
+  final String route;
+
+  _PagesNotFoundResult(this.route);
+}
+
+class _PagesResult extends _AllPagesResult {
+  final List<PageContainer> pages;
+
+  _PagesResult(this.pages);
 }
 
 /// A union type for results from the page map.

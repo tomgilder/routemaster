@@ -1,35 +1,8 @@
-import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:routemaster/src/trie_router/trie_router.dart';
 
 import 'helpers.dart';
-
-class TestRoute extends Page<void> {
-  final String id;
-
-  const TestRoute(this.id);
-
-  @override
-  String toString() {
-    return "Test route '$id'";
-  }
-
-  @override
-  Route<void> createRoute(BuildContext context) {
-    throw UnimplementedError();
-  }
-}
-
-RouteData getRouteData(RouterResult routerResult) {
-  return RouteData(
-    '/',
-    pathTemplate: routerResult.pathTemplate,
-    pathParameters: routerResult.pathParameters,
-    isReplacement: false,
-    requestSource: RequestSource.system,
-  );
-}
 
 void main() {
   test('Can add and get single routes', () {
@@ -42,19 +15,19 @@ void main() {
     router.add('/one', (_) => route1);
     router.add('/one/two', (_) => route2);
 
-    final dataRoot = router.get('/')!;
+    final dataRoot = router.getAll('/')!.last;
     expect(dataRoot.pathSegment, '/');
     expect(dataRoot.pathTemplate, '/');
     expect(dataRoot.builder(getRouteData(dataRoot)), rootRoute);
     expect(dataRoot.pathParameters.isEmpty, isTrue);
 
-    final data1 = router.get('/one')!;
+    final data1 = router.getAll('/one')!.last;
     expect(data1.pathSegment, '/one');
     expect(data1.pathTemplate, '/one');
     expect(data1.builder(getRouteData(data1)), route1);
     expect(data1.pathParameters.isEmpty, isTrue);
 
-    final data2 = router.get('/one/two')!;
+    final data2 = router.getAll('/one/two')!.last;
     expect(data2.pathSegment, '/one/two');
     expect(data2.pathTemplate, '/one/two');
     expect(data2.builder(getRouteData(data2)), route2);
@@ -69,13 +42,13 @@ void main() {
     router.add('/one/two', (_) => route2);
     router.add('/one', (_) => route1);
 
-    final data1 = router.get('/one')!;
+    final data1 = router.getAll('/one')!.last;
     expect(data1.pathSegment, '/one');
     expect(data1.pathTemplate, '/one');
     expect(data1.builder(getRouteData(data1)), route1);
     expect(data1.pathParameters.isEmpty, isTrue);
 
-    final data2 = router.get('/one/two')!;
+    final data2 = router.getAll('/one/two')!.last;
     expect(data2.pathSegment, '/one/two');
     expect(data2.pathTemplate, '/one/two');
     expect(data2.builder(getRouteData(data2)), route2);
@@ -92,19 +65,19 @@ void main() {
     router.add('/one', (_) => route1);
     router.add('/', (_) => rootRoute);
 
-    final dataRoot = router.get('/')!;
+    final dataRoot = router.getAll('/')!.last;
     expect(dataRoot.pathSegment, '/');
     expect(dataRoot.pathTemplate, '/');
     expect(dataRoot.builder(getRouteData(dataRoot)), rootRoute);
     expect(dataRoot.pathParameters.isEmpty, isTrue);
 
-    final data1 = router.get('/one')!;
+    final data1 = router.getAll('/one')!.last;
     expect(data1.pathSegment, '/one');
     expect(data1.pathTemplate, '/one');
     expect(data1.builder(getRouteData(data1)), route1);
     expect(data1.pathParameters.isEmpty, isTrue);
 
-    final data2 = router.get('/one/two')!;
+    final data2 = router.getAll('/one/two')!.last;
     expect(data2.pathSegment, '/one/two');
     expect(data2.pathTemplate, '/one/two');
     expect(data2.builder(getRouteData(data2)), route2);
@@ -409,6 +382,103 @@ void main() {
     );
   });
 
+  test('Can get all wildcard routes', () {
+    final router = TrieRouter();
+    const rootRoute = TestRoute('root');
+    const route1 = TestRoute('one');
+    const route2 = TestRoute('two');
+
+    router.add('/', (_) => rootRoute);
+    router.add('/one', (_) => route1);
+    router.add('/one/*', (_) => route2);
+
+    final dataRoot = router.getAll('/')!.last;
+    expect(dataRoot.pathSegment, '/');
+    expect(dataRoot.pathTemplate, '/');
+    expect(dataRoot.builder(getRouteData(dataRoot)), rootRoute);
+    expect(dataRoot.pathParameters.isEmpty, isTrue);
+
+    final data1 = router.getAll('/one')!.last;
+    expect(data1.pathSegment, '/one');
+    expect(data1.pathTemplate, '/one');
+    expect(data1.builder(getRouteData(data1)), route1);
+    expect(data1.pathParameters.isEmpty, isTrue);
+
+    final data2 = router.getAll('/one/blah/test')!.last;
+    expect(data2.pathSegment, '/one/blah/test');
+    expect(data2.pathTemplate, '/one/');
+    expect(data2.basePath, '/one');
+    expect(data2.builder(getRouteData(data2)), route2);
+    expect(data2.pathParameters.isEmpty, isTrue);
+  });
+
+  test('Can get wildcard fallback', () {
+    final router = TrieRouter();
+    const rootRoute = TestRoute('root');
+    const route1 = TestRoute('one');
+    const route2 = TestRoute('two');
+
+    router.add('/', (_) => rootRoute);
+    router.add('/*', (_) => route2);
+    router.add('/one', (_) => route1);
+
+    final routes = router.getAll('/one/blah/test')!;
+    expect(routes.isEmpty, isFalse);
+
+    final dataRoot = router.getAll('/')!.last;
+    expect(dataRoot.pathSegment, '/');
+    expect(dataRoot.pathTemplate, '/');
+    expect(dataRoot.builder(getRouteData(dataRoot)), rootRoute);
+    expect(dataRoot.pathParameters.isEmpty, isTrue);
+
+    final data1 = router.getAll('/one')!.last;
+    expect(data1.pathSegment, '/one');
+    expect(data1.pathTemplate, '/one');
+    expect(data1.builder(getRouteData(data1)), route1);
+    expect(data1.pathParameters.isEmpty, isTrue);
+
+    final data2 = router.getAll('/one/blah/test')!.last;
+    expect(routes[2].pathSegment, '/one/blah/test');
+    expect(routes[2].pathTemplate, '/');
+    expect(routes[2].builder(getRouteData(data2)), route2);
+    expect(routes[2].pathParameters.isEmpty, isTrue);
+  });
+
+  test('Can use wildcard fallback with relative routes', () {
+    final router = TrieRouter();
+    const rootRoute = TestRoute('root');
+    const route1 = TestRoute('one');
+    final relativeMap = RelativeRouteMap(routes: {
+      'one': (_) => const MaterialPageOne(),
+      'two': (_) => const MaterialPageTwo(),
+    });
+
+    router.add('/', (_) => rootRoute);
+    router.add('/feed', (_) => route1);
+    router.add('/*', (_) => relativeMap);
+
+    final routes = router.getAll('/feed/one/two')!;
+    expect(routes.isEmpty, isFalse);
+
+    final dataRoot = router.getAll('/')!.last;
+    expect(dataRoot.pathSegment, '/');
+    expect(dataRoot.pathTemplate, '/');
+    expect(dataRoot.builder(getRouteData(dataRoot)), rootRoute);
+    expect(dataRoot.pathParameters.isEmpty, isTrue);
+
+    final data1 = router.getAll('/one')!.last;
+    expect(data1.pathSegment, '/one');
+    expect(data1.pathTemplate, '/');
+    expect(data1.builder(getRouteData(data1)), relativeMap);
+    expect(data1.pathParameters.isEmpty, isTrue);
+
+    final data2 = router.getAll('/one/blah/test')!.last;
+    expect(data2.pathSegment, '/one/blah/test');
+    expect(data2.pathTemplate, '/');
+    expect(data2.builder(getRouteData(data2)), relativeMap);
+    expect(data2.pathParameters.isEmpty, isTrue);
+  });
+
   test('Route with name has priority over route params when added first', () {
     final router = TrieRouter();
     const paramRoute = TestRoute('param');
@@ -417,13 +487,13 @@ void main() {
     router.add('/:param', (_) => paramRoute);
     router.add('/named', (_) => namedRoute);
 
-    final namedResult = router.get('/named')!;
+    final namedResult = router.getAll('/named')!.last;
     expect(
       namedResult.builder(RouteData('/named', pathTemplate: '/named')),
       namedRoute,
     );
 
-    final paramResult = router.get('/blah')!;
+    final paramResult = router.getAll('/blah')!.last;
     expect(
       paramResult.builder(RouteData('/blah', pathTemplate: '/blah')),
       paramRoute,
@@ -438,16 +508,122 @@ void main() {
     router.add('/named', (_) => namedRoute);
     router.add('/:param', (_) => paramRoute);
 
-    final result = router.get('/named')!;
+    final result = router.getAll('/named')!.last;
     expect(
       result.builder(RouteData('/named', pathTemplate: '/named')),
       namedRoute,
     );
 
-    final paramResult = router.get('/blah')!;
+    final paramResult = router.getAll('/blah')!.last;
     expect(
       paramResult.builder(RouteData('/blah', pathTemplate: '/blah')),
       paramRoute,
     );
+  });
+
+  test('Can input /one/two and match /one/two', () {
+    final router = TrieRouter()
+      ..add('/one', (_) => route1)
+      ..add('/one/two', (_) => route2);
+
+    expectRoute1(router.getAll('/one')!.single);
+
+    final results2 = router.getAll('/one/two')!;
+    expect(results2.length, 2);
+    expectRoute1(results2[0]);
+    expectRoute2(results2[1]);
+  });
+
+  test('Can input /one/two and match one/two', () {
+    final router = TrieRouter()
+      ..add('/one', (_) => route1)
+      ..add('/one/two', (_) => route2);
+
+    expectRoute1(router.getAll('/one')!.single);
+
+    final results2 = router.getAll('/one/two')!;
+    expect(results2.length, 2);
+    expectRoute1(results2[0]);
+    expectRoute2(results2[1]);
+  });
+
+  test('Can input / and /one/two and match /one/two', () {
+    final router = TrieRouter()
+      ..add('/', (_) => rootRoute)
+      ..add('/one', (_) => route1)
+      ..add('/one/two', (_) => route2);
+
+    expectRootRoute(router.getAll('/')!.single);
+
+    final results1 = router.getAll('/one')!;
+    expect(results1.length, 2);
+    expectRootRoute(results1[0]);
+    expectRoute1(results1[1]);
+
+    final results2 = router.getAll('/one/two')!;
+    expect(results2.length, 3);
+    expectRootRoute(results2[0]);
+    expectRoute1(results2[1]);
+    expectRoute2(results2[2]);
+  });
+
+  test('Can input / and /one/two and match one/two', () {
+    final router = TrieRouter()
+      ..add('/', (_) => rootRoute)
+      ..add('/one', (_) => route1)
+      ..add('/one/two', (_) => route2);
+
+    expectRootRoute(router.getAll('/')!.single);
+
+    final results1 = router.getAll('one')!;
+    expect(results1.length, 2);
+    expectRootRoute(results1[0]);
+    expectRoute1(results1[1]);
+
+    final results2 = router.getAll('one/two')!;
+    expect(results2.length, 3);
+    expectRootRoute(results2[0]);
+    expectRoute1(results2[1]);
+    expectRoute2(results2[2]);
+  });
+
+  test('Can input / and one/two and match /one/two', () {
+    final router = TrieRouter()
+      ..add('/', (_) => rootRoute)
+      ..add('one', (_) => route1)
+      ..add('one/two', (_) => route2);
+
+    expectRootRoute(router.getAll('/')!.single);
+
+    final results1 = router.getAll('/one')!;
+    expect(results1.length, 2);
+    expectRootRoute(results1[0]);
+    expectRoute1(results1[1]);
+
+    final results2 = router.getAll('/one/two')!;
+    expect(results2.length, 3);
+    expectRootRoute(results2[0]);
+    expectRoute1(results2[1]);
+    expectRoute2(results2[2]);
+  });
+
+  test('Can input / and one/two and match one/two', () {
+    final router = TrieRouter()
+      ..add('/', (_) => rootRoute)
+      ..add('one', (_) => route1)
+      ..add('one/two', (_) => route2);
+
+    expectRootRoute(router.getAll('/')!.single);
+
+    final results1 = router.getAll('one')!;
+    expect(results1.length, 2);
+    expectRootRoute(results1[0]);
+    expectRoute1(results1[1]);
+
+    final results2 = router.getAll('one/two')!;
+    expect(results2.length, 3);
+    expectRootRoute(results2[0]);
+    expectRoute1(results2[1]);
+    expectRoute2(results2[2]);
   });
 }

@@ -4,12 +4,24 @@ import 'errors.dart';
 import 'router_result.dart';
 import 'trie_node.dart';
 
+/// The mode this router is using: relative or absolute
+enum RouterMode {
+  /// Router handles absolute paths
+  absolute,
+
+  /// Router handles relative paths
+  relative,
+}
+
 /// A router for storing and retrieving routes that uses a Trie data structure.
 class TrieRouter {
+  /// The mode this router is using: relative or absolute
+  final RouterMode mode;
+
   final Trie<String, PageBuilder> _trie;
 
   /// Initializes an empty router.
-  TrieRouter() : _trie = Trie();
+  TrieRouter({this.mode = RouterMode.absolute}) : _trie = Trie();
 
   /// Adds all the given [routes] to the router.
   /// The key of the map is the route.
@@ -25,6 +37,8 @@ class TrieRouter {
   void add(String path, PageBuilder value) {
     assert(path.isNotEmpty);
 
+    path = _ensureInitialSlash(path);
+
     final pathSegments = pathContext.split(path);
     assert(pathSegments.isNotEmpty);
 
@@ -33,9 +47,8 @@ class TrieRouter {
 
     // Work downwards through the trie, adding nodes as needed, and keeping
     // track of whether we add any nodes.
-    for (var i = 0; i < list.length; i++) {
-      final pathSegment = list[i];
-
+    var i = 0;
+    for (final pathSegment in list) {
       // Throw an error when two segments start with ':' at the same index.
       if (pathSegment.startsWith(':') &&
           current.containsWhere((k) => k!.startsWith(':')) &&
@@ -51,7 +64,7 @@ class TrieRouter {
       if (current.contains(pathSegment)) {
         if (isLastSegment) {
           if (current.get(pathSegment)!.value != null) {
-            throw DuplicatePathError(pathContext.joinAll(pathSegments));
+            throw DuplicatePathError(PathParser.joinAllRelative(pathSegments));
           }
 
           // A child node has already been created, need to update it so it
@@ -72,6 +85,7 @@ class TrieRouter {
       }
 
       current = current.get(pathSegment)!;
+      i++;
     }
 
     // Explicitly mark the end of a list of path segments. Otherwise, we might
@@ -82,86 +96,180 @@ class TrieRouter {
     }
   }
 
-  /// Returns a single matching result from the router, or null if no match
-  /// was found.
-  RouterResult? get(String route) {
-    final pathSegments = pathContext.split(PathParser.stripQueryString(route));
-    final parameters = <String, String>{};
-    TrieNode<String?, PageBuilder?>? current = _trie.root;
-
-    for (final segment in pathSegments) {
-      if (current!.contains(segment)) {
-        current = current.get(segment);
-      } else if (current.containsWhere((k) => k!.startsWith(':'))) {
-        // If there is a segment that starts with `:`, we should match any
-        // route.
-        current = current.getWhere((k) => k != null && k.startsWith(':'));
-
-        // Add the current segment to the parameters. E.g. 'id': '123'
-        parameters[current!.key!.substring(1)] = segment;
-      } else {
-        return null;
-      }
-    }
-
-    return RouterResult(
-      builder: current!.value!,
-      pathParameters: parameters,
-      pathSegment: route,
-      pathTemplate: current.template!,
-    );
-  }
-
   /// Returns all matching results from the router, or null if no match was
   /// found.
-  List<RouterResult>? getAll(String route) {
-    final pathSegments = pathContext.split(PathParser.stripQueryString(route));
-    final parameters = <String, String>{};
-    final result = <RouterResult>[];
+  List<RouterResult>? getAll(
+    String route, {
+    RouterResult? parent,
+  }) {
+    final results = _getAll(route, parent: parent);
 
-    void addToResult(int index, TrieNode<String?, PageBuilder?> node) {
-      final p = pathContext.joinAll(pathSegments.take(index));
-      result.add(
-        RouterResult(
-          builder: node.value!,
-          pathParameters: Map.unmodifiable(parameters),
-          pathSegment: p,
-          pathTemplate: node.template!,
-        ),
-      );
-    }
-
-    TrieNode<String?, PageBuilder?>? current = _trie.root;
-    var i = 0;
-
-    for (final segment in pathSegments) {
-      i++;
-
-      if (current!.contains(segment)) {
-        current = current.get(segment);
-        if (current!.value != null) {
-          addToResult(i, current);
-        }
-      } else if (current.containsWhere((k) => k!.startsWith(':'))) {
-        final nextSegment =
-            i < pathSegments.length - 1 ? pathSegments[i] : null;
-        final nextSegmentIsParam = nextSegment?.startsWith(':') ?? false;
-
-        // If there is a segment that starts with `:`, we should match any
-        // route.
-        current = current.getWhere((k) => k != null && k.startsWith(':'));
-
-        // Add the current segment to the parameters. E.g. ':id': '123'
-        parameters[current!.key!.substring(1)] = segment;
-
-        if (!nextSegmentIsParam && current.value != null) {
-          addToResult(i, current);
-        }
-      } else {
+    final list = <RouterResult>[];
+    for (final result in results) {
+      if (result == null) {
+        // Route wasn't found
         return null;
       }
+
+      list.add(result);
     }
 
-    return result;
+    if (list.isEmpty) {
+      return null;
+    }
+
+    return list;
+  }
+
+  Iterable<RouterResult?> _getAll(String route, {RouterResult? parent}) sync* {
+    route = _ensureInitialSlash(route);
+
+    final pathSegments = pathContext.split(PathParser.stripQueryString(route));
+    final parameters = <String, String>{};
+    RouterResult? lastResult;
+
+    RouterResult buildResult(
+      int? count,
+      TrieNode<String?, PageBuilder?> node, {
+      String? unmatchedPath,
+      String? basePath,
+    }) {
+      final path = PathParser.joinAllRelative(
+        count == null ? pathSegments : pathSegments.take(count + 1),
+      );
+
+      lastResult = parent == null
+          ? RouterResult(
+              builder: node.value!,
+              pathParameters: Map.unmodifiable(parameters),
+              pathSegment: path,
+              pathTemplate: node.template!.replaceAll('*', ''),
+              unmatchedPath: unmatchedPath,
+              basePath: basePath,
+            )
+          : RouterResult(
+              builder: node.value!,
+              pathParameters: Map.unmodifiable(
+                <String, String>{
+                  ...parent.pathParameters,
+                  ...parameters,
+                },
+              ),
+              pathSegment: (parent.basePath ?? parent.pathSegment) + path,
+              pathTemplate: PathParser.joinRelative(
+                parent.pathTemplate,
+                node.template!.replaceAll('*', ''),
+              ),
+              unmatchedPath: unmatchedPath,
+              basePath: basePath,
+            );
+
+      return lastResult!;
+    }
+
+    var current = _trie.root;
+    TrieNode<String?, PageBuilder?>? lastWildcard;
+    int? lastWildcardIndex;
+
+    for (var i = 0; i < pathSegments.length; i++) {
+      final segment = pathSegments[i];
+
+      final wildcardNode = current.get('*');
+      if (wildcardNode != null) {
+        lastWildcard = wildcardNode;
+        lastWildcardIndex = i;
+      }
+
+      if (current.contains(segment)) {
+        current = current.get(segment)!;
+        if (current.value != null) {
+          yield buildResult(i, current);
+        }
+
+        continue;
+      }
+
+      final pathParamNode = current.getWhere((k) => k?.startsWith(':') == true);
+      if (pathParamNode != null) {
+        // If there is a segment that starts with `:`, we should match any
+        // route.
+        current = pathParamNode;
+
+        // Add the current segment to the parameters. E.g. ':id': '123'
+        parameters[current.key!.substring(1)] = segment;
+
+        final nextSegment =
+            i < pathSegments.length - 1 ? pathSegments[i + 1] : null;
+        final nextSegmentIsParam = nextSegment?.startsWith(':') ?? false;
+        if (!nextSegmentIsParam && current.value != null) {
+          yield buildResult(i, current);
+        }
+
+        continue;
+      }
+
+      if (wildcardNode != null) {
+        yield buildResult(
+          null,
+          wildcardNode,
+          unmatchedPath: PathParser.joinAllRelative(
+            pathSegments.skip(lastWildcardIndex!),
+          ),
+          basePath: PathParser.joinAllRelative(
+            pathSegments.take(lastWildcardIndex),
+          ),
+        );
+        return;
+      }
+
+      if (mode == RouterMode.relative) {
+        // Nothing found yet, see if there's a recursive route
+        final remaining = pathSegments.skip(i);
+        if (remaining.isEmpty) {
+          return;
+        }
+
+        final nextRoute = PathParser.joinAllRelative(remaining);
+
+        if (nextRoute != route) {
+          yield* _getAll(
+            nextRoute,
+            parent: lastResult ?? parent,
+          );
+        }
+
+        return;
+      }
+
+      // Nothing found
+      if (lastWildcard != null) {
+        yield buildResult(
+          null,
+          lastWildcard,
+          unmatchedPath: PathParser.joinAllRelative(
+            pathSegments.skip(lastWildcardIndex!),
+          ),
+          basePath: PathParser.joinAllRelative(
+            pathSegments.take(lastWildcardIndex),
+          ),
+        );
+        return;
+      }
+
+      yield null;
+      return;
+    }
+  }
+
+  static String _ensureInitialSlash(String input) {
+    if (input == '/') {
+      return '/';
+    }
+
+    if (input[0] != '/') {
+      return '/$input';
+    }
+
+    return input;
   }
 }

@@ -71,4 +71,37 @@ void main() {
       '/one/two/three/four?query=param',
     );
   });
+
+  test('joinAllRelative works', () {
+    expect(PathParser.joinAllRelative(['/']), '/');
+    expect(PathParser.joinAllRelative(['/', '/']), '/');
+
+    expect(PathParser.joinAllRelative(['/', 'one']), '/one');
+    expect(PathParser.joinAllRelative(['/', '/one']), '/one');
+    expect(PathParser.joinAllRelative(['/', 'one', '/']), '/one/');
+    expect(PathParser.joinAllRelative(['/', '/one', '/']), '/one/');
+
+    expect(PathParser.joinAllRelative(['/one', '/']), '/one/');
+    expect(PathParser.joinAllRelative(['/one/', '/']), '/one/');
+    expect(PathParser.joinAllRelative(['one', '/']), 'one/');
+    expect(PathParser.joinAllRelative(['one/', '/']), 'one/');
+
+    expect(PathParser.joinAllRelative(['one', '/two']), 'one/two');
+    expect(PathParser.joinAllRelative(['one', 'two']), 'one/two');
+    expect(PathParser.joinAllRelative(['one/', '/two']), 'one/two');
+    expect(PathParser.joinAllRelative(['one/', 'two']), 'one/two');
+    expect(PathParser.joinAllRelative(['/one', '/two']), '/one/two');
+    expect(PathParser.joinAllRelative(['/one/', '/two']), '/one/two');
+    expect(PathParser.joinAllRelative(['/one', 'two']), '/one/two');
+    expect(PathParser.joinAllRelative(['/one/', 'two']), '/one/two');
+
+    expect(PathParser.joinAllRelative(['one', '/two', '/']), 'one/two/');
+    expect(PathParser.joinAllRelative(['one', 'two', '/']), 'one/two/');
+    expect(PathParser.joinAllRelative(['one/', '/two', '/']), 'one/two/');
+    expect(PathParser.joinAllRelative(['one/', 'two', '/']), 'one/two/');
+    expect(PathParser.joinAllRelative(['/one', '/two', '/']), '/one/two/');
+    expect(PathParser.joinAllRelative(['/one/', '/two', '/']), '/one/two/');
+    expect(PathParser.joinAllRelative(['/one', 'two', '/']), '/one/two/');
+    expect(PathParser.joinAllRelative(['/one/', 'two', '/']), '/one/two/');
+  });
 }

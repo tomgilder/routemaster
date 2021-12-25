@@ -17,6 +17,74 @@ class PathParser {
     return path.substring(0, indexOfQuery);
   }
 
+  /// Joins all provided parts seperated by '/'.
+  ///
+  /// Similar to path.joinAll, but doesn't reset if a later part is absolute.
+  static String joinRelative(String part1,
+      [String? part2,
+      String? part3,
+      String? part4,
+      String? part5,
+      String? part6,
+      String? part7,
+      String? part8]) {
+    final parts = <String?>[
+      part1,
+      part2,
+      part3,
+      part4,
+      part5,
+      part6,
+      part7,
+      part8
+    ];
+    return joinAllRelative(parts.whereType<String>());
+  }
+
+  /// Joins all provided [parts] seperated by '/'.
+  ///
+  /// Similar to path.joinAll, but doesn't reset if a later part is absolute.
+  static String joinAllRelative(Iterable<String> parts) {
+    final buffer = StringBuffer();
+
+    // final firstPart = parts.first;
+    // buffer.write(firstPart);
+    // var needsSeparator = !firstPart.endsWith('/');
+
+    var isFirst = true;
+    var needsSeparator = false;
+
+    for (var part in parts.where((part) => part != '')) {
+      if (isFirst) {
+        buffer.write(part);
+        needsSeparator = !part.endsWith('/');
+        isFirst = false;
+        continue;
+      }
+
+      final startsWithSeparator = part.startsWith('/');
+
+      if (needsSeparator) {
+        if (startsWithSeparator) {
+          buffer.write(part);
+        } else {
+          buffer.write('/');
+          buffer.write(part);
+        }
+      } else {
+        if (startsWithSeparator) {
+          buffer.write(part.substring(1));
+        } else {
+          buffer.write(part);
+        }
+      }
+
+      needsSeparator = !part.endsWith('/');
+    }
+
+    return buffer.toString();
+  }
+
   /// Returns an absolute path for [path].
   ///
   /// If [path] is already an absolute path, return that path.

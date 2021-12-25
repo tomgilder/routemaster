@@ -7,6 +7,7 @@ import 'app_state/app_state.dart';
 import 'custom_page.dart';
 import 'pages/bottom_navigation_bar_page.dart';
 import 'pages/bottom_sheet.dart';
+import 'pages/flow_page.dart';
 import 'pages/home_page.dart';
 import 'pages/settings_page.dart';
 import 'pages/search_page.dart';
@@ -187,13 +188,84 @@ RouteMap _buildRouteMap(AppState appState) {
             child: StackBottomSheetContents(),
             defaultPath: 'one',
           ),
-
       '/stack/one': (_) => MaterialPage(child: StackPageOne()),
       '/stack/one/two': (_) => MaterialPage(child: StackPageTwo()),
+
+      '/submap/*': (_) {
+        return RouteMap(
+          routes: {
+            '/': (_) => MaterialPage(
+                  child: MessagePage(message: 'Submap root'),
+                ),
+            'one': (_) => MaterialPage(
+                  child: MessagePage(message: 'Submap page one'),
+                ),
+            'one/two': (_) => MaterialPage(
+                  child: MessagePage(message: 'Submap page two'),
+                ),
+          },
+        );
+      },
+
+      '/relative-submap/*': (_) {
+        return RelativeRouteMap(
+          routes: {
+            'one': (_) =>
+                MaterialPage(child: MessagePage(message: 'Relative one')),
+            'one/two': (_) =>
+                MaterialPage(child: MessagePage(message: 'Relative two')),
+            'one/two/three': (_) =>
+                MaterialPage(child: MessagePage(message: 'Relative three')),
+          },
+        );
+      },
+
+      '/any-order/*': (_) {
+        return RelativeRouteMap(
+          routes: {
+            'one': (_) => MaterialPage(
+                  child: MessagePage(message: 'Subpage one'),
+                ),
+            'two': (_) => MaterialPage(
+                  child: MessagePage(message: 'Subpage two'),
+                ),
+            'three': (_) => MaterialPage(
+                  child: MessagePage(message: 'Subpage three'),
+                ),
+          },
+        );
+      },
+
+      '/flow': (_) => FlowPage(
+            pageBuilder: (child) => BottomSheetPage(child: child),
+            child: FlowBottomSheetContents(),
+            paths: ['one', 'two'],
+          ),
+
+      '/flow/one': (_) => MaterialPage(child: FlowPageOne()),
+      '/flow/two': (_) => MaterialPage(child: FlowPageTwo()),
+      '/flow/subpage': (_) => MaterialPage(
+            child: MessagePage(message: 'Subpage'),
+          ),
 
       '/custom-transitions': (_) => CustomPage(
             child: MessagePage(message: 'Custom transitions'),
           ),
+
+      '/*': (data) {
+        if (data.path.startsWith('/settings')) return NotFound();
+
+        return RelativeRouteMap(
+          routes: {
+            'one': (_) =>
+                MaterialPage(child: MessagePage(message: 'Subpage one')),
+            'two': (_) =>
+                MaterialPage(child: MessagePage(message: 'Subpage two')),
+            'three': (_) =>
+                MaterialPage(child: MessagePage(message: 'Subpage three')),
+          },
+        );
+      }
     },
   );
 }

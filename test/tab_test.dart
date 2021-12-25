@@ -656,6 +656,70 @@ void main() {
     final routeData = RouteData.of(pageTwoKey.currentContext!);
     expect(routeData.fullPath, '/two');
   });
+
+  testWidgets('Tabs redirect to first path with query string', (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (_) => MaterialPage<void>(child: Container()),
+          '/tabs': (_) => TabPage(child: MyTabPage(), paths: const ['one']),
+          '/tabs/one': (_) => const MaterialPageOne(),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+    delegate.push('/tabs/?query=string');
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(find.byType(MyTabPage), findsOneWidget);
+    expect(find.byType(PageOne), findsOneWidget);
+
+    final route = delegate.currentConfiguration!;
+    expect(route.path, '/tabs/one');
+    expect(route.fullPath, '/tabs/one?query=string');
+    expect(route.publicPath, '/tabs/one?query=string');
+  });
+
+  testWidgets('Can load nested tabs', (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (_) => const TabPage(
+                child: BasicTabPage(),
+                paths: ['one'],
+              ),
+          '/one': (_) => const TabPage(child: BasicTabPage(), paths: ['two']),
+          '/one/two': (_) => const MaterialPageTwo(),
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump();
+    await tester.pump();
+    await tester.pump();
+
+    expect(find.byType(PageTwo), findsOneWidget);
+
+    final route = delegate.currentConfiguration!;
+    expect(route.path, '/one/two');
+    expect(route.fullPath, '/one/two');
+    expect(route.publicPath, '/one/two');
+  });
 }
 
 class StubRoutemaster implements Routemaster {
