@@ -121,15 +121,19 @@ class RouteHistory {
   }
 
   void _onPopPage({required RouteData newRoute}) {
-    final previousRouteMatches = _index > 0 && _history[_index - 1] == newRoute;
+    final poppingToPreviousHistoryRoute =
+        _index > 0 && _history[_index - 1] == newRoute;
 
-    if (previousRouteMatches) {
+    if (poppingToPreviousHistoryRoute) {
       if (kIsWeb && SystemNav.enabled) {
         // Use system navigation so forward button works
         SystemNav.back(); // coverage:ignore-line
       } else {
         _index--;
-        _navigate(_history[_index]);
+        _state.delegate._updateCurrentConfiguration(
+          isReplacement: true,
+          updateHistory: false,
+        );
       }
     } else {
       _state.delegate._updateCurrentConfiguration(

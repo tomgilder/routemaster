@@ -303,21 +303,6 @@ void main() {
     expect(find.byType(PageThree), findsNothing);
   });
 
-  test('Removes listener from routes on replace', () {
-    final page1 = TestPageContainer();
-    final page2 = TestPageContainer();
-    final stack = PageStack(routes: [page1]);
-
-    // ignore: invalid_use_of_protected_member
-    expect(page1.hasListeners, isTrue);
-    stack.maybeSetChildPages([page2]);
-
-    // ignore: invalid_use_of_protected_member
-    expect(page1.hasListeners, isFalse);
-    // ignore: invalid_use_of_protected_member
-    expect(page2.hasListeners, isTrue);
-  });
-
   testWidgets('Asserts if unable to find StackNavigationState', (tester) async {
     late BuildContext context;
     await tester.pumpWidget(
