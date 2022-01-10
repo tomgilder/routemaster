@@ -136,11 +136,11 @@ class Routemaster {
   /// Retrieves the nearest ancestor [Routemaster] object.
   static Routemaster of(BuildContext context) {
     final widget =
-    context.dependOnInheritedWidgetOfExactType<_RoutemasterWidget>();
+        context.dependOnInheritedWidgetOfExactType<_RoutemasterWidget>();
 
     assert(
-    widget != null,
-    "Couldn't get a Routemaster object from the given context.",
+      widget != null,
+      "Couldn't get a Routemaster object from the given context.",
     );
 
     return Routemaster._(
@@ -227,9 +227,9 @@ class Routemaster {
   ///
   @optionalTypeArgs
   NavigationResult<T> push<T extends Object?>(
-      String path, {
-        Map<String, String>? queryParameters,
-      }) {
+    String path, {
+    Map<String, String>? queryParameters,
+  }) {
     final routeData = RouteData.maybeOf(_context);
     if (routeData != null) {
       // Use context route data for relative path
@@ -296,9 +296,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   /// A function that returns the top-level navigator widgets. Normally this
   /// function would return a [PageStackNavigator].
   final Widget Function(
-      BuildContext context,
-      PageStack stack,
-      )? navigatorBuilder;
+    BuildContext context,
+    PageStack stack,
+  )? navigatorBuilder;
 
   /// Allows navigating through the chronological history of routes.
   ///
@@ -385,9 +385,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   ///
   @optionalTypeArgs
   NavigationResult<T> push<T extends Object?>(
-      String path, {
-        Map<String, String>? queryParameters,
-      }) {
+    String path, {
+    Map<String, String>? queryParameters,
+  }) {
     return _pushUri(
       PathParser.getAbsolutePath(
         basePath: currentConfiguration!.fullPath,
@@ -398,9 +398,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }
 
   NavigationResult<T> _pushUri<T extends Object?>(
-      Uri uri, {
-        Map<String, String>? queryParameters,
-      }) {
+    Uri uri, {
+    Map<String, String>? queryParameters,
+  }) {
     assert(!_isDisposed);
 
     final result = NavigationResult<T>._();
@@ -462,11 +462,11 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           child: navigatorBuilder != null
               ? navigatorBuilder!(context, _state.stack)
               : PageStackNavigator(
-            stack: _state.stack,
-            navigatorKey:navigatorKey,
-            transitionDelegate: transitionDelegate ??
-                const DefaultTransitionDelegate<dynamic>(),
-          ),
+                  stack: _state.stack,
+                  navigatorKey:navigatorKey,
+                  transitionDelegate: transitionDelegate ??
+                      const DefaultTransitionDelegate<dynamic>(),
+              ),
         );
       },
     );
@@ -655,7 +655,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     var pages = _createAllPages(
       currentRoutes:
-      useCurrentState ? _state.stack._getCurrentPages().toList() : null,
+          useCurrentState ? _state.stack._getCurrentPages().toList() : null,
       request: request,
     );
 
@@ -846,8 +846,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   RouteMap _buildRoutes(BuildContext context) {
     assert(
-    context.owner!.debugBuilding,
-    'Tried to call route builder outside of build phase',
+      context.owner!.debugBuilding,
+      'Tried to call route builder outside of build phase',
     );
 
     return routesBuilder(context);
@@ -969,8 +969,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       final state = page.createState();
 
       assert(
-      state._debugTypesAreRight(page),
-      '${page.runtimeType}.createState must return a subtype of PageState<${page.runtimeType}>, but it returned ${state.runtimeType}.',
+        state._debugTypesAreRight(page),
+        '${page.runtimeType}.createState must return a subtype of PageState<${page.runtimeType}>, but it returned ${state.runtimeType}.',
       );
 
       state._page = page;
@@ -1192,7 +1192,7 @@ class RedirectLoopError extends Error {
         redirects
             .take(redirects.length - 1)
             .mapIndexed((i, path1) =>
-        "  * '$path1' redirected to '${redirects[i + 1]}'")
+                "  * '$path1' redirected to '${redirects[i + 1]}'")
             .join('\n') +
         '\n\nThis is an error in your routing map.';
   }
@@ -1333,7 +1333,7 @@ class PageStackNavigatorState extends State<PageStackNavigator> {
   void _updateNavigator() {
     final pages = widget.stack.createPages();
     final filteredPages =
-    widget.builder == null ? pages : widget.builder!(pages).toList();
+        widget.builder == null ? pages : widget.builder!(pages).toList();
 
     _widget = _StackNavigator(
       stack: widget.stack,
@@ -1345,7 +1345,7 @@ class PageStackNavigatorState extends State<PageStackNavigator> {
       pages: filteredPages,
       observers: [
         _RelayingNavigatorObserver(
-              () sync* {
+          () sync* {
             final delegate = _routemaster._state.delegate;
 
             yield* widget.observers;
@@ -1375,16 +1375,16 @@ class _StackNavigator extends Navigator {
     Key? key,
     PopPageCallback? onPopPage,
     TransitionDelegate transitionDelegate =
-    const DefaultTransitionDelegate<dynamic>(),
+        const DefaultTransitionDelegate<dynamic>(),
     List<Page> pages = const <Page<dynamic>>[],
     List<NavigatorObserver> observers = const <NavigatorObserver>[],
   }) : super(
-    key: key,
-    onPopPage: onPopPage,
-    transitionDelegate: transitionDelegate,
-    pages: pages,
-    observers: observers,
-  );
+          key: key,
+          onPopPage: onPopPage,
+          transitionDelegate: transitionDelegate,
+          pages: pages,
+          observers: observers,
+        );
 
   @override
   NavigatorState createState() {
@@ -1408,8 +1408,8 @@ class _StackNavigatorState extends NavigatorState {
 
 void _assertIsPage(RouteSettings page, String route) {
   assert(
-  page is Page,
-  "Route builders must return a Page object. The route builder for '$route' instead returned an object of type '${page.runtimeType}'.",
+    page is Page,
+    "Route builders must return a Page object. The route builder for '$route' instead returned an object of type '${page.runtimeType}'.",
   );
 }
 
