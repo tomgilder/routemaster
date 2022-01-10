@@ -466,7 +466,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
                   navigatorKey:navigatorKey,
                   transitionDelegate: transitionDelegate ??
                       const DefaultTransitionDelegate<dynamic>(),
-              ),
+                ),
         );
       },
     );
