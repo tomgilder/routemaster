@@ -1,26 +1,28 @@
 library routemaster;
 
-export 'src/parser.dart';
-export 'src/pages/guard.dart';
-export 'src/pages/transition_page.dart';
-
 import 'dart:async';
+
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:collection/collection.dart';
+
 import 'src/not_found_page.dart';
 import 'src/pages/guard.dart';
 import 'src/path_parser.dart';
 import 'src/system_nav.dart';
 import 'src/trie_router/trie_router.dart';
 
+export 'src/pages/guard.dart';
+export 'src/pages/transition_page.dart';
+export 'src/parser.dart';
+
+part 'src/observers.dart';
 part 'src/pages/page_stack.dart';
-part 'src/pages/tab_pages.dart';
 part 'src/pages/pages.dart';
 part 'src/pages/stack_page.dart';
-part 'src/observers.dart';
+part 'src/pages/tab_pages.dart';
 part 'src/route_data.dart';
 part 'src/route_history.dart';
 
@@ -136,11 +138,11 @@ class Routemaster {
   /// Retrieves the nearest ancestor [Routemaster] object.
   static Routemaster of(BuildContext context) {
     final widget =
-    context.dependOnInheritedWidgetOfExactType<_RoutemasterWidget>();
+        context.dependOnInheritedWidgetOfExactType<_RoutemasterWidget>();
 
     assert(
-    widget != null,
-    "Couldn't get a Routemaster object from the given context.",
+      widget != null,
+      "Couldn't get a Routemaster object from the given context.",
     );
 
     return Routemaster._(
@@ -153,7 +155,8 @@ class Routemaster {
   RouteData get currentRoute => _state.delegate.currentConfiguration!;
 
   /// The current context of the app
-  BuildContext? get currentContext => _state.delegate.navigatorKey?.currentContext;
+  BuildContext? get currentContext =>
+      _state.delegate.navigatorKey?.currentContext;
 
   /// Pops the current route from the router. Returns `true` if the pop was
   /// successful, or `false` if it wasn't.
@@ -227,9 +230,9 @@ class Routemaster {
   ///
   @optionalTypeArgs
   NavigationResult<T> push<T extends Object?>(
-      String path, {
-        Map<String, String>? queryParameters,
-      }) {
+    String path, {
+    Map<String, String>? queryParameters,
+  }) {
     final routeData = RouteData.maybeOf(_context);
     if (routeData != null) {
       // Use context route data for relative path
@@ -290,15 +293,16 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   ///
   /// Use [RoutemasterObserver] for additional `didChangeRoute` functionality.
   final List<NavigatorObserver> observers;
+
   ///
   GlobalKey<NavigatorState>? navigatorKey;
 
   /// A function that returns the top-level navigator widgets. Normally this
   /// function would return a [PageStackNavigator].
   final Widget Function(
-      BuildContext context,
-      PageStack stack,
-      )? navigatorBuilder;
+    BuildContext context,
+    PageStack stack,
+  )? navigatorBuilder;
 
   /// Allows navigating through the chronological history of routes.
   ///
@@ -314,25 +318,24 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   ///
   /// This uses a default [PageStackNavigator], to supply your own
   /// use [RoutemasterDelegate.builder].
-  RoutemasterDelegate({
-    required this.routesBuilder,
-    this.transitionDelegate,
-    this.observers = const [],
-    this.navigatorKey
-  }) : navigatorBuilder = null {
+  RoutemasterDelegate(
+      {required this.routesBuilder,
+      this.transitionDelegate,
+      this.observers = const [],
+      this.navigatorKey})
+      : navigatorBuilder = null {
     _state.delegate = this;
-    // _navigatorKey = GlobalKey<NavigatorState>();
   }
 
   /// Initializes the delegate with a custom [PageStackNavigator] builder via
   /// [navigatorBuilder]. For instance, if you wanted to add a observer to just
   /// the top-level navigator.
-  RoutemasterDelegate.builder({
-    required this.routesBuilder,
-    required this.navigatorBuilder,
-    this.observers = const [],
-    this.navigatorKey
-  }) : transitionDelegate = null {
+  RoutemasterDelegate.builder(
+      {required this.routesBuilder,
+      required this.navigatorBuilder,
+      this.observers = const [],
+      this.navigatorKey})
+      : transitionDelegate = null {
     _state.delegate = this;
   }
 
@@ -386,9 +389,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   ///
   @optionalTypeArgs
   NavigationResult<T> push<T extends Object?>(
-      String path, {
-        Map<String, String>? queryParameters,
-      }) {
+    String path, {
+    Map<String, String>? queryParameters,
+  }) {
     return _pushUri(
       PathParser.getAbsolutePath(
         basePath: currentConfiguration!.fullPath,
@@ -399,9 +402,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   }
 
   NavigationResult<T> _pushUri<T extends Object?>(
-      Uri uri, {
-        Map<String, String>? queryParameters,
-      }) {
+    Uri uri, {
+    Map<String, String>? queryParameters,
+  }) {
     assert(!_isDisposed);
 
     final result = NavigationResult<T>._();
@@ -463,11 +466,11 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           child: navigatorBuilder != null
               ? navigatorBuilder!(context, _state.stack)
               : PageStackNavigator(
-            stack: _state.stack,
-            navigatorKey:navigatorKey,
-            transitionDelegate: transitionDelegate ??
-                const DefaultTransitionDelegate<dynamic>(),
-          ),
+                  stack: _state.stack,
+                  navigatorKey: navigatorKey,
+                  transitionDelegate: transitionDelegate ??
+                      const DefaultTransitionDelegate<dynamic>(),
+                ),
         );
       },
     );
@@ -656,7 +659,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     var pages = _createAllPages(
       currentRoutes:
-      useCurrentState ? _state.stack._getCurrentPages().toList() : null,
+          useCurrentState ? _state.stack._getCurrentPages().toList() : null,
       request: request,
     );
 
@@ -847,8 +850,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   RouteMap _buildRoutes(BuildContext context) {
     assert(
-    context.owner!.debugBuilding,
-    'Tried to call route builder outside of build phase',
+      context.owner!.debugBuilding,
+      'Tried to call route builder outside of build phase',
     );
 
     return routesBuilder(context);
@@ -970,8 +973,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       final state = page.createState();
 
       assert(
-      state._debugTypesAreRight(page),
-      '${page.runtimeType}.createState must return a subtype of PageState<${page.runtimeType}>, but it returned ${state.runtimeType}.',
+        state._debugTypesAreRight(page),
+        '${page.runtimeType}.createState must return a subtype of PageState<${page.runtimeType}>, but it returned ${state.runtimeType}.',
       );
 
       state._page = page;
@@ -1057,14 +1060,10 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       completer.complete(route);
     }
   }
-  // /// it will be passed to PageStackNavigator() which is going to be used as 'key' for Navigator()
-  // final GlobalKey<NavigatorState>? _navigatorKey = GlobalKey<NavigatorState>();
-  //
-  // @override
-  // GlobalKey<NavigatorState>? get navigatorKey => _navigatorKey;
 
   /// gives us access to current context
   BuildContext? get currentContext => navigatorKey?.currentContext;
+
   /// Attempts to find the current route data for the given [context].
   ///
   /// Returns `null` if no route data is found.
@@ -1198,7 +1197,7 @@ class RedirectLoopError extends Error {
         redirects
             .take(redirects.length - 1)
             .mapIndexed((i, path1) =>
-        "  * '$path1' redirected to '${redirects[i + 1]}'")
+                "  * '$path1' redirected to '${redirects[i + 1]}'")
             .join('\n') +
         '\n\nThis is an error in your routing map.';
   }
@@ -1245,31 +1244,32 @@ class PageStackNavigator extends StatefulWidget {
   /// A list of [NavigatorObserver] that will be passed to the [Navigator].
   final List<NavigatorObserver> observers;
   final GlobalKey? navigatorKey;
+
   /// A function that can filter or transform the list of pages from the stack.
   final Iterable<Page> Function(List<Page>)? builder;
 
   /// Provides a [Navigator] that shows pages from a [PageStack].
-  const PageStackNavigator({
-    Key? key,
-    required this.stack,
-    this.transitionDelegate = const DefaultTransitionDelegate<dynamic>(),
-    this.observers = const [],
-    this.navigatorKey
-  })  : builder = null,
+  const PageStackNavigator(
+      {Key? key,
+      required this.stack,
+      this.transitionDelegate = const DefaultTransitionDelegate<dynamic>(),
+      this.observers = const [],
+      this.navigatorKey})
+      : builder = null,
         super(key: key);
 
   /// Provides a [Navigator] that shows pages from a [PageStack].
   ///
   /// This constructor provides an additional `builder` function that can filter
   /// or transform the list of pages from the stack.
-  const PageStackNavigator.builder({
-    Key? key,
-    required this.stack,
-    required this.builder,
-    this.transitionDelegate = const DefaultTransitionDelegate<dynamic>(),
-    this.observers = const [],
-    this.navigatorKey
-  }) : super(key: key);
+  const PageStackNavigator.builder(
+      {Key? key,
+      required this.stack,
+      required this.builder,
+      this.transitionDelegate = const DefaultTransitionDelegate<dynamic>(),
+      this.observers = const [],
+      this.navigatorKey})
+      : super(key: key);
 
   @override
   PageStackNavigatorState createState() => PageStackNavigatorState();
@@ -1339,11 +1339,11 @@ class PageStackNavigatorState extends State<PageStackNavigator> {
   void _updateNavigator() {
     final pages = widget.stack.createPages();
     final filteredPages =
-    widget.builder == null ? pages : widget.builder!(pages).toList();
+        widget.builder == null ? pages : widget.builder!(pages).toList();
 
     _widget = _StackNavigator(
       stack: widget.stack,
-      key:widget.navigatorKey,
+      key: widget.navigatorKey,
       onPopPage: (route, dynamic result) {
         return widget.stack.onPopPage(route, result, _routemaster);
       },
@@ -1351,7 +1351,7 @@ class PageStackNavigatorState extends State<PageStackNavigator> {
       pages: filteredPages,
       observers: [
         _RelayingNavigatorObserver(
-              () sync* {
+          () sync* {
             final delegate = _routemaster._state.delegate;
 
             yield* widget.observers;
@@ -1381,16 +1381,16 @@ class _StackNavigator extends Navigator {
     Key? key,
     PopPageCallback? onPopPage,
     TransitionDelegate transitionDelegate =
-    const DefaultTransitionDelegate<dynamic>(),
+        const DefaultTransitionDelegate<dynamic>(),
     List<Page> pages = const <Page<dynamic>>[],
     List<NavigatorObserver> observers = const <NavigatorObserver>[],
   }) : super(
-    key: key,
-    onPopPage: onPopPage,
-    transitionDelegate: transitionDelegate,
-    pages: pages,
-    observers: observers,
-  );
+          key: key,
+          onPopPage: onPopPage,
+          transitionDelegate: transitionDelegate,
+          pages: pages,
+          observers: observers,
+        );
 
   @override
   NavigatorState createState() {
@@ -1414,8 +1414,8 @@ class _StackNavigatorState extends NavigatorState {
 
 void _assertIsPage(RouteSettings page, String route) {
   assert(
-  page is Page,
-  "Route builders must return a Page object. The route builder for '$route' instead returned an object of type '${page.runtimeType}'.",
+    page is Page,
+    "Route builders must return a Page object. The route builder for '$route' instead returned an object of type '${page.runtimeType}'.",
   );
 }
 
