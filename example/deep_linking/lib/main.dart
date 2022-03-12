@@ -52,6 +52,8 @@ final loggedInRoutes = RouteMap(
 );
 
 class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   _MyAppState createState() => _MyAppState();
 }
@@ -127,6 +129,8 @@ class _MyAppState extends State<MyApp> {
 }
 
 class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final notifications = Provider.of<Notifications>(context);
