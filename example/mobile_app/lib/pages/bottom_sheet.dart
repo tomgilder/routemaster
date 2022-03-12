@@ -104,6 +104,8 @@ class BottomSheetPage extends Page<void> {
 }
 
 class StackBottomSheetContents extends StatelessWidget {
+  const StackBottomSheetContents({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return PageStackNavigator(stack: StackPage.of(context).stack);
@@ -111,6 +113,8 @@ class StackBottomSheetContents extends StatelessWidget {
 }
 
 class StackPageOne extends StatelessWidget {
+  const StackPageOne({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
@@ -147,6 +151,8 @@ class StackPageOne extends StatelessWidget {
 }
 
 class StackPageTwo extends StatelessWidget {
+  const StackPageTwo({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(

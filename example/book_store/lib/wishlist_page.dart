@@ -9,7 +9,7 @@ import 'book_card.dart';
 import 'models.dart';
 
 class WishlistHomePage extends StatelessWidget {
-  const WishlistHomePage();
+  const WishlistHomePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +61,10 @@ class WishlistHomePage extends StatelessWidget {
 class WishlistPage extends StatelessWidget {
   final String? id;
 
-  const WishlistPage({required this.id});
+  const WishlistPage({
+    Key? key,
+    required this.id,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -113,13 +116,15 @@ class AddWishlistPage extends Page<void> {
 class AddWishlistDialog extends StatefulWidget {
   static const nameFieldKey = Key('name-field');
 
+  AddWishlistDialog({Key? key}) : super(key: key);
+
   @override
   _AddWishlistDialogState createState() => _AddWishlistDialogState();
 }
 
 class _AddWishlistDialogState extends State<AddWishlistDialog> {
   final _titleController = TextEditingController();
-  final _pickedBooks = Set<String>();
+  final _pickedBooks = <String>{};
 
   @override
   void dispose() {
@@ -166,7 +171,7 @@ class _AddWishlistDialogState extends State<AddWishlistDialog> {
           borderRadius: BorderRadius.circular(10),
         ),
         type: MaterialType.card,
-        child: Container(
+        child: SizedBox(
           width: 700,
           height: 500,
           child: Center(
@@ -183,7 +188,7 @@ class _AddWishlistDialogState extends State<AddWishlistDialog> {
                   key: AddWishlistDialog.nameFieldKey,
                 ),
                 Text('Choose some books'),
-                Container(
+                SizedBox(
                   height: 200,
                   child: ListView(
                     children: [

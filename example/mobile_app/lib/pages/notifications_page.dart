@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class NotificationsPage extends StatefulWidget {
+  const NotificationsPage({Key? key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() => _NotificationsPageState();
 }
@@ -71,7 +73,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
 class NotificationsContentPage extends StatelessWidget {
   final String message;
 
-  const NotificationsContentPage({required this.message});
+  const NotificationsContentPage({
+    Key? key,
+    required this.message,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +106,10 @@ class NotificationsContentPage extends StatelessWidget {
 class MessagePage extends StatelessWidget {
   final String message;
 
-  const MessagePage({required this.message});
+  const MessagePage({
+    Key? key,
+    required this.message,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +128,7 @@ class MessagePage extends StatelessWidget {
 }
 
 class DoubleBackPage extends StatelessWidget {
-  const DoubleBackPage();
+  const DoubleBackPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

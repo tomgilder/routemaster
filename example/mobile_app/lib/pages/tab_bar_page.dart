@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:routemaster/routemaster.dart';
 
 class TabBarPage extends StatelessWidget {
+  const TabBarPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);

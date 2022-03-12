@@ -10,10 +10,11 @@ class PageScaffold extends StatefulWidget {
   final String? searchQuery;
 
   PageScaffold({
+    Key? key,
     required this.title,
     required this.body,
     this.searchQuery,
-  });
+  }) : super(key: key);
 
   @override
   _PageScaffoldState createState() => _PageScaffoldState();
@@ -93,7 +94,7 @@ class _PageScaffoldState extends State<PageScaffold> {
                     padding: const EdgeInsets.only(top: 10),
                     child: Row(
                       children: [
-                        Container(
+                        SizedBox(
                           height: 200,
                           child: Image.asset(
                             'assets/logo.png',
@@ -118,7 +119,7 @@ class _PageScaffoldState extends State<PageScaffold> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   SizedBox(width: 20),
-                  Container(
+                  SizedBox(
                     width: 40,
                     child: InkWell(
                       onTap:
@@ -135,7 +136,7 @@ class _PageScaffoldState extends State<PageScaffold> {
                     onTap: canGoForward
                         ? () => routemaster.history.forward()
                         : null,
-                    child: Container(
+                    child: SizedBox(
                       width: 40,
                       child: Icon(
                         Icons.arrow_forward_ios,
@@ -270,10 +271,11 @@ class NavigationLink extends StatelessWidget {
   final bool inDrawer;
 
   const NavigationLink({
+    Key? key,
     required this.title,
     required this.path,
     required this.inDrawer,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

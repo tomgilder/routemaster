@@ -9,15 +9,16 @@ class CustomCard extends StatelessWidget {
   final void Function() onTap;
 
   const CustomCard({
+    Key? key,
     required this.onTap,
     required this.child,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Container(
+      child: SizedBox(
         width: 350,
         child: Material(
           color: Color(0xfffebd68),
@@ -42,10 +43,11 @@ class BookCard extends StatelessWidget {
   final String Function(String id)? pathBuilder;
 
   const BookCard({
+    Key? key,
     required this.book,
     this.showReleaseDate = false,
     this.pathBuilder,
-  });
+  }) : super(key: key);
 
   static final _formatter = DateFormat('yyyy-MM-dd');
 
