@@ -1,7 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
 
 class FeedPage extends StatelessWidget {
+  const FeedPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,7 +22,10 @@ class FeedPage extends StatelessWidget {
                     final result = await Routemaster.of(context)
                         .push<String?>('profile/1')
                         .result;
-                    print("Profile result: '$result'");
+
+                    if (kDebugMode) {
+                      print("Profile result: '$result'");
+                    }
                   },
                   child: Text('Push profile page with ID 1'),
                 ),
@@ -102,9 +108,10 @@ class ProfilePage extends StatelessWidget {
   final String? message;
 
   const ProfilePage({
+    Key? key,
     required this.id,
     required this.message,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -162,8 +169,9 @@ class PhotoPage extends StatelessWidget {
   final String? id;
 
   const PhotoPage({
+    Key? key,
     required this.id,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

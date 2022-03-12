@@ -4,6 +4,8 @@ import 'package:mobile_app/app_state/app_state.dart';
 import 'package:provider/provider.dart';
 
 class SettingsPage extends StatelessWidget {
+  const SettingsPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
