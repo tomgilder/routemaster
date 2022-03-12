@@ -12,8 +12,9 @@ class LoginPage extends StatefulWidget {
   final String? redirectTo;
 
   const LoginPage({
+    Key? key,
     this.redirectTo = '/',
-  });
+  }) : super(key: key);
 
   @override
   _LoginPageState createState() => _LoginPageState();

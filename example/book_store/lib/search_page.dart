@@ -32,9 +32,10 @@ class SearchPage extends StatelessWidget {
   final SortOrder sortOrder;
 
   const SearchPage({
+    Key? key,
     required this.query,
     this.sortOrder = SortOrder.name,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -96,11 +97,7 @@ class SearchPage extends StatelessWidget {
               style: Theme.of(context).textTheme.headline5,
             ),
             for (final category in categoryMatches) ...[
-              Container(
-                child: Text(
-                  category.displayName,
-                ),
-              ),
+              Text(category.displayName),
               for (final book in BooksDatabase()
                   .books
                   .where((book) => book.categories.contains(category)))

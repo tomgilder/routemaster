@@ -130,10 +130,11 @@ class BookStoreApp extends StatelessWidget {
   final RouteInformationProvider? routeInformationProvider;
 
   BookStoreApp({
+    Key? key,
     this.username,
     this.siteBlockedWithoutLogin = false,
     this.routeInformationProvider,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -168,6 +169,8 @@ class BookStoreApp extends StatelessWidget {
 }
 
 class ShopHome extends StatelessWidget {
+  const ShopHome({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return PageScaffold(
