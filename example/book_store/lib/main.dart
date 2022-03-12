@@ -4,6 +4,7 @@ import 'package:book_store/wishlist_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:routemaster/routemaster.dart';
+
 import 'book_card.dart';
 import 'book_page.dart';
 import 'category_page.dart';
@@ -71,6 +72,7 @@ RouteMap _buildRouteMap(BuildContext context) {
             child: AudiobookPage(),
             paths: ['all', 'picks'],
             pageBuilder: (child) => NoAnimationPage(child: child),
+            initialIndex: 1,
           ),
       '/audiobooks/all': (route) => NoAnimationPage(
             child: AudiobookListPage(mode: 'all'),

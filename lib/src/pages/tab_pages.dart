@@ -126,12 +126,16 @@ class TabPage extends StatefulPage<void> with IndexedRouteMixIn {
   /// Specifies how tabs behave when used with the system back button.
   final TabBackBehavior backBehavior;
 
+  /// Index for the initial tab selected.
+  final int initialIndex;
+
   /// Initializes the page with a list of child [paths].
   const TabPage({
     required this.child,
     required this.paths,
     this.pageBuilder = _defaultPageBuilder,
     this.backBehavior = TabBackBehavior.none,
+    this.initialIndex = 0,
   });
 
   @override
@@ -179,6 +183,9 @@ class TabPageState extends PageState<TabPage>
   void initState() {
     super.initState();
     _routes = List.filled(page.paths.length, null);
+    if (page.initialIndex < page.paths.length) {
+      index = page.initialIndex;
+    }
   }
 
   @override
