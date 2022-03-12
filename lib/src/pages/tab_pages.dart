@@ -540,7 +540,7 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
 
   @override
   RouteData? _getRouteData(Page page) {
-    // It's  likely the route data will be in the currently active page so
+    // It's likely the route data will be in the currently active page so
     // check that first
     final routeData = stacks[index]._getRouteData(page);
     if (routeData != null) {
@@ -558,6 +558,8 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
         return routeData;
       }
     }
+
+    return null;
   }
 }
 
