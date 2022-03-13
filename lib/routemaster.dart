@@ -170,21 +170,14 @@ class Routemaster {
     return _state.delegate.popUntil(predicate);
   }
 
-  /// Replaces the current route with [path].
+  /// Replaces the current route with [path]. On the web, this prevents the user
+  /// returning to the previous route via the back button.
   ///
-  /// If the given [path] starts with a forward slash, it's treated as an
-  /// absolute path.
+  ///   * [path] - an absolute or relative path. See [push] for the difference
+  ///     between the two.
   ///
-  /// If it doesn't start with a forward slash, it's treated as a relative path
-  /// to the current route.
-  ///
-  /// For example:
-  ///
-  ///   * If the current route is '/products' and you call `replace('1')`
-  ///     you'll navigate to '/products/1'.
-  ///
-  ///   * If the current route is '/products' and you call `replace('/home')`
-  ///     you'll navigate to '/home'.
+  ///   * [queryParameters] - an optional map of string parameters to be passed
+  ///     to the new route.
   ///
   void replace(String path, {Map<String, String>? queryParameters}) {
     final routeData = RouteData.maybeOf(_context);
@@ -205,21 +198,26 @@ class Routemaster {
     _state.delegate.replace(path, queryParameters: queryParameters);
   }
 
-  /// Pushes [path] into the navigation tree.
+  /// Navigates to [path].
   ///
-  /// If the given [path] starts with a forward slash, it's treated as an
-  /// absolute path.
+  /// If this path starts with a forward slash, it's treated as an absolute
+  /// path. Otherwise it's handled as a path relative to the current route.
   ///
-  /// If it doesn't start with a forward slash, it's treated as a relative path
-  /// to the current route.
+  /// For example, if the current route is '/products':
   ///
-  /// For example:
+  ///   * Calling `push('1')` navigates to '/products/1'.
   ///
-  ///   * If the current route is '/products' and you call `replace('1')`
-  ///     you'll navigate to '/products/1'.
+  ///   * Calling `push('/home')` navigates to '/home'.
   ///
-  ///   * If the current route is '/products' and you call `replace('/home')`
-  ///     you'll navigate to '/home'.
+  /// A [queryParameters] map can be added to pass string parameters to the new
+  /// route:
+  ///
+  ///   `push('/search', queryParameters: {'query': 'hello'})`
+  ///
+  /// These can then be access from [RouteData], using
+  /// `RouteData.of(context).queryParameters`, or from within a route map:
+  ///
+  ///   `'/product': (route) => MaterialPage(child: SearchPage(route.queryParameters['id']))`
   ///
   @optionalTypeArgs
   NavigationResult<T> push<T extends Object?>(
@@ -392,12 +390,26 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     }
   }
 
-  /// Pushes [path] into the navigation tree.
+  /// Navigates to [path].
   ///
-  ///   * [path] - an absolute or relative path.
+  /// If this path starts with a forward slash, it's treated as an absolute
+  /// path. Otherwise it's handled as a path relative to the current route.
   ///
-  ///   * [queryParameters] - an optional map of parameters to be passed to the
-  ///     created page.
+  /// For example, if the current route is '/products':
+  ///
+  ///   * Calling `push('1')` navigates to '/products/1'.
+  ///
+  ///   * Calling `push('/home')` navigates to '/home'.
+  ///
+  /// A [queryParameters] map can be added to pass string parameters to the new
+  /// route:
+  ///
+  ///   `push('/search', queryParameters: {'query': 'hello'})`
+  ///
+  /// These can then be access from [RouteData], using
+  /// `RouteData.of(context).queryParameters`, or from within a route map:
+  ///
+  ///   `'/product': (route) => MaterialPage(child: SearchPage(route.queryParameters['id']))`
   ///
   @optionalTypeArgs
   NavigationResult<T> push<T extends Object?>(
@@ -435,10 +447,11 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   /// Replaces the current route with [path]. On the web, this prevents the user
   /// returning to the previous route via the back button.
   ///
-  ///   * [path] - an absolute or relative path.
+  ///   * [path] - an absolute or relative path. See [push] for the difference
+  ///     between the two.
   ///
-  ///   * [queryParameters] - an optional map of parameters to be passed to the
-  ///     created page.
+  ///   * [queryParameters] - an optional map of string parameters to be passed
+  ///     to the new route.
   ///
   void replace(String path, {Map<String, String>? queryParameters}) {
     assert(!_isDisposed);
