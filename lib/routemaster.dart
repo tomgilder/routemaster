@@ -287,6 +287,12 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   /// Use [RoutemasterObserver] for additional `didChangeRoute` functionality.
   final List<NavigatorObserver> observers;
 
+  /// An optional key that's passed to the top-level [Navigator] widget.
+  ///
+  /// Using a `GlobalKey<NavigatorState>` will provide access to [Navigator]
+  /// functionality.
+  final Key? navigatorKey;
+
   /// A function that returns the top-level navigator widgets. Normally this
   /// function would return a [PageStackNavigator].
   final Widget Function(
@@ -312,6 +318,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     required this.routesBuilder,
     this.transitionDelegate,
     this.observers = const [],
+    this.navigatorKey,
   }) : navigatorBuilder = null {
     _state.delegate = this;
   }
@@ -323,7 +330,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     required this.routesBuilder,
     required this.navigatorBuilder,
     this.observers = const [],
-  }) : transitionDelegate = null {
+  })  : transitionDelegate = null,
+        navigatorKey = null {
     _state.delegate = this;
   }
 
@@ -480,6 +488,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
                   return navigatorBuilder!(context, _state.stack);
                 })
               : PageStackNavigator(
+                  navigatorKey: navigatorKey,
                   stack: _state.stack,
                   transitionDelegate: transitionDelegate ??
                       const DefaultTransitionDelegate<dynamic>(),
@@ -1258,12 +1267,19 @@ class PageStackNavigator extends StatefulWidget {
   /// A function that can filter or transform the list of pages from the stack.
   final Iterable<Page> Function(List<Page>)? builder;
 
+  /// An optional key that's passed to the [Navigator] widget.
+  ///
+  /// Using a `GlobalKey<NavigatorState>` will provide access to [Navigator]
+  /// functionality.
+  final Key? navigatorKey;
+
   /// Provides a [Navigator] that shows pages from a [PageStack].
   const PageStackNavigator({
     Key? key,
     required this.stack,
     this.transitionDelegate = const DefaultTransitionDelegate<dynamic>(),
     this.observers = const [],
+    this.navigatorKey,
   })  : builder = null,
         super(key: key);
 
@@ -1277,6 +1293,7 @@ class PageStackNavigator extends StatefulWidget {
     required this.builder,
     this.transitionDelegate = const DefaultTransitionDelegate<dynamic>(),
     this.observers = const [],
+    this.navigatorKey,
   }) : super(key: key);
 
   @override
@@ -1350,6 +1367,7 @@ class PageStackNavigatorState extends State<PageStackNavigator> {
         widget.builder == null ? pages : widget.builder!(pages).toList();
 
     _widget = _StackNavigator(
+      key: widget.navigatorKey,
       stack: widget.stack,
       onPopPage: (route, dynamic result) {
         return widget.stack.onPopPage(route, result, _routemaster);

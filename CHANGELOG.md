@@ -1,3 +1,9 @@
+# 0.10.0-dev6
+
+* Added: `navigatorKey` property to `RoutemasterDelegate` and `PageStackNavigator`.
+  Using a `GlobalKey<NavigatorState>` can provide access to navigator
+  functionality and the current context.
+
 # 0.10.0-dev5
 
 * Added: length property to PageStack to find out how many pages the stack
