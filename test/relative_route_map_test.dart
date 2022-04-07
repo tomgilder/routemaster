@@ -825,6 +825,41 @@ void main() {
     expectRoute1(results[4], prefix: '/one/two');
     expectRoute2(results[5], prefix: '/one/two');
   });
+
+  testWidgets('All route paths are correct', (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (_) => RouteMap(
+        routes: {
+          '/': (_) => const MaterialPageOne(),
+          '/*': (_) {
+            return RelativeRouteMap(
+              routes: {
+                'one/:id1': (_) => const MaterialPageOne(),
+                'two/:id2': (_) => const MaterialPageTwo(),
+              },
+            );
+          },
+        },
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    delegate.push('/one/1');
+    await tester.pumpPageTransition();
+    delegate.push('two/2');
+    await tester.pumpPageTransition();
+
+    expect(delegate.currentRoutes[0].fullPath, '/');
+    expect(delegate.currentRoutes[1].fullPath, '/one/1');
+    expect(delegate.currentRoutes[2].fullPath, '/one/1/two/2');
+    expect(find.byType(PageTwo), findsOneWidget);
+  });
 }
 
 class MyTabPage extends StatelessWidget {

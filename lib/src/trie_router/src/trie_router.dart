@@ -155,7 +155,10 @@ class TrieRouter {
                   ...parameters,
                 },
               ),
-              pathSegment: (parent.basePath ?? parent.pathSegment) + path,
+              pathSegment: PathParser.joinRelative(
+                parent.basePath ?? parent.pathSegment,
+                path,
+              ),
               pathTemplate: PathParser.joinRelative(
                 parent.pathTemplate,
                 node.template!.replaceAll('*', ''),

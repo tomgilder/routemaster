@@ -513,6 +513,12 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return _state.currentConfiguration;
   }
 
+  List<RouteData> get currentRoutes {
+    assert(!_isDisposed);
+
+    return _state.stack.routes;
+  }
+
   /// Ensures that we don't call Router.neglect and Router.navigate in the same
   /// frame, which throws an error.
   _ReportType _reported = _ReportType.none;

@@ -582,6 +582,7 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
         return routeData;
       }
     }
+    return null;
   }
 }
 

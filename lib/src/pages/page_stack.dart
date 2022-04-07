@@ -95,6 +95,7 @@ class PageStack extends ChangeNotifier {
         }
       }
     }
+    return null;
   }
 
   /// Passed to [Navigator] widgets for the Navigator to inform this stack when
