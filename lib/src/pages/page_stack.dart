@@ -15,6 +15,9 @@ class PageStack extends ChangeNotifier {
     notifyListeners();
   }
 
+  List<RouteData> get routes =>
+      _pageContainers.map((e) => e.routeData).toList();
+
   /// The count of how many pages this stack will generate.
   int get length => _pageContainers.length;
 
