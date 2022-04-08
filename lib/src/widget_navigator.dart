@@ -10,10 +10,6 @@ class WidgetPageStackNavigator extends StatefulWidget {
   /// The stack of pages to show in the [Navigator].
   final PageStack stack;
 
-  /// A delegate that decides how pages are animated when they're added or
-  /// removed from the [Navigator].
-  final TransitionDelegate transitionDelegate;
-
   /// A list of [NavigatorObserver] that will be passed to the [Navigator].
   final List<NavigatorObserver> observers;
 
@@ -25,7 +21,6 @@ class WidgetPageStackNavigator extends StatefulWidget {
     Key? key,
     required this.stack,
     required this.builder,
-    this.transitionDelegate = const DefaultTransitionDelegate<dynamic>(),
     this.observers = const [],
   }) : super(key: key);
 
@@ -273,32 +268,10 @@ class WidgetRoute<T> extends Route<T> {
     page: _page,
     child: _page.child,
   );
-
-  // Widget build() {
-  //   return RouteDataScope(
-  //     route: this,
-  //     page: _page,
-  //     child: _page.child,
-  //   );
-  // }
 }
 
 typedef ChildrenBuilder = Widget Function(
     BuildContext context, List<WidgetRoute> pages);
-
-// class _WrappingNavigator extends Navigator {
-//   const _WrappingNavigator({Key? key}) : super(key: key);
-
-//   @override
-//   NavigatorState createState() => _WrappingNavigatorState();
-// }
-
-// class _WrappingNavigatorState extends NavigatorState {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container();
-//   }
-// }
 
 mixin RouteDataPage<T> on Page<T> {
   RouteData? _routeData;
