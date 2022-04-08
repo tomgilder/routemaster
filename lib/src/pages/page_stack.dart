@@ -30,6 +30,8 @@ class PageStack extends ChangeNotifier {
     _pageContainers = routes;
   }
 
+  List<Page> currentPages = [];
+
   /// Generates a list of pages for the list of routes provided to this object.
   List<Page> createPages() {
     assert(_pageContainers.isNotEmpty, "Can't generate pages with no routes");
@@ -38,6 +40,10 @@ class PageStack extends ChangeNotifier {
     final pages = _pageContainers.map(
       (pageState) {
         final page = pageState._getOrCreatePage();
+
+        if (page is RouteDataPage) {
+          page._routeData = pageState.routeData;
+        }
 
         // We need to keep any removed pages in the route map as they may still
         // rebuild whilst being removed - so for this build, the route map
@@ -54,6 +60,7 @@ class PageStack extends ChangeNotifier {
     });
 
     assert(pages.isNotEmpty, 'Returned pages list must not be empty');
+    currentPages = pages;
     return pages;
   }
 

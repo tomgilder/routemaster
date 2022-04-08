@@ -5,12 +5,14 @@ export 'src/pages/guard.dart';
 export 'src/pages/transition_page.dart';
 
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'src/not_found_page.dart';
 import 'src/pages/guard.dart';
+import 'src/pages/transition_page.dart';
 import 'src/path_parser.dart';
 import 'src/system_nav.dart';
 import 'src/trie_router/trie_router.dart';
@@ -23,6 +25,7 @@ part 'src/pages/flow_page.dart';
 part 'src/observers.dart';
 part 'src/route_data.dart';
 part 'src/route_history.dart';
+part 'src/widget_navigator.dart';
 
 /// A function that builds a [Page] from given [RouteData].
 typedef PageBuilder = RouteSettings Function(RouteData route);
@@ -1443,6 +1446,11 @@ class PageStackNavigatorState extends State<PageStackNavigator> {
         )
       ],
     );
+  }
+
+  @override
+  void reassemble() {
+    super.reassemble();
   }
 
   @override

@@ -182,13 +182,23 @@ class RouteData {
   /// Gets the [RouteData] for the nearest [Page] ancestor for the given
   /// context.
   static RouteData of(BuildContext context) {
+    final routemaster = Routemaster.of(context)._state.delegate;
+
+    final routeDataScope =
+        context.dependOnInheritedWidgetOfExactType<RouteDataScope>();
+    if (routeDataScope != null) {
+      final result = routemaster._maybeRouteDataFor(routeDataScope.page);
+      if (result != null) {
+        return result;
+      }
+    }
+
     final modalRoute = ModalRoute.of(context);
     assert(modalRoute != null, "Couldn't get modal route");
 
     final settings = modalRoute!.settings;
     assert(settings is Page, "Modal route isn't a page route");
 
-    final routemaster = Routemaster.of(context)._state.delegate;
     final routeData = routemaster._maybeRouteDataFor(settings as Page);
 
     assert(routeData != null, "Couldn't find RouteData for page");
@@ -199,12 +209,19 @@ class RouteData {
   /// Gets the [RouteData] for the nearest [Page] ancestor for the given
   /// context, or null if the given context doesn't have associated RouteData.
   static RouteData? maybeOf(BuildContext context) {
+    final routemaster = Routemaster.of(context)._state.delegate;
+
+    final routeDataScope =
+        context.dependOnInheritedWidgetOfExactType<RouteDataScope>();
+    if (routeDataScope != null) {
+      return routemaster._maybeRouteDataFor(routeDataScope.page);
+    }
+
     final modalRoute = ModalRoute.of(context);
     if (modalRoute == null) {
       return null;
     }
 
-    final routemaster = Routemaster.of(context)._state.delegate;
     final settings = modalRoute.settings;
     if (settings is Page) {
       return routemaster._maybeRouteDataFor(settings);
@@ -222,5 +239,57 @@ class RouteData {
       requestSource: requestSource,
       historyIndex: historyIndex,
     );
+  }
+}
+
+class RouteDataScope extends InheritedWidget {
+  final Page page;
+  final Route route;
+
+  const RouteDataScope({
+    Key? key,
+    required this.page,
+    required this.route,
+    required Widget child,
+  }) : super(key: key, child: child);
+
+  @override
+  Widget build(BuildContext context) {
+    return child;
+  }
+
+  @override
+  bool updateShouldNotify(covariant InheritedWidget oldWidget) {
+    return true; // TODO
+  }
+
+  static RouteDataScope? maybeOf(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<RouteDataScope>();
+  }
+}
+
+class RouteStack {
+  /// Gets the [RouteData] for the nearest [Page] ancestor for the given
+  /// context.
+  static List<RouteData> of(BuildContext context) {
+    final routemaster = Routemaster.of(context)._state.delegate;
+    final routeData = RouteData.of(context);
+    final routes = routemaster._state.stack.routes
+        .takeWhile((value) => routeData != value);
+    return routes.toList();
+  }
+
+  /// Gets the [RouteData] for the nearest [Page] ancestor for the given
+  /// context, or null if the given context doesn't have associated RouteData.
+  static List<RouteData>? maybeOf(BuildContext context) {
+    final routemaster = Routemaster.of(context)._state.delegate;
+    final routeData = RouteData.maybeOf(context);
+    if (routeData == null) {
+      return null;
+    }
+
+    final routes = routemaster._state.stack.routes
+        .takeWhile((value) => routeData != value);
+    return routes.toList();
   }
 }
