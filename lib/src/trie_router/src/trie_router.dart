@@ -25,7 +25,7 @@ class TrieRouter {
 
   /// Adds all the given [routes] to the router.
   /// The key of the map is the route.
-  void addAll(Map<String, PageBuilder> routes) {
+  void addAll(final Map<String, PageBuilder> routes) {
     routes.forEach((key, value) {
       add(key, value);
     });
@@ -34,10 +34,10 @@ class TrieRouter {
   /// Throws a [ConflictingPathError] if there is a conflict.
   ///
   /// It is an error to add two segments prefixed with ':' at the same index.
-  void add(String path, PageBuilder value) {
-    assert(path.isNotEmpty);
+  void add(final String rawPath, final PageBuilder value) {
+    assert(rawPath.isNotEmpty);
 
-    path = _ensureInitialSlash(path);
+    final path = _ensureInitialSlash(rawPath);
 
     final pathSegments = pathContext.split(path);
     assert(pathSegments.isNotEmpty);
@@ -99,8 +99,8 @@ class TrieRouter {
   /// Returns all matching results from the router, or null if no match was
   /// found.
   List<RouterResult>? getAll(
-    String route, {
-    RouterResult? parent,
+    final String route, {
+    final RouterResult? parent,
   }) {
     final results = _getAll(route, parent: parent);
 
@@ -121,18 +121,28 @@ class TrieRouter {
     return list;
   }
 
-  Iterable<RouterResult?> _getAll(String route, {RouterResult? parent}) sync* {
-    route = _ensureInitialSlash(route);
+  Iterable<RouterResult?> _getAll(
+    final String rawRoute, {
+    final RouterResult? parent,
+    final int debugCallCount = 0, // TODO: Remove
+  }) sync* {
+    final route = _ensureInitialSlash(rawRoute);
+
+    if (debugCallCount > 100) {
+      throw Exception(
+        'Routemaster getAll: infinite loop detected: rawRoute=$rawRoute, route=$route, parent.pathSegment=${parent?.pathSegment}',
+      );
+    }
 
     final pathSegments = pathContext.split(PathParser.stripQueryString(route));
     final parameters = <String, String>{};
     RouterResult? lastResult;
 
     RouterResult buildResult(
-      int? count,
-      TrieNode<String?, PageBuilder?> node, {
-      String? unmatchedPath,
-      String? basePath,
+      final int? count,
+      final TrieNode<String?, PageBuilder?> node, {
+      final String? unmatchedPath,
+      final String? basePath,
     }) {
       final path = PathParser.joinAllRelative(
         count == null ? pathSegments : pathSegments.take(count + 1),
@@ -175,6 +185,7 @@ class TrieRouter {
     int? lastWildcardIndex;
 
     for (var i = 0; i < pathSegments.length; i++) {
+      print('_getAll: $i');
       final segment = pathSegments[i];
 
       final wildcardNode = current.get('*');
@@ -233,11 +244,11 @@ class TrieRouter {
         }
 
         final nextRoute = PathParser.joinAllRelative(remaining);
-
-        if (nextRoute != route) {
+        if (nextRoute != rawRoute) {
           yield* _getAll(
             nextRoute,
             parent: lastResult ?? parent,
+            debugCallCount: debugCallCount + 1,
           );
         }
 
@@ -264,7 +275,7 @@ class TrieRouter {
     }
   }
 
-  static String _ensureInitialSlash(String input) {
+  static String _ensureInitialSlash(final String input) {
     if (input == '/') {
       return '/';
     }
