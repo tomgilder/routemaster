@@ -185,7 +185,6 @@ class TrieRouter {
     int? lastWildcardIndex;
 
     for (var i = 0; i < pathSegments.length; i++) {
-      print('_getAll: $i');
       final segment = pathSegments[i];
 
       final wildcardNode = current.get('*');
