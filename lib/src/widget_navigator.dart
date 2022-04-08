@@ -104,7 +104,7 @@ class WidgetPageStackNavigatorState extends State<WidgetPageStackNavigator> {
       onPopPage: (route, dynamic result) {
         return widget.stack.onPopPage(route, result, _routemaster);
       },
-      myPages: filteredPages,
+      pages: filteredPages,
       observer: _RelayingNavigatorObserver(
         () sync* {
           final delegate = _routemaster._state.delegate;
@@ -126,14 +126,14 @@ class WidgetPageStackNavigatorState extends State<WidgetPageStackNavigator> {
 class _WidgetStackNavigator extends StatefulWidget {
   final PageStack stack;
   final ChildrenBuilder builder;
-  final List<Page> myPages;
+  final List<Page> pages;
   final _RelayingNavigatorObserver observer;
   final PopPageCallback onPopPage;
 
   const _WidgetStackNavigator({
     Key? key,
     required this.stack,
-    required this.myPages,
+    required this.pages,
     required this.builder,
     required this.observer,
     required this.onPopPage,
@@ -149,7 +149,7 @@ class _WidgetStackNavigatorState extends State<_WidgetStackNavigator> {
   void _buildChildren() {
     setState(() {
       WidgetRoute? previousRoute;
-      _routes = widget.myPages.map((e) {
+      _routes = widget.pages.map((e) {
         final route = e.createRoute(context);
         assert(
           route is WidgetRoute,
