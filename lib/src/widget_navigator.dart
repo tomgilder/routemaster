@@ -101,9 +101,9 @@ class WidgetPageStackNavigatorState extends State<WidgetPageStackNavigator> {
     _widget = _WidgetStackNavigator(
       builder: widget.builder,
       stack: widget.stack,
-      // onPopPage: (route, dynamic result) {
-      //   return widget.stack.onPopPage(route, result, _routemaster);
-      // },
+      onPopPage: (route, dynamic result) {
+        return widget.stack.onPopPage(route, result, _routemaster);
+      },
       myPages: filteredPages,
       observer: _RelayingNavigatorObserver(
         () sync* {
@@ -128,6 +128,7 @@ class _WidgetStackNavigator extends StatefulWidget {
   final ChildrenBuilder builder;
   final List<Page> myPages;
   final _RelayingNavigatorObserver observer;
+  final PopPageCallback onPopPage;
 
   const _WidgetStackNavigator({
     Key? key,
@@ -135,6 +136,7 @@ class _WidgetStackNavigator extends StatefulWidget {
     required this.myPages,
     required this.builder,
     required this.observer,
+    required this.onPopPage,
   }) : super(key: key);
 
   @override
@@ -216,7 +218,7 @@ class _WidgetStackNavigatorState extends State<_WidgetStackNavigator> {
   @override
   Widget build(BuildContext context) {
     return Navigator(
-      onPopPage: (route, dynamic result) => false,
+      onPopPage: widget.onPopPage,
       pages: [
         TransitionPage<void>(
           child: widget.builder(context, _routes),
