@@ -43,9 +43,7 @@ class _NoPageTransition extends PageTransition {
   const _NoPageTransition();
 
   @override
-  final Duration duration =
-      // Workaround for https://github.com/flutter/flutter/issues/86604
-      const Duration(microseconds: 1);
+  final Duration duration = Duration.zero;
 
   @override
   final PageTransitionsBuilder transitionsBuilder =
