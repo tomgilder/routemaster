@@ -1,17 +1,56 @@
-# Home
+# Welcome to Routemaster!
 
-Routemaster is a Flutter package that makes it easy to implement path-based routing.
+<img src="https://docs.flutter.dev/assets/images/docs/development/packages-and-plugins/FlutterFavoriteLogo.png" width="100" alt="" align="right">
 
-It takes a path, such as:
+<img src="https://openclipart.org/download/286938/Double-Decker-Bus.svg" width="120">
+
+Routemaster is a Flutter package that makes it easy to implement path-based routing. It takes a path, such as:
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`/settings/wifi`
      
 ...and transforms it into a stack of pages, such as:
 
-&nbsp;&nbsp;&nbsp;&nbsp;`[HomePage(), SettingsPage(), WifiSettingsPage()]`.
+&nbsp;&nbsp;&nbsp;&nbsp;`[HomePage(), SettingsPage(), WifiSettingsPage()]`
 
-Routemaster can be used to:
+It's ideal for supporting URLs on the web, and easily supporting deep linking.
 
-- Add support for URLs when using Flutter on web
-- To add deep linking support on any platform
-- Add easy path-based declarative navigation
+# Features
+
+* Simple declarative routing with an easy-to-use API
+* Incredibly easy support for tabs and nested navigation
+* Multiple route maps: for example one for a logged in user, another for logged out
+* Observers to easily listen to route changes
+* Covered by over 160 unit, widget and integration tests
+
+Here's the *entire* routing setup needed for an app featuring tabs and pushed routes:
+
+
+```dart
+final routes = RouteMap(
+  routes: {
+    '/': (_) => CupertinoTabPage(
+          child: HomePage(),
+          paths: ['/feed', '/settings'],
+        ),
+
+    '/feed': (_) => MaterialPage(child: FeedPage()),
+    '/settings': (_) => MaterialPage(child: SettingsPage()),
+    '/feed/profile/:id': (info) => MaterialPage(
+      child: ProfilePage(id: info.pathParameters['id'])
+    ),
+  }
+);
+
+void main() {
+  runApp(
+      MaterialApp.router(
+        routerDelegate: RoutemasterDelegate(routesBuilder: (context) => routes),
+        routeInformationParser: RoutemasterParser(),
+      ),
+  );
+}
+```
+
+# Get started
+
+Head to [getting started](/getting-started) to see how to add Routemaster to an app!
