@@ -122,22 +122,25 @@ class TransitionPage<T> extends TransitionBuilderPage<T> {
   /// transition is used. This is the Cupertino animation on iOS and macOS, and
   /// the fade upwards animation on all other platforms.
   const TransitionPage({
-    required this.child,
+    required Widget child,
     this.pushTransition,
     this.popTransition,
-    this.maintainState = true,
-    this.fullscreenDialog = false,
-    this.opaque = true,
+    bool maintainState = true,
+    bool fullscreenDialog = false,
+    bool opaque = true,
     LocalKey? key,
     String? name,
     Object? arguments,
     String? restorationId,
   }) : super(
           child: child,
-          key: key,
-          name: name,
           arguments: arguments,
           restorationId: restorationId,
+          maintainState: maintainState,
+          fullscreenDialog: fullscreenDialog,
+          opaque: opaque,
+          key: key,
+          name: name,
         );
 
   /// Configures the transition animation used when this page is pushed.
@@ -187,22 +190,6 @@ class TransitionPage<T> extends TransitionBuilderPage<T> {
 
     return popTransition!;
   }
-
-  /// The content to be shown in the [Route] created by this page.
-  @override
-  final Widget child;
-
-  /// {@macro flutter.widgets.ModalRoute.maintainState}
-  @override
-  final bool maintainState;
-
-  /// {@macro flutter.widgets.PageRoute.fullscreenDialog}
-  @override
-  final bool fullscreenDialog;
-
-  /// {@macro flutter.widgets.TransitionRoute.opaque}
-  @override
-  final bool opaque;
 }
 
 /// A page that can be subclassed to provide push and pop animations.
