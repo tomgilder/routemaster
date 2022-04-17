@@ -605,20 +605,20 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   //
   // This method then modifies the state based on that information.
   @override
-  Future<void> setNewRoutePath(RouteData routeData) {
+  Future<void> setNewRoutePath(RouteData configuration) {
     assert(!_isDisposed);
 
-    final historyIndex = routeData._historyIndex;
+    final historyIndex = configuration._historyIndex;
 
     if (kIsWeb && historyIndex != null) {
       // Navigation came from web browser back or forward buttons
       history._goToIndex(historyIndex); // coverage:ignore-line
     } else {
       _navigate(
-        uri: routeData._uri,
-        queryParameters: routeData.queryParameters,
-        isReplacement: routeData.isReplacement,
-        requestSource: routeData.requestSource,
+        uri: configuration._uri,
+        queryParameters: configuration.queryParameters,
+        isReplacement: configuration.isReplacement,
+        requestSource: configuration.requestSource,
       );
     }
 

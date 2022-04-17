@@ -1,0 +1,3 @@
+linter:
+  rules:
+    - use_key_in_widget_constructors: false
