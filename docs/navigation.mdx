@@ -1,0 +1,116 @@
+# Route maps
+
+Route maps specify which routes are available within a Flutter app.
+
+Here's a basic route map specifying three pages:
+
+```dart
+RouteMap(
+    routes: {
+      '/': (routeData) => const MaterialPage(child: PageOne()),
+      '/two': (routeData) => const MaterialPage(child: PageTwo()),
+      '/two/three': (routeData) => const MaterialPage(child: PageThree()),
+    },
+  );
+}
+```
+
+# Navigating
+
+To navigate, you call `push()`:
+ 
+```dart
+Routemaster.of(context).push('/two');
+```
+
+Similar to web pages, you can specify an absolute or relative path.
+
+For example, if the current route is '/two':
+
+  * Calling `push('three')` navigates to '/two/three'
+  * Calling `push('/three')` (with an initial slash) navigates to '/three'.
+
+## Replacing the current route
+
+To prevent the user to returning to the previous page via the back button,
+you can use `replace()` instead of push:
+
+```dart
+Routemaster.of(context).replace('relative-path');
+```
+
+## Specifying query parameters
+
+You can send string to the next route by specifying a query parameters map:
+
+```dart
+Routemaster.of(context).push('/search', queryParameters: {
+  'query': 'hello world',
+});
+```
+
+See [parameters](/parameters) for more information.
+
+# Route data
+
+The `RouteData` object provides details about the current route.
+
+It's available from within the route map, or by calling `RouteData.of(context)`:
+
+```dart
+RouteData.of(context).path; // Full path: '/product/123?query=param'
+RouteData.of(context).pathParameters; // Map: {'id': '123'}
+RouteData.of(context).queryParameters; // Map: {'query': 'param'}
+```
+
+# Unknown routes
+
+For unknown routes, you can show a custom 404 page by specifying an `onUnknownRoute` method in `RouteMap`:
+
+```dart
+RouteMap(
+    routes: {
+        '/': (_) => MaterialPage(child: HomePage()),
+    },
+    onUnknownRoute: (route, context) {
+        return MaterialPage(child: MyCustomNotFoundPage());
+    },
+);
+```
+
+You can also redirect to another page, see the next section.
+
+## Redirecting
+
+You can redirect from one route to another by returning `Redirect('new-path')`:
+
+```dart
+RouteMap(
+  routes: {
+    '/one': (routeData) => MaterialPage(child: PageOne()),
+    '/two': (routeData) => Redirect('/one'),
+  }
+);
+```
+
+By combining this with `onUnknownRoute`, you can redirect all unknown routes to the home page:
+
+```dart
+RouteMap(
+  routes: {
+    '/': (_) => MaterialPage(child: LoginPage()),
+  },
+  onUnknownRoute: (_) => Redirect('/'),
+);
+```
+
+You can easily pass path parameters to redirected page like this:
+
+```dart
+RouteMap(
+  routes: {
+    '/user/:id': (routeData) => MaterialPage(child: UserPage(id: id)),
+    '/profile/:uid': (routeData) => Redirect('/user/:uid'),
+  }
+);
+```

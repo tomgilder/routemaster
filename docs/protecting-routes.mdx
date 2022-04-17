@@ -1,0 +1,37 @@
+# Protecting routes
+
+You may need to prevent access to some routes, for example if the user
+does not have the rights to access them.
+
+Routemaster provides several ways to do this.
+
+## Not found page
+
+You can show the default "not found" page by returning `NotFound()` from a route map:
+
+```dart
+'/protected-route': (route) => 
+    canUserAccessPage()
+      ? MaterialPage(child: ProtectedPage())
+      : NotFound()
+```
+
+## Redirection
+
+Alternatively, you can redirect to another page by returning `Redirect()`. This will update the URL when running in a browser.
+
+```dart
+'/protected-route': (route) => 
+    canUserAccessPage()
+      ? MaterialPage(child: ProtectedPage())
+      : Redirect('/no-access'),
+```
+
+If you don't want the URL to change, simply return a different page:
+
+```dart
+'/protected-route': (route) => 
+    canUserAccessPage()
+      ? MaterialPage(child: ProtectedPage())
+      : MaterialPage(child: CustomNoAccessPage())
+```

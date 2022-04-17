@@ -1,0 +1,103 @@
+# Tabs
+
+Tabs and other indexed pages are incredibly easy to configure with Routemaster.
+
+## Material design tabs
+
+When using To use `TabBar` and `TabBarView`, Routemaster will automatically create and manage a `TabBarController` for you.
+
+Here's a route map for two tabs:
+
+```dart
+RouteMap(
+  routes: {
+    '/': (route) => TabPage(
+          child: HomePage(),
+          paths: ['/feed', '/settings'],
+        ),
+    '/feed': (route) => MaterialPage(child: FeedPage()),
+    '/settings': (route) => MaterialPage(child: SettingsPage()),
+  },
+);
+```
+
+`TabPage` is a built-in Routemaster page that manages the tabs.
+
+We can access it by using `TabPage.of(context)`, and then use the `controller` and `stacks` properties to built the tabs:
+
+```dart
+class HomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final tabPage = TabPage.of(context);
+
+    return Scaffold(
+      appBar: AppBar(
+        bottom: TabBar(
+          controller: tabPage.controller,
+          tabs: [
+            Tab(text: 'Feed'),
+            Tab(text: 'Settings'),
+          ],
+        ),
+      ),
+      body: TabBarView(
+        controller: tabPage.controller,
+        children: [
+          for (final stack in tabPage.stacks)
+            PageStackNavigator(stack: stack),
+        ],
+      ),
+    );
+  }
+}
+```
+
+`PageStackNavigator` is another built-in Routemaster type, and a subclass of `Navigator`.
+
+## Cupertino tabs
+
+Cupertino tabs are just as easy, but instead we use a `CupertinoTabPage` in the route map:
+
+```dart
+RouteMap(
+  routes: {
+    '/': (route) => CupertinoTabPage(
+          child: HomePage(),
+          paths: ['/feed', '/settings'],
+        ),
+    '/feed': (route) => MaterialPage(child: FeedPage()),
+    '/settings': (route) => MaterialPage(child: SettingsPage()),
+  },
+);
+```
+
+And here's the `HomePage`:
+
+```dart
+class HomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final tabState = CupertinoTabPage.of(context);
+
+    return CupertinoTabScaffold(
+      controller: tabState.controller,
+      tabBuilder: tabState.tabBuilder,
+      tabBar: CupertinoTabBar(
+        items: [
+          BottomNavigationBarItem(
+            label: 'Feed',
+            icon: Icon(CupertinoIcons.list_bullet),
+          ),
+          BottomNavigationBarItem(
+            label: 'Settings',
+            icon: Icon(CupertinoIcons.search),
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+Again, Routemaster creates a `CupertinoTabController` and manages it for you.

@@ -1,0 +1,120 @@
+# Getting started
+
+After [adding Routemaster to pubspec.yaml](https://pub.dev/packages/routemaster/install), here's the first 3 steps:
+
+## Step 1
+
+Tell Flutter to use Routemaster by using the `MaterialApp.router` constructor:
+
+```dart
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp.router(
+      routerDelegate: RoutemasterDelegate(routesBuilder: _buildRoutes),
+      routeInformationParser: const RoutemasterParser(),
+    );
+  }
+}
+```
+
+You must use both `RoutemasterDelegate`  and `RoutemasterParser`.
+
+
+### Step 2
+
+Add a route map to configure which pages are shown:
+
+```dart
+RouteMap _buildRoutes(BuildContext context) {
+  return RouteMap(
+    routes: {
+      '/': (routeData) => const MaterialPage(child: HomePage()),
+      '/two': (routeData) => const MaterialPage(child: PageTwo()),
+    },
+  );
+}
+```
+
+Building the route map in a method makes it work nicely with hot reload.
+
+### Step 3
+
+Use Routemaster to navigate:
+
+```dart
+ElevatedButton(
+  child: const Text('Go to page two'),
+  onPressed: () {
+    Routemaster.of(context).push('/two');
+  },
+)
+```
+
+Rather than pushing routes, we navigate to the path `/two`, and Routemaster automatically builds the required pages.
+
+## Complete example
+
+Here’s the complete example of an app with a home page, and a button that shows a second page:
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:routemaster/routemaster.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+// This method specifies the routes that can be shown in the app
+RouteMap _buildRoutes(BuildContext context) {
+  return RouteMap(
+    routes: {  
+      '/': (routeData) => const MaterialPage(child: HomePage()),
+      // The page specifies how the page is shown, for example push and pop animations
+      '/two': (routeData) => const MaterialPage(child: PageTwo()),
+    },
+  );
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp.router(
+      routeInformationParser: const RoutemasterParser(),
+      routerDelegate: RoutemasterDelegate(routesBuilder: _buildRoutes),
+    );
+  }
+}
+
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: ElevatedButton(
+          child: const Text('Go to page two'),
+          onPressed: () {
+            Routemaster.of(context).push('/two');
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class PageTwo extends StatelessWidget {
+  const PageTwo({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: const Center(child: Text('Hello from page two')),
+    );
+  }
+}
+```

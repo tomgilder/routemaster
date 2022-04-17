@@ -1,0 +1,79 @@
+# Parameters
+
+There are two kinds of parameter available in Routemaster:
+*path parameters* and *query parameters*.
+
+## Path parameters
+
+Path parameters allow you to get values from paths,
+such as getting the value '123' from `/products/123`.
+
+They're specified with a colon and a name, such as `:productId` in this example:
+
+```dart
+RouteMap(
+  routes: {
+    '/products/:productId': (routeData) => MaterialPage(
+      child: ProductPage(
+        id: route.pathParameters['productId']
+      ),
+    )
+  }
+);
+```
+
+Navigating to `/products/123` will build `ProductPage(id: '123')`.
+
+You can also access the parameters from within the page
+by using `RouteData.of(context).pathParameters['productId']`.
+
+### Path priority
+
+Note that other routes can have priority over path parameters.
+
+For example, with a route map like this...
+
+```dart
+RouteMap(
+  routes: {
+      '/products/:productId': (route) => MaterialPage(
+            child: ProductPage(id: route.pathParameters['productId']),
+          ),
+      '/products/myPage': (route) => MaterialPage(MyPage()),
+    }
+);
+```
+
+...then navigating to `/products/myPage` will navigate `MyPage()`,
+it **won't** try to load `ProductPage(id: 'myPage')`.
+
+## Query parameters
+
+You can extract values from a path's query string like this:
+
+```dart
+RouteMap(
+  routes: {
+    '/search': (routeData) => MaterialPage(
+      child: SearchPage(
+        query: routeData.queryParameters['query']
+      ),
+    )
+  }
+);
+```
+
+Navigating to `/search?query=hello` will build `SearchPage(query: 'hello')`.
+
+To set query parameters, pass a map to `queryParameters`
+when calling `push()` or `replace()`:
+
+```dart
+Routemaster.of(context).push(
+  '/search',
+  queryParameters: {'query': 'hello world'},
+);
+```
+
+You can also access the parameters from within the page
+by using `RouteData.of(context).queryParameters['productId']`.

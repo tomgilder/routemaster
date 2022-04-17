@@ -1,0 +1,190 @@
+## Why isn't my page content changing?
+
+You might need to add a key to a page for Flutter to detect a page has changed:
+
+```dart
+MaterialPage(key: ValueKey('id1'), child: MyPage())
+MaterialPage(key: ValueKey('id2'), child: MyPage())
+```
+
+Also, rebuilding a `PageStackNavigator` does not make the pages rebuild.
+
+All pages must rebuild themselves if some state changes. If a parent page rebuilds, it won't rebuild the child page. Make sure every page that gets global state rebuilds via `setState` or inherited widgets (such as using `Provider.of(context)`).
+
+## How do I pop multiple pages?
+
+It's a bit counterintuitive, but you push! If you're on route `/one/two/three` and want to pop back to `/one`, you can just call either `Routemaster.of(context).push('/one')` or `Routemaster.of(context).replace('/one')`, depending if you want the user to be able to go back on the web. There's no `popUntil` method.
+
+## How do I remove the '#' from the URL?
+
+Call `Routemaster.setPathUrlStrategy()` on startup, _before_ you call runApp():
+
+```dart
+void main() {
+  Routemaster.setPathUrlStrategy();
+  runApp(MyApp());
+}
+```
+
+Note that your server must be configured correctly to return the Flutter app from all valid URLs.
+
+For instance if you have an app at `http://dash-is-awesesome.dev` but entering `http://dash-is-awesesome.dev/about` in the address bar returns a 404 page, your server configuration needs changing so that `http://dash-is-awesesome.dev/*anything*` returns the Flutter app.
+
+When manually navigating to `http://dash-is-awesesome.dev/about` the browser sends a request to the server, even if you're currently on your Flutter app. This is how browsers work, not an issue with Routemaster or Flutter.
+
+## How do I make hero animations work?
+
+Hero animations will work automatically on the top-level navigator (assuming you're using `MaterialApp` or `CupertinoApp`).
+
+For any child navigators, you'll need to wrap `PageStackNavigator` in a `HeroControllerScope`, like this:
+
+```dart
+HeroControllerScope(
+  controller: MaterialApp.createMaterialHeroController(),
+  child: PageStackNavigator(
+    stack: pageStack,
+  )
+)
+```
+
+## How do I disable all page animations?
+
+Use a custom `Page` object:
+
+```dart
+class NoAnimationPage<T> extends MaterialPage<T> {
+  NoAnimationPage({required Widget child}) : super(child: child);
+
+  @override
+  Route<T> createRoute(BuildContext context) {
+    return NoAnimationPageRoute<T>(page: this);
+  }
+}
+
+class NoAnimationPageRoute<T> extends PageRoute<T>
+    with MaterialRouteTransitionMixin<T> {
+  NoAnimationPageRoute({required MaterialPage<T> page}) : super(settings: page);
+
+  MaterialPage<T> get _page => settings as MaterialPage<T>;
+
+  @override
+  Duration get transitionDuration => Duration.zero;
+
+  @override
+  Widget buildTransitions(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation, Widget child) {
+    return child;
+  }
+
+  @override
+  Widget buildContent(BuildContext context) {
+    return _page.child;
+  }
+
+  @override
+  bool get maintainState => _page.maintainState;
+
+  @override
+  bool get fullscreenDialog => _page.fullscreenDialog;
+}
+```
+
+Then use `NoAnimationPage` in your route map:
+
+```dart
+'/home': (routeData) => NoAnimationPage(child: HomePage()),
+```
+
+See the [book store example](https://github.com/tomgilder/routemaster/blob/main/example/book_store/lib/main.dart) for an example of this.
+
+## How do I disable just pop animations?
+
+```dart
+class NoPopAnimationPage<T> extends MaterialPage<T> {
+  NoPopAnimationPage({required Widget child}) : super(child: child);
+
+  @override
+  Route<T> createRoute(BuildContext context) {
+    return NoPopAnimationPageRoute<T>(page: this);
+  }
+}
+
+class NoPopAnimationPageRoute<T> extends PageRoute<T>
+    with MaterialRouteTransitionMixin<T> {
+  NoPopAnimationPageRoute({
+    required MaterialPage<T> page,
+  }) : super(settings: page);
+
+  MaterialPage<T> get _page => settings as MaterialPage<T>;
+
+  @override
+  Duration get reverseTransitionDuration => Duration.zero;
+
+  @override
+  Widget buildContent(BuildContext context) {
+    return _page.child;
+  }
+
+  @override
+  bool get maintainState => _page.maintainState;
+
+  @override
+  bool get fullscreenDialog => _page.fullscreenDialog;
+}
+```
+
+Then use `NoPopAnimationPage` in your route map:
+
+```dart
+'/home': (routeData) => NoPopAnimationPage(child: HomePage()),
+```
+
+## How do I split up my route map?
+
+Let's say you have a huge app with multiple teams, and you don't want one massive map.
+
+You can combine multiple maps like this:
+
+```dart
+final masterRouteMap = RouteMap(routes: {
+  ...teamOneMap.routes,
+  ...teamTwoMap.routes,
+});
+
+final teamOneMap = RouteMap(
+  routes: {
+    '/app-section-one': (_) => TeamOnePage(),
+  },
+);
+
+final teamTwoMap = RouteMap(
+  routes: {
+    '/app-section-two': (_) => TeamTwoPage(),
+  },
+);
+```
+
+## Can I navigate without a `context`?
+
+Yes, like this:
+
+**app.dart**
+```dart
+final routemaster = RoutemasterDelegate(
+  routesBuilder: (context) => routeMap,
+);
+
+MaterialApp.router(
+  routerDelegate: routemaster,
+  routeInformationParser: RoutemasterParser(),
+);
+```
+
+**my_widget.dart**
+```dart
+import 'app.dart';
+
+void onTap() {
+  routemaster.push('/blah');
+}
+```

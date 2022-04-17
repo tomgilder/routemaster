@@ -1,0 +1,43 @@
+{
+  "name": "docs.page",
+  "theme": "#36B9B9",
+  "sidebar": [
+    [
+      "Home",
+      "/"
+    ],
+    [
+      "Getting started",
+      "/getting-started"
+    ],
+    [
+      "Navigation",
+      "/navigation"
+    ],
+    [
+      "Parameters",
+      "/parameters"
+    ],
+    [
+      "Tabs",
+      "/tabs"
+    ],
+    [
+      "Protecting routes",
+      "/protecting-routes"
+    ],
+    [
+      "FAQs",
+      "/faqs"
+    ],
+    [
+      "Transitions",
+      [
+        [
+          "Hero animations",
+          "/hero-animations"
+        ]
+      ]
+    ]
+  ]
+}
