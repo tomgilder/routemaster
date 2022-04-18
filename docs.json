@@ -19,10 +19,6 @@
       "/parameters"
     ],
     [
-      "Tabs",
-      "/tabs"
-    ],
-    [
       "Protecting routes",
       "/protecting-routes"
     ],
@@ -31,11 +27,53 @@
       "/faqs"
     ],
     [
+      "Nested navigation",
+      [
+        [
+          "Material Design tabs",
+          "/material-tabs"
+        ],
+        [
+          "Cupertino tabs",
+          "/cupertino-tabs"
+        ]
+      ]
+    ],
+    [
       "Transitions",
       [
         [
+          "Transitions (TODO)",
+          "/transitions"
+        ],
+        [
           "Hero animations",
           "/hero-animations"
+        ]
+      ]
+    ],
+    [
+      "Advanced topics",
+      [
+        [
+          "URL strategy (TODO)",
+          "/url-strategy"
+        ],
+        [
+          "Observers (TODO)",
+          "/observers"
+        ],
+        [
+          "Private routes (TODO)",
+          "/private-routes"
+        ],
+        [
+          "History (TODO)",
+          "/history"
+        ],
+        [
+          "Back button behavior (TODO)",
+          "/back-button"
         ]
       ]
     ]

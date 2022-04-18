@@ -1,4 +1,6 @@
-# Route maps
+# Navigation 
+
+## Route map setup
 
 Route maps specify which routes are available within a Flutter app.
 
@@ -15,7 +17,7 @@ RouteMap(
 }
 ```
 
-# Navigating
+## Navigating
 
 To navigate, you call `push()`:
  
@@ -30,7 +32,7 @@ For example, if the current route is '/two':
   * Calling `push('three')` navigates to '/two/three'
   * Calling `push('/three')` (with an initial slash) navigates to '/three'.
 
-## Replacing the current route
+### Replacing the current route
 
 To prevent the user to returning to the previous page via the back button,
 you can use `replace()` instead of push:
@@ -39,7 +41,7 @@ you can use `replace()` instead of push:
 Routemaster.of(context).replace('relative-path');
 ```
 
-## Specifying query parameters
+### Specifying query parameters
 
 You can send string to the next route by specifying a query parameters map:
 
@@ -51,7 +53,7 @@ Routemaster.of(context).push('/search', queryParameters: {
 
 See [parameters](/parameters) for more information.
 
-# Route data
+## Route data
 
 The `RouteData` object provides details about the current route.
 
@@ -63,7 +65,7 @@ RouteData.of(context).pathParameters; // Map: {'id': '123'}
 RouteData.of(context).queryParameters; // Map: {'query': 'param'}
 ```
 
-# Unknown routes
+## Unknown routes
 
 For unknown routes, you can show a custom 404 page by specifying an `onUnknownRoute` method in `RouteMap`:
 
@@ -80,7 +82,7 @@ RouteMap(
 
 You can also redirect to another page, see the next section.
 
-## Redirecting
+### Redirecting
 
 You can redirect from one route to another by returning `Redirect('new-path')`:
 

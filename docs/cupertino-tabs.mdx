@@ -1,0 +1,50 @@
+# Material design tabs
+
+Routemaster comes with build-in support for Cupertino tabs. 
+
+Routemaster will automatically create and manage a `CupertinoTabController` to use with `CupertinoTabScaffold` and `CupertinoTabBar`.
+
+Here's a route map for two tabs:
+
+```dart
+RouteMap(
+  routes: {
+    '/': (route) => CupertinoTabPage(
+          child: HomePage(),
+          paths: ['/feed', '/settings'],
+        ),
+    '/feed': (route) => MaterialPage(child: FeedPage()),
+    '/settings': (route) => MaterialPage(child: SettingsPage()),
+  },
+);
+```
+
+`CupertinoTabPage` is a built-in Routemaster page that manages the tabs.
+
+We can access it by using `CupertinoTabPage.of(context)`, and then use the `controller` and `tabBuilder` properties to build the tabs:
+
+```dart
+class HomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final tabState = CupertinoTabPage.of(context);
+
+    return CupertinoTabScaffold(
+      controller: tabState.controller,
+      tabBuilder: tabState.tabBuilder,
+      tabBar: CupertinoTabBar(
+        items: [
+          BottomNavigationBarItem(
+            label: 'Feed',
+            icon: Icon(CupertinoIcons.list_bullet),
+          ),
+          BottomNavigationBarItem(
+            label: 'Settings',
+            icon: Icon(CupertinoIcons.search),
+          ),
+        ],
+      ),
+    );
+  }
+}
+```

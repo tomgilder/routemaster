@@ -3,8 +3,6 @@
 You may need to prevent access to some routes, for example if the user
 does not have the rights to access them.
 
-Routemaster provides several ways to do this.
-
 ## Not found page
 
 You can show the default "not found" page by returning `NotFound()` from a route map:
@@ -18,7 +16,7 @@ You can show the default "not found" page by returning `NotFound()` from a route
 
 ## Redirection
 
-Alternatively, you can redirect to another page by returning `Redirect()`. This will update the URL when running in a browser.
+Return `Redirect()` to redirect to another path. When running in a browser this will also update the URL.
 
 ```dart
 '/protected-route': (route) => 
@@ -35,3 +33,7 @@ If you don't want the URL to change, simply return a different page:
       ? MaterialPage(child: ProtectedPage())
       : MaterialPage(child: CustomNoAccessPage())
 ```
+
+## Swapping route maps
+
+TODO

@@ -1,8 +1,6 @@
 # Welcome to Routemaster!
 
-<img src="https://docs.flutter.dev/assets/images/docs/development/packages-and-plugins/FlutterFavoriteLogo.png" width="100" alt="">
-
-<img src="https://openclipart.org/download/286938/Double-Decker-Bus.svg" width="120">
+<Image src="https://openclipart.org/download/286938/Double-Decker-Bus.svg" width="150" alt="" /> 
 
 Routemaster is a Flutter package that makes it easy to implement path-based routing. It takes a path, such as:
 
@@ -14,12 +12,16 @@ Routemaster is a Flutter package that makes it easy to implement path-based rout
 
 It's ideal for supporting URLs on the web, and easily supporting deep linking.
 
-# Features
+Head to [getting started](/getting-started) to start your journey!
 
-* Simple declarative routing with an easy-to-use API
-* Incredibly easy support for tabs and nested navigation
+<Image src="https://docs.flutter.dev/assets/images/docs/development/packages-and-plugins/FlutterFavoriteLogo.png" alt="Flutter Favorite" align="right" width="100" />
+
+## Features
+
+* Simple [declarative navigation](/navigation) with an easy-to-use API
+* Incredibly easy support for [tabs and nested navigation](/tabs)
 * Multiple route maps: for example one for a logged in user, another for logged out
-* Observers to easily listen to route changes
+* [Observers](/observers) to easily listen to route changes
 * Covered by over 160 unit, widget and integration tests
 
 Here's the *entire* routing setup needed for an app featuring tabs and pushed routes:
@@ -35,8 +37,8 @@ final routes = RouteMap(
 
     '/feed': (_) => MaterialPage(child: FeedPage()),
     '/settings': (_) => MaterialPage(child: SettingsPage()),
-    '/feed/profile/:id': (info) => MaterialPage(
-      child: ProfilePage(id: info.pathParameters['id'])
+    '/feed/profile/:id': (routeData) => MaterialPage(
+      child: ProfilePage(id: routeData.pathParameters['id'])
     ),
   }
 );
@@ -50,7 +52,3 @@ void main() {
   );
 }
 ```
-
-# Get started
-
-Head to [getting started](/getting-started) to see how to add Routemaster to an app!

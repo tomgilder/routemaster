@@ -1,10 +1,8 @@
-# Tabs
+# Material Design tabs
 
-Tabs and other indexed pages are incredibly easy to configure with Routemaster.
+Routemaster comes with build-in support for Material Design tabs. 
 
-## Material design tabs
-
-When using To use `TabBar` and `TabBarView`, Routemaster will automatically create and manage a `TabBarController` for you.
+Routemaster will automatically create and manage a `TabBarController` to use with `TabBar` and `TabBarView`.
 
 Here's a route map for two tabs:
 
@@ -23,7 +21,7 @@ RouteMap(
 
 `TabPage` is a built-in Routemaster page that manages the tabs.
 
-We can access it by using `TabPage.of(context)`, and then use the `controller` and `stacks` properties to built the tabs:
+We can access it by using `TabPage.of(context)`, and then use the `controller` and `stacks` properties to build the tabs:
 
 ```dart
 class HomePage extends StatelessWidget {
