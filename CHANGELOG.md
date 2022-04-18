@@ -1,31 +1,7 @@
-# 0.10.0-dev6
-
-* Added: `navigatorKey` property to `RoutemasterDelegate` and `PageStackNavigator`.
-  Using a `GlobalKey<NavigatorState>` can provide access to navigator
-  functionality and the current context.
-
-# 0.10.0-dev5
-
-* Added: length property to PageStack to find out how many pages the stack
-  will generate.
-
-* Added: `PageStackNavigator.builder` constructor for advanced scenarios 
-  to filter which pages are shown in the navigator.
-
-* Fixed: an issue with getting `RouteData.of(context)` in some advanced
-  circumstances.
-
-* Breaking change: renamed and refactored some core Routemaster objects.
-  Unlikely to affect anyone unless you're making custom stateful pages.
-
-# 0.10.0-dev4
-
-* Fixes a bug with forward history navigation.
-
-# 0.10.0-dev3
+# 0.10.0
 
 **Important:** this release has some major breaking changes with how Routemaster
-interacts with the system back button on Android and web.
+interacts with the system back button on Android and web from v0.9.
 
 * Minimum supported Flutter version is now 2.5.0.
 
@@ -42,11 +18,6 @@ interacts with the system back button on Android and web.
 
 * Added: `popUntil` to pop multiple times with a predicate.
 
-* Fixed: when navigating to a relative route, use the current context's path as
-  the base, instead of the router's current path.
-
-# 0.10.0-dev2
-
 * Added: `TransitionPage` and `TransitionBuilderPage` to make it much easier to
   customize page push and pop animations. 
 
@@ -54,9 +25,23 @@ interacts with the system back button on Android and web.
   shown to the user. For example `/sign-up/_stepTwo` will be displayed as
   `/sign-up` in the address bar, and the user can not navigate to it by URL.
 
-# 0.10.0-dev1
-
 * Added: `StackPage` for navigation stacks without indexed pages
+
+* Added: `navigatorKey` property to `RoutemasterDelegate` and `PageStackNavigator`.
+  Using a `GlobalKey<NavigatorState>` can provide access to navigator
+  functionality and the current context.
+
+* Added: length property to PageStack to find out how many pages the stack
+  will generate.
+
+* Added: `PageStackNavigator.builder` constructor for advanced scenarios 
+  to filter which pages are shown in the navigator.
+
+* Fixed: an issue with getting `RouteData.of(context)` in some advanced
+  circumstances.
+
+* Fixed: when navigating to a relative route, uses the current context's path as
+  the base, instead of the router's current path.
 
 # 0.9.4
 
