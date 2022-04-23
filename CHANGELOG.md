@@ -1,4 +1,4 @@
-# 0.10.0
+# 1.0.0
 
 **Important:** this release has some major breaking changes with how Routemaster
 interacts with the system back button on Android and web from v0.9.
