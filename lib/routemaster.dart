@@ -526,7 +526,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   void _setHasReported(_ReportType reportType) {
     _reported = reportType;
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    _ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) {
       _reported = _ReportType.none;
     });
   }
@@ -570,7 +570,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
       if (_isBuilding) {
         // Schedule update
-        WidgetsBinding.instance?.addPostFrameCallback((_) {
+        _ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) {
           _updateCurrentConfiguration(
             requestSource: requestSource,
             isReplacement: isReplacement,
@@ -720,7 +720,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           notifyListeners();
         }
 
-        WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
+        _ambiguate(WidgetsBinding.instance)!.addPostFrameCallback((timeStamp) {
           if (_state.pendingNavigation != null) {
             // Retry navigation
             _navigate(
@@ -766,7 +766,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     _rebuildRouter(context);
 
     // Already building; schedule rebuild for next frame
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    _ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) {
       _updateCurrentConfiguration();
     });
   }
@@ -1206,7 +1206,7 @@ class _RoutemasterStateTrackerState extends State<_RoutemasterStateTracker> {
 
       newDelegate._rebuildRouter(context);
 
-      WidgetsBinding.instance!.addPostFrameCallback((_) {
+      _ambiguate(WidgetsBinding.instance)!.addPostFrameCallback((_) {
         // Dispose after this frame to allow child widgets to unsubscribe
         oldDelegate.dispose();
       });
@@ -1462,3 +1462,5 @@ enum _ReportType {
   navigate,
   neglect,
 }
+
+T? _ambiguate<T>(T? value) => value;
