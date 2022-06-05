@@ -34,13 +34,15 @@ Future<void> recordUrlChanges(
 /// Simulates pressing the system back button
 Future<void> invokeSystemBack() {
   // ignore: invalid_use_of_protected_member
-  return WidgetsBinding.instance!.handlePopRoute();
+  return _ambiguate(WidgetsBinding.instance)!.handlePopRoute();
 }
 
 Future<void> setSystemUrl(String url) {
   // ignore: invalid_use_of_protected_member
-  return WidgetsBinding.instance!.handlePushRoute(url);
+  return _ambiguate(WidgetsBinding.instance)!.handlePushRoute(url);
 }
+
+T? _ambiguate<T>(T? value) => value;
 
 /// Allows us to emulate the behavior of a web browser by storing a simple
 /// stack of routes and popping them, reproducing the same behavior as a user
