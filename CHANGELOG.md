@@ -1,3 +1,8 @@
+# 1.0.1
+
+* Fixes build warnings when using Flutter 3.0, thanks to @josephelliot-wk for the 
+  PR to fix this.
+
 # 1.0.0
 
 **Important:** this release has some major breaking changes with how Routemaster
