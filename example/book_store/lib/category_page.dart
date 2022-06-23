@@ -6,7 +6,10 @@ import 'page_scaffold.dart';
 class CategoryPage extends StatelessWidget {
   final BookCategory category;
 
-  const CategoryPage({required this.category});
+  const CategoryPage({
+    Key? key,
+    required this.category,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

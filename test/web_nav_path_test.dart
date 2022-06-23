@@ -1,3 +1,4 @@
+// ignore: avoid_web_libraries_in_flutter
 @TestOn('browser')
 import 'dart:html';
 import 'package:flutter_test/flutter_test.dart';

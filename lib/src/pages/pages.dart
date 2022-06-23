@@ -104,9 +104,6 @@ abstract class PageState<T extends StatefulPage<dynamic>>
   }
 
   bool _debugTypesAreRight(Page page) => page is T;
-
-  @override
-  NavigationResult<Object?>? _result;
 }
 
 /// A stateful page that hosts other child pages.

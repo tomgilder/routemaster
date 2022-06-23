@@ -3,14 +3,77 @@ import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:routemaster/routemaster.dart';
 
-class MaterialWithModalsPage extends Page<void> {
-  final Widget child;
-
-  const MaterialWithModalsPage({required this.child});
+class MaterialWithModalsPage extends MaterialPage<void> {
+  const MaterialWithModalsPage({
+    required Widget child,
+  }) : super(child: child);
 
   @override
   Route<void> createRoute(BuildContext context) {
-    return MaterialWithModalsPageRoute(builder: (_) => child, settings: this);
+    return PageBasedMaterialWithModalsPageRoute(page: this);
+  }
+}
+
+class PageBasedMaterialWithModalsPageRoute<T>
+    extends _PageBasedMaterialPageRoute<T> {
+  PageBasedMaterialWithModalsPageRoute({
+    required MaterialPage<T> page,
+  }) : super(page: page);
+
+  ModalBottomSheetRoute? _nextModalRoute;
+
+  @override
+  bool canTransitionTo(TransitionRoute<dynamic> nextRoute) {
+    // Don't perform outgoing animation if the next route is a fullscreen dialog.
+    return (nextRoute is MaterialPageRoute && !nextRoute.fullscreenDialog) ||
+        (nextRoute is CupertinoPageRoute && !nextRoute.fullscreenDialog) ||
+        (nextRoute is MaterialWithModalsPageRoute &&
+            !nextRoute.fullscreenDialog) ||
+        (nextRoute is ModalBottomSheetRoute);
+  }
+
+  @override
+  void didChangeNext(Route? nextRoute) {
+    if (nextRoute is ModalBottomSheetRoute) {
+      _nextModalRoute = nextRoute;
+    }
+
+    super.didChangeNext(nextRoute);
+  }
+
+  @override
+  void didPopNext(Route nextRoute) {
+    super.didPopNext(nextRoute);
+  }
+
+  @override
+  bool didPop(T? result) {
+    _nextModalRoute = null;
+    return super.didPop(result);
+  }
+
+  @override
+  Widget buildTransitions(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation, Widget child) {
+    final theme = Theme.of(context).pageTransitionsTheme;
+    final nextRoute = _nextModalRoute;
+    if (nextRoute != null) {
+      if (!secondaryAnimation.isDismissed) {
+        // Avoid default transition theme to animate when a new modal view is pushed
+        final fakeSecondaryAnimation =
+            Tween<double>(begin: 0, end: 0).animate(secondaryAnimation);
+
+        final defaultTransition = theme.buildTransitions<T>(
+            this, context, animation, fakeSecondaryAnimation, child);
+        return nextRoute.getPreviousRouteTransition(
+            context, secondaryAnimation, defaultTransition);
+      } else {
+        _nextModalRoute = null;
+      }
+    }
+
+    return theme.buildTransitions<T>(
+        this, context, animation, secondaryAnimation, child);
   }
 }
 
@@ -41,6 +104,8 @@ class BottomSheetPage extends Page<void> {
 }
 
 class StackBottomSheetContents extends StatelessWidget {
+  const StackBottomSheetContents({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return PageStackNavigator(stack: StackPage.of(context).stack);
@@ -48,6 +113,8 @@ class StackBottomSheetContents extends StatelessWidget {
 }
 
 class StackPageOne extends StatelessWidget {
+  const StackPageOne({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
@@ -84,6 +151,8 @@ class StackPageOne extends StatelessWidget {
 }
 
 class StackPageTwo extends StatelessWidget {
+  const StackPageTwo({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
@@ -155,4 +224,27 @@ class _CupertinoBottomSheetContainer extends StatelessWidget {
       ),
     );
   }
+}
+
+class _PageBasedMaterialPageRoute<T> extends PageRoute<T>
+    with MaterialRouteTransitionMixin<T> {
+  _PageBasedMaterialPageRoute({
+    required MaterialPage<T> page,
+  }) : super(settings: page) {
+    assert(opaque);
+  }
+
+  MaterialPage<T> get _page => settings as MaterialPage<T>;
+
+  @override
+  Widget buildContent(BuildContext context) => _page.child;
+
+  @override
+  bool get maintainState => _page.maintainState;
+
+  @override
+  bool get fullscreenDialog => _page.fullscreenDialog;
+
+  @override
+  String get debugLabel => '${super.debugLabel}(${_page.name})';
 }

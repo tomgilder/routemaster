@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -32,52 +34,54 @@ Future<void> recordUrlChanges(
 /// Simulates pressing the system back button
 Future<void> invokeSystemBack() {
   // ignore: invalid_use_of_protected_member
-  return WidgetsBinding.instance!.handlePopRoute();
+  return _ambiguate(WidgetsBinding.instance)!.handlePopRoute();
 }
 
 Future<void> setSystemUrl(String url) {
   // ignore: invalid_use_of_protected_member
-  return WidgetsBinding.instance!.handlePushRoute(url);
+  return _ambiguate(WidgetsBinding.instance)!.handlePushRoute(url);
 }
+
+T? _ambiguate<T>(T? value) => value;
 
 /// Allows us to emulate the behavior of a web browser by storing a simple
 /// stack of routes and popping them, reproducing the same behavior as a user
 /// clicking a browser back button.
-/// 
-/// Skipped due to API changing in Flutter master
-// class BrowserEmulatorRouteInfoProvider
-//     extends PlatformRouteInformationProvider {
-//   BrowserEmulatorRouteInfoProvider({
-//     RouteInformation? initialRouteInformation,
-//   }) : super(
-//           initialRouteInformation: initialRouteInformation ??
-//               RouteInformation(
-//                 location: '/',
-//               ),
-//         );
+class BrowserEmulatorRouteInfoProvider
+    extends PlatformRouteInformationProvider {
+  BrowserEmulatorRouteInfoProvider({
+    RouteInformation? initialRouteInformation,
+  }) : super(
+          initialRouteInformation: initialRouteInformation ??
+              RouteInformation(
+                location: '/',
+              ),
+        );
 
-//   final _urlStack = Queue<RouteInformation>();
+  final _urlStack = Queue<RouteInformation>();
 
-//   @override
-//   void routerReportsNewRouteInformation(RouteInformation routeInformation,
-//       {dynamic isNavigation}) {
-//     _urlStack.addLast(routeInformation);
-//     super.routerReportsNewRouteInformation(routeInformation);
-//   }
+  @override
+  void routerReportsNewRouteInformation(
+    RouteInformation routeInformation, {
+    RouteInformationReportingType type = RouteInformationReportingType.none,
+  }) {
+    _urlStack.addLast(routeInformation);
+    super.routerReportsNewRouteInformation(routeInformation, type: type);
+  }
 
-//   @override
-//   Future<bool> didPushRoute(String route) async {
-//     final result = await super.didPushRoute(route);
-//     if (result) {
-//       _urlStack.addLast(RouteInformation(location: route));
-//     }
+  @override
+  Future<bool> didPushRoute(String route) async {
+    final result = await super.didPushRoute(route);
+    if (result) {
+      _urlStack.addLast(RouteInformation(location: route));
+    }
 
-//     return result;
-//   }
+    return result;
+  }
 
-//   /// Pops the current URL, as if the user clicked the browser's back button.
-//   void pop() {
-//     _urlStack.removeLast();
-//     this.didPushRouteInformation(_urlStack.last);
-//   }
-// }
+  /// Pops the current URL, as if the user clicked the browser's back button.
+  void pop() {
+    _urlStack.removeLast();
+    didPushRouteInformation(_urlStack.last);
+  }
+}
