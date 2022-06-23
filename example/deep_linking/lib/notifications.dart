@@ -48,7 +48,7 @@ class Notifications {
         android: AndroidNotificationDetails(
           'channelId',
           'channelName',
-          'channelDescription',
+          channelDescription: 'channelDescription',
         ),
       ),
       payload: '/article/1',
@@ -68,7 +68,10 @@ class Notifications {
       tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5)),
       const NotificationDetails(
         android: AndroidNotificationDetails(
-            'your channel id', 'your channel name', 'your channel description'),
+          'your channel id',
+          'your channel name',
+          channelDescription: 'your channel description',
+        ),
       ),
       androidAllowWhileIdle: true,
       uiLocalNotificationDateInterpretation:

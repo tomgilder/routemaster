@@ -707,7 +707,7 @@ class MyTabPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final stack = TabPage.of(context).stacks[0];
 
-    return Container(
+    return SizedBox(
       height: 300,
       child: PageStackNavigator(stack: stack),
     );

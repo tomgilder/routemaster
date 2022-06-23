@@ -45,7 +45,7 @@ class PageStack extends ChangeNotifier {
       },
     ).toList();
 
-    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
+    _ambiguate(WidgetsBinding.instance)!.addPostFrameCallback((timeStamp) {
       // Flushes out any removed pages
       _routeMap = newRouteMap;
     });
@@ -92,6 +92,8 @@ class PageStack extends ChangeNotifier {
         }
       }
     }
+
+    return null;
   }
 
   /// Passed to [Navigator] widgets for the Navigator to inform this stack when
