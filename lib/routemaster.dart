@@ -15,13 +15,15 @@ import 'src/path_parser.dart';
 import 'src/system_nav.dart';
 import 'src/trie_router/trie_router.dart';
 
-part 'src/pages/page_stack.dart';
-part 'src/pages/tab_pages.dart';
-part 'src/pages/pages.dart';
-part 'src/pages/stack_page.dart';
 part 'src/observers.dart';
 part 'src/route_data.dart';
 part 'src/route_history.dart';
+part 'src/pages/cupertino_tab_page.dart';
+part 'src/pages/indexed_page.dart';
+part 'src/pages/pages.dart';
+part 'src/pages/page_stack.dart';
+part 'src/pages/stack_page.dart';
+part 'src/pages/tab_page.dart';
 
 /// A function that builds a [Page] from given [RouteData].
 typedef PageBuilder = RouteSettings Function(RouteData route);
