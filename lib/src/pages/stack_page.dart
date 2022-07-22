@@ -68,10 +68,9 @@ class _StackPageStateProvider extends InheritedNotifier {
   final StackPageState pageState;
 
   _StackPageStateProvider({
-    required Widget child,
+    required super.child,
     required this.pageState,
   }) : super(
-          child: child,
           notifier: pageState.stack,
         );
 }

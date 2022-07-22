@@ -1142,10 +1142,10 @@ class _RoutemasterWidget extends InheritedWidget {
   final RouteData routeData;
 
   const _RoutemasterWidget({
-    required Widget child,
+    required super.child,
     required this.state,
     required this.routeData,
-  }) : super(child: child);
+  });
 
   @override
   bool updateShouldNotify(covariant _RoutemasterWidget oldWidget) {
@@ -1290,26 +1290,25 @@ class PageStackNavigator extends StatefulWidget {
 
   /// Provides a [Navigator] that shows pages from a [PageStack].
   const PageStackNavigator({
-    Key? key,
+    super.key,
     required this.stack,
     this.transitionDelegate = const DefaultTransitionDelegate<dynamic>(),
     this.observers = const [],
     this.navigatorKey,
-  })  : builder = null,
-        super(key: key);
+  }) : builder = null;
 
   /// Provides a [Navigator] that shows pages from a [PageStack].
   ///
   /// This constructor provides an additional `builder` function that can filter
   /// or transform the list of pages from the stack.
   const PageStackNavigator.builder({
-    Key? key,
+    super.key,
     required this.stack,
     required this.builder,
     this.transitionDelegate = const DefaultTransitionDelegate<dynamic>(),
     this.observers = const [],
     this.navigatorKey,
-  }) : super(key: key);
+  });
 
   @override
   PageStackNavigatorState createState() => PageStackNavigatorState();
@@ -1418,19 +1417,12 @@ class _StackNavigator extends Navigator {
 
   const _StackNavigator({
     required this.stack,
-    Key? key,
-    PopPageCallback? onPopPage,
-    TransitionDelegate transitionDelegate =
-        const DefaultTransitionDelegate<dynamic>(),
-    List<Page> pages = const <Page<dynamic>>[],
-    List<NavigatorObserver> observers = const <NavigatorObserver>[],
-  }) : super(
-          key: key,
-          onPopPage: onPopPage,
-          transitionDelegate: transitionDelegate,
-          pages: pages,
-          observers: observers,
-        );
+    super.key,
+    super.onPopPage,
+    super.transitionDelegate,
+    super.pages,
+    super.observers,
+  });
 
   @override
   NavigatorState createState() {
