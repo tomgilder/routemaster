@@ -47,10 +47,9 @@ class _TabPageStateProvider extends InheritedNotifier {
   final TabPageState pageState;
 
   const _TabPageStateProvider({
-    required Widget child,
+    required super.child,
     required this.pageState,
   }) : super(
-          child: child,
           notifier: pageState,
         );
 }

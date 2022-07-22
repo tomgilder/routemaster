@@ -120,26 +120,17 @@ class TransitionPage<T> extends TransitionBuilderPage<T> {
   /// transition is used. This is the Cupertino animation on iOS and macOS, and
   /// the fade upwards animation on all other platforms.
   const TransitionPage({
-    required Widget child,
+    required super.child,
     this.pushTransition,
     this.popTransition,
-    bool maintainState = true,
-    bool fullscreenDialog = false,
-    bool opaque = true,
-    LocalKey? key,
-    String? name,
-    Object? arguments,
-    String? restorationId,
-  }) : super(
-          child: child,
-          arguments: arguments,
-          restorationId: restorationId,
-          maintainState: maintainState,
-          fullscreenDialog: fullscreenDialog,
-          opaque: opaque,
-          key: key,
-          name: name,
-        );
+    super.maintainState = true,
+    super.fullscreenDialog = false,
+    super.opaque = true,
+    super.key,
+    super.name,
+    super.arguments,
+    super.restorationId,
+  });
 
   /// Configures the transition animation used when this page is pushed.
   ///
@@ -204,16 +195,11 @@ abstract class TransitionBuilderPage<T> extends Page<T> {
     this.maintainState = true,
     this.fullscreenDialog = false,
     this.opaque = true,
-    LocalKey? key,
-    String? name,
-    Object? arguments,
-    String? restorationId,
-  }) : super(
-          key: key,
-          name: name,
-          arguments: arguments,
-          restorationId: restorationId,
-        );
+    super.key,
+    super.name,
+    super.arguments,
+    super.restorationId,
+  });
 
   /// Called when this page is pushed, returns a [PageTransition] to configure
   /// the push animation.

@@ -85,7 +85,7 @@ class BottomSheetPage extends Page<void> {
   @override
   Route<void> createRoute(BuildContext context) {
     return CupertinoModalBottomSheetRoute(
-      containerBuilder: (context, _, child) => _CupertinoBottomSheetContainer(
+      containerBuilder: (context, _, child) => CupertinoBottomSheetContainer(
         topRadius: Radius.circular(12),
         child: child,
       ),
@@ -184,13 +184,13 @@ const double _kPreviousPageVisibleOffset = 10;
 const BoxShadow _kDefaultBoxShadow =
     BoxShadow(blurRadius: 10, color: Colors.black12, spreadRadius: 5);
 
-class _CupertinoBottomSheetContainer extends StatelessWidget {
+class CupertinoBottomSheetContainer extends StatelessWidget {
   final Widget child;
   final Color? backgroundColor;
   final Radius topRadius;
   final BoxShadow? shadow;
 
-  const _CupertinoBottomSheetContainer({
+  const CupertinoBottomSheetContainer({
     Key? key,
     required this.child,
     this.backgroundColor,

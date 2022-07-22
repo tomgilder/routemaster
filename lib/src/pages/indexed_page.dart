@@ -75,10 +75,9 @@ class _IndexedPageStateProvider extends InheritedNotifier {
   final IndexedPageState pageState;
 
   const _IndexedPageStateProvider({
-    required Widget child,
+    required super.child,
     required this.pageState,
   }) : super(
-          child: child,
           notifier: pageState,
         );
 }

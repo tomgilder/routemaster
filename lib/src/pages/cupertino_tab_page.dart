@@ -68,10 +68,9 @@ class _CupertinoTabPageStateProvider extends InheritedNotifier {
   final CupertinoTabPageState pageState;
 
   const _CupertinoTabPageStateProvider({
-    required Widget child,
+    required super.child,
     required this.pageState,
   }) : super(
-          child: child,
           notifier: pageState,
         );
 }

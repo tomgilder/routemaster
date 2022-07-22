@@ -8,9 +8,9 @@ class DefaultNotFoundPage extends StatelessWidget {
 
   /// Initializes the page with the path that couldn't be found.
   const DefaultNotFoundPage({
-    Key? key,
+    super.key,
     required this.path,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
