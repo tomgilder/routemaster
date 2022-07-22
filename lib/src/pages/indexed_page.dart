@@ -18,11 +18,16 @@ Page _defaultPageBuilder(Widget child) {
   return MaterialPage<void>(child: child);
 }
 
-/// A page for creating an indexed page, such as a tab bar. In most use cases,
-/// it's easier to use a [TabPage] or [CupertinoTabPage].
+/// A page for creating an indexed page, such as a custom tab bar. Can be used
+/// with Flutter's [NavigationBar] widget, see the [navigation_bar example][navigation_bar example].
 ///
-/// This class is only for very custom cases that don't require a
-/// [TabController] or [CupertinoTabController].
+/// [navigation_bar example]: https://github.com/tomgilder/routemaster/tree/main/example/navigation_bar
+///
+/// For Flutter's standard [TabBar] widget, use [TabPage], which will create and
+/// manage a [TabController].
+///
+/// For Cupertino-style tabs, use [CupertinoTabPage], which will create and
+/// manage a [CupertinoTabController].
 class IndexedPage extends StatefulPage<void> with IndexedRouteMixIn {
   /// The content to be shown in the [Route] created by this page.
   final Widget child;

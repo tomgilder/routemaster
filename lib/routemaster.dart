@@ -20,7 +20,6 @@ part 'src/route_data.dart';
 part 'src/route_history.dart';
 part 'src/pages/cupertino_tab_page.dart';
 part 'src/pages/indexed_page.dart';
-part 'src/pages/navigation_bar_page.dart';
 part 'src/pages/pages.dart';
 part 'src/pages/page_stack.dart';
 part 'src/pages/stack_page.dart';

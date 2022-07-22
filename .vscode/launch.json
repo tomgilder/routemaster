@@ -26,6 +26,12 @@
             "program": "example/deep_linking/lib/main.dart"
         },
         {
+            "name": "Navigation bar",
+            "type": "dart",
+            "request": "launch",
+            "program": "example/navigation_bar/lib/main.dart"
+        },
+        {
             "name": "Integration test",
             "type": "dart",
             "request": "launch",
