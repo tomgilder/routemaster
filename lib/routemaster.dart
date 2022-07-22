@@ -165,9 +165,9 @@ class Routemaster {
   /// This is the routes that the user has recently seen.
   RouteHistory get history => _state.history;
 
-  /// Calls [pop] repeatedly whilst the [predicate] function returns true.
+  /// Calls [pop] repeatedly until the [predicate] function returns true.
   ///
-  /// If [predicate] immediately returns false, pop won't be called.
+  /// If [predicate] immediately returns true, pop won't be called.
   Future<void> popUntil(bool Function(RouteData routeData) predicate) {
     return _state.delegate.popUntil(predicate);
   }
@@ -370,9 +370,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return popResult;
   }
 
-  /// Calls [pop] repeatedly whilst the [predicate] function returns true.
+  /// Calls [pop] repeatedly until the [predicate] function returns true.
   ///
-  /// If [predicate] immediately returns false, pop won't be called.
+  /// If [predicate] immediately returns true, pop won't be called.
   Future<void> popUntil(bool Function(RouteData routeData) predicate) async {
     var hasPopped = false;
 
