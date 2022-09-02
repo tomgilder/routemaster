@@ -5,14 +5,14 @@ class AppState extends ChangeNotifier {
 
   bool get isLoggedIn => _username != null;
 
-  String? _username = null;
+  String? _username;
   String? get username => _username;
   set username(String? value) {
     _username = value;
     notifyListeners();
   }
 
-  List<Wishlist> _wishlists = [
+  final List<Wishlist> _wishlists = [
     Wishlist(
       bookIds: ['1', '2'],
       username: 'dash',

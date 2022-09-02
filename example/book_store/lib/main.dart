@@ -1,7 +1,6 @@
 import 'package:book_store/audiobooks_page.dart';
 import 'package:book_store/login_page.dart';
 import 'package:book_store/wishlist_page.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:routemaster/routemaster.dart';
@@ -133,10 +132,11 @@ class BookStoreApp extends StatelessWidget {
   final RouteInformationProvider? routeInformationProvider;
 
   BookStoreApp({
+    Key? key,
     this.username,
     this.siteBlockedWithoutLogin = false,
     this.routeInformationProvider,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -171,6 +171,8 @@ class BookStoreApp extends StatelessWidget {
 }
 
 class ShopHome extends StatelessWidget {
+  const ShopHome({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return PageScaffold(

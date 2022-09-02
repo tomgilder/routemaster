@@ -5,6 +5,8 @@ import 'book_card.dart';
 import 'models.dart';
 
 class AudiobookPage extends StatelessWidget {
+  const AudiobookPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final tabState = TabPage.of(context);
@@ -25,7 +27,7 @@ class AudiobookPage extends StatelessWidget {
               ],
             ),
           ),
-          Container(
+          SizedBox(
             height: 500,
             child: TabBarView(
               controller: tabState.controller,
@@ -44,7 +46,10 @@ class AudiobookPage extends StatelessWidget {
 class AudiobookListPage extends StatelessWidget {
   final String mode;
 
-  const AudiobookListPage({required this.mode});
+  const AudiobookListPage({
+    Key? key,
+    required this.mode,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
