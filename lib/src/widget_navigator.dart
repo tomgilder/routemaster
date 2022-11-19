@@ -18,11 +18,11 @@ class WidgetPageStackNavigator extends StatefulWidget {
 
   /// Provides a [Navigator] that shows pages from a [PageStack].
   const WidgetPageStackNavigator({
-    Key? key,
+    super.key,
     required this.stack,
     required this.builder,
     this.observers = const [],
-  }) : super(key: key);
+  });
 
   @override
   WidgetPageStackNavigatorState createState() =>
@@ -126,13 +126,13 @@ class _WidgetStackNavigator extends StatefulWidget {
   final PopPageCallback onPopPage;
 
   const _WidgetStackNavigator({
-    Key? key,
+    super.key,
     required this.stack,
     required this.pages,
     required this.builder,
     required this.observer,
     required this.onPopPage,
-  }) : super(key: key);
+  });
 
   @override
   _WidgetStackNavigatorState createState() => _WidgetStackNavigatorState();
