@@ -1,3 +1,5 @@
+import 'package:book_store/audiobooks_page.dart';
+import 'package:book_store/book_card.dart';
 import 'package:book_store/book_page.dart';
 import 'package:book_store/category_page.dart';
 import 'package:book_store/login_page.dart';
@@ -155,53 +157,51 @@ void main() {
     });
   });
 
-  // TODO: Skipped due to API changing in Flutter master
-  // testWidgets('Nested routing with tabs', (tester) async {
-  //   await recordUrlChanges((systemUrl) async {
-  //     // Scenario #4: Nested Routing (with Tabs)
+  testWidgets('Nested routing with tabs', (tester) async {
+    await recordUrlChanges((systemUrl) async {
+      // Scenario #4: Nested Routing (with Tabs)
 
-  //     final routeInfoProvider = BrowserEmulatorRouteInfoProvider();
-  //     await tester.pumpWidget(BookStoreApp(
-  //       routeInformationProvider: routeInfoProvider,
-  //     ));
-  //     await tester.pump();
+      final routeInfoProvider = BrowserEmulatorRouteInfoProvider();
+      await tester.pumpWidget(BookStoreApp(
+        routeInformationProvider: routeInfoProvider,
+      ));
+      await tester.pump();
 
-  //     // Go to audiobooks page
+      // Go to audiobooks page
+      await tester.tap(find.text('Audiobooks'));
+      await tester.pump();
 
-  //     await tester.tap(find.text('Audiobooks'));
-  //     await tester.pump();
+      expect(systemUrl.current, '/audiobooks/all');
 
-  //     expect(systemUrl.current, '/audiobooks/all');
+      // Verify audiobooks page
+      expect(find.byType(AudiobookPage), findsOneWidget);
+      expect(find.byType(BookCard), findsNWidgets(4));
 
-  //     // Verify audiobooks page
-  //     expect(find.byType(AudiobookPage), findsOneWidget);
-  //     expect(find.byType(BookCard), findsNWidgets(4));
+      // Switch to staff picks tab
 
-  //     // Switch to staff picks tab
+      await tester.tap(find.text('Staff picks'));
+      await tester.pump();
+      await tester.pump(Duration(seconds: 1));
+      expect(find.byType(BookCard), findsNWidgets(2));
 
-  //     await tester.tap(find.text('Staff picks'));
-  //     await tester.pump();
-  //     await tester.pump(Duration(seconds: 1));
-  //     expect(find.byType(BookCard), findsNWidgets(2));
+      expect(systemUrl.current, '/audiobooks/picks');
 
-  //     expect(systemUrl.current, '/audiobooks/picks');
+      // Navigate to fiction section
 
-  //     // Navigate to fiction section
+      await tester.tap(find.text('Fiction'));
+      await tester.pump();
+      expect(find.byType(CategoryPage), findsOneWidget);
 
-  //     await tester.tap(find.text('Fiction'));
-  //     await tester.pump();
-  //     expect(find.byType(CategoryPage), findsOneWidget);
+      expect(systemUrl.current, '/category/fiction');
 
-  //     expect(systemUrl.current, '/category/fiction');
+      // Pop to go back to /audiobooks/picks
+      routeInfoProvider.pop();
+      await tester.pump();
 
-  //     // Pop to go back to /audiobooks/picks
-  //     routeInfoProvider.pop();
-  //     await tester.pump();
-
-  //     expect(find.byType(CategoryPage), findsNothing);
-  //     expect(find.byType(BookCard), findsNWidgets(2));
-  //   });
-  // });
+      expect(find.byType(CategoryPage), findsNothing);
+      expect(find.byType(BookCard), findsNWidgets(2));
+    });
+  });
 
   testWidgets('Nested routing modal dialog', (tester) async {
     await recordUrlChanges((systemUrl) async {

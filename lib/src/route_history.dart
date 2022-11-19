@@ -141,4 +141,14 @@ class RouteHistory {
       );
     }
   }
+
+  @override
+  String toString() {
+    return 'RouteHistory('
+        'index: $_index, '
+        'canGoBack: $canGoBack, '
+        'canGoForward: $canGoForward, '
+        'history: $_history'
+        ')';
+  }
 }

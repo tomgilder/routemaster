@@ -18,7 +18,6 @@ import 'src/system_nav.dart';
 import 'src/trie_router/trie_router.dart';
 
 part 'src/pages/page_stack.dart';
-part 'src/pages/tab_pages.dart';
 part 'src/pages/pages.dart';
 part 'src/pages/stack_page.dart';
 part 'src/pages/flow_page.dart';
@@ -26,6 +25,9 @@ part 'src/observers.dart';
 part 'src/route_data.dart';
 part 'src/route_history.dart';
 part 'src/widget_navigator.dart';
+part 'src/pages/cupertino_tab_page.dart';
+part 'src/pages/indexed_page.dart';
+part 'src/pages/tab_page.dart';
 
 /// A function that builds a [Page] from given [RouteData].
 typedef PageBuilder = RouteSettings Function(RouteData route);
@@ -181,28 +183,21 @@ class Routemaster {
   /// This is the routes that the user has recently seen.
   RouteHistory get history => _state.history;
 
-  /// Calls [pop] repeatedly whilst the [predicate] function returns true.
+  /// Calls [pop] repeatedly until the [predicate] function returns true.
   ///
-  /// If [predicate] immediately returns false, pop won't be called.
+  /// If [predicate] immediately returns true, pop won't be called.
   Future<void> popUntil(bool Function(RouteData routeData) predicate) {
     return _state.delegate.popUntil(predicate);
   }
 
-  /// Replaces the current route with [path].
+  /// Replaces the current route with [path]. On the web, this prevents the user
+  /// returning to the previous route via the back button.
   ///
-  /// If the given [path] starts with a forward slash, it's treated as an
-  /// absolute path.
+  ///   * [path] - an absolute or relative path. See [push] for the difference
+  ///     between the two.
   ///
-  /// If it doesn't start with a forward slash, it's treated as a relative path
-  /// to the current route.
-  ///
-  /// For example:
-  ///
-  ///   * If the current route is '/products' and you call `replace('1')`
-  ///     you'll navigate to '/products/1'.
-  ///
-  ///   * If the current route is '/products' and you call `replace('/home')`
-  ///     you'll navigate to '/home'.
+  ///   * [queryParameters] - an optional map of string parameters to be passed
+  ///     to the new route.
   ///
   void replace(String path, {Map<String, String>? queryParameters}) {
     final routeData = RouteData.maybeOf(_context);
@@ -223,21 +218,26 @@ class Routemaster {
     _state.delegate.replace(path, queryParameters: queryParameters);
   }
 
-  /// Pushes [path] into the navigation tree.
+  /// Navigates to [path].
   ///
-  /// If the given [path] starts with a forward slash, it's treated as an
-  /// absolute path.
+  /// If this path starts with a forward slash, it's treated as an absolute
+  /// path. Otherwise it's handled as a path relative to the current route.
   ///
-  /// If it doesn't start with a forward slash, it's treated as a relative path
-  /// to the current route.
+  /// For example, if the current route is '/products':
   ///
-  /// For example:
+  ///   * Calling `push('1')` navigates to '/products/1'.
   ///
-  ///   * If the current route is '/products' and you call `replace('1')`
-  ///     you'll navigate to '/products/1'.
+  ///   * Calling `push('/home')` navigates to '/home'.
   ///
-  ///   * If the current route is '/products' and you call `replace('/home')`
-  ///     you'll navigate to '/home'.
+  /// A [queryParameters] map can be added to pass string parameters to the new
+  /// route:
+  ///
+  ///   `push('/search', queryParameters: {'query': 'hello'})`
+  ///
+  /// These can then be access from [RouteData], using
+  /// `RouteData.of(context).queryParameters`, or from within a route map:
+  ///
+  ///   `'/product': (route) => MaterialPage(child: SearchPage(route.queryParameters['id']))`
   ///
   @optionalTypeArgs
   NavigationResult<T> push<T extends Object?>(
@@ -305,6 +305,12 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   /// Use [RoutemasterObserver] for additional `didChangeRoute` functionality.
   final List<NavigatorObserver> observers;
 
+  /// An optional key that's passed to the top-level [Navigator] widget.
+  ///
+  /// Using a `GlobalKey<NavigatorState>` will provide access to [Navigator]
+  /// functionality.
+  final Key? navigatorKey;
+
   /// A function that returns the top-level navigator widgets. Normally this
   /// function would return a [PageStackNavigator].
   final Widget Function(
@@ -330,6 +336,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     required this.routesBuilder,
     this.transitionDelegate,
     this.observers = const [],
+    this.navigatorKey,
   }) : navigatorBuilder = null {
     _state.delegate = this;
   }
@@ -341,7 +348,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     required this.routesBuilder,
     required this.navigatorBuilder,
     this.observers = const [],
-  }) : transitionDelegate = null {
+  })  : transitionDelegate = null,
+        navigatorKey = null {
     _state.delegate = this;
   }
 
@@ -380,9 +388,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return popResult;
   }
 
-  /// Calls [pop] repeatedly whilst the [predicate] function returns true.
+  /// Calls [pop] repeatedly until the [predicate] function returns true.
   ///
-  /// If [predicate] immediately returns false, pop won't be called.
+  /// If [predicate] immediately returns true, pop won't be called.
   Future<void> popUntil(bool Function(RouteData routeData) predicate) async {
     var hasPopped = false;
 
@@ -410,12 +418,26 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     }
   }
 
-  /// Pushes [path] into the navigation tree.
+  /// Navigates to [path].
   ///
-  ///   * [path] - an absolute or relative path.
+  /// If this path starts with a forward slash, it's treated as an absolute
+  /// path. Otherwise it's handled as a path relative to the current route.
   ///
-  ///   * [queryParameters] - an optional map of parameters to be passed to the
-  ///     created page.
+  /// For example, if the current route is '/products':
+  ///
+  ///   * Calling `push('1')` navigates to '/products/1'.
+  ///
+  ///   * Calling `push('/home')` navigates to '/home'.
+  ///
+  /// A [queryParameters] map can be added to pass string parameters to the new
+  /// route:
+  ///
+  ///   `push('/search', queryParameters: {'query': 'hello'})`
+  ///
+  /// These can then be access from [RouteData], using
+  /// `RouteData.of(context).queryParameters`, or from within a route map:
+  ///
+  ///   `'/product': (route) => MaterialPage(child: SearchPage(route.queryParameters['id']))`
   ///
   @optionalTypeArgs
   NavigationResult<T> push<T extends Object?>(
@@ -453,10 +475,11 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   /// Replaces the current route with [path]. On the web, this prevents the user
   /// returning to the previous route via the back button.
   ///
-  ///   * [path] - an absolute or relative path.
+  ///   * [path] - an absolute or relative path. See [push] for the difference
+  ///     between the two.
   ///
-  ///   * [queryParameters] - an optional map of parameters to be passed to the
-  ///     created page.
+  ///   * [queryParameters] - an optional map of string parameters to be passed
+  ///     to the new route.
   ///
   void replace(String path, {Map<String, String>? queryParameters}) {
     assert(!_isDisposed);
@@ -498,6 +521,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
                   return navigatorBuilder!(context, _state.stack);
                 })
               : PageStackNavigator(
+                  navigatorKey: navigatorKey,
                   stack: _state.stack,
                   transitionDelegate: transitionDelegate ??
                       const DefaultTransitionDelegate<dynamic>(),
@@ -528,7 +552,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   void _setHasReported(_ReportType reportType) {
     _reported = reportType;
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    _ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) {
       _reported = _ReportType.none;
     });
   }
@@ -572,7 +596,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
       if (_isBuilding) {
         // Schedule update
-        WidgetsBinding.instance?.addPostFrameCallback((_) {
+        _ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) {
           _updateCurrentConfiguration(
             requestSource: requestSource,
             isReplacement: isReplacement,
@@ -607,20 +631,20 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   //
   // This method then modifies the state based on that information.
   @override
-  Future<void> setNewRoutePath(RouteData routeData) {
+  Future<void> setNewRoutePath(RouteData configuration) {
     assert(!_isDisposed);
 
-    final historyIndex = routeData._historyIndex;
+    final historyIndex = configuration._historyIndex;
 
     if (kIsWeb && historyIndex != null) {
       // Navigation came from web browser back or forward buttons
       history._goToIndex(historyIndex); // coverage:ignore-line
     } else {
       _navigate(
-        uri: routeData._uri,
-        queryParameters: routeData.queryParameters,
-        isReplacement: routeData.isReplacement,
-        requestSource: routeData.requestSource,
+        uri: configuration._uri,
+        queryParameters: configuration.queryParameters,
+        isReplacement: configuration.isReplacement,
+        requestSource: configuration.requestSource,
       );
     }
 
@@ -726,7 +750,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           notifyListeners();
         }
 
-        WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
+        _ambiguate(WidgetsBinding.instance)!.addPostFrameCallback((timeStamp) {
           if (_state.pendingNavigation != null) {
             // Retry navigation
             _navigate(
@@ -772,7 +796,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     _rebuildRouter(context);
 
     // Already building; schedule rebuild for next frame
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    _ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) {
       _updateCurrentConfiguration();
     });
   }
@@ -1196,10 +1220,10 @@ class _RoutemasterWidget extends InheritedWidget {
   final RouteData routeData;
 
   const _RoutemasterWidget({
-    required Widget child,
+    required super.child,
     required this.state,
     required this.routeData,
-  }) : super(child: child);
+  });
 
   @override
   bool updateShouldNotify(covariant _RoutemasterWidget oldWidget) {
@@ -1262,7 +1286,7 @@ class _RoutemasterStateTrackerState extends State<_RoutemasterStateTracker> {
 
       newDelegate._rebuildRouter(context);
 
-      WidgetsBinding.instance!.addPostFrameCallback((_) {
+      _ambiguate(WidgetsBinding.instance)!.addPostFrameCallback((_) {
         // Dispose after this frame to allow child widgets to unsubscribe
         oldDelegate.dispose();
       });
@@ -1336,26 +1360,33 @@ class PageStackNavigator extends StatefulWidget {
   /// A function that can filter or transform the list of pages from the stack.
   final Iterable<Page> Function(List<Page>)? builder;
 
+  /// An optional key that's passed to the [Navigator] widget.
+  ///
+  /// Using a `GlobalKey<NavigatorState>` will provide access to [Navigator]
+  /// functionality.
+  final Key? navigatorKey;
+
   /// Provides a [Navigator] that shows pages from a [PageStack].
   const PageStackNavigator({
-    Key? key,
+    super.key,
     required this.stack,
     this.transitionDelegate = const DefaultTransitionDelegate<dynamic>(),
     this.observers = const [],
-  })  : builder = null,
-        super(key: key);
+    this.navigatorKey,
+  }) : builder = null;
 
   /// Provides a [Navigator] that shows pages from a [PageStack].
   ///
   /// This constructor provides an additional `builder` function that can filter
   /// or transform the list of pages from the stack.
   const PageStackNavigator.builder({
-    Key? key,
+    super.key,
     required this.stack,
     required this.builder,
     this.transitionDelegate = const DefaultTransitionDelegate<dynamic>(),
     this.observers = const [],
-  }) : super(key: key);
+    this.navigatorKey,
+  });
 
   @override
   PageStackNavigatorState createState() => PageStackNavigatorState();
@@ -1428,6 +1459,7 @@ class PageStackNavigatorState extends State<PageStackNavigator> {
         widget.builder == null ? pages : widget.builder!(pages).toList();
 
     _widget = _StackNavigator(
+      key: widget.navigatorKey,
       stack: widget.stack,
       onPopPage: (route, dynamic result) {
         return widget.stack.onPopPage(route, result, _routemaster);
@@ -1468,19 +1500,12 @@ class _StackNavigator extends Navigator {
 
   const _StackNavigator({
     required this.stack,
-    Key? key,
-    PopPageCallback? onPopPage,
-    TransitionDelegate transitionDelegate =
-        const DefaultTransitionDelegate<dynamic>(),
-    List<Page> pages = const <Page<dynamic>>[],
-    List<NavigatorObserver> observers = const <NavigatorObserver>[],
-  }) : super(
-          key: key,
-          onPopPage: onPopPage,
-          transitionDelegate: transitionDelegate,
-          pages: pages,
-          observers: observers,
-        );
+    super.key,
+    super.onPopPage,
+    super.transitionDelegate,
+    super.pages,
+    super.observers,
+  });
 
   @override
   NavigatorState createState() {
@@ -1514,3 +1539,5 @@ enum _ReportType {
   navigate,
   neglect,
 }
+
+T? _ambiguate<T>(T? value) => value;

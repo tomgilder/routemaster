@@ -1,4 +1,4 @@
-include: package:pedantic/analysis_options.yaml
+include: package:flutter_lints/flutter.yaml
 
 analyzer:
   strong-mode:
@@ -12,3 +12,5 @@ linter:
     - prefer_const_declarations
     - prefer_const_literals_to_create_immutables
     - public_member_api_docs
+    - unawaited_futures
+    - use_super_parameters

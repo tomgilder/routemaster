@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
 
 class BottomNavigationBarReplacementPage extends StatelessWidget {
+  const BottomNavigationBarReplacementPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,6 +20,8 @@ class BottomNavigationBarReplacementPage extends StatelessWidget {
 }
 
 class BottomNavigationBarPage extends StatefulWidget {
+  const BottomNavigationBarPage({Key? key}) : super(key: key);
+
   @override
   _BottomNavigationBarPageState createState() =>
       _BottomNavigationBarPageState();
@@ -63,6 +67,8 @@ class _BottomNavigationBarPageState extends State<BottomNavigationBarPage> {
 }
 
 class BottomContentPage extends StatelessWidget {
+  const BottomContentPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,6 +92,8 @@ class BottomContentPage extends StatelessWidget {
 }
 
 class BottomContentPage2 extends StatelessWidget {
+  const BottomContentPage2({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
