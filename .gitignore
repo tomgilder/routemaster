@@ -40,3 +40,5 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 pubspec.lock
+example/deep_linking/android/local.properties
+example/navigation_bar/android/local.properties
