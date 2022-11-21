@@ -183,9 +183,9 @@ class _WidgetStackNavigatorState extends State<_WidgetStackNavigator> {
   }) {
     final maxIndex = max(newRoutes.length, oldRoutes.length);
     for (var i = 0; i < maxIndex; i++) {
-      final newRoute = newRoutes.elementAtOrNull(i);
-      final oldRoute = oldRoutes.elementAtOrNull(i);
-      final previousRoute = oldRoutes.elementAtOrNull(i - 1);
+      final newRoute = newRoutes.routeElementAtOrNull(i);
+      final oldRoute = oldRoutes.routeElementAtOrNull(i);
+      final previousRoute = oldRoutes.routeElementAtOrNull(i - 1);
 
       if (oldRoute == null && newRoute != null) {
         // Page was pushed
@@ -279,7 +279,7 @@ mixin RouteDataPage<T> on Page<T> {
 }
 
 extension _NullListX<T> on List<T> {
-  T? elementAtOrNull(int index) {
+  T? routeElementAtOrNull(int index) {
     return index < 0 || index >= length ? null : this[index];
   }
 }
