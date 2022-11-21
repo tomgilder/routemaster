@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart' as modal;
 import 'package:routemaster/routemaster.dart';
 
 class MaterialWithModalsPage extends MaterialPage<void> {
@@ -20,21 +20,21 @@ class PageBasedMaterialWithModalsPageRoute<T>
     required MaterialPage<T> page,
   }) : super(page: page);
 
-  ModalBottomSheetRoute? _nextModalRoute;
+  modal.ModalBottomSheetRoute? _nextModalRoute;
 
   @override
   bool canTransitionTo(TransitionRoute<dynamic> nextRoute) {
     // Don't perform outgoing animation if the next route is a fullscreen dialog.
     return (nextRoute is MaterialPageRoute && !nextRoute.fullscreenDialog) ||
         (nextRoute is CupertinoPageRoute && !nextRoute.fullscreenDialog) ||
-        (nextRoute is MaterialWithModalsPageRoute &&
+        (nextRoute is modal.MaterialWithModalsPageRoute &&
             !nextRoute.fullscreenDialog) ||
-        (nextRoute is ModalBottomSheetRoute);
+        (nextRoute is modal.ModalBottomSheetRoute);
   }
 
   @override
   void didChangeNext(Route? nextRoute) {
-    if (nextRoute is ModalBottomSheetRoute) {
+    if (nextRoute is modal.ModalBottomSheetRoute) {
       _nextModalRoute = nextRoute;
     }
 
@@ -84,7 +84,7 @@ class BottomSheetPage extends Page<void> {
 
   @override
   Route<void> createRoute(BuildContext context) {
-    return CupertinoModalBottomSheetRoute(
+    return modal.CupertinoModalBottomSheetRoute(
       containerBuilder: (context, _, child) => CupertinoBottomSheetContainer(
         topRadius: Radius.circular(12),
         child: child,
