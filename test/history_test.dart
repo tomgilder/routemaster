@@ -431,4 +431,53 @@ void main() {
     await tester.pumpPageTransition();
     expect(find.byType(PageThree), findsOneWidget);
   });
+
+  testWidgets('Check clearing history behavior', (tester) async {
+    final pageOneKey = GlobalKey();
+    final routeMap = RouteMap(
+      routes: {
+        '/': (_) => MaterialPage<void>(child: PageOne(key: pageOneKey)),
+        '/two': (_) => const MaterialPageTwo(),
+        '/two/three': (_) => const MaterialPageThree(),
+      },
+    );
+    final delegate = RoutemasterDelegate(routesBuilder: (_) => routeMap);
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+    await tester.pump();
+
+    final history = delegate.history;
+
+    // Push: / -> /two
+    delegate.push('/two');
+    await tester.pumpPageTransition();
+    expect(find.byType(PageTwo), findsOneWidget);
+
+    // Push: /two -> /two/three
+    delegate.push('/two/three');
+    await tester.pumpPageTransition();
+    expect(find.byType(PageThree), findsOneWidget);
+
+    // Back to page /two
+    history.back();
+    await tester.pumpPageTransition();
+
+    // Can go back -> /
+    expect(history.canGoBack, isTrue);
+    // Can go forward -> /two/three
+    expect(history.canGoForward, isTrue);
+
+    // Clear the history
+    history.clear();
+
+    // Cannot go back
+    expect(history.canGoBack, isFalse);
+    // Cannot go forward
+    expect(history.canGoForward, isFalse);
+  });
 }

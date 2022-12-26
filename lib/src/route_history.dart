@@ -57,6 +57,17 @@ class RouteHistory {
     return true;
   }
 
+  /// Clear the navigation history.
+  ///
+  /// Does nothing if there's no history entry.
+  void clear() {
+    if (_index < 0) return;
+    final last = _history[_index];
+    _index = 0;
+    _history.clear();
+    _history.add(last);
+  }
+
 // coverage:ignore-start
   void _goToIndex(int index) {
     if (index == _index) {
