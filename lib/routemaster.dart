@@ -1431,15 +1431,26 @@ class _StackNavigator extends Navigator {
 }
 
 class _StackNavigatorState extends NavigatorState {
+  PageStack get _stack => (widget as _StackNavigator).stack;
+
   @override
   void initState() {
     super.initState();
-    (widget as _StackNavigator).stack._attachedNavigator = this;
+    _stack._attachedNavigator = this;
+  }
+
+  @override
+  void didUpdateWidget(covariant Navigator oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget is _StackNavigator && oldWidget.stack != _stack) {
+      oldWidget.stack._attachedNavigator = null;
+      _stack._attachedNavigator = this;
+    }
   }
 
   @override
   void dispose() {
-    (widget as _StackNavigator).stack._attachedNavigator = null;
+    _stack._attachedNavigator = null;
     super.dispose();
   }
 }
