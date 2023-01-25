@@ -277,9 +277,3 @@ mixin RouteDataPage<T> on Page<T> {
   RouteData? _routeData;
   RouteData get routeData => _routeData!;
 }
-
-extension _NullListX<T> on List<T> {
-  T? elementAtOrNull(int index) {
-    return index < 0 || index >= length ? null : this[index];
-  }
-}
