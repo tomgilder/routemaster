@@ -185,7 +185,7 @@ class _WidgetStackNavigatorState extends State<_WidgetStackNavigator> {
     for (var i = 0; i < maxIndex; i++) {
       final newRoute = newRoutes.elementAtOrNull(i);
       final oldRoute = oldRoutes.elementAtOrNull(i);
-      final previousRoute = oldRoutes.elementAtOrNull(i - 1);
+      final previousRoute = i > 0 ? oldRoutes.elementAtOrNull(i - 1) : null;
 
       if (oldRoute == null && newRoute != null) {
         // Page was pushed
