@@ -16,7 +16,10 @@ Future<void> recordUrlChanges(
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(SystemChannels.navigation, (call) async {
       if (call.method == 'routeInformationUpdated') {
-        final location = call.arguments['location'] as String;
+        final args = call.arguments as Map;
+        final location = args.containsKey('uri')
+            ? args['uri'] as String
+            : args['path'] as String;
 
         tracker.current = location;
         stackTraces.add(StackTrace.current);
