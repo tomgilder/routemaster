@@ -8,23 +8,26 @@ class SystemUrlTracker {
 
 /// Records changes in URL
 Future<void> recordUrlChanges(
-    Future Function(SystemUrlTracker url) callback) async {
+    Future<void> Function(SystemUrlTracker url) callback) async {
   try {
     final tracker = SystemUrlTracker();
     final stackTraces = <StackTrace>[];
 
-    SystemChannels.navigation.setMockMethodCallHandler((call) async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(SystemChannels.navigation, (call) async {
       if (call.method == 'routeInformationUpdated') {
         final location = call.arguments['location'] as String;
 
         tracker.current = location;
         stackTraces.add(StackTrace.current);
       }
+      return null;
     });
 
     await callback(tracker);
   } finally {
-    SystemChannels.navigation.setMockMethodCallHandler(null);
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(SystemChannels.navigation, null);
   }
 }
 

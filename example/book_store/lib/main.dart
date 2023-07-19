@@ -36,7 +36,7 @@ RouteMap _buildRouteMap(BuildContext context) {
           body: Center(
             child: Text(
               "Couldn't find page '$path'",
-              style: Theme.of(context).textTheme.headline3,
+              style: Theme.of(context).textTheme.displaySmall,
             ),
           ),
         ),
@@ -146,8 +146,7 @@ class BookStoreApp extends StatelessWidget {
           primaryColor: Color(0xFF131921),
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
-              primary: Color(0xfffebd68),
-              onPrimary: Color(0xff333333),
+              foregroundColor: Color(0xff333333), backgroundColor: Color(0xfffebd68),
             ),
           ),
           platform: TargetPlatform.macOS,

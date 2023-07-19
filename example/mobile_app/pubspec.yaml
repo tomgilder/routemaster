@@ -4,7 +4,7 @@ publish_to: "none"
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.17.0 <3.0.0"
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   flutter:
@@ -13,7 +13,7 @@ dependencies:
     path: ../../
   provider: ^5.0.0
   cupertino_icons: ^1.0.0
-  modal_bottom_sheet: ^2.0.1
+  modal_bottom_sheet: ^3.0.0-pre
 
 dev_dependencies:
   flutter_test:

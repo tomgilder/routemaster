@@ -22,7 +22,7 @@ import '../../routemaster.dart';
 /// to the router's default path.
 class Guard extends Page<dynamic> {
   /// A function that returns a page to show if [canNavigate] returns true.
-  final Page Function() builder;
+  final Page<dynamic> Function() builder;
 
   /// Callback to check if the route is valid. If this returns false,
   /// [onNavigationFailed] is called.
@@ -33,7 +33,8 @@ class Guard extends Page<dynamic> {
   /// Callback, called when the [canNavigate] returns false.
   ///
   /// By default this redirects to the default path.
-  final Page Function(RouteData info, BuildContext context)? onNavigationFailed;
+  final Page<dynamic> Function(RouteData info, BuildContext context)?
+      onNavigationFailed;
 
   /// Initializes a way to prevent loading of certain routes.
   ///
@@ -46,7 +47,7 @@ class Guard extends Page<dynamic> {
   });
 
   @override
-  Route createRoute(BuildContext context) {
+  Route<dynamic> createRoute(BuildContext context) {
     throw UnsupportedError('Guards must be unwrapped');
   }
 }
@@ -64,7 +65,7 @@ class NotFound extends Page<dynamic> {
   const NotFound();
 
   @override
-  Route createRoute(BuildContext context) {
+  Route<dynamic> createRoute(BuildContext context) {
     throw UnsupportedError('createRoute must not be called on NotFound');
   }
 }
@@ -99,7 +100,7 @@ class Redirect extends Page<dynamic> {
   const Redirect(this.path, {this.queryParameters});
 
   @override
-  Route createRoute(BuildContext context) {
+  Route<dynamic> createRoute(BuildContext context) {
     throw UnimplementedError('Redirect does not support building a route');
   }
 }

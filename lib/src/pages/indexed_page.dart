@@ -14,7 +14,7 @@ enum TabBackBehavior {
   history,
 }
 
-Page _defaultPageBuilder(Widget child) {
+Page<dynamic> _defaultPageBuilder(Widget child) {
   return MaterialPage<void>(child: child);
 }
 
@@ -37,7 +37,7 @@ class IndexedPage extends StatefulPage<void> with IndexedRouteMixIn {
 
   /// Optional function to customize the [Page] created for this route.
   /// If this is null, a [MaterialPage] is used.
-  final Page Function(Widget child) pageBuilder;
+  final Page<dynamic> Function(Widget child) pageBuilder;
 
   /// Specifies how tabs behave when used with the system back button.
   final TabBackBehavior backBehavior;
@@ -104,7 +104,7 @@ class IndexedPageState extends PageState<IndexedPage>
   }
 
   @override
-  Page createPage() {
+  Page<dynamic> createPage() {
     return page.pageBuilder(
       _IndexedPageStateProvider(
         pageState: this,
@@ -217,18 +217,18 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
   ///
   /// Otherwise, returns null.
   int? _getIndexForPath(String path) {
-    String _getAbsoluteTabPath(String subpath) {
+    String getAbsoluteTabPath(String subpath) {
       return PathParser.getAbsolutePath(
         basePath: routeData.path,
         path: subpath,
       ).path;
     }
 
-    final requiredAbsolutePath = _getAbsoluteTabPath(path);
+    final requiredAbsolutePath = getAbsoluteTabPath(path);
 
     var i = 0;
     for (final initialPath in page.paths) {
-      final tabRootAbsolutePath = _getAbsoluteTabPath(initialPath);
+      final tabRootAbsolutePath = getAbsoluteTabPath(initialPath);
       if (pathContext.equals(tabRootAbsolutePath, requiredAbsolutePath) ||
           pathContext.isWithin(tabRootAbsolutePath, requiredAbsolutePath)) {
         return i;
@@ -252,7 +252,7 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
   }
 
   @override
-  RouteData? _getRouteData(Page page) {
+  RouteData? _getRouteData(Page<dynamic> page) {
     // It's likely the route data will be in the currently active page so
     // check that first
     final routeData = stacks[index]._getRouteData(page);

@@ -23,7 +23,7 @@ void main() {
 /// This shows in a browser tab's title.
 class TitleObserver extends RoutemasterObserver {
   @override
-  void didChangeRoute(RouteData routeData, Page page) {
+  void didChangeRoute(RouteData routeData, Page<dynamic> page) {
     if (page.name != null) {
       SystemChrome.setApplicationSwitcherDescription(
         ApplicationSwitcherDescription(
@@ -201,13 +201,13 @@ RouteMap _buildRouteMap(AppState appState) {
 }
 
 // For custom animations, just use the existing Flutter [Page] and [Route] objects
-class FancyAnimationPage extends Page {
+class FancyAnimationPage<T> extends Page<T> {
   final Widget child;
 
   FancyAnimationPage({required this.child});
 
   @override
-  Route createRoute(BuildContext context) {
+  Route<T> createRoute(BuildContext context) {
     return PageRouteBuilder(
       settings: this,
       pageBuilder: (context, animation, animation2) {

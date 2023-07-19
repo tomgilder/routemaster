@@ -687,7 +687,7 @@ class StubRoutemaster implements Routemaster {
 
 class StubNavigationResult<T> implements NavigationResult<T> {
   @override
-  Future<Route> get route => throw UnimplementedError();
+  Future<Route<T>> get route => throw UnimplementedError();
 
   @override
   Future<T?> get result => throw UnimplementedError();
