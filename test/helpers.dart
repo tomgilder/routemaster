@@ -42,7 +42,7 @@ Future<void> recordUrlChanges(
           final args = call.arguments as Map;
           final location = args.containsKey('uri')
               ? args['uri'] as String
-              : args['path'] as String;
+              : args['location'] as String;
 
           tracker.current = location;
         }
