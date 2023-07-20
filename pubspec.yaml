@@ -4,16 +4,16 @@ version: 1.0.1
 homepage: https://github.com/tomgilder/routemaster
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
-  flutter: ">=3.10.0"
+  sdk: ">=2.18.0 <4.0.0"
+  flutter: ">=3.7.0"
 
 dependencies:
   flutter:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
-  path: ^1.8.3
-  collection: ^1.17.1
+  path: ^1.8.2
+  collection: ^1.17.0
 
 dev_dependencies:
   flutter_lints: ^2.0.2
