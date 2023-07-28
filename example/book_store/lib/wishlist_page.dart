@@ -36,7 +36,7 @@ class WishlistHomePage extends StatelessWidget {
                 children: [
                   Text(
                     wishlist.title,
-                    style: Theme.of(context).textTheme.headline6,
+                    style: Theme.of(context).textTheme.titleLarge,
                   ),
                   Text('Share: ${wishlist.shareUrl}'),
                 ],
@@ -89,7 +89,7 @@ class WishlistPage extends StatelessWidget {
         children: [
           Text(
             'Wishlist ${wishList.title}',
-            style: Theme.of(context).textTheme.headline4,
+            style: Theme.of(context).textTheme.headlineMedium,
           ),
           Text('Share this wishlist! ${wishList.shareUrl}'),
           for (final bookId in wishList.bookIds)

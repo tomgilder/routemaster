@@ -20,7 +20,7 @@ class PageStack extends ChangeNotifier {
 
   /// A map so we can keep track of each page's route data. This can be used by
   /// users to get the current page's [RouteData] via `RouteData.of(context)`.
-  Map<Page, RouteData> _routeMap = {};
+  Map<Page<dynamic>, RouteData> _routeMap = {};
 
   /// Manages a stack of pages.
   PageStack({List<PageContainer> routes = const <PageContainer>[]}) {
@@ -28,10 +28,10 @@ class PageStack extends ChangeNotifier {
   }
 
   /// Generates a list of pages for the list of routes provided to this object.
-  List<Page> createPages() {
+  List<Page<dynamic>> createPages() {
     assert(_pageContainers.isNotEmpty, "Can't generate pages with no routes");
 
-    final newRouteMap = <Page, RouteData>{};
+    final newRouteMap = <Page<dynamic>, RouteData>{};
     final pages = _pageContainers.map(
       (pageState) {
         final page = pageState._getOrCreatePage();
@@ -74,7 +74,7 @@ class PageStack extends ChangeNotifier {
     }
   }
 
-  RouteData? _getRouteData(Page page) {
+  RouteData? _getRouteData(Page<dynamic> page) {
     var route = _routeMap[page];
 
     if (route != null) {

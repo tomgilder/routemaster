@@ -6,7 +6,7 @@ import 'package:mobile_app/pages/home_page.dart';
 import 'package:mobile_app/pages/notifications_page.dart';
 import 'helpers.dart';
 
-Future pumpBottomNavigationPage(WidgetTester tester) async {
+Future<void> pumpBottomNavigationPage(WidgetTester tester) async {
   await tester.pumpWidget(MyApp());
   await tester.tap(find.text('Log in'));
   await tester.pump();

@@ -10,8 +10,8 @@ void main() {
     expect(
       SystemNav.makePublicUrl(
         RouteData('/new-path', pathTemplate: '/new-path'),
-      ),
-      '#/new-path',
+      ).endsWith('#/new-path'),
+      isTrue,
     );
   });
 
@@ -19,8 +19,8 @@ void main() {
     expect(
       SystemNav.makePublicUrl(
         RouteData('/new-path?', pathTemplate: '/new-path'),
-      ),
-      '#/new-path',
+      ).endsWith('#/new-path'),
+      isTrue,
     );
   });
 
@@ -28,8 +28,8 @@ void main() {
     expect(
       SystemNav.makePublicUrl(
         RouteData('/new-path?query=param', pathTemplate: '/new-path'),
-      ),
-      '#/new-path?query=param',
+      ).endsWith('#/new-path?query=param'),
+      isTrue,
     );
   });
 

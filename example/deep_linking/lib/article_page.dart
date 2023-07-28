@@ -50,7 +50,7 @@ class _ArticlePageState extends State<ArticlePage> {
         children: [
           Text(
             'Article ${widget.id}',
-            style: Theme.of(context).textTheme.headline3,
+            style: Theme.of(context).textTheme.displaySmall,
           ),
           SizedBox(height: 20),
           Text('Hello this is article ${widget.id}'),

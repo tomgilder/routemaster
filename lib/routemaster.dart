@@ -251,8 +251,8 @@ class NavigationResult<T extends Object?> {
   NavigationResult._();
 
   /// Returns the top-most route that was created as a result of the navigation.
-  Future<Route> get route => _routeCompleter.future;
-  final Completer<Route> _routeCompleter = Completer<Route>();
+  Future<Route<dynamic>> get route => _routeCompleter.future;
+  final Completer<Route<dynamic>> _routeCompleter = Completer<Route<dynamic>>();
 
   /// Used to get the return value from a route.
   ///
@@ -262,8 +262,8 @@ class NavigationResult<T extends Object?> {
   ///
   Future<T?> get result async {
     final route = await _routeCompleter.future;
-    final result = await route.popped as T?;
-    return result;
+    final result = await route.popped;
+    return result as T?;
   }
 }
 
@@ -277,7 +277,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   /// This is only supplied to the top-level navigator, if you're using
   /// nested [PageStackNavigator] widgets you'll need to pass your custom
   /// [TransitionDelegate] to them individually.
-  final TransitionDelegate? transitionDelegate;
+  final TransitionDelegate<dynamic>? transitionDelegate;
 
   /// A function that returns a map of routes, to create pages from paths.
   final RouteMap Function(BuildContext context) routesBuilder;
@@ -967,7 +967,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   _PageResult _createPageContainer({
     required _RouteRequest routeRequest,
-    required Page page,
+    required Page<dynamic> page,
     required RouteData routeData,
     required bool isLastRoute,
   }) {
@@ -1087,7 +1087,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     return redirects;
   }
 
-  void _didPush(Route route) {
+  void _didPush(Route<dynamic> route) {
     final page = route.settings;
     final current = _state.stack
         ._getCurrentPages()
@@ -1102,7 +1102,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   /// Attempts to find the current route data for the given [context].
   ///
   /// Returns `null` if no route data is found.
-  RouteData? _maybeRouteDataFor(Page page) {
+  RouteData? _maybeRouteDataFor(Page<dynamic> page) {
     return _state.stack._getRouteData(page);
   }
 }
@@ -1131,7 +1131,7 @@ class _PushObserver extends NavigatorObserver {
   _PushObserver(this.state);
 
   @override
-  void didPush(Route route, Route? previousRoute) {
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
     state.delegate._didPush(route);
   }
 }
@@ -1228,13 +1228,11 @@ class RedirectLoopError extends Error {
 
   @override
   String toString() {
-    return 'Routemaster is stuck in an endless redirect loop:\n\n' +
-        redirects
-            .take(redirects.length - 1)
-            .mapIndexed((i, path1) =>
-                "  * '$path1' redirected to '${redirects[i + 1]}'")
-            .join('\n') +
-        '\n\nThis is an error in your routing map.';
+    return '''Routemaster is stuck in an endless redirect loop:
+
+${redirects.take(redirects.length - 1).mapIndexed((i, path1) => "  * '$path1' redirected to '${redirects[i + 1]}'").join('\n')}
+
+This is an error in your routing map.''';
   }
 }
 
@@ -1274,13 +1272,13 @@ class PageStackNavigator extends StatefulWidget {
 
   /// A delegate that decides how pages are animated when they're added or
   /// removed from the [Navigator].
-  final TransitionDelegate transitionDelegate;
+  final TransitionDelegate<dynamic> transitionDelegate;
 
   /// A list of [NavigatorObserver] that will be passed to the [Navigator].
   final List<NavigatorObserver> observers;
 
   /// A function that can filter or transform the list of pages from the stack.
-  final Iterable<Page> Function(List<Page>)? builder;
+  final Iterable<Page<dynamic>> Function(List<Page<dynamic>>)? builder;
 
   /// An optional key that's passed to the [Navigator] widget.
   ///

@@ -5,7 +5,7 @@ import 'package:mobile_app/main.dart';
 import 'package:mobile_app/pages/feed_page.dart';
 import 'helpers.dart';
 
-Future pumpFeedPage(WidgetTester tester) async {
+Future<void> pumpFeedPage(WidgetTester tester) async {
   await tester.pumpWidget(MyApp());
   await tester.tap(find.text('Log in'));
   await tester.pump();

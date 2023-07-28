@@ -23,7 +23,7 @@ mixin PageContainer<T extends Page<dynamic>> {
   /// returned via popping the route.
   NavigationResult? _result;
 
-  Page _getOrCreatePage();
+  Page<dynamic> _getOrCreatePage();
 }
 
 /// A [PageContainer] for a regular [Page] that maintains no state.
@@ -38,8 +38,8 @@ class StatelessPage<T extends Page<dynamic>> with PageContainer {
         _routeData = routeData;
 
   @override
-  Page _getOrCreatePage() => _page;
-  final Page _page;
+  Page<dynamic> _getOrCreatePage() => _page;
+  final Page<dynamic> _page;
 
   /// Route information for this page.
   @override
@@ -86,12 +86,12 @@ abstract class PageState<T extends StatefulPage<dynamic>>
   /// Gets the actual Flutter [Page] object for passing to a [Navigator].
   ///
   /// This will only be called once per [PageState], and the result cached.
-  Page createPage();
+  Page<dynamic> createPage();
 
-  Page? _createdChildPage;
+  Page<dynamic>? _createdChildPage;
 
   @override
-  Page _getOrCreatePage() {
+  Page<dynamic> _getOrCreatePage() {
     _createdChildPage ??= createPage();
     return _createdChildPage!;
   }
@@ -103,7 +103,7 @@ abstract class PageState<T extends StatefulPage<dynamic>>
     assert(_routeData != null);
   }
 
-  bool _debugTypesAreRight(Page page) => page is T;
+  bool _debugTypesAreRight(Page<dynamic> page) => page is T;
 }
 
 /// A stateful page that hosts other child pages.
@@ -120,5 +120,5 @@ mixin MultiChildPageContainer<T extends StatefulPage<dynamic>> on PageState<T> {
   /// a tab page could accept the pages and put them in one of its tab's stacks.
   bool maybeSetChildPages(Iterable<PageContainer> pages);
 
-  RouteData? _getRouteData(Page page);
+  RouteData? _getRouteData(Page<dynamic> page);
 }

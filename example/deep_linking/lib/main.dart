@@ -142,7 +142,7 @@ class HomePage extends StatelessWidget {
         children: [
           Text(
             'Home page',
-            style: Theme.of(context).textTheme.headline3,
+            style: Theme.of(context).textTheme.displaySmall,
           ),
           SizedBox(height: 20),
           ElevatedButton(

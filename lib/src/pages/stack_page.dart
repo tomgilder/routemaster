@@ -35,7 +35,7 @@ class StackPage extends StatefulPage<void> with RedirectingPage {
 
   /// Optional function to customize the [Page] created for this route.
   /// If this is null, a [MaterialPage] is used.
-  final Page Function(Widget child) pageBuilder;
+  final Page<dynamic> Function(Widget child) pageBuilder;
 
   /// Initializes the page with a list of child [paths].
   const StackPage({
@@ -86,7 +86,7 @@ class StackPageState extends PageState<StackPage>
   final stack = PageStack();
 
   @override
-  Page createPage() {
+  Page<dynamic> createPage() {
     return page.pageBuilder(
       _StackPageStateProvider(
         pageState: this,
@@ -112,7 +112,7 @@ class StackPageState extends PageState<StackPage>
   }
 
   @override
-  RouteData? _getRouteData(Page page) {
+  RouteData? _getRouteData(Page<dynamic> page) {
     return stack._getRouteData(page);
   }
 }

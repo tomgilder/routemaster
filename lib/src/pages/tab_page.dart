@@ -11,7 +11,7 @@ class TabPage extends StatefulPage<void> with IndexedRouteMixIn {
 
   /// Optional function to customize the [Page] created for this route.
   /// If this is null, a [MaterialPage] is used.
-  final Page Function(Widget child) pageBuilder;
+  final Page<dynamic> Function(Widget child) pageBuilder;
 
   /// Specifies how tabs behave when used with the system back button.
   final TabBackBehavior backBehavior;
@@ -80,7 +80,7 @@ class TabPageState extends PageState<TabPage>
   }
 
   @override
-  Page createPage() {
+  Page<dynamic> createPage() {
     return page.pageBuilder(
       _TabControllerProvider(
         pageState: this,

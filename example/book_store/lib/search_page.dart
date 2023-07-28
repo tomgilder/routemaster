@@ -94,7 +94,7 @@ class SearchPage extends StatelessWidget {
           if (categoryMatches.isNotEmpty) ...[
             Text(
               'Categories',
-              style: Theme.of(context).textTheme.headline5,
+              style: Theme.of(context).textTheme.headlineSmall,
             ),
             for (final category in categoryMatches) ...[
               Text(category.displayName),
@@ -110,7 +110,7 @@ class SearchPage extends StatelessWidget {
           ],
           Text(
             'Books',
-            style: Theme.of(context).textTheme.headline5,
+            style: Theme.of(context).textTheme.headlineSmall,
           ),
           if (books.isEmpty)
             Padding(

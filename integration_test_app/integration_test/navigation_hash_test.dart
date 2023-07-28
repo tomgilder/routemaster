@@ -7,7 +7,15 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   replaceTests(
     expectUrl: (expected) {
-      expect(window.location.hash, '#$expected');
+      // Flutter after 3.10 has empty URLs for home route
+      final hashUrl = '#$expected';
+      final allowEmpty = hashUrl == '#/';
+
+      expect(
+        window.location.hash == hashUrl ||
+            (allowEmpty && window.location.hash.isEmpty),
+        isTrue,
+      );
     },
   );
 }

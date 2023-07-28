@@ -10,7 +10,7 @@ abstract class RoutemasterObserver extends NavigatorObserver {
   RoutemasterObserver();
 
   /// The router's current route changed.
-  void didChangeRoute(RouteData routeData, Page page) {}
+  void didChangeRoute(RouteData routeData, Page<dynamic> page) {}
 }
 
 /// Passes on navigation events to a list of [NavigatorObserver] objects.

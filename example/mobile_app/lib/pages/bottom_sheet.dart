@@ -20,7 +20,7 @@ class PageBasedMaterialWithModalsPageRoute<T>
     required MaterialPage<T> page,
   }) : super(page: page);
 
-  ModalBottomSheetRoute? _nextModalRoute;
+  ModalSheetRoute<dynamic>? _nextModalRoute;
 
   @override
   bool canTransitionTo(TransitionRoute<dynamic> nextRoute) {
@@ -29,21 +29,16 @@ class PageBasedMaterialWithModalsPageRoute<T>
         (nextRoute is CupertinoPageRoute && !nextRoute.fullscreenDialog) ||
         (nextRoute is MaterialWithModalsPageRoute &&
             !nextRoute.fullscreenDialog) ||
-        (nextRoute is ModalBottomSheetRoute);
+        (nextRoute is ModalSheetRoute);
   }
 
   @override
-  void didChangeNext(Route? nextRoute) {
-    if (nextRoute is ModalBottomSheetRoute) {
+  void didChangeNext(Route<dynamic>? nextRoute) {
+    if (nextRoute is ModalSheetRoute) {
       _nextModalRoute = nextRoute;
     }
 
     super.didChangeNext(nextRoute);
-  }
-
-  @override
-  void didPopNext(Route nextRoute) {
-    super.didPopNext(nextRoute);
   }
 
   @override
