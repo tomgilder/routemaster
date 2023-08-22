@@ -15,6 +15,12 @@ class RouteHistory {
   /// Whether there's a forward chronological history entry.
   bool get canGoForward => _index < _history.length - 1;
 
+  /// Retrieve the names of the current routes in the stack
+  List<String> get pathList => _history.map((e) => e.path).toList();
+
+  /// Retrieve the full paths of the current routes in the stack
+  List<String> get fullPathList => _history.map((e) => e.fullPath).toList();
+
   /// Goes back in chronological navigation order.
   ///
   /// Returns `true` if the navigation was successful, or `false` if it wasn't.
