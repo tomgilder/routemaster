@@ -140,7 +140,7 @@ void main() {
         child: MaterialApp.router(
           routeInformationParser: const RoutemasterParser(),
           routeInformationProvider: PlatformRouteInformationProvider(
-            initialRouteInformation: const RouteInformation(location: '/two'),
+            initialRouteInformation: RouteInformation(uri: Uri.parse('/two')),
           ),
           routerDelegate: delegate,
         ),

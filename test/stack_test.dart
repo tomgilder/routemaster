@@ -285,8 +285,8 @@ void main() {
       MaterialApp.router(
         routeInformationParser: const RoutemasterParser(),
         routeInformationProvider: PlatformRouteInformationProvider(
-          initialRouteInformation: const RouteInformation(
-            location: '/tabs/one',
+          initialRouteInformation: RouteInformation(
+            uri: Uri.parse('/tabs/one'),
           ),
         ),
         routerDelegate: delegate,

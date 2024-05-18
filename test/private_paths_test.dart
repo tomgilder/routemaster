@@ -219,8 +219,8 @@ void main() {
   test('parseRouteInformation returns correct data for private path', () async {
     const parser = RoutemasterParser();
     final routeData = await parser.parseRouteInformation(
-      const RouteInformation(
-        location: '/public-path',
+      RouteInformation(
+        uri: Uri.parse('/public-path'),
         state: {
           'internalPath': '/internal-path',
           'pathTemplate': '/internal-path',

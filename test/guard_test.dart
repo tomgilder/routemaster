@@ -167,7 +167,7 @@ void main() {
         routeInformationParser: const RoutemasterParser(),
         routeInformationProvider: PlatformRouteInformationProvider(
           initialRouteInformation:
-              const RouteInformation(location: '/123?query=string'),
+              RouteInformation(uri: Uri.parse('/123?query=string')),
         ),
         routerDelegate: delegate,
       ),

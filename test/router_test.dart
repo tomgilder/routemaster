@@ -466,7 +466,7 @@ void main() {
       MaterialApp.router(
         routeInformationParser: const RoutemasterParser(),
         routeInformationProvider: PlatformRouteInformationProvider(
-          initialRouteInformation: const RouteInformation(location: '/404'),
+          initialRouteInformation: RouteInformation(uri: Uri.parse('/404')),
         ),
         routerDelegate: RoutemasterDelegate(
           routesBuilder: (_) => RouteMap(
@@ -516,7 +516,7 @@ void main() {
       MaterialApp.router(
         routeInformationParser: const RoutemasterParser(),
         routeInformationProvider: PlatformRouteInformationProvider(
-          initialRouteInformation: const RouteInformation(location: '/404'),
+          initialRouteInformation: RouteInformation(uri: Uri.parse('/404')),
         ),
         routerDelegate: RoutemasterDelegate(
           routesBuilder: (_) => RouteMap(

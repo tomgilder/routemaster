@@ -137,7 +137,7 @@ class RouteData {
   /// Creates a [RouteInformation] object with data from this route.
   RouteInformation toRouteInformation() {
     return RouteInformation(
-      location: publicPath,
+      uri: Uri.parse(publicPath),
       state: {
         'isReplacement': isReplacement,
         'internalPath': fullPath,
@@ -173,8 +173,8 @@ class RouteData {
     // No state: we only got a URL from the system, so probably a
     // manually-entered URL from the user.
     return RouteData(
-      routeInfo.location!,
-      pathTemplate: routeInfo.location!,
+      routeInfo.uri.toString(),
+      pathTemplate: routeInfo.uri.toString(),
       requestSource: RequestSource.system,
     );
   }

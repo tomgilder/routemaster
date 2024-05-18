@@ -1,21 +1,21 @@
 name: routemaster
 description: Easy-to-use Navigator 2.0 router for web, mobile and desktop. URL-based routing, simple navigation of tabs and nested routes.
-version: 1.0.1
+version: 1.0.2
 homepage: https://github.com/tomgilder/routemaster
 
 environment:
-  sdk: ">=2.18.0 <4.0.0"
-  flutter: ">=3.7.0"
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.8.0"
 
 dependencies:
   flutter:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
-  path: ^1.8.2
-  collection: ^1.17.0
+  path: ^1.9.0
+  collection: ^1.18.0
 
 dev_dependencies:
-  flutter_lints: ^2.0.2
+  flutter_lints: ^4.0.0
   flutter_test:
     sdk: flutter

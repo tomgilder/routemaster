@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp.router(
       routeInformationParser: const RoutemasterParser(),
       routeInformationProvider: PlatformRouteInformationProvider(
-        initialRouteInformation: const RouteInformation(location: '/home'),
+        initialRouteInformation: RouteInformation(uri: Uri.parse('/home')),
       ),
       routerDelegate: RoutemasterDelegate(
         routesBuilder: (BuildContext context) {

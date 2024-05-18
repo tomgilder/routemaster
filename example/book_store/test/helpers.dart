@@ -63,7 +63,7 @@ class BrowserEmulatorRouteInfoProvider
   }) : super(
           initialRouteInformation: initialRouteInformation ??
               RouteInformation(
-                location: '/',
+                uri: Uri.parse('/'),
               ),
         );
 
@@ -79,12 +79,12 @@ class BrowserEmulatorRouteInfoProvider
   }
 
   @override
-  Future<bool> didPushRoute(String route) async {
-    final result = await super.didPushRoute(route);
+  Future<bool> didPushRouteInformation(
+      RouteInformation routeInformation) async {
+    final result = await super.didPushRouteInformation(routeInformation);
     if (result) {
-      _urlStack.addLast(RouteInformation(location: route));
+      _urlStack.addLast(routeInformation);
     }
-
     return result;
   }
 

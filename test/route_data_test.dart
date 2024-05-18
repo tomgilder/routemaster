@@ -307,7 +307,7 @@ void main() {
     ).toRouteInformation();
 
     final state1 = routeInfo1.state as Map;
-    expect(routeInfo1.location, '/public');
+    expect(routeInfo1.uri.path, '/public');
     expect(state1['internalPath'], '/public/_private');
     expect(state1['isReplacement'], true);
     expect(state1['pathParameters'], <String, String>{});
@@ -322,7 +322,7 @@ void main() {
     ).toRouteInformation();
 
     final state2 = routeInfo2.state as Map;
-    expect(routeInfo2.location, '/public');
+    expect(routeInfo2.uri.path, '/public');
     expect(state2['internalPath'], '/public/_private?hello=world');
     expect(state2['isReplacement'], false);
     expect(state2['pathParameters'], <String, String>{});
@@ -337,14 +337,14 @@ void main() {
     ).toRouteInformation();
 
     final state3 = routeInfo3.state as Map;
-    expect(routeInfo3.location, '/product');
+    expect(routeInfo3.uri.path, '/product');
     expect(state3['internalPath'], '/product/1');
     expect(state3['pathParameters'], <String, String>{'_id': '1'});
   });
 
   test('Can deserialize route data', () {
-    final routeData = RouteData.fromRouteInformation(const RouteInformation(
-      location: '/public',
+    final routeData = RouteData.fromRouteInformation(RouteInformation(
+      uri: Uri.parse('/public'),
       state: {
         'pathTemplate': '/public/_private',
         'internalPath': '/public/_private',
@@ -361,8 +361,8 @@ void main() {
     expect(routeData.requestSource, RequestSource.internal);
     expect(routeData.queryParameters, isEmpty);
 
-    final routeData2 = RouteData.fromRouteInformation(const RouteInformation(
-      location: '/public',
+    final routeData2 = RouteData.fromRouteInformation(RouteInformation(
+      uri: Uri.parse('/public'),
       state: {
         'pathTemplate': '/public/_private',
         'internalPath': '/public/_private?hello=world',
@@ -379,8 +379,8 @@ void main() {
     expect(routeData2.requestSource, RequestSource.system);
     expect(routeData2.queryParameters['hello'], 'world');
 
-    final routeData3 = RouteData.fromRouteInformation(const RouteInformation(
-      location: '/product/1',
+    final routeData3 = RouteData.fromRouteInformation(RouteInformation(
+      uri: Uri.parse('/product/1'),
       state: {
         'pathTemplate': '/product/:_id',
         'internalPath': '/product/1',
@@ -408,7 +408,7 @@ void main() {
     ''';
 
     final routeData = RouteData.fromRouteInformation(RouteInformation(
-      location: '/public',
+      uri: Uri.parse('/public'),
       state: json.decode(jsonStr),
     ));
 
