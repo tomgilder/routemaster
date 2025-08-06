@@ -9,7 +9,7 @@ import 'book_card.dart';
 import 'models.dart';
 
 class WishlistHomePage extends StatelessWidget {
-  const WishlistHomePage({Key? key}) : super(key: key);
+  const WishlistHomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -62,9 +62,9 @@ class WishlistPage extends StatelessWidget {
   final String? id;
 
   const WishlistPage({
-    Key? key,
+    super.key,
     required this.id,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +116,7 @@ class AddWishlistPage extends Page<void> {
 class AddWishlistDialog extends StatefulWidget {
   static const nameFieldKey = Key('name-field');
 
-  AddWishlistDialog({Key? key}) : super(key: key);
+  AddWishlistDialog({super.key});
 
   @override
   _AddWishlistDialogState createState() => _AddWishlistDialogState();

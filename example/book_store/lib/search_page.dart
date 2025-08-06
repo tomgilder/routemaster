@@ -32,10 +32,10 @@ class SearchPage extends StatelessWidget {
   final SortOrder sortOrder;
 
   const SearchPage({
-    Key? key,
+    super.key,
     required this.query,
     this.sortOrder = SortOrder.name,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

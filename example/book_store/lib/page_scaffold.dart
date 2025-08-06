@@ -10,11 +10,11 @@ class PageScaffold extends StatefulWidget {
   final String? searchQuery;
 
   PageScaffold({
-    Key? key,
+    super.key,
     required this.title,
     required this.body,
     this.searchQuery,
-  }) : super(key: key);
+  });
 
   @override
   _PageScaffoldState createState() => _PageScaffoldState();
@@ -271,11 +271,11 @@ class NavigationLink extends StatelessWidget {
   final bool inDrawer;
 
   const NavigationLink({
-    Key? key,
+    super.key,
     required this.title,
     required this.path,
     required this.inDrawer,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

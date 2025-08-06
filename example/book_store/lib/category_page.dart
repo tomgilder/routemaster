@@ -7,9 +7,9 @@ class CategoryPage extends StatelessWidget {
   final BookCategory category;
 
   const CategoryPage({
-    Key? key,
+    super.key,
     required this.category,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

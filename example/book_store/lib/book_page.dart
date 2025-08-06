@@ -6,9 +6,9 @@ class BookPage extends StatelessWidget {
   final String id;
 
   const BookPage({
-    Key? key,
+    super.key,
     required this.id,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
