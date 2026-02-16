@@ -112,7 +112,7 @@ void main() {
 
     expect(find.byType(PageOne), findsOneWidget);
     delegate.push('/one/two');
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
 
     expect(find.byType(PageTwo), findsOneWidget);
   });

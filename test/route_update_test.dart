@@ -19,7 +19,7 @@ void main() {
       expect(tracker.buildFullPath, '/');
 
       delegate.push('/two');
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(tracker.buildCount, 2);
       expect(tracker.systemUrl, '/two');
       expect(tracker.buildFullPath, '/two');
@@ -45,7 +45,7 @@ void main() {
       expect(tracker.buildFullPath, '/');
 
       delegate.push('/two');
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(tracker.buildCount, 2);
       expect(tracker.systemUrl, '/two');
       expect(tracker.buildFullPath, '/two');
@@ -71,7 +71,7 @@ void main() {
       expect(tracker.buildFullPath, '/');
 
       delegate.push('/two');
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(tracker.buildCount, 2);
       expect(tracker.systemUrl, '/two');
       expect(tracker.buildFullPath, '/two');
@@ -97,7 +97,7 @@ void main() {
       expect(tracker.buildFullPath, '/');
 
       delegate.push('/two');
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(tracker.buildCount, 2);
       expect(tracker.systemUrl, '/two');
       expect(tracker.buildFullPath, '/two');
@@ -123,14 +123,14 @@ void main() {
       expect(tracker.buildFullPath, '/');
 
       delegate.push('/stack');
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(tracker.outerBuildCount, 1);
       expect(tracker.buildCount, 2);
       expect(tracker.systemUrl, '/stack/one');
       expect(tracker.buildFullPath, '/stack/one');
 
       delegate.push('/stack/one/two');
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(tracker.outerBuildCount, 1);
       expect(tracker.buildCount, 3);
       expect(tracker.systemUrl, '/stack/one/two');

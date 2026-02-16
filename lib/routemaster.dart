@@ -376,26 +376,32 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   Future<void> popUntil(bool Function(RouteData routeData) predicate) async {
     var hasPopped = false;
 
-    Future<bool> doPop() async {
-      final popResult = await _state.stack.maybePop();
-      if (popResult) {
-        hasPopped = true;
-      }
-      return popResult;
-    }
-
-    do {
+    while (true) {
       final currentPages = _state.stack._getCurrentPages();
       if (currentPages.isEmpty || predicate(currentPages.last.routeData)) {
-        if (hasPopped) {
-          _updateCurrentConfiguration(updateHistory: false);
-        }
-
-        return;
+        break;
       }
-    } while (await doPop());
+
+      // Try delegating pop to multi-child container first
+      final lastContainer = _state.stack._pageContainers.last;
+      if (lastContainer is MultiChildPageContainer) {
+        if (await lastContainer.maybePop()) {
+          hasPopped = true;
+          continue;
+        }
+      }
+
+      // Pop directly from the page stack
+      if (_state.stack._pageContainers.length > 1) {
+        _state.stack._pageContainers.removeLast();
+        hasPopped = true;
+      } else {
+        break;
+      }
+    }
 
     if (hasPopped) {
+      _state.stack.notifyListeners();
       _updateCurrentConfiguration(updateHistory: false);
     }
   }

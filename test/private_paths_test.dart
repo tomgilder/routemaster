@@ -56,7 +56,7 @@ void main() {
 
       delegate.push('/test/_private', queryParameters: {'message': 'hello'});
       await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await tester.pumpAndSettle();
 
       expect(find.text('hello'), findsOneWidget);
 
@@ -84,7 +84,7 @@ void main() {
 
       delegate.push('/product/_myId');
       await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await tester.pumpAndSettle();
 
       expect(find.text('_myId'), findsOneWidget);
 
@@ -110,12 +110,12 @@ void main() {
       ));
 
       delegate.push('/_two');
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(find.byType(PageTwo), findsOneWidget);
       expect(systemUrl.current, '/');
 
       delegate.push('/_three');
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(find.byType(PageThree), findsOneWidget);
       expect(systemUrl.current, '/');
     });
@@ -141,7 +141,7 @@ void main() {
 
       delegate.push('/product/myId');
       await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await tester.pumpAndSettle();
 
       expect(find.text('myId'), findsOneWidget);
 
@@ -168,17 +168,17 @@ void main() {
       await setSystemUrl('/test_ing');
       await tester.pump();
       await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await tester.pumpAndSettle();
 
       expect(find.byType(PageTwo), findsOneWidget);
 
       await delegate.pop();
       await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await tester.pumpAndSettle();
 
       delegate.push('/test_ing');
       await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await tester.pumpAndSettle();
 
       expect(find.byType(PageTwo), findsOneWidget);
 
@@ -253,7 +253,7 @@ Future<void> _expectPushedPrivateUrl(
 
     delegate.push(actual);
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
     expect(systemUrl.current, expected);
   });
 }
@@ -276,7 +276,7 @@ Future<void> _expectPrivateUrlNotFound(WidgetTester tester, String url) async {
   await setSystemUrl(url);
   await tester.pump();
   await tester.pump();
-  await tester.pump(kTransitionDuration);
+  await tester.pumpAndSettle();
 
   expect(
     find.byType(DefaultNotFoundPage),

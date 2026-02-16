@@ -24,8 +24,7 @@ void main() {
     expect(find.byType(PageTwo), findsNothing);
 
     delegate.push('two');
-    await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(
         delegate.currentConfiguration, RouteData('/two', pathTemplate: '/two'));
@@ -33,8 +32,7 @@ void main() {
     expect(find.byType(PageTwo), findsOneWidget);
 
     await delegate.popRoute();
-    await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(delegate.currentConfiguration, RouteData('/', pathTemplate: '/'));
     expect(find.byType(PageOne), findsOneWidget);
@@ -62,8 +60,7 @@ void main() {
     expect(find.byType(PageTwo), findsNothing);
 
     delegate.push('two');
-    await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(
         delegate.currentConfiguration, RouteData('/two', pathTemplate: '/two'));
@@ -71,8 +68,7 @@ void main() {
     expect(find.byType(PageTwo), findsOneWidget);
 
     Navigator.of(page2Key.currentContext!).pop();
-    await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(delegate.currentConfiguration, RouteData('/', pathTemplate: '/'));
     expect(find.byType(PageOne), findsOneWidget);
@@ -101,8 +97,7 @@ void main() {
     expect(find.byType(PageTwo), findsNothing);
 
     Routemaster.of(page1Key.currentContext!).push('two');
-    await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(
         delegate.currentConfiguration, RouteData('/two', pathTemplate: '/two'));
@@ -110,9 +105,7 @@ void main() {
     expect(find.byType(PageTwo), findsOneWidget);
 
     await Routemaster.of(page2Key.currentContext!).pop();
-    await tester.pump();
-
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(delegate.currentConfiguration, RouteData('/', pathTemplate: '/'));
     expect(find.byType(PageOne), findsOneWidget);
@@ -141,8 +134,7 @@ void main() {
     expect(find.byType(PageTwo), findsNothing);
 
     delegate.push('two');
-    await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(
         delegate.currentConfiguration, RouteData('/two', pathTemplate: '/two'));
@@ -150,8 +142,7 @@ void main() {
     expect(find.byType(PageTwo), findsOneWidget);
 
     await invokeSystemBack();
-    await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(delegate.currentConfiguration, RouteData('/', pathTemplate: '/'));
     expect(find.byType(PageOne), findsOneWidget);
@@ -178,8 +169,7 @@ void main() {
     expect(find.byType(PageTwo), findsNothing);
 
     delegate.push('two?query=string');
-    await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(
       delegate.currentConfiguration,
@@ -294,12 +284,11 @@ void main() {
     );
 
     delegate.push('subpage');
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
 
     expect(find.byType(PageThree), findsOneWidget);
     await invokeSystemBack();
-    await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
     expect(find.byType(PageThree), findsNothing);
   });
 
@@ -362,7 +351,7 @@ void main() {
     );
 
     delegate.push('/two/three');
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
 
     expect(find.byType(PageThree), findsOneWidget);
 
@@ -371,7 +360,7 @@ void main() {
       popUntilRoutes.add(routeData);
       return routeData.path == '/';
     });
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
 
     expect(find.byType(PageOne), findsOneWidget);
     expect(find.byType(PageThree), findsNothing);
@@ -399,12 +388,12 @@ void main() {
     );
 
     delegate.push('/two/three');
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
 
     expect(find.byType(PageThree), findsOneWidget);
 
     await delegate.popUntil((routeData) => false);
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
 
     expect(find.byType(PageOne), findsOneWidget);
     expect(find.byType(PageThree), findsNothing);
@@ -427,12 +416,12 @@ void main() {
     );
 
     delegate.push('/two/three');
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
 
     expect(find.byType(PageThree), findsOneWidget);
 
     await delegate.popUntil((routeData) => true);
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
 
     expect(find.byType(PageThree), findsOneWidget);
   });

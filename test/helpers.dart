@@ -4,15 +4,6 @@ import 'package:routemaster/routemaster.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:routemaster/src/system_nav.dart';
 
-const kTransitionDuration = Duration(milliseconds: 350);
-
-extension PumpExtension on WidgetTester {
-  Future<void> pumpPageTransition() async {
-    await pump();
-    await pump(kTransitionDuration);
-  }
-}
-
 class MockHistoryProvider implements HistoryProvider {
   @override
   String hash = '#';

@@ -30,7 +30,7 @@ void main() {
     // Push page
     await tester.tap(find.text('Profile page'));
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     // Verify push updates
     expect(navigatorObserver.log.length, 2);
@@ -43,7 +43,7 @@ void main() {
     // Pop page
     await tester.tap(find.text('Pop'));
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     // Verify pop updates
     expect(navigatorObserver.log.length, 3);
@@ -73,7 +73,7 @@ void main() {
 
     await tester.tap(find.text('Profile page'));
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(delegateObserver1.log.length, 3);
     expect(delegateObserver2.log.length, 2);
@@ -90,7 +90,7 @@ void main() {
     // Push page
     await tester.tap(find.text('Profile page'));
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(navigatorObserver1.log.length, 2);
 
@@ -105,7 +105,7 @@ void main() {
     // Pop page
     await tester.tap(find.text('Pop'));
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(navigatorObserver1.log.length, 2);
     expect(navigatorObserver2.log.length, 1);

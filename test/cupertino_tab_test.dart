@@ -42,14 +42,14 @@ void main() {
 
     // Go to page 3
     await tester.tap(find.text('Three'));
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageThree), findsOneWidget);
     expect(app.delegate.history.canGoBack, isTrue);
     expect(app.delegate.history.canGoForward, isFalse);
 
     // Go to page 2
     await tester.tap(find.text('Two'));
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageTwo), findsOneWidget);
     expect(app.delegate.history.canGoBack, isTrue);
     expect(app.delegate.history.canGoForward, isFalse);
@@ -57,28 +57,28 @@ void main() {
     // Go back to page 3
     final result = app.delegate.history.back();
     expect(result, isTrue);
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageThree), findsOneWidget);
     expect(app.delegate.history.canGoBack, isTrue);
     expect(app.delegate.history.canGoForward, isTrue);
 
     // Go back to feed page
     app.delegate.history.back();
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(FeedPage), findsOneWidget);
     expect(app.delegate.history.canGoBack, isFalse);
     expect(app.delegate.history.canGoForward, isTrue);
 
     // Go forward to page 3
     app.delegate.history.forward();
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageThree), findsOneWidget);
     expect(app.delegate.history.canGoBack, isTrue);
     expect(app.delegate.history.canGoForward, isTrue);
 
     // Go forward to page 2
     app.delegate.history.forward();
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageTwo), findsOneWidget);
     expect(app.delegate.history.canGoBack, isTrue);
     expect(app.delegate.history.canGoForward, isFalse);
@@ -89,14 +89,12 @@ void main() {
     expect(find.byType(FeedPage), findsOneWidget);
 
     await tester.tap(find.text('Profile page'));
-    await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(find.byType(ProfilePage), findsOneWidget);
 
     await tester.tap(find.text('Pop'));
-    await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(find.byType(ProfilePage), findsNothing);
     expect(find.byType(FeedPage), findsOneWidget);

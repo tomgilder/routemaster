@@ -24,7 +24,7 @@ void main() {
 
     final result = delegate.push<String>('/two');
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
     Navigator.of(key.currentContext!).pop('result');
     expect(await result.result, 'result');
   });
@@ -49,7 +49,7 @@ void main() {
 
     final result = delegate.push<String>('/two');
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
     Navigator.of(key.currentContext!).pop(null);
     expect(await result.result, isNull);
   });
@@ -74,7 +74,7 @@ void main() {
 
     final result = delegate.push<String>('/two');
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
     await Routemaster.of(key.currentContext!).pop('result');
     expect(await result.result, 'result');
   });
@@ -100,7 +100,7 @@ void main() {
 
     final result = delegate.push<String>('/two');
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
     await Routemaster.of(key.currentContext!).pop(null);
     expect(await result.result, isNull);
   });

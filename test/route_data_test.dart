@@ -243,7 +243,7 @@ void main() {
 
     delegate.push('/two');
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     // Simulates navigating back in a web browser
     await setSystemUrl('/');

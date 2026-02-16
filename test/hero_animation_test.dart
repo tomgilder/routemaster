@@ -11,12 +11,12 @@ void main() {
     expect(find.byKey(hero1Key), findsOneWidget);
     await tester.tap(find.text('Push page 2'));
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
     expect(find.byKey(hero2Key), findsOneWidget);
 
     await tester.tap(find.byType(BackButton));
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(find.byKey(hero1Key), findsOneWidget);
   });
@@ -27,12 +27,12 @@ void main() {
     expect(find.byKey(hero1Key), findsOneWidget);
     await tester.tap(find.text('Push page 2'));
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
     expect(find.byKey(hero2Key), findsOneWidget);
 
     await invokeSystemBack();
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(find.byKey(hero1Key), findsOneWidget);
   });

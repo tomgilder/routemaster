@@ -34,7 +34,7 @@ void main() {
     expect(buildCount, 1);
     delegate.push('/one/two');
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
     expect(buildCount, 1);
   });
 }

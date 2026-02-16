@@ -28,8 +28,7 @@ void main() {
     expect(find.byType(PageTwo), findsNothing);
 
     delegate.replace('two');
-    await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(
         delegate.currentConfiguration, RouteData('/two', pathTemplate: '/two'));
@@ -57,8 +56,7 @@ void main() {
 
     final routemaster = Routemaster.of(page1Key.currentContext!);
     routemaster.replace('two');
-    await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(find.byType(PageOne), findsNothing);
     expect(find.byType(PageTwo), findsOneWidget);

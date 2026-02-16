@@ -27,7 +27,7 @@ void main() {
 
     delegate.push('two');
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(routeBuildCount, 1);
   });
@@ -61,7 +61,7 @@ void main() {
 
     delegate.push('two');
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(routeBuildCount, 2);
   });
@@ -156,7 +156,7 @@ void main() {
 
     await tester.pump();
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
     expect(find.byType(PageThree), findsOneWidget);
 
     // Assert that onUnknownRoute has never been called

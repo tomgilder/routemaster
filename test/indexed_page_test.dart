@@ -188,40 +188,40 @@ void main() {
 
     // Go to page 3
     pageState.index = 2;
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageThree), findsOneWidget);
 
     // Go to page 2
     pageState.index = 1;
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageTwo), findsOneWidget);
     expect(delegate.history.canGoBack, isTrue);
     expect(delegate.history.canGoForward, isFalse);
 
     // On page 2, go back to page 3
     delegate.history.back();
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageThree), findsOneWidget);
     expect(delegate.history.canGoBack, isTrue);
     expect(delegate.history.canGoForward, isTrue);
 
     // On page 3, go back to page 1
     delegate.history.back();
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageOne), findsOneWidget);
     expect(delegate.history.canGoBack, isFalse);
     expect(delegate.history.canGoForward, isTrue);
 
     // On page 1, go forward to page 3
     delegate.history.forward();
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageThree), findsOneWidget);
     expect(delegate.history.canGoBack, isTrue);
     expect(delegate.history.canGoForward, isTrue);
 
     // On page 3, go forward to page 2
     delegate.history.forward();
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageTwo), findsOneWidget);
     expect(delegate.history.canGoBack, isTrue);
     expect(delegate.history.canGoForward, isFalse);

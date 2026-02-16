@@ -32,23 +32,20 @@ void main() {
       await tester.pumpWidget(stackApp);
 
       Routemaster.of(rootPageKey.currentContext!).push('/stack/one');
-      await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await tester.pumpAndSettle();
 
       expect(find.byType(StackPageOne), findsOneWidget);
 
       expect(systemUrl.current, '/stack/one');
 
       Routemaster.of(rootPageKey.currentContext!).push('/stack/one/two');
-      await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await tester.pumpAndSettle();
       expect(find.byType(StackPageTwo), findsOneWidget);
 
       expect(systemUrl.current, '/stack/one/two');
 
       Routemaster.of(stackPageOneKey.currentContext!).push('/');
-      await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await tester.pumpAndSettle();
 
       expect(find.byType(StackPageTwo), findsNothing);
 
@@ -61,8 +58,7 @@ void main() {
       await tester.pumpWidget(stackApp);
 
       Routemaster.of(rootPageKey.currentContext!).push('/stack');
-      await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await tester.pumpAndSettle();
       expect(find.byType(StackPageOne), findsOneWidget);
 
       expect(systemUrl.current, '/stack/one');
@@ -74,23 +70,20 @@ void main() {
       await tester.pumpWidget(stackApp);
 
       Routemaster.of(rootPageKey.currentContext!).push('/stack/one/two');
-      await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await tester.pumpAndSettle();
 
       expect(find.byType(StackPageTwo), findsOneWidget);
 
       expect(systemUrl.current, '/stack/one/two');
 
       await Routemaster.of(stackPageOneKey.currentContext!).pop();
-      await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await tester.pumpAndSettle();
       expect(find.byType(StackPageOne), findsOneWidget);
 
       expect(systemUrl.current, '/stack/one');
 
       Routemaster.of(stackPageOneKey.currentContext!).push('/');
-      await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await tester.pumpAndSettle();
 
       expect(find.byType(StackPageTwo), findsNothing);
 
@@ -103,18 +96,17 @@ void main() {
       await tester.pumpWidget(stackApp);
 
       Routemaster.of(rootPageKey.currentContext!).push('/stack/one');
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
 
       Routemaster.of(rootPageKey.currentContext!).push('/stack/one/two');
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
 
       expect(find.byType(StackPageTwo), findsOneWidget);
 
       expect(systemUrl.current, '/stack/one/two');
 
       await invokeSystemBack();
-      await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await tester.pumpAndSettle();
       expect(find.byType(StackPageOne), findsOneWidget);
 
       expect(systemUrl.current, '/stack/one');

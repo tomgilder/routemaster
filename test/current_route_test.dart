@@ -37,7 +37,7 @@ void main() {
 
     delegate.push('/two/myId?query=param');
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(routeOneCurrentRoute!.path, '/two/myId');
     expect(routeOneCurrentRoute!.fullPath, '/two/myId?query=param');

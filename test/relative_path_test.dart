@@ -26,11 +26,11 @@ void main() {
     );
 
     await setSystemUrl('/one/two');
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageTwo), findsOneWidget);
 
     await tester.tap(find.text('Push three'));
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageThree), findsOneWidget);
   });
 
@@ -55,11 +55,11 @@ void main() {
     );
 
     await setSystemUrl('/one/two');
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageTwo), findsOneWidget);
 
     await tester.tap(find.text('Replace three'));
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageThree), findsOneWidget);
   });
 }

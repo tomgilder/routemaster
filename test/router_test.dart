@@ -86,12 +86,12 @@ void main() {
 
     delegate.push('/?query=string');
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
     expect(find.byType(PageOne), findsOneWidget);
 
     delegate.push('two');
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
     expect(find.byType(PageTwo), findsOneWidget);
   });
 
@@ -115,12 +115,12 @@ void main() {
 
     delegate.replace('/?query=string');
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
     expect(find.byType(PageOne), findsOneWidget);
 
     delegate.replace('two');
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
     expect(find.byType(PageTwo), findsOneWidget);
   });
 
@@ -144,7 +144,7 @@ void main() {
 
       delegate.push('?query=string');
       await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await tester.pumpAndSettle();
 
       expect(systemUrl.current, '/?query=string');
     });
@@ -168,7 +168,7 @@ void main() {
 
       delegate.replace('?query=string');
       await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await tester.pumpAndSettle();
 
       expect(systemUrl.current, '/?query=string');
 
@@ -208,7 +208,7 @@ void main() {
 
       delegate.push('?q=string');
       await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await tester.pumpAndSettle();
 
       expect(systemUrl.current, '/?q=string');
 
@@ -217,13 +217,13 @@ void main() {
 
       delegate.push('/two');
       await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await tester.pumpAndSettle();
 
       expect(systemUrl.current, '/two');
 
       await tester.tap(find.byType(BackButton));
       await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await tester.pumpAndSettle();
 
       expect(systemUrl.current, '/?q=string');
 
@@ -263,7 +263,7 @@ void main() {
 
       delegate.push('/id1?q=string');
       await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await tester.pumpAndSettle();
 
       expect(systemUrl.current, '/id1?q=string');
 
@@ -272,13 +272,13 @@ void main() {
 
       delegate.push('two');
       await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await tester.pumpAndSettle();
 
       expect(systemUrl.current, '/id1/two');
 
       await tester.tap(find.byType(BackButton));
       await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await tester.pumpAndSettle();
 
       expect(systemUrl.current, '/id1?q=string');
 
@@ -318,7 +318,7 @@ void main() {
 
       delegate.push('/id1?q=string');
       await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await tester.pumpAndSettle();
 
       expect(systemUrl.current, '/id1?q=string');
 
@@ -327,13 +327,13 @@ void main() {
 
       delegate.push('/id2/two');
       await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await tester.pumpAndSettle();
 
       expect(systemUrl.current, '/id2/two');
 
       await tester.tap(find.byType(BackButton));
       await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await tester.pumpAndSettle();
 
       expect(systemUrl.current, '/id2');
     });
@@ -635,10 +635,10 @@ void main() {
     );
 
     await tester.tap(find.text('Push 1'));
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
 
     await tester.tap(find.text('Push 2'));
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
 
     expect(find.byType(PageTwo), findsOneWidget);
   });
@@ -684,10 +684,10 @@ void main() {
     );
 
     await tester.tap(find.text('Push'));
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
 
     await tester.tap(find.text('Replace'));
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
 
     expect(find.byType(PageTwo), findsOneWidget);
   });

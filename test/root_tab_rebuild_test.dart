@@ -44,7 +44,7 @@ void main() {
       // Switch to second tab
 
       delegate.push('/home/1/two');
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
 
       expect(find.byType(PageOne), findsNothing);
       expect(find.byType(PageTwo), findsOneWidget);
@@ -54,7 +54,7 @@ void main() {
       // Push within tab view
 
       delegate.push('/home/1/two/edit');
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(find.byType(PageThree), findsOneWidget);
 
       expect(systemUrl.current, '/home/1/two/edit');
@@ -62,7 +62,7 @@ void main() {
       // Push over tab view
 
       delegate.push('/home/1/eq/1');
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(find.byType(EchoPage), findsOneWidget);
       expect(find.text('1'), findsOneWidget);
 
@@ -71,19 +71,19 @@ void main() {
       // Replace pushed page with another
 
       delegate.push('/home/1/eq/2');
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(find.byType(EchoPage), findsOneWidget);
       expect(find.text('2'), findsOneWidget);
 
       expect(systemUrl.current, '/home/1/eq/2');
 
       await delegate.pop();
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
 
       expect(systemUrl.current, '/home/1/two/edit');
 
       await delegate.pop();
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(find.byType(HomePage), findsOneWidget);
 
       expect(systemUrl.current, '/home/1/two');

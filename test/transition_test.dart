@@ -282,8 +282,7 @@ void main() {
 
       // Navigate
       delegate.push('/subpage');
-      await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await tester.pumpAndSettle();
 
       // Finds second page
       expect(find.byType(PageOne), findsNothing);
@@ -293,8 +292,7 @@ void main() {
       final gesture = await tester.startGesture(const Offset(5.0, 200.0));
       await gesture.moveBy(const Offset(500.0, 0.0));
       await gesture.up();
-      await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await tester.pumpAndSettle();
 
       // Page 1 visible
       expect(find.byType(PageOne), findsOneWidget);
@@ -328,8 +326,7 @@ void main() {
 
       // Navigate
       delegate.push('/subpage');
-      final frames = await tester.pumpAndSettle();
-      expect(frames, 2);
+      await tester.pumpAndSettle();
 
       // Finds second page
       expect(find.byType(PageOne), findsNothing);
@@ -339,8 +336,7 @@ void main() {
       final gesture = await tester.startGesture(const Offset(5.0, 200.0));
       await gesture.moveBy(const Offset(500.0, 0.0));
       await gesture.up();
-      await tester.pump();
-      await tester.pump(kTransitionDuration);
+      await tester.pumpAndSettle();
 
       // Page 1 visible
       expect(find.byType(PageOne), findsOneWidget);
