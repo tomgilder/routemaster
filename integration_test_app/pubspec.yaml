@@ -5,13 +5,14 @@ publish_to: "none"
 version: 1.0.0+1
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ">=3.11.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
   routemaster:
     path: ../
+  web: ^1.1.0
 
 dev_dependencies:
   integration_test:
