@@ -17,7 +17,7 @@ class PageScaffold extends StatefulWidget {
   });
 
   @override
-  _PageScaffoldState createState() => _PageScaffoldState();
+  State<PageScaffold> createState() => _PageScaffoldState();
 }
 
 class _PageScaffoldState extends State<PageScaffold> {
@@ -48,10 +48,9 @@ class _PageScaffoldState extends State<PageScaffold> {
   }
 
   void _search() {
-    Routemaster.of(context).push(
-      '/search',
-      queryParameters: {'query': _searchController.text},
-    );
+    Routemaster.of(
+      context,
+    ).push('/search', queryParameters: {'query': _searchController.text});
   }
 
   @override
@@ -61,182 +60,177 @@ class _PageScaffoldState extends State<PageScaffold> {
     final canGoBack = routemaster.history.canGoBack;
     final canGoForward = routemaster.history.canGoForward;
 
-    return LayoutBuilder(builder: (context, constraints) {
-      final isMobile = constraints.maxWidth < 600;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isMobile = constraints.maxWidth < 600;
 
-      return Scaffold(
-        drawer: isMobile
-            ? Drawer(
-                child: Container(
-                  color: Color(0xFF232f3e),
-                  child: ListView(
-                    children: _buildNavBarChildren(inDrawer: true),
-                  ),
-                ),
-              )
-            : null,
-        appBar: PreferredSize(
-          preferredSize: Size(double.infinity, 70),
-          child: isMobile
-              ? AppBar(
-                  automaticallyImplyLeading: isMobile,
-                  title: Padding(
-                    padding: const EdgeInsets.only(top: 10),
-                    child: Image.asset(
-                      'assets/logo.png',
-                      width: 200,
+        return Scaffold(
+          drawer: isMobile
+              ? Drawer(
+                  child: Container(
+                    color: Color(0xFF232f3e),
+                    child: ListView(
+                      children: _buildNavBarChildren(inDrawer: true),
                     ),
                   ),
                 )
-              : AppBar(
-                  automaticallyImplyLeading: isMobile,
-                  title: Padding(
-                    padding: const EdgeInsets.only(top: 10),
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          height: 200,
-                          child: Image.asset(
-                            'assets/logo.png',
-                            width: 200,
-                          ),
-                        ),
-                        Expanded(
-                          child: Center(
-                            child: Text(widget.title),
-                          ),
-                        ),
-                      ],
+              : null,
+          appBar: PreferredSize(
+            preferredSize: Size(double.infinity, 70),
+            child: isMobile
+                ? AppBar(
+                    automaticallyImplyLeading: isMobile,
+                    title: Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Image.asset('assets/logo.png', width: 200),
                     ),
-                  ),
-                ),
-        ),
-        body: Column(
-          children: [
-            Container(
-              color: Color(0xFF232f3e),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox(width: 20),
-                  SizedBox(
-                    width: 40,
-                    child: InkWell(
-                      onTap:
-                          canGoBack ? () => routemaster.history.back() : null,
-                      child: Icon(
-                        Icons.arrow_back_ios,
-                        color: canGoBack
-                            ? Colors.white
-                            : Colors.white.withAlpha(30),
+                  )
+                : AppBar(
+                    automaticallyImplyLeading: isMobile,
+                    title: Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            height: 200,
+                            child: Image.asset('assets/logo.png', width: 200),
+                          ),
+                          Expanded(child: Center(child: Text(widget.title))),
+                        ],
                       ),
                     ),
                   ),
-                  InkWell(
-                    onTap: canGoForward
-                        ? () => routemaster.history.forward()
-                        : null,
-                    child: SizedBox(
+          ),
+          body: Column(
+            children: [
+              Container(
+                color: Color(0xFF232f3e),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SizedBox(width: 20),
+                    SizedBox(
                       width: 40,
-                      child: Icon(
-                        Icons.arrow_forward_ios,
-                        color: canGoForward
-                            ? Colors.white
-                            : Colors.white.withAlpha(30),
+                      child: InkWell(
+                        onTap: canGoBack
+                            ? () => routemaster.history.back()
+                            : null,
+                        child: Icon(
+                          Icons.arrow_back_ios,
+                          color: canGoBack
+                              ? Colors.white
+                              : Colors.white.withAlpha(30),
+                        ),
                       ),
                     ),
-                  ),
-                  Expanded(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Flexible(
-                          child: Container(
-                            width: 300,
-                            padding: EdgeInsets.all(16),
-                            child: CupertinoTextField(
-                              controller: _searchController,
-                              onSubmitted: (_) => _search(),
+                    InkWell(
+                      onTap: canGoForward
+                          ? () => routemaster.history.forward()
+                          : null,
+                      child: SizedBox(
+                        width: 40,
+                        child: Icon(
+                          Icons.arrow_forward_ios,
+                          color: canGoForward
+                              ? Colors.white
+                              : Colors.white.withAlpha(30),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Flexible(
+                            child: Container(
+                              width: 300,
+                              padding: EdgeInsets.all(16),
+                              child: CupertinoTextField(
+                                controller: _searchController,
+                                onSubmitted: (_) => _search(),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          ElevatedButton(
+                            onPressed: _search,
+                            child: Text('Search'),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: 20),
+                    if (appState.isLoggedIn)
+                      Text(
+                        'Hello, ${appState.username}!',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )
+                    else
+                      InkWell(
+                        onTap: () {
+                          Routemaster.of(context).push(
+                            '/login',
+                            queryParameters: {
+                              'redirectTo': RouteData.of(context).fullPath,
+                            },
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            'Log in',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
                             ),
                           ),
                         ),
-                        SizedBox(width: 10),
-                        ElevatedButton(
-                          onPressed: _search,
-                          child: Text('Search'),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(width: 20),
-                  if (appState.isLoggedIn)
-                    Text(
-                      'Hello, ${appState.username}!',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
                       ),
-                    )
-                  else
-                    InkWell(
-                      onTap: () {
-                        Routemaster.of(context).push(
-                          '/login',
-                          queryParameters: {
-                            'redirectTo': RouteData.of(context).fullPath,
-                          },
-                        );
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          'Log in',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  SizedBox(width: 20),
-                ],
+                    SizedBox(width: 20),
+                  ],
+                ),
               ),
-            ),
-            Expanded(
-              child: Row(
-                children: [
-                  if (!isMobile)
-                    Container(
-                      width: 200,
-                      color: Color(0xFF232f3e),
+              Expanded(
+                child: Row(
+                  children: [
+                    if (!isMobile)
+                      Container(
+                        width: 200,
+                        color: Color(0xFF232f3e),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: _buildNavBarChildren(inDrawer: false),
+                        ),
+                      ),
+                    Expanded(
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: _buildNavBarChildren(inDrawer: false),
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (ModalRoute.of(context)?.canPop == true)
+                            CupertinoNavigationBarBackButton(),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                              ),
+                              child: widget.body,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (ModalRoute.of(context)?.canPop == true)
-                          CupertinoNavigationBarBackButton(),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: widget.body,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
-      );
-    });
+            ],
+          ),
+        );
+      },
+    );
   }
 
   List<Widget> _buildNavBarChildren({required bool inDrawer}) {
@@ -256,11 +250,7 @@ class _PageScaffoldState extends State<PageScaffold> {
         path: '/audiobooks',
         inDrawer: inDrawer,
       ),
-      NavigationLink(
-        title: 'Wishlists',
-        path: '/wishlist',
-        inDrawer: inDrawer,
-      ),
+      NavigationLink(title: 'Wishlists', path: '/wishlist', inDrawer: inDrawer),
     ];
   }
 }
@@ -294,10 +284,7 @@ class NavigationLink extends StatelessWidget {
         },
         child: Padding(
           padding: const EdgeInsets.all(20),
-          child: Text(
-            title,
-            style: TextStyle(color: Colors.white),
-          ),
+          child: Text(title, style: TextStyle(color: Colors.white)),
         ),
       ),
     );

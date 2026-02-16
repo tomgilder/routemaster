@@ -11,13 +11,10 @@ class LoginPage extends StatefulWidget {
 
   final String? redirectTo;
 
-  const LoginPage({
-    super.key,
-    this.redirectTo = '/',
-  });
+  const LoginPage({super.key, this.redirectTo = '/'});
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
@@ -70,8 +67,9 @@ class _LoginPageState extends State<LoginPage> {
                 animation: _usernameController,
                 builder: (_, __) => ElevatedButton(
                   key: LoginPage.loginButtonKey,
-                  onPressed:
-                      _usernameController.text.isNotEmpty ? _login : null,
+                  onPressed: _usernameController.text.isNotEmpty
+                      ? _login
+                      : null,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,

@@ -61,10 +61,7 @@ class WishlistHomePage extends StatelessWidget {
 class WishlistPage extends StatelessWidget {
   final String? id;
 
-  const WishlistPage({
-    super.key,
-    required this.id,
-  });
+  const WishlistPage({super.key, required this.id});
 
   @override
   Widget build(BuildContext context) {
@@ -77,9 +74,7 @@ class WishlistPage extends StatelessWidget {
     if (wishList == null) {
       return PageScaffold(
         title: 'Wishlist',
-        body: ListView(
-          children: [Text("No wishlist with ID '$id'")],
-        ),
+        body: ListView(children: [Text("No wishlist with ID '$id'")]),
       );
     }
 
@@ -93,9 +88,7 @@ class WishlistPage extends StatelessWidget {
           ),
           Text('Share this wishlist! ${wishList.shareUrl}'),
           for (final bookId in wishList.bookIds)
-            BookCard(
-              book: books.firstWhere((book) => book.id == bookId),
-            ),
+            BookCard(book: books.firstWhere((book) => book.id == bookId)),
         ],
       ),
     );
@@ -119,7 +112,7 @@ class AddWishlistDialog extends StatefulWidget {
   AddWishlistDialog({super.key});
 
   @override
-  _AddWishlistDialogState createState() => _AddWishlistDialogState();
+  State<AddWishlistDialog> createState() => _AddWishlistDialogState();
 }
 
 class _AddWishlistDialogState extends State<AddWishlistDialog> {
@@ -167,9 +160,7 @@ class _AddWishlistDialogState extends State<AddWishlistDialog> {
       child: Material(
         color: Colors.white,
         elevation: 3,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         type: MaterialType.card,
         child: SizedBox(
           width: 700,
@@ -216,7 +207,7 @@ class _AddWishlistDialogState extends State<AddWishlistDialog> {
                                   ],
                                 ),
                               ),
-                            )
+                            ),
                         ],
                       ),
                     ],
@@ -229,8 +220,8 @@ class _AddWishlistDialogState extends State<AddWishlistDialog> {
                     builder: (_, __) => ElevatedButton(
                       onPressed:
                           _titleController.text.isEmpty || _pickedBooks.isEmpty
-                              ? null
-                              : _addWishlist,
+                          ? null
+                          : _addWishlist,
                       child: Text('Add wishlist'),
                     ),
                   ),

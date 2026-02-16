@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
 
 class CustomPage extends TransitionBuilderPage<void> {
-  CustomPage({required Widget child}) : super(child: child);
+  CustomPage({required super.child});
 
   @override
   PageTransition buildPushTransition(BuildContext context) {

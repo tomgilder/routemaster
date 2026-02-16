@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
 
 class BottomNavigationBarReplacementPage extends StatelessWidget {
-  const BottomNavigationBarReplacementPage({Key? key}) : super(key: key);
+  const BottomNavigationBarReplacementPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -20,10 +20,10 @@ class BottomNavigationBarReplacementPage extends StatelessWidget {
 }
 
 class BottomNavigationBarPage extends StatefulWidget {
-  const BottomNavigationBarPage({Key? key}) : super(key: key);
+  const BottomNavigationBarPage({super.key});
 
   @override
-  _BottomNavigationBarPageState createState() =>
+  State<BottomNavigationBarPage> createState() =>
       _BottomNavigationBarPageState();
 }
 
@@ -36,10 +36,7 @@ class _BottomNavigationBarPageState extends State<BottomNavigationBarPage> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Bottom Navigation Bar')),
-      body: PageStackNavigator(
-        key: ValueKey(selectedIndex),
-        stack: stack,
-      ),
+      body: PageStackNavigator(key: ValueKey(selectedIndex), stack: stack),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: selectedIndex,
         onTap: (index) {
@@ -48,18 +45,9 @@ class _BottomNavigationBarPageState extends State<BottomNavigationBarPage> {
           });
         },
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.ac_unit),
-            label: 'One',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.explicit),
-            label: 'Two',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.alarm),
-            label: 'Three',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.ac_unit), label: 'One'),
+          BottomNavigationBarItem(icon: Icon(Icons.explicit), label: 'Two'),
+          BottomNavigationBarItem(icon: Icon(Icons.alarm), label: 'Three'),
         ],
       ),
     );
@@ -67,7 +55,7 @@ class _BottomNavigationBarPageState extends State<BottomNavigationBarPage> {
 }
 
 class BottomContentPage extends StatelessWidget {
-  const BottomContentPage({Key? key}) : super(key: key);
+  const BottomContentPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -79,8 +67,9 @@ class BottomContentPage extends StatelessWidget {
             Text('Bottom bar page 1'),
             ElevatedButton(
               onPressed: () {
-                Routemaster.of(context)
-                    .push('/bottom-navigation-bar/threepage');
+                Routemaster.of(
+                  context,
+                ).push('/bottom-navigation-bar/threepage');
               },
               child: Text('Push page Android-style'),
             ),
@@ -92,7 +81,7 @@ class BottomContentPage extends StatelessWidget {
 }
 
 class BottomContentPage2 extends StatelessWidget {
-  const BottomContentPage2({Key? key}) : super(key: key);
+  const BottomContentPage2({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -103,8 +92,9 @@ class BottomContentPage2 extends StatelessWidget {
           children: [
             Text('Bottom bar page 2'),
             ElevatedButton(
-              onPressed: () => Routemaster.of(context)
-                  .push('/bottom-navigation-bar/threepage'),
+              onPressed: () => Routemaster.of(
+                context,
+              ).push('/bottom-navigation-bar/threepage'),
               child: Text('Page 2: push page'),
             ),
           ],

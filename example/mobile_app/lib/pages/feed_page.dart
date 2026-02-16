@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
 
 class FeedPage extends StatelessWidget {
-  const FeedPage({Key? key}) : super(key: key);
+  const FeedPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -108,10 +108,10 @@ class ProfilePage extends StatelessWidget {
   final String? message;
 
   const ProfilePage({
-    Key? key,
+    super.key,
     required this.id,
     required this.message,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -124,8 +124,7 @@ class ProfilePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text('Profile page, ID = $id, message = $message'),
-            Text('Profile page - ' +
-                RouteData.of(context).pathParameters['id']!),
+            Text('Profile page - ${RouteData.of(context).pathParameters['id']!}'),
             ElevatedButton(
               onPressed: () => Routemaster.of(context).push('photo'),
               child: Text('Photo page (custom animation)'),
@@ -169,9 +168,9 @@ class PhotoPage extends StatelessWidget {
   final String? id;
 
   const PhotoPage({
-    Key? key,
+    super.key,
     required this.id,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
