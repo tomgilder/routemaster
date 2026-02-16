@@ -130,16 +130,20 @@ class RouteHistory {
         _index > 0 && _history[_index - 1] == newRoute;
 
     if (poppingToPreviousHistoryRoute) {
-      if (kIsWeb && SystemNav.enabled) {
+      final isWebNav = kIsWeb && SystemNav.enabled;
+      if (isWebNav) {
         // Use system navigation so forward button works
         SystemNav.back(); // coverage:ignore-line
-      } else {
-        _index--;
-        _state.delegate._updateCurrentConfiguration(
-          isReplacement: true,
-          updateHistory: false,
-        );
       }
+      _index--;
+      _state.delegate._updateCurrentConfiguration(
+        isReplacement: true,
+        updateHistory: false,
+        // On web, use isBrowserHistoryNavigation to update configuration
+        // without triggering replaceState, which would overwrite the browser's
+        // forward history entry before SystemNav.back() completes.
+        isBrowserHistoryNavigation: isWebNav,
+      );
     } else {
       _state.delegate._updateCurrentConfiguration(isReplacement: true);
     }
@@ -162,16 +166,20 @@ class RouteHistory {
         return;
       }
 
-      if (kIsWeb && SystemNav.enabled) {
+      final isWebNav = kIsWeb && SystemNav.enabled;
+      if (isWebNav) {
         // Use browser history.go() so forward button works
         SystemNav.go(-stepsBack); // coverage:ignore-line
-      } else {
-        _index = targetIndex;
-        _state.delegate._updateCurrentConfiguration(
-          isReplacement: true,
-          updateHistory: false,
-        );
       }
+      _index = targetIndex;
+      _state.delegate._updateCurrentConfiguration(
+        isReplacement: true,
+        updateHistory: false,
+        // On web, use isBrowserHistoryNavigation to update configuration
+        // without triggering replaceState, which would overwrite the browser's
+        // forward history entry before SystemNav.go() completes.
+        isBrowserHistoryNavigation: isWebNav,
+      );
     } else {
       // Route not found in history, use replacement behavior
       _state.delegate._updateCurrentConfiguration(isReplacement: true);
