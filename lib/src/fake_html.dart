@@ -4,18 +4,13 @@
 final window = Window();
 
 class Window {
-  final location = Location();
   final history = History();
 }
 
 class History {
-  void replaceState(dynamic data, String title, String? url) {}
-
   void back() {}
 
   void forward() {}
-}
 
-class Location {
-  final String hash = '';
+  void go(int delta) {}
 }

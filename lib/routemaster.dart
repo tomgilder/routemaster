@@ -90,12 +90,10 @@ class RouteMap {
   ///
   RouteSettings onUnknownRoute(String path) {
     if (_onUnknownRoute != null) {
-      return _onUnknownRoute!(path);
+      return _onUnknownRoute(path);
     }
 
-    return MaterialPage<void>(
-      child: DefaultNotFoundPage(path: path),
-    );
+    return MaterialPage<void>(child: DefaultNotFoundPage(path: path));
   }
 }
 
@@ -110,8 +108,8 @@ class Routemaster {
   Routemaster._({
     required _RoutemasterState state,
     required BuildContext context,
-  })  : _context = context,
-        _state = state;
+  }) : _context = context,
+       _state = state;
 
   /// Uses [PathUrlStrategy] on the web, which removes hashes from URLs. This
   /// must be called at app startup, before `runApp` is called.
@@ -136,18 +134,15 @@ class Routemaster {
 
   /// Retrieves the nearest ancestor [Routemaster] object.
   static Routemaster of(BuildContext context) {
-    final widget =
-        context.dependOnInheritedWidgetOfExactType<_RoutemasterWidget>();
+    final widget = context
+        .dependOnInheritedWidgetOfExactType<_RoutemasterWidget>();
 
     assert(
       widget != null,
       "Couldn't get a Routemaster object from the given context.",
     );
 
-    return Routemaster._(
-      state: widget!.state,
-      context: context,
-    );
+    return Routemaster._(state: widget!.state, context: context);
   }
 
   /// The current global route.
@@ -295,10 +290,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   /// A function that returns the top-level navigator widgets. Normally this
   /// function would return a [PageStackNavigator].
-  final Widget Function(
-    BuildContext context,
-    PageStack stack,
-  )? navigatorBuilder;
+  final Widget Function(BuildContext context, PageStack stack)?
+  navigatorBuilder;
 
   /// Allows navigating through the chronological history of routes.
   ///
@@ -330,8 +323,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     required this.routesBuilder,
     required this.navigatorBuilder,
     this.observers = const [],
-  })  : transitionDelegate = null,
-        navigatorKey = null {
+  }) : transitionDelegate = null,
+       navigatorKey = null {
     _state.delegate = this;
   }
 
@@ -402,7 +395,8 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     if (hasPopped) {
       _state.stack.notifyListeners();
-      _updateCurrentConfiguration(updateHistory: false);
+      final newRoute = _state.stack._getCurrentPages().last.routeData;
+      history._onPopToRoute(newRoute: newRoute);
     }
   }
 
@@ -454,7 +448,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       queryParameters: queryParameters,
       isReplacement: false,
       navigationResult: result,
-      requestSource: RequestSource.internal,
+      requestSource: .internal,
     );
 
     return result;
@@ -488,7 +482,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       uri: uri,
       queryParameters: queryParameters,
       isReplacement: true,
-      requestSource: RequestSource.internal,
+      requestSource: .internal,
     );
   }
 
@@ -505,13 +499,16 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           state: _state,
           routeData: currentConfiguration!,
           child: navigatorBuilder != null
-              ? Builder(builder: (context) {
-                  return navigatorBuilder!(context, _state.stack);
-                })
+              ? Builder(
+                  builder: (context) {
+                    return navigatorBuilder!(context, _state.stack);
+                  },
+                )
               : PageStackNavigator(
                   navigatorKey: navigatorKey,
                   stack: _state.stack,
-                  transitionDelegate: transitionDelegate ??
+                  transitionDelegate:
+                      transitionDelegate ??
                       const DefaultTransitionDelegate<dynamic>(),
                 ),
         );
@@ -530,12 +527,12 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   /// Ensures that we don't call Router.neglect and Router.navigate in the same
   /// frame, which throws an error.
-  _ReportType _reported = _ReportType.none;
+  _ReportType _reported = .none;
 
   void _setHasReported(_ReportType reportType) {
     _reported = reportType;
-    _ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) {
-      _reported = _ReportType.none;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _reported = .none;
     });
   }
 
@@ -543,7 +540,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
   void _updateCurrentConfiguration({
     bool isBrowserHistoryNavigation = false,
     bool isReplacement = false,
-    RequestSource requestSource = RequestSource.internal,
+    RequestSource requestSource = .internal,
     bool updateHistory = true,
   }) {
     final currentPages = _state.stack._getCurrentPages();
@@ -578,7 +575,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
       if (_isBuilding) {
         // Schedule update
-        _ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
           _updateCurrentConfiguration(
             requestSource: requestSource,
             isReplacement: isReplacement,
@@ -586,19 +583,19 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           );
         });
       } else {
-        if (isReplacement && _reported != _ReportType.navigate) {
+        if (isReplacement && _reported != .navigate) {
           Router.neglect(_context, notifyListeners);
-          _setHasReported(_ReportType.neglect);
+          _setHasReported(.neglect);
         } else {
           // If the public paths match but the private paths don't, we need to
           // ensure a new history item is created
           final needsForceNavigate =
               routeData.publicPath == currentRouteData.publicPath &&
-                  routeData.fullPath != currentRouteData.fullPath &&
-                  requestSource != RequestSource.system;
+              routeData.fullPath != currentRouteData.fullPath &&
+              requestSource != .system;
 
-          if (needsForceNavigate && _reported != _ReportType.neglect) {
-            _setHasReported(_ReportType.navigate);
+          if (needsForceNavigate && _reported != .neglect) {
+            _setHasReported(.navigate);
             Router.navigate(_context, notifyListeners);
           } else {
             notifyListeners();
@@ -663,7 +660,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           uri: currentConfiguration?._uri ?? Uri(path: '/'),
           isReplacement: isReplacement,
           useCurrentState: false,
-          requestSource: RequestSource.internal,
+          requestSource: .internal,
         );
       }
     }
@@ -702,8 +699,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     );
 
     var pages = _createAllPages(
-      currentRoutes:
-          useCurrentState ? _state.stack._getCurrentPages().toList() : null,
+      currentRoutes: useCurrentState
+          ? _state.stack._getCurrentPages().toList()
+          : null,
       request: request,
     );
 
@@ -728,7 +726,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           notifyListeners();
         }
 
-        _ambiguate(WidgetsBinding.instance)!.addPostFrameCallback((timeStamp) {
+        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
           if (_state.pendingNavigation != null) {
             // Retry navigation
             _navigate(
@@ -774,7 +772,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     _rebuildRouter(context);
 
     // Already building; schedule rebuild for next frame
-    _ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _updateCurrentConfiguration();
     });
   }
@@ -811,7 +809,7 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
       );
 
       if (routeData._privateSegmentIndex != null &&
-          request.requestSource == RequestSource.system) {
+          request.requestSource == .system) {
         // Route contains private URL, deny loading from system request
         return null;
       }
@@ -1001,15 +999,13 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
     if (page is Redirect) {
       return _RedirectResult(
-          _fillRedirectPathParams(page.redirectPath, routeData));
+        _fillRedirectPathParams(page.redirectPath, routeData),
+      );
     }
 
     if (isLastRoute && page is RedirectingPage) {
       return _RedirectResult(
-        pathContext.join(
-          routeRequest.uri.path,
-          page.redirectPath,
-        ),
+        pathContext.join(routeRequest.uri.path, page.redirectPath),
       );
     }
 
@@ -1030,16 +1026,16 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
     }
 
     // Page is just a standard Flutter page, create a StatelessPage for it
-    return _PageEntryResult(
-      StatelessPage(routeData: routeData, page: page),
-    );
+    return _PageEntryResult(StatelessPage(routeData: routeData, page: page));
   }
 
   String _fillRedirectPathParams(String redirectPath, RouteData routeData) {
     final pathSegments = pathContext.split(redirectPath);
-    final mappedSegments = pathSegments.map((segment) => segment.startsWith(':')
-        ? routeData.pathParameters[segment.substring(1)] ?? segment
-        : segment);
+    final mappedSegments = pathSegments.map(
+      (segment) => segment.startsWith(':')
+          ? routeData.pathParameters[segment.substring(1)] ?? segment
+          : segment,
+    );
     return pathContext.joinAll(mappedSegments);
   }
 
@@ -1074,12 +1070,14 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
           pathTemplate: null,
         ),
         page: result as Page,
-      )
+      ),
     ];
   }
 
   List<String> _debugCheckRedirectLoop(
-      List<String>? redirects, String requestedPath) {
+    List<String>? redirects,
+    String requestedPath,
+  ) {
     if (redirects == null) {
       return [requestedPath];
     }
@@ -1095,9 +1093,9 @@ class RoutemasterDelegate extends RouterDelegate<RouteData>
 
   void _didPush(Route<dynamic> route) {
     final page = route.settings;
-    final current = _state.stack
-        ._getCurrentPages()
-        .firstWhereOrNull((e) => e._getOrCreatePage() == page);
+    final current = _state.stack._getCurrentPages().firstWhereOrNull(
+      (e) => e._getOrCreatePage() == page,
+    );
 
     final completer = current?._result?._routeCompleter;
     if (completer != null && !completer.isCompleted) {
@@ -1214,7 +1212,7 @@ class _RoutemasterStateTrackerState extends State<_RoutemasterStateTracker> {
 
       newDelegate._rebuildRouter(context);
 
-      _ambiguate(WidgetsBinding.instance)!.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         // Dispose after this frame to allow child widgets to unsubscribe
         oldDelegate.dispose();
       });
@@ -1330,6 +1328,7 @@ class PageStackNavigator extends StatefulWidget {
 class PageStackNavigatorState extends State<PageStackNavigator> {
   late _StackNavigator _widget;
   late Routemaster _routemaster;
+  late final _PagePopHandler _pagePopHandler;
 
   /// The state for a [PageStackNavigator]. Watches for changes in the stack
   /// and rebuilds the [Navigator] when required.
@@ -1340,7 +1339,6 @@ class PageStackNavigatorState extends State<PageStackNavigator> {
     super.initState();
 
     _didUpdateStack(null, widget.stack);
-    _updateNavigator();
   }
 
   @override
@@ -1367,10 +1365,24 @@ class PageStackNavigatorState extends State<PageStackNavigator> {
     super.dispose();
   }
 
+  bool _initialized = false;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _routemaster = Routemaster.of(context);
+
+    if (!_initialized) {
+      _initialized = true;
+      _pagePopHandler = _PagePopHandler(() {
+        final stack = widget.stack;
+        stack.__pageContainers!.removeLast();
+        _routemaster.history._onPopPage(
+          newRoute: stack._pageContainers.last.routeData,
+        );
+      });
+      _updateNavigator();
+    }
   }
 
   void _onStackChanged() {
@@ -1381,27 +1393,26 @@ class PageStackNavigatorState extends State<PageStackNavigator> {
 
   void _updateNavigator() {
     final pages = widget.stack.createPages();
-    final filteredPages =
-        widget.builder == null ? pages : widget.builder!(pages).toList();
+    final filteredPages = widget.builder == null
+        ? pages
+        : widget.builder!(pages).toList();
 
     _widget = _StackNavigator(
       key: widget.navigatorKey,
       stack: widget.stack,
-      onPopPage: (route, dynamic result) {
-        return widget.stack.onPopPage(route, result, _routemaster);
-      },
+      pagePopHandler: _pagePopHandler,
+      onDidRemovePage: (_) {},
       transitionDelegate: widget.transitionDelegate,
       pages: filteredPages,
       observers: [
-        _RelayingNavigatorObserver(
-          () sync* {
-            final delegate = _routemaster._state.delegate;
+        _RelayingNavigatorObserver(() sync* {
+          final delegate = _routemaster._state.delegate;
 
-            yield* widget.observers;
-            yield* delegate.observers;
-            yield delegate._state.pushObserver;
-          },
-        )
+          yield* widget.observers;
+          yield* delegate.observers;
+          yield delegate._state.pushObserver;
+        }),
+        _pagePopHandler,
       ],
     );
   }
@@ -1412,17 +1423,33 @@ class PageStackNavigatorState extends State<PageStackNavigator> {
   }
 }
 
+class _PagePopHandler extends NavigatorObserver {
+  bool _popInProgress = false;
+  final VoidCallback _onPagePop;
+
+  _PagePopHandler(this._onPagePop);
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    if (_popInProgress && route.settings is Page) {
+      _onPagePop();
+    }
+  }
+}
+
 /// A subclass of [Navigator] that attaches itself to a [PageStack], so that
 /// the stack can use [Navigator.maybePop].
 ///
 /// This is to support popping non-[Page] routes.
 class _StackNavigator extends Navigator {
   final PageStack stack;
+  final _PagePopHandler pagePopHandler;
 
   const _StackNavigator({
     required this.stack,
+    required this.pagePopHandler,
     super.key,
-    super.onPopPage,
+    super.onDidRemovePage,
     super.transitionDelegate,
     super.pages,
     super.observers,
@@ -1446,6 +1473,17 @@ class _StackNavigatorState extends NavigatorState {
     (widget as _StackNavigator).stack._attachedNavigator = null;
     super.dispose();
   }
+
+  @override
+  void pop<T extends Object?>([T? result]) {
+    final handler = (widget as _StackNavigator).pagePopHandler;
+    handler._popInProgress = true;
+    try {
+      super.pop(result);
+    } finally {
+      handler._popInProgress = false;
+    }
+  }
 }
 
 void _assertIsPage(RouteSettings page, String route) {
@@ -1455,10 +1493,4 @@ void _assertIsPage(RouteSettings page, String route) {
   );
 }
 
-enum _ReportType {
-  none,
-  navigate,
-  neglect,
-}
-
-T? _ambiguate<T>(T? value) => value;
+enum _ReportType { none, navigate, neglect }

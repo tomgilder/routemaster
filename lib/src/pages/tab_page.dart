@@ -21,7 +21,7 @@ class TabPage extends StatefulPage<void> with IndexedRouteMixIn {
     required this.child,
     required this.paths,
     this.pageBuilder = _defaultPageBuilder,
-    this.backBehavior = TabBackBehavior.none,
+    this.backBehavior = .none,
   });
 
   @override

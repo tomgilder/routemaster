@@ -24,19 +24,11 @@ abstract class PageTransition {
   static const PageTransition zoom = _ZoomPageTransition();
 
   /// Returns the default page transition for the given [platform].
-  static PageTransition platformDefault(TargetPlatform platform) {
-    switch (platform) {
-      case TargetPlatform.android:
-      case TargetPlatform.linux:
-      case TargetPlatform.windows:
-      case TargetPlatform.fuchsia:
-        return PageTransition.fadeUpwards;
-
-      case TargetPlatform.iOS:
-      case TargetPlatform.macOS:
-        return PageTransition.cupertino;
-    }
-  }
+  static PageTransition platformDefault(TargetPlatform platform) =>
+      switch (platform) {
+        .android || .linux || .windows || .fuchsia => .fadeUpwards,
+        .iOS || .macOS => .cupertino,
+      };
 }
 
 class _NoPageTransition extends PageTransition {
@@ -284,12 +276,12 @@ class TransitionBuilderPageRoute<T> extends PageRoute<T> {
   @override
   Widget buildTransitions(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation, Widget child) {
-    final isPopping = controller!.status == AnimationStatus.reverse;
+    final isPopping = controller!.status == .reverse;
 
     // If the push is complete we build the pop transition.
     // This is so cupertino back user gesture will work, even if a cupertino
     // transition wasn't used to show this page.
-    final pushIsComplete = controller!.status == AnimationStatus.completed;
+    final pushIsComplete = controller!.status == .completed;
 
     final transition =
         (isPopping || pushIsComplete || navigator!.userGestureInProgress)

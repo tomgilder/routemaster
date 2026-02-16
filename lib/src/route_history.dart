@@ -68,19 +68,16 @@ class RouteHistory {
     _history.add(last);
   }
 
-// coverage:ignore-start
+  // coverage:ignore-start
   void _goToIndex(int index) {
     if (index == _index) {
       return;
     }
 
     _index = index;
-    _navigate(
-      _history[_index],
-      isBrowserHistoryNavigation: true,
-    );
+    _navigate(_history[_index], isBrowserHistoryNavigation: true);
   }
-// coverage:ignore-end
+  // coverage:ignore-end
 
   void _didNavigate({required RouteData route, required bool isReplacement}) {
     if (isReplacement) {
@@ -119,14 +116,11 @@ class RouteHistory {
     }
   }
 
-  void _navigate(
-    RouteData route, {
-    bool isBrowserHistoryNavigation = false,
-  }) {
+  void _navigate(RouteData route, {bool isBrowserHistoryNavigation = false}) {
     _state.delegate._navigate(
       uri: route._uri,
       isReplacement: false,
-      requestSource: RequestSource.internal,
+      requestSource: .internal,
       isBrowserHistoryNavigation: isBrowserHistoryNavigation,
     );
   }
@@ -147,9 +141,40 @@ class RouteHistory {
         );
       }
     } else {
-      _state.delegate._updateCurrentConfiguration(
-        isReplacement: true,
-      );
+      _state.delegate._updateCurrentConfiguration(isReplacement: true);
+    }
+  }
+
+  void _onPopToRoute({required RouteData newRoute}) {
+    // Search backwards from _index for the target route
+    int? targetIndex;
+    for (var i = _index - 1; i >= 0; i--) {
+      if (_history[i] == newRoute) {
+        targetIndex = i;
+        break;
+      }
+    }
+
+    if (targetIndex != null) {
+      final stepsBack = _index - targetIndex;
+      if (stepsBack <= 0) {
+        _state.delegate._updateCurrentConfiguration(updateHistory: false);
+        return;
+      }
+
+      if (kIsWeb && SystemNav.enabled) {
+        // Use browser history.go() so forward button works
+        SystemNav.go(-stepsBack); // coverage:ignore-line
+      } else {
+        _index = targetIndex;
+        _state.delegate._updateCurrentConfiguration(
+          isReplacement: true,
+          updateHistory: false,
+        );
+      }
+    } else {
+      // Route not found in history, use replacement behavior
+      _state.delegate._updateCurrentConfiguration(isReplacement: true);
     }
   }
 

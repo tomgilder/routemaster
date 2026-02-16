@@ -48,7 +48,7 @@ class IndexedPage extends StatefulPage<void> with IndexedRouteMixIn {
     required this.child,
     required this.paths,
     this.pageBuilder = _defaultPageBuilder,
-    this.backBehavior = TabBackBehavior.none,
+    this.backBehavior = .none,
   });
 
   @override
@@ -148,7 +148,7 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
   int _index = 0;
 
   /// How the back button should be handled.
-  final TabBackBehavior backBehavior = TabBackBehavior.none;
+  final TabBackBehavior backBehavior = .none;
 
   /// The currently active index.
   set index(int value) {
@@ -157,7 +157,7 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
 
       notifyListeners();
       _routemasterState!.delegate._updateCurrentConfiguration(
-        isReplacement: backBehavior == TabBackBehavior.none,
+        isReplacement: backBehavior == .none,
       );
     }
   }
