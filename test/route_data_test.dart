@@ -15,7 +15,7 @@ void main() {
       pathParameters: {},
       pathTemplate: '/template',
       isReplacement: false,
-      requestSource: RequestSource.system,
+      requestSource: .system,
     );
 
     expect(data.path, '/path');
@@ -28,7 +28,7 @@ void main() {
       pathParameters: {},
       pathTemplate: '/template',
       isReplacement: false,
-      requestSource: RequestSource.system,
+      requestSource: .system,
     );
 
     expect(data.path, '/path');
@@ -41,14 +41,14 @@ void main() {
       pathParameters: {},
       pathTemplate: '/template',
       isReplacement: false,
-      requestSource: RequestSource.system,
+      requestSource: .system,
     );
     final two = RouteData(
       '/one',
       pathParameters: {},
       pathTemplate: '/template',
       isReplacement: false,
-      requestSource: RequestSource.system,
+      requestSource: .system,
     );
 
     expect(one == two, isFalse);
@@ -61,14 +61,14 @@ void main() {
       pathParameters: {},
       pathTemplate: '/',
       isReplacement: false,
-      requestSource: RequestSource.system,
+      requestSource: .system,
     );
     final two = RouteData(
       '/',
       pathParameters: {},
       pathTemplate: '/',
       isReplacement: false,
-      requestSource: RequestSource.system,
+      requestSource: .system,
     );
 
     expect(one == two, isTrue);
@@ -81,14 +81,14 @@ void main() {
       pathParameters: {},
       pathTemplate: '/',
       isReplacement: false,
-      requestSource: RequestSource.system,
+      requestSource: .system,
     );
     final two = RouteData(
       '/',
       pathParameters: {},
       pathTemplate: '/',
       isReplacement: false,
-      requestSource: RequestSource.system,
+      requestSource: .system,
     );
 
     expect(one == two, isFalse);
@@ -101,14 +101,14 @@ void main() {
       pathParameters: {},
       pathTemplate: '/',
       isReplacement: false,
-      requestSource: RequestSource.system,
+      requestSource: .system,
     );
     final two = RouteData(
       '/?a=b',
       pathParameters: {},
       pathTemplate: '/',
       isReplacement: false,
-      requestSource: RequestSource.system,
+      requestSource: .system,
     );
 
     expect(one == two, isTrue);
@@ -121,14 +121,14 @@ void main() {
       pathTemplate: '/',
       pathParameters: {'a': 'b'},
       isReplacement: false,
-      requestSource: RequestSource.system,
+      requestSource: .system,
     );
     final two = RouteData(
       '/',
       pathParameters: {'a': 'b'},
       pathTemplate: '/',
       isReplacement: false,
-      requestSource: RequestSource.system,
+      requestSource: .system,
     );
 
     expect(one == two, isTrue);
@@ -136,10 +136,7 @@ void main() {
   });
 
   test('RouteData.toString() is correct', () {
-    expect(
-      RouteData('/', pathTemplate: '').toString(),
-      '/',
-    );
+    expect(RouteData('/', pathTemplate: '').toString(), '/');
   });
 
   testWidgets('Can get RouteData from context', (tester) async {
@@ -151,9 +148,8 @@ void main() {
         return RouteMap(
           routes: {
             '/': (_) => MaterialPage<void>(child: Container(key: pageKey1)),
-            '/two/:id': (_) => MaterialPage<void>(
-                  child: Container(key: pageKey2),
-                ),
+            '/two/:id': (_) =>
+                MaterialPage<void>(child: Container(key: pageKey2)),
           },
         );
       },
@@ -189,19 +185,22 @@ void main() {
     expect(currentRoute.requestSource, RequestSource.internal);
   });
 
-  testWidgets('Can get RouteData from context with regular Navigator',
-      (tester) async {
+  testWidgets('Can get RouteData from context with regular Navigator', (
+    tester,
+  ) async {
     final pageKey = GlobalKey();
 
-    final delegate = RoutemasterDelegate(routesBuilder: (context) {
-      return RouteMap(
-        routes: {
-          '/': (_) =>
-              const StackPage(child: ContainerPage(), defaultPath: '/two'),
-          '/two': (route) => MaterialPage<void>(child: PageTwo(key: pageKey)),
-        },
-      );
-    });
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (context) {
+        return RouteMap(
+          routes: {
+            '/': (_) =>
+                const StackPage(child: ContainerPage(), defaultPath: '/two'),
+            '/two': (route) => MaterialPage<void>(child: PageTwo(key: pageKey)),
+          },
+        );
+      },
+    );
 
     await tester.pumpWidget(
       MaterialApp.router(
@@ -214,21 +213,22 @@ void main() {
     expect(RouteData.of(pageKey.currentContext!).pathTemplate, '/two');
   });
 
-  testWidgets('Can get RouteData from context when navigating back',
-      (tester) async {
+  testWidgets('Can get RouteData from context when navigating back', (
+    tester,
+  ) async {
     final delegate = RoutemasterDelegate(
       routesBuilder: (context) {
         return RouteMap(
           routes: {
             '/': (_) => MaterialPage<void>(child: Container()),
             '/two': (_) => MaterialPage<void>(
-                  child: Builder(
-                    builder: (context) {
-                      RouteData.of(context);
-                      return Container();
-                    },
-                  ),
-                ),
+              child: Builder(
+                builder: (context) {
+                  RouteData.of(context);
+                  return Container();
+                },
+              ),
+            ),
           },
         );
       },
@@ -253,20 +253,20 @@ void main() {
   testWidgets('Asserts if unable to get RouteData', (tester) async {
     final key = GlobalKey();
 
-    final delegate = RoutemasterDelegate(routesBuilder: (context) {
-      return RouteMap(
-        routes: {
-          '/': (_) => MaterialPage<void>(
-                child: Navigator(
-                  onPopPage: (_, dynamic __) => false,
-                  pages: [
-                    MaterialPage<void>(child: SizedBox(key: key)),
-                  ],
-                ),
-              )
-        },
-      );
-    });
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (context) {
+        return RouteMap(
+          routes: {
+            '/': (_) => MaterialPage<void>(
+              child: Navigator(
+                onDidRemovePage: (_) {},
+                pages: [MaterialPage<void>(child: SizedBox(key: key))],
+              ),
+            ),
+          },
+        );
+      },
+    );
 
     await tester.pumpWidget(
       MaterialApp.router(
@@ -277,23 +277,34 @@ void main() {
 
     expect(
       () => RouteData.of(key.currentContext!),
-      throwsA(predicate((e) =>
-          e is AssertionError &&
-          e.message == "Couldn't find RouteData for page")),
+      throwsA(
+        predicate(
+          (e) =>
+              e is AssertionError &&
+              e.message == "Couldn't find RouteData for page",
+        ),
+      ),
     );
   });
 
   testWidgets('Asserts if unable to get modal route', (tester) async {
     late BuildContext context;
-    await tester.pumpWidget(Builder(builder: (c) {
-      context = c;
-      return const SizedBox();
-    }));
+    await tester.pumpWidget(
+      Builder(
+        builder: (c) {
+          context = c;
+          return const SizedBox();
+        },
+      ),
+    );
 
     expect(
       () => RouteData.of(context),
-      throwsA(predicate((e) =>
-          e is AssertionError && e.message == "Couldn't get modal route")),
+      throwsA(
+        predicate(
+          (e) => e is AssertionError && e.message == "Couldn't get modal route",
+        ),
+      ),
     );
   });
 
@@ -303,7 +314,7 @@ void main() {
       pathParameters: {},
       isReplacement: true,
       pathTemplate: '/public/_private',
-      requestSource: RequestSource.system,
+      requestSource: .system,
     ).toRouteInformation();
 
     final state1 = routeInfo1.state as Map;
@@ -318,7 +329,7 @@ void main() {
       pathParameters: {},
       isReplacement: false,
       pathTemplate: '/public/_private',
-      requestSource: RequestSource.internal,
+      requestSource: .internal,
     ).toRouteInformation();
 
     final state2 = routeInfo2.state as Map;
@@ -333,7 +344,7 @@ void main() {
       pathParameters: {'_id': '1'},
       isReplacement: false,
       pathTemplate: '/product/_id',
-      requestSource: RequestSource.internal,
+      requestSource: .internal,
     ).toRouteInformation();
 
     final state3 = routeInfo3.state as Map;
@@ -343,16 +354,18 @@ void main() {
   });
 
   test('Can deserialize route data', () {
-    final routeData = RouteData.fromRouteInformation(RouteInformation(
-      uri: Uri.parse('/public'),
-      state: {
-        'pathTemplate': '/public/_private',
-        'internalPath': '/public/_private',
-        'isReplacement': true,
-        'requestSource': 'RequestSource.internal',
-        'pathParameters': <String, String>{},
-      },
-    ));
+    final routeData = RouteData.fromRouteInformation(
+      RouteInformation(
+        uri: Uri.parse('/public'),
+        state: {
+          'pathTemplate': '/public/_private',
+          'internalPath': '/public/_private',
+          'isReplacement': true,
+          'requestSource': 'RequestSource.internal',
+          'pathParameters': <String, String>{},
+        },
+      ),
+    );
 
     expect(routeData.publicPath, '/public');
     expect(routeData.fullPath, '/public/_private');
@@ -361,16 +374,18 @@ void main() {
     expect(routeData.requestSource, RequestSource.internal);
     expect(routeData.queryParameters, isEmpty);
 
-    final routeData2 = RouteData.fromRouteInformation(RouteInformation(
-      uri: Uri.parse('/public'),
-      state: {
-        'pathTemplate': '/public/_private',
-        'internalPath': '/public/_private?hello=world',
-        'isReplacement': false,
-        'requestSource': 'RequestSource.system',
-        'pathParameters': <String, String>{},
-      },
-    ));
+    final routeData2 = RouteData.fromRouteInformation(
+      RouteInformation(
+        uri: Uri.parse('/public'),
+        state: {
+          'pathTemplate': '/public/_private',
+          'internalPath': '/public/_private?hello=world',
+          'isReplacement': false,
+          'requestSource': 'RequestSource.system',
+          'pathParameters': <String, String>{},
+        },
+      ),
+    );
 
     expect(routeData2.publicPath, '/public');
     expect(routeData2.fullPath, '/public/_private?hello=world');
@@ -379,16 +394,18 @@ void main() {
     expect(routeData2.requestSource, RequestSource.system);
     expect(routeData2.queryParameters['hello'], 'world');
 
-    final routeData3 = RouteData.fromRouteInformation(RouteInformation(
-      uri: Uri.parse('/product/1'),
-      state: {
-        'pathTemplate': '/product/:_id',
-        'internalPath': '/product/1',
-        'isReplacement': false,
-        'requestSource': 'RequestSource.system',
-        'pathParameters': {'_id': '1'}
-      },
-    ));
+    final routeData3 = RouteData.fromRouteInformation(
+      RouteInformation(
+        uri: Uri.parse('/product/1'),
+        state: {
+          'pathTemplate': '/product/:_id',
+          'internalPath': '/product/1',
+          'isReplacement': false,
+          'requestSource': 'RequestSource.system',
+          'pathParameters': {'_id': '1'},
+        },
+      ),
+    );
 
     expect(routeData3.pathTemplate, '/product/:_id');
     expect(routeData3.publicPath, '/product');
@@ -407,10 +424,9 @@ void main() {
       }
     ''';
 
-    final routeData = RouteData.fromRouteInformation(RouteInformation(
-      uri: Uri.parse('/public'),
-      state: json.decode(jsonStr),
-    ));
+    final routeData = RouteData.fromRouteInformation(
+      RouteInformation(uri: Uri.parse('/public'), state: json.decode(jsonStr)),
+    );
 
     expect(routeData.publicPath, '/public');
     expect(routeData.fullPath, '/public/_private/hello');
@@ -428,9 +444,6 @@ class ContainerPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final stack = StackPage.of(context).stack.createPages();
 
-    return Navigator(
-      pages: stack,
-      onPopPage: (_, dynamic __) => false,
-    );
+    return Navigator(pages: stack, onDidRemovePage: (_) {});
   }
 }

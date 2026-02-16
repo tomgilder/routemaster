@@ -139,7 +139,7 @@ void main() {
         '/': (_) => IndexedPage(
               paths: const ['one', 'two'],
               child: TabPage(key: pageKey),
-              backBehavior: TabBackBehavior.none,
+              backBehavior: .none,
             ),
         '/one': (_) => const MaterialPageOne(),
       });
@@ -169,7 +169,7 @@ void main() {
         '/': (_) => IndexedPage(
               paths: const ['one', 'two', 'three'],
               child: BasicTabPage(key: pageKey),
-              backBehavior: TabBackBehavior.history,
+              backBehavior: .history,
             ),
         '/one': (_) => const MaterialPageOne(),
         '/two': (_) => const MaterialPageTwo(),

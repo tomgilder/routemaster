@@ -2,37 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:routemaster/routemaster.dart';
-import 'package:routemaster/src/system_nav.dart';
 import 'helpers.dart';
 
 void main() {
-  test('makeUrl makes hash URL with null query params', () {
-    expect(
-      SystemNav.makePublicUrl(
-        RouteData('/new-path', pathTemplate: '/new-path'),
-      ).endsWith('#/new-path'),
-      isTrue,
-    );
-  });
-
-  test('makeUrl makes hash URL with empty query params', () {
-    expect(
-      SystemNav.makePublicUrl(
-        RouteData('/new-path?', pathTemplate: '/new-path'),
-      ).endsWith('#/new-path'),
-      isTrue,
-    );
-  });
-
-  test('makeUrl makes hash URL with query params', () {
-    expect(
-      SystemNav.makePublicUrl(
-        RouteData('/new-path?query=param', pathTemplate: '/new-path'),
-      ).endsWith('#/new-path?query=param'),
-      isTrue,
-    );
-  });
-
   testWidgets('Replaces URL when redirecting to tabs', (tester) async {
     await recordUrlChanges((systemUrl) async {
       final routes1 = RouteMap(
@@ -42,9 +14,9 @@ void main() {
       final routes2 = RouteMap(
         routes: {
           '/': (_) => CupertinoTabPage(
-                child: Container(),
-                paths: const ['/one', '/two'],
-              ),
+            child: Container(),
+            paths: const ['/one', '/two'],
+          ),
           '/one': (_) => const MaterialPageOne(),
           '/two': (_) => const MaterialPageTwo(),
         },

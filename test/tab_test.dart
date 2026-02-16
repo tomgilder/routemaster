@@ -534,7 +534,7 @@ void main() {
           '/': (_) => TabPage(
                 child: BasicTabPage(key: pageKey),
                 paths: const ['one', 'two', 'three'],
-                backBehavior: TabBackBehavior.history,
+                backBehavior: .history,
               ),
           '/one': (_) => const MaterialPageOne(),
           '/two': (_) => const MaterialPageTwo(),

@@ -27,7 +27,7 @@ RouteData getRouteData(RouterResult routerResult) {
     pathTemplate: routerResult.pathTemplate,
     pathParameters: routerResult.pathParameters,
     isReplacement: false,
-    requestSource: RequestSource.system,
+    requestSource: .system,
   );
 }
 

@@ -19,7 +19,7 @@ void main() {
   testWidgets('No history entries created with TabBackBehavior.none',
       (tester) async {
     var app = CupertinoApp(
-      tabBackBehavior: TabBackBehavior.none,
+      tabBackBehavior: .none,
     );
     await tester.pumpWidget(app);
     expect(find.byType(FeedPage), findsOneWidget);
@@ -34,7 +34,7 @@ void main() {
   testWidgets('Can use TabBackBehavior.history with Cupertino tabs',
       (tester) async {
     final app = CupertinoApp(
-      tabBackBehavior: TabBackBehavior.history,
+      tabBackBehavior: .history,
     );
     await tester.pumpWidget(app);
 

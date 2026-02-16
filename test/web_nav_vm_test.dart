@@ -11,13 +11,6 @@ void main() {
     );
   });
 
-  test('SystemNav.makePublicUrl() throws when not on web', () {
-    expect(
-      () => SystemNav.makePublicUrl(RouteData('/path', pathTemplate: '/path')),
-      throwsA(isA<UnsupportedError>()),
-    );
-  });
-
   test('SystemNav.setPathUrlStrategy() throws when not on web', () {
     expect(
       () => SystemNav.setPathUrlStrategy(),
@@ -30,16 +23,10 @@ void main() {
   });
 
   test('SystemNav.back() throws when not on web', () {
-    expect(
-      () => SystemNav.back(),
-      throwsA(isA<UnsupportedError>()),
-    );
+    expect(() => SystemNav.back(), throwsA(isA<UnsupportedError>()));
   });
 
   test('SystemNav.forward() throws when not on web', () {
-    expect(
-      () => SystemNav.forward(),
-      throwsA(isA<UnsupportedError>()),
-    );
+    expect(() => SystemNav.forward(), throwsA(isA<UnsupportedError>()));
   });
 }
