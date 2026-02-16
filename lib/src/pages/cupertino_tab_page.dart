@@ -70,9 +70,7 @@ class _CupertinoTabPageStateProvider extends InheritedNotifier {
   const _CupertinoTabPageStateProvider({
     required super.child,
     required this.pageState,
-  }) : super(
-          notifier: pageState,
-        );
+  }) : super(notifier: pageState);
 }
 
 /// The state for a [CupertinoTabPage]. Creates and manages a
@@ -109,10 +107,7 @@ class CupertinoTabPageState extends PageState<CupertinoTabPage>
   @override
   Page<dynamic> createPage() {
     return page.pageBuilder(
-      _CupertinoTabPageStateProvider(
-        pageState: this,
-        child: page.child,
-      ),
+      _CupertinoTabPageStateProvider(pageState: this, child: page.child),
     );
   }
 

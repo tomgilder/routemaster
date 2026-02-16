@@ -51,9 +51,9 @@ class HeroApp extends StatelessWidget {
           return RouteMap(
             routes: {
               '/': (_) => CupertinoTabPage(
-                    child: HomePage(),
-                    paths: const ['hero1', 'other'],
-                  ),
+                child: HomePage(),
+                paths: const ['hero1', 'other'],
+              ),
               '/hero1': (_) => MaterialPage<void>(child: HeroPage1()),
               '/hero1/hero2': (_) => MaterialPage<void>(child: HeroPage2()),
               '/other': (_) => const MaterialPageOne(),

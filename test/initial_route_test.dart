@@ -27,10 +27,7 @@ class MyApp extends StatelessWidget {
           return RouteMap(
             routes: {
               '/home': (_) {
-                return const TabPage(
-                  child: PageOne(),
-                  paths: ['one', 'two'],
-                );
+                return const TabPage(child: PageOne(), paths: ['one', 'two']);
               },
             },
           );

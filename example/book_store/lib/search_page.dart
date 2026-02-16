@@ -39,11 +39,8 @@ class SearchPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final books = BooksDatabase()
-        .books
-        .where(
-          (book) => book.title.toLowerCase().contains(query.toLowerCase()),
-        )
+    final books = BooksDatabase().books
+        .where((book) => book.title.toLowerCase().contains(query.toLowerCase()))
         .toList()
         .sorted(
           (a, b) => sortOrder == SortOrder.name
@@ -51,8 +48,10 @@ class SearchPage extends StatelessWidget {
               : a.releaseDate.compareTo(b.releaseDate),
         );
 
-    final categoryMatches = BookCategory.values.where((category) =>
-        category.displayName.toLowerCase().contains(query.toLowerCase()));
+    final categoryMatches = BookCategory.values.where(
+      (category) =>
+          category.displayName.toLowerCase().contains(query.toLowerCase()),
+    );
 
     return PageScaffold(
       title: 'Search Results',
@@ -71,15 +70,15 @@ class SearchPage extends StatelessWidget {
                 iconSize: 24,
                 elevation: 16,
                 style: const TextStyle(color: Colors.deepPurple),
-                underline: Container(
-                  height: 2,
-                  color: Colors.deepPurpleAccent,
-                ),
+                underline: Container(height: 2, color: Colors.deepPurpleAccent),
                 onChanged: (SortOrder? newValue) {
-                  Routemaster.of(context).replace('/search', queryParameters: {
-                    'query': query,
-                    if (newValue != null) 'sort': newValue.queryParam,
-                  });
+                  Routemaster.of(context).replace(
+                    '/search',
+                    queryParameters: {
+                      'query': query,
+                      if (newValue != null) 'sort': newValue.queryParam,
+                    },
+                  );
                 },
                 items: SortOrder.values.map((SortOrder value) {
                   return DropdownMenuItem(
@@ -98,20 +97,17 @@ class SearchPage extends StatelessWidget {
             ),
             for (final category in categoryMatches) ...[
               Text(category.displayName),
-              for (final book in BooksDatabase()
-                  .books
-                  .where((book) => book.categories.contains(category)))
+              for (final book in BooksDatabase().books.where(
+                (book) => book.categories.contains(category),
+              ))
                 BookCard(
                   book: book,
                   pathBuilder: (id) =>
                       '/category/${category.queryParam}/book/$id',
-                )
-            ]
+                ),
+            ],
           ],
-          Text(
-            'Books',
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
+          Text('Books', style: Theme.of(context).textTheme.headlineSmall),
           if (books.isEmpty)
             Padding(
               padding: const EdgeInsets.all(30),
@@ -121,11 +117,8 @@ class SearchPage extends StatelessWidget {
             for (final book in books)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: BookCard(
-                  book: book,
-                  showReleaseDate: true,
-                ),
-              )
+                child: BookCard(book: book, showReleaseDate: true),
+              ),
         ],
       ),
     );

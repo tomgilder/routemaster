@@ -15,14 +15,14 @@ class MyApp extends StatelessWidget {
         routesBuilder: (context) => RouteMap(
           routes: {
             '/': (_) => const IndexedPage(
-                  child: NavigationBarPage(),
-                  paths: ['/feed', '/settings'],
-                ),
+              child: NavigationBarPage(),
+              paths: ['/feed', '/settings'],
+            ),
             '/feed': (_) => const MaterialPage(child: FeedPage()),
             '/settings': (_) => const MaterialPage(child: SettingsPage()),
             '/feed/profile/:id': (info) => MaterialPage(
-                  child: ProfilePage(title: info.pathParameters['id']!),
-                ),
+              child: ProfilePage(title: info.pathParameters['id']!),
+            ),
           },
         ),
       ),
@@ -45,19 +45,11 @@ class NavigationBarPage extends StatelessWidget {
         },
         selectedIndex: indexedPage.index,
         destinations: const <Widget>[
-          NavigationDestination(
-            icon: Icon(Icons.explore),
-            label: 'Feed',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.commute),
-            label: 'Settings',
-          ),
+          NavigationDestination(icon: Icon(Icons.explore), label: 'Feed'),
+          NavigationDestination(icon: Icon(Icons.commute), label: 'Settings'),
         ],
       ),
-      body: PageStackNavigator(
-        stack: indexedPage.currentStack,
-      ),
+      body: PageStackNavigator(stack: indexedPage.currentStack),
     );
   }
 }
@@ -82,10 +74,7 @@ class FeedPage extends StatelessWidget {
 class ProfilePage extends StatelessWidget {
   final String title;
 
-  const ProfilePage({
-    super.key,
-    required this.title,
-  });
+  const ProfilePage({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {

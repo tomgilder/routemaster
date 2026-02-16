@@ -12,10 +12,7 @@ void main() {
         routerDelegate: RoutemasterDelegate(
           routesBuilder: (_) => RouteMap(
             routes: {
-              '/': (_) => StackPage(
-                    child: MyStackPage(),
-                    defaultPath: 'one',
-                  ),
+              '/': (_) => StackPage(child: MyStackPage(), defaultPath: 'one'),
               '/one': (_) => const MaterialPageOne(),
               '/one/two': (_) => const MaterialPageTwo(),
               '/three': (_) => const MaterialPageThree(),
@@ -41,10 +38,7 @@ void main() {
         routerDelegate: RoutemasterDelegate(
           routesBuilder: (_) => RouteMap(
             routes: {
-              '/': (_) => StackPage(
-                    child: MyStackPage(),
-                    defaultPath: 'one',
-                  ),
+              '/': (_) => StackPage(child: MyStackPage(), defaultPath: 'one'),
               '/one': (_) => const MaterialPageOne(),
               '/one/two': (_) => const MaterialPageTwo(),
               '/three': (_) => const MaterialPageThree(),

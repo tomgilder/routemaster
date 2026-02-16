@@ -6,10 +6,7 @@ import 'page_scaffold.dart';
 class CategoryPage extends StatelessWidget {
   final BookCategory category;
 
-  const CategoryPage({
-    super.key,
-    required this.category,
-  });
+  const CategoryPage({super.key, required this.category});
 
   @override
   Widget build(BuildContext context) {
@@ -21,17 +18,14 @@ class CategoryPage extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: Text(
               category.displayName,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
           Wrap(
             children: [
-              for (final book in BooksDatabase()
-                  .books
-                  .where((book) => book.categories.contains(category)))
+              for (final book in BooksDatabase().books.where(
+                (book) => book.categories.contains(category),
+              ))
                 BookCard(book: book),
             ],
           ),

@@ -34,7 +34,7 @@ class Guard extends Page<dynamic> {
   ///
   /// By default this redirects to the default path.
   final Page<dynamic> Function(RouteData info, BuildContext context)?
-      onNavigationFailed;
+  onNavigationFailed;
 
   /// Initializes a way to prevent loading of certain routes.
   ///
@@ -90,10 +90,8 @@ class Redirect extends Page<dynamic> {
   final Map<String, String>? queryParameters;
 
   /// The full redirect path, including [queryParameters].
-  String get redirectPath => Uri(
-        path: path,
-        queryParameters: queryParameters,
-      ).toString();
+  String get redirectPath =>
+      Uri(path: path, queryParameters: queryParameters).toString();
 
   /// Initializes a redirect to the given [path], with an optional map of
   /// [queryParameters].

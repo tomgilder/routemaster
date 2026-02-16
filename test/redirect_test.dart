@@ -10,9 +10,9 @@ void main() {
         routes: {
           '/': (info) => const Redirect('/two'),
           '/two': (info) => Guard(
-                canNavigate: (info, context) => true,
-                builder: () => const MaterialPageTwo(),
-              ),
+            canNavigate: (info, context) => true,
+            builder: () => const MaterialPageTwo(),
+          ),
         },
       ),
     );
@@ -71,10 +71,7 @@ void main() {
     );
 
     final dynamic exception = tester.takeException();
-    expect(
-      exception,
-      isInstanceOf<RedirectLoopError>(),
-    );
+    expect(exception, isInstanceOf<RedirectLoopError>());
     expect(
       exception.toString(),
       """Routemaster is stuck in an endless redirect loop:
@@ -91,9 +88,9 @@ This is an error in your routing map.""",
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (info) => Guard(
-                canNavigate: (_, __) => true,
-                builder: () => const Redirect('/two'),
-              ),
+            canNavigate: (_, __) => true,
+            builder: () => const Redirect('/two'),
+          ),
           '/two': (info) => const MaterialPageTwo(),
         },
       ),

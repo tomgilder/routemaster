@@ -8,9 +8,7 @@ class FeedPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Feed'),
-      ),
+      appBar: AppBar(title: Text('Feed')),
       body: SafeArea(
         child: ListView(
           padding: EdgeInsets.all(16),
@@ -19,9 +17,9 @@ class FeedPage extends StatelessWidget {
               children: [
                 ElevatedButton(
                   onPressed: () async {
-                    final result = await Routemaster.of(context)
-                        .push<String?>('profile/1')
-                        .result;
+                    final result = await Routemaster.of(
+                      context,
+                    ).push<String?>('profile/1').result;
 
                     if (kDebugMode) {
                       print("Profile result: '$result'");
@@ -53,8 +51,9 @@ class FeedPage extends StatelessWidget {
                   child: Text('Bottom Navigation Bar page'),
                 ),
                 ElevatedButton(
-                  onPressed: () => Routemaster.of(context)
-                      .replace('/bottom-navigation-bar-replace'),
+                  onPressed: () => Routemaster.of(
+                    context,
+                  ).replace('/bottom-navigation-bar-replace'),
                   child: Text('Replace test'),
                 ),
                 ElevatedButton(
@@ -72,12 +71,14 @@ class FeedPage extends StatelessWidget {
                 ),
                 ElevatedButton(
                   onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) {
-                      return Scaffold(
-                        appBar: AppBar(),
-                        body: Center(child: Text('Non-Page route')),
-                      );
-                    }),
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return Scaffold(
+                          appBar: AppBar(),
+                          body: Center(child: Text('Non-Page route')),
+                        );
+                      },
+                    ),
                   ),
                   child: Text('Push non-Page route'),
                 ),
@@ -95,7 +96,7 @@ class FeedPage extends StatelessWidget {
                   child: Text('/stack/one/two'),
                 ),
               ],
-            )
+            ),
           ],
         ),
       ),
@@ -107,24 +108,20 @@ class ProfilePage extends StatelessWidget {
   final String? id;
   final String? message;
 
-  const ProfilePage({
-    super.key,
-    required this.id,
-    required this.message,
-  });
+  const ProfilePage({super.key, required this.id, required this.message});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Profile'),
-      ),
+      appBar: AppBar(title: Text('Profile')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text('Profile page, ID = $id, message = $message'),
-            Text('Profile page - ${RouteData.of(context).pathParameters['id']!}'),
+            Text(
+              'Profile page - ${RouteData.of(context).pathParameters['id']!}',
+            ),
             ElevatedButton(
               onPressed: () => Routemaster.of(context).push('photo'),
               child: Text('Photo page (custom animation)'),
@@ -167,17 +164,12 @@ class ProfilePage extends StatelessWidget {
 class PhotoPage extends StatelessWidget {
   final String? id;
 
-  const PhotoPage({
-    super.key,
-    required this.id,
-  });
+  const PhotoPage({super.key, required this.id});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Photo'),
-      ),
+      appBar: AppBar(title: Text('Photo')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -188,9 +180,9 @@ class PhotoPage extends StatelessWidget {
               child: Text('Back'),
             ),
             ElevatedButton(
-              onPressed: () => Routemaster.of(context).popUntil(
-                (routeData) => routeData.path == '/',
-              ),
+              onPressed: () => Routemaster.of(
+                context,
+              ).popUntil((routeData) => routeData.path == '/'),
               child: Text('Pop until root'),
             ),
           ],

@@ -8,11 +8,7 @@ class CustomCard extends StatelessWidget {
   final Widget child;
   final void Function() onTap;
 
-  const CustomCard({
-    super.key,
-    required this.onTap,
-    required this.child,
-  });
+  const CustomCard({super.key, required this.onTap, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -26,10 +22,7 @@ class CustomCard extends StatelessWidget {
           clipBehavior: Clip.antiAlias,
           child: InkWell(
             onTap: onTap,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: child,
-            ),
+            child: Padding(padding: const EdgeInsets.all(16), child: child),
           ),
         ),
       ),
@@ -56,7 +49,8 @@ class BookCard extends StatelessWidget {
     return CustomCard(
       onTap: () {
         Routemaster.of(context).push(
-            pathBuilder != null ? pathBuilder!(book.id) : '/book/${book.id}');
+          pathBuilder != null ? pathBuilder!(book.id) : '/book/${book.id}',
+        );
       },
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -68,21 +62,14 @@ class BookCard extends StatelessWidget {
             ),
             height: 100,
             width: 75,
-            child: Icon(
-              CupertinoIcons.book,
-              size: 55,
-              color: Colors.grey,
-            ),
+            child: Icon(CupertinoIcons.book, size: 55, color: Colors.grey),
           ),
           SizedBox(width: 20),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  book.title,
-                  style: TextStyle(fontSize: 16),
-                ),
+                Text(book.title, style: TextStyle(fontSize: 16)),
                 if (showReleaseDate) Text(_formatter.format(book.releaseDate)),
               ],
             ),

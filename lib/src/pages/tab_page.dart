@@ -31,8 +31,8 @@ class TabPage extends StatefulPage<void> with IndexedRouteMixIn {
 
   /// Retrieves the nearest [TabPageState] ancestor.
   static TabPageState of(BuildContext context) {
-    final provider =
-        context.dependOnInheritedWidgetOfExactType<_TabPageStateProvider>();
+    final provider = context
+        .dependOnInheritedWidgetOfExactType<_TabPageStateProvider>();
 
     assert(
       provider != null,
@@ -46,12 +46,8 @@ class TabPage extends StatefulPage<void> with IndexedRouteMixIn {
 class _TabPageStateProvider extends InheritedNotifier {
   final TabPageState pageState;
 
-  const _TabPageStateProvider({
-    required super.child,
-    required this.pageState,
-  }) : super(
-          notifier: pageState,
-        );
+  const _TabPageStateProvider({required super.child, required this.pageState})
+    : super(notifier: pageState);
 }
 
 /// The state for a [TabPage]. Creates and manages a [TabController] that can be
@@ -84,10 +80,7 @@ class TabPageState extends PageState<TabPage>
     return page.pageBuilder(
       _TabControllerProvider(
         pageState: this,
-        child: _TabPageStateProvider(
-          pageState: this,
-          child: page.child,
-        ),
+        child: _TabPageStateProvider(pageState: this, child: page.child),
       ),
     );
   }
@@ -103,10 +96,7 @@ class _TabControllerProvider extends StatefulWidget {
   final Widget child;
   final TabPageState pageState;
 
-  const _TabControllerProvider({
-    required this.child,
-    required this.pageState,
-  });
+  const _TabControllerProvider({required this.child, required this.pageState});
 
   @override
   _TabControllerProviderState createState() => _TabControllerProviderState();
@@ -136,13 +126,14 @@ class _TabControllerProviderState extends State<_TabControllerProvider>
 
   void _updateController() {
     _controller?.dispose();
-    _controller = TabController(
-      length: widget.pageState._routes.length,
-      initialIndex: widget.pageState.index,
-      vsync: this,
-    )..addListener(() {
-        widget.pageState.index = _controller!.index;
-      });
+    _controller =
+        TabController(
+          length: widget.pageState._routes.length,
+          initialIndex: widget.pageState.index,
+          vsync: this,
+        )..addListener(() {
+          widget.pageState.index = _controller!.index;
+        });
   }
 
   @override

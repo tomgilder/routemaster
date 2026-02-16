@@ -51,8 +51,8 @@ class StackPage extends StatefulPage<void> with RedirectingPage {
 
   /// Retrieves the [StackPageState] from the closest [StackPage] ancestor.
   static StackPageState of(BuildContext context) {
-    final provider =
-        context.dependOnInheritedWidgetOfExactType<_StackPageStateProvider>();
+    final provider = context
+        .dependOnInheritedWidgetOfExactType<_StackPageStateProvider>();
 
     assert(
       provider != null,
@@ -67,12 +67,8 @@ class StackPage extends StatefulPage<void> with RedirectingPage {
 class _StackPageStateProvider extends InheritedNotifier {
   final StackPageState pageState;
 
-  _StackPageStateProvider({
-    required super.child,
-    required this.pageState,
-  }) : super(
-          notifier: pageState.stack,
-        );
+  _StackPageStateProvider({required super.child, required this.pageState})
+    : super(notifier: pageState.stack);
 }
 
 /// The current state of an [StackPage]. Created when an instance of the page
@@ -88,10 +84,7 @@ class StackPageState extends PageState<StackPage>
   @override
   Page<dynamic> createPage() {
     return page.pageBuilder(
-      _StackPageStateProvider(
-        pageState: this,
-        child: page.child,
-      ),
+      _StackPageStateProvider(pageState: this, child: page.child),
     );
   }
 

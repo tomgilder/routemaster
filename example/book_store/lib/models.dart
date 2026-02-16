@@ -18,7 +18,7 @@ class AppState extends ChangeNotifier {
       username: 'dash',
       id: '123',
       title: "Dash's birthday wishlist",
-    )
+    ),
   ];
   Iterable<Wishlist> get wishlists => List.unmodifiable(_wishlists);
 
@@ -46,10 +46,7 @@ class Book {
   });
 }
 
-enum BookCategory {
-  fiction,
-  nonFiction,
-}
+enum BookCategory { fiction, nonFiction }
 
 extension BookCategoryExtension on BookCategory {
   String get displayName {

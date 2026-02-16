@@ -1,10 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-enum LoggedInState {
-  loading,
-  loggedOut,
-  loggedIn,
-}
+enum LoggedInState { loading, loggedOut, loggedIn }
 
 class AppState extends ChangeNotifier {
   LoggedInState _loggedInState = LoggedInState.loading;
