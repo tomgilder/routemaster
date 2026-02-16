@@ -15,10 +15,10 @@ final stackApp = MaterialApp.router(
       routes: {
         '/': (_) => MaterialPage<void>(child: PageOne(key: rootPageKey)),
         '/stack': (_) => StackPage(
-          pageBuilder: (child) => BottomSheetPage(child: child),
-          child: StackBottomSheetContents(),
-          defaultPath: 'one',
-        ),
+              pageBuilder: (child) => BottomSheetPage(child: child),
+              child: StackBottomSheetContents(),
+              defaultPath: 'one',
+            ),
         '/stack/one': (_) => MaterialPage<void>(child: StackPageOne()),
         '/stack/one/two': (_) => MaterialPage<void>(child: StackPageTwo()),
       },
@@ -116,24 +116,18 @@ void main() {
   testWidgets('Asserts if unable to find StackPage', (tester) async {
     late BuildContext context;
     await tester.pumpWidget(
-      Builder(
-        builder: (c) {
-          context = c;
-          return const SizedBox();
-        },
-      ),
+      Builder(builder: (c) {
+        context = c;
+        return const SizedBox();
+      }),
     );
 
     expect(
       () => StackPage.of(context),
-      throwsA(
-        predicate(
-          (e) =>
-              e is AssertionError &&
-              e.message ==
-                  "Couldn't find an StackPageState from the given context.",
-        ),
-      ),
+      throwsA(predicate((e) =>
+          e is AssertionError &&
+          e.message ==
+              "Couldn't find an StackPageState from the given context.")),
     );
   });
 }

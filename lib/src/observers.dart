@@ -49,9 +49,7 @@ class _RelayingNavigatorObserver extends NavigatorObserver {
 
   @override
   void didStartUserGesture(
-    Route<dynamic> route,
-    Route<dynamic>? previousRoute,
-  ) {
+      Route<dynamic> route, Route<dynamic>? previousRoute) {
     for (final observer in getObservers().toList()) {
       observer.didStartUserGesture(route, previousRoute);
     }

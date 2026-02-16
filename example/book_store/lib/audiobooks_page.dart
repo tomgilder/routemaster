@@ -46,7 +46,10 @@ class AudiobookPage extends StatelessWidget {
 class AudiobookListPage extends StatelessWidget {
   final String mode;
 
-  const AudiobookListPage({super.key, required this.mode});
+  const AudiobookListPage({
+    super.key,
+    required this.mode,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -55,9 +58,8 @@ class AudiobookListPage extends StatelessWidget {
         Wrap(
           children: [
             if (mode == 'picks')
-              for (final book in BooksDatabase().books.where(
-                (book) => book.isStaffPick,
-              ))
+              for (final book
+                  in BooksDatabase().books.where((book) => book.isStaffPick))
                 BookCard(
                   book: book,
                   pathBuilder: (id) => '/audiobooks/book/$id',

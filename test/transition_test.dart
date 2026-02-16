@@ -73,9 +73,7 @@ void main() {
 
       final pushTransition = page.buildPushTransition(context);
       expect(
-        pushTransition.runtimeType,
-        PageTransition.fadeUpwards.runtimeType,
-      );
+          pushTransition.runtimeType, PageTransition.fadeUpwards.runtimeType);
       expect(pushTransition.duration, kAndroidDuration);
 
       final popTransition = page.buildPopTransition(context);
@@ -113,139 +111,146 @@ void main() {
     },
   );
 
-  testWidgets('TransitionPage uses default transition if just pop is null', (
-    tester,
-  ) async {
-    late BuildContext context;
+  testWidgets(
+    'TransitionPage uses default transition if just pop is null',
+    (tester) async {
+      late BuildContext context;
 
-    await tester.pumpWidget(
-      Theme(
-        data: ThemeData(platform: TargetPlatform.android),
-        child: Builder(
-          builder: (ctx) {
-            context = ctx;
-            return const SizedBox();
-          },
-        ),
-      ),
-    );
-
-    const pushTransition = TestPageTransition();
-    const page = TransitionPage<void>(
-      child: SizedBox(),
-      pushTransition: pushTransition,
-      popTransition: null,
-    );
-
-    expect(page.buildPushTransition(context), pushTransition);
-
-    final popTransition = page.buildPopTransition(context);
-    expect(popTransition.runtimeType, PageTransition.fadeUpwards.runtimeType);
-    expect(popTransition.duration, kAndroidDuration);
-  });
-
-  testWidgets('TransitionPage uses default transition if just push is null', (
-    tester,
-  ) async {
-    late BuildContext context;
-
-    await tester.pumpWidget(
-      Theme(
-        data: ThemeData(platform: TargetPlatform.android),
-        child: Builder(
-          builder: (ctx) {
-            context = ctx;
-            return const SizedBox();
-          },
-        ),
-      ),
-    );
-
-    const popTransition = TestPageTransition();
-    const page = TransitionPage<void>(
-      child: SizedBox(),
-      pushTransition: null,
-      popTransition: popTransition,
-    );
-
-    final pushTransition = page.buildPushTransition(context);
-    expect(pushTransition.runtimeType, PageTransition.fadeUpwards.runtimeType);
-    expect(pushTransition.duration, kAndroidDuration);
-
-    expect(page.buildPopTransition(context), popTransition);
-  });
-
-  testWidgets('TransitionPage can use custom push and pop animations', (
-    tester,
-  ) async {
-    late BuildContext context;
-
-    await tester.pumpWidget(
-      Theme(
-        data: ThemeData(platform: TargetPlatform.android),
-        child: Builder(
-          builder: (ctx) {
-            context = ctx;
-            return const SizedBox();
-          },
-        ),
-      ),
-    );
-
-    const pushTransition = TestPageTransition();
-    const popTransition = TestPageTransition();
-    const page = TransitionPage<void>(
-      child: SizedBox(),
-      pushTransition: pushTransition,
-      popTransition: popTransition,
-    );
-
-    expect(page.buildPushTransition(context), pushTransition);
-    expect(page.buildPopTransition(context), popTransition);
-  });
-
-  testWidgets('No transition pops and pushes immediately', (tester) async {
-    // Pump routemaster with two pages
-    final delegate = RoutemasterDelegate(
-      routesBuilder: (_) => RouteMap(
-        routes: {
-          '/': (info) => const MaterialPageOne(),
-          '/subpage': (info) => const TransitionPage<void>(
-            child: PageTwo(),
-            pushTransition: PageTransition.none,
-            popTransition: PageTransition.none,
+      await tester.pumpWidget(
+        Theme(
+          data: ThemeData(platform: TargetPlatform.android),
+          child: Builder(
+            builder: (ctx) {
+              context = ctx;
+              return const SizedBox();
+            },
           ),
-        },
-      ),
-    );
+        ),
+      );
 
-    await tester.pumpWidget(
-      MaterialApp.router(
-        routeInformationParser: const RoutemasterParser(),
-        routerDelegate: delegate,
-      ),
-    );
+      const pushTransition = TestPageTransition();
+      const page = TransitionPage<void>(
+        child: SizedBox(),
+        pushTransition: pushTransition,
+        popTransition: null,
+      );
 
-    // Finds first page
-    expect(find.byType(PageOne), findsOneWidget);
-    expect(find.byType(PageTwo), findsNothing);
+      expect(page.buildPushTransition(context), pushTransition);
 
-    delegate.push('/subpage');
-    final pushFrames = await tester.pumpAndSettle();
-    expect(pushFrames, 2);
+      final popTransition = page.buildPopTransition(context);
+      expect(popTransition.runtimeType, PageTransition.fadeUpwards.runtimeType);
+      expect(popTransition.duration, kAndroidDuration);
+    },
+  );
 
-    // Finds second page
-    expect(find.byType(PageOne), findsNothing);
-    expect(find.byType(PageTwo), findsOneWidget);
+  testWidgets(
+    'TransitionPage uses default transition if just push is null',
+    (tester) async {
+      late BuildContext context;
 
-    await delegate.pop();
+      await tester.pumpWidget(
+        Theme(
+          data: ThemeData(platform: TargetPlatform.android),
+          child: Builder(
+            builder: (ctx) {
+              context = ctx;
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
 
-    final popFrames = await tester.pumpAndSettle();
-    expect(popFrames, 2);
+      const popTransition = TestPageTransition();
+      const page = TransitionPage<void>(
+        child: SizedBox(),
+        pushTransition: null,
+        popTransition: popTransition,
+      );
 
-    expect(find.byType(PageOne), findsOneWidget);
-    expect(find.byType(PageTwo), findsNothing);
-  });
+      final pushTransition = page.buildPushTransition(context);
+      expect(
+          pushTransition.runtimeType, PageTransition.fadeUpwards.runtimeType);
+      expect(pushTransition.duration, kAndroidDuration);
+
+      expect(page.buildPopTransition(context), popTransition);
+    },
+  );
+
+  testWidgets(
+    'TransitionPage can use custom push and pop animations',
+    (tester) async {
+      late BuildContext context;
+
+      await tester.pumpWidget(
+        Theme(
+          data: ThemeData(platform: TargetPlatform.android),
+          child: Builder(
+            builder: (ctx) {
+              context = ctx;
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+
+      const pushTransition = TestPageTransition();
+      const popTransition = TestPageTransition();
+      const page = TransitionPage<void>(
+        child: SizedBox(),
+        pushTransition: pushTransition,
+        popTransition: popTransition,
+      );
+
+      expect(page.buildPushTransition(context), pushTransition);
+      expect(page.buildPopTransition(context), popTransition);
+    },
+  );
+
+  testWidgets(
+    'No transition pops and pushes immediately',
+    (tester) async {
+      // Pump routemaster with two pages
+      final delegate = RoutemasterDelegate(
+        routesBuilder: (_) => RouteMap(
+          routes: {
+            '/': (info) => const MaterialPageOne(),
+            '/subpage': (info) => const TransitionPage<void>(
+                  child: PageTwo(),
+                  pushTransition: PageTransition.none,
+                  popTransition: PageTransition.none,
+                ),
+          },
+        ),
+      );
+
+      await tester.pumpWidget(
+        MaterialApp.router(
+          routeInformationParser: const RoutemasterParser(),
+          routerDelegate: delegate,
+        ),
+      );
+
+      // Finds first page
+      expect(find.byType(PageOne), findsOneWidget);
+      expect(find.byType(PageTwo), findsNothing);
+
+      delegate.push('/subpage');
+      final pushFrames = await tester.pumpAndSettle();
+      expect(pushFrames, 2);
+
+      // Finds second page
+      expect(find.byType(PageOne), findsNothing);
+      expect(find.byType(PageTwo), findsOneWidget);
+
+      await delegate.pop();
+
+      final popFrames = await tester.pumpAndSettle();
+      expect(popFrames, 2);
+
+      expect(find.byType(PageOne), findsOneWidget);
+      expect(find.byType(PageTwo), findsNothing);
+    },
+  );
 
   testWidgets(
     'Can use different push animation and swipe back on Cupertino pop transition',
@@ -256,10 +261,10 @@ void main() {
           routes: {
             '/': (info) => const MaterialPageOne(),
             '/subpage': (info) => const TransitionPage<void>(
-              child: PageTwo(),
-              pushTransition: PageTransition.fadeUpwards,
-              popTransition: PageTransition.cupertino,
-            ),
+                  child: PageTwo(),
+                  pushTransition: PageTransition.fadeUpwards,
+                  popTransition: PageTransition.cupertino,
+                ),
           },
         ),
       );
@@ -356,12 +361,11 @@ class TestPageTransitionsBuilder extends PageTransitionsBuilder {
 
   @override
   Widget buildTransitions<T>(
-    PageRoute<T> route,
-    BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-    Widget child,
-  ) {
+      PageRoute<T> route,
+      BuildContext context,
+      Animation<double> animation,
+      Animation<double> secondaryAnimation,
+      Widget child) {
     return const SizedBox();
   }
 }

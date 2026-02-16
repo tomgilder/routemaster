@@ -13,9 +13,8 @@ Future<void> pumpFeedPage(WidgetTester tester) async {
 }
 
 void main() {
-  testWidgets('Shows profile page 1, photo page, and back to feed home', (
-    tester,
-  ) async {
+  testWidgets('Shows profile page 1, photo page, and back to feed home',
+      (tester) async {
     await recordUrlChanges((systemUrl) async {
       await pumpFeedPage(tester);
 
@@ -27,7 +26,10 @@ void main() {
       await tester.pump(Duration(seconds: 1));
       expect(systemUrl.current, '/feed/profile/1');
 
-      expect(find.text('Profile page, ID = 1, message = null'), findsOneWidget);
+      expect(
+        find.text('Profile page, ID = 1, message = null'),
+        findsOneWidget,
+      );
 
       // Verify page is being shown within tab bar
       expect(find.byType(CupertinoTabBar), findsOneWidget);
@@ -140,7 +142,9 @@ void main() {
 
     await tester.scrollUntilVisible(find.text('Push non-Page route'), 100);
     await tester.pump();
-    await tester.tap(find.text('Push non-Page route'));
+    await tester.tap(
+      find.text('Push non-Page route'),
+    );
     await tester.pump();
     await tester.pump(Duration(seconds: 1));
 

@@ -10,7 +10,9 @@ class SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
     return Scaffold(
-      appBar: AppBar(title: Text('Settings')),
+      appBar: AppBar(
+        title: Text('Settings'),
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -30,9 +32,8 @@ class SettingsPage extends StatelessWidget {
             ),
             SizedBox(height: 50),
             ElevatedButton(
-              onPressed: () =>
-                  Provider.of<AppState>(context, listen: false).isLoggedIn =
-                      false,
+              onPressed: () => Provider.of<AppState>(context, listen: false)
+                  .isLoggedIn = false,
               child: Text('Log out'),
             ),
           ],

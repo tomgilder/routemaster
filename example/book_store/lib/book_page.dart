@@ -5,7 +5,10 @@ import 'page_scaffold.dart';
 class BookPage extends StatelessWidget {
   final String id;
 
-  const BookPage({super.key, required this.id});
+  const BookPage({
+    super.key,
+    required this.id,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +25,10 @@ class BookPage extends StatelessWidget {
               children: [
                 Text(
                   book.title,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 SizedBox(height: 20),
                 Text(book.description),

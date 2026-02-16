@@ -1,6 +1,6 @@
 # 1.1.0
 
-* **Breaking:** Minimum Dart SDK raised to 3.10, minimum Flutter raised to 3.38.1.
+* **Breaking:** Minimum Dart SDK raised to 3.10, minimum Flutter raised to 3.40.
 * Fixed browser forward-button not working after pop/popUntil operations.
 
 # 1.0.1

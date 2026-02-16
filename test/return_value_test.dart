@@ -79,9 +79,8 @@ void main() {
     expect(await result.result, 'result');
   });
 
-  testWidgets('Can get null return value via Routemaster.pop()', (
-    tester,
-  ) async {
+  testWidgets('Can get null return value via Routemaster.pop()',
+      (tester) async {
     final key = GlobalKey();
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(

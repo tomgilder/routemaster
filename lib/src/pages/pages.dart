@@ -31,9 +31,11 @@ mixin PageContainer<T extends Page<dynamic>> {
 /// Page containers associate [RouteData] with a page.
 class StatelessPage<T extends Page<dynamic>> with PageContainer {
   /// Creates a stateless page container from the given page and routing data.
-  StatelessPage({required T page, required RouteData routeData})
-    : _page = page,
-      _routeData = routeData;
+  StatelessPage({
+    required T page,
+    required RouteData routeData,
+  })  : _page = page,
+        _routeData = routeData;
 
   @override
   Page<dynamic> _getOrCreatePage() => _page;

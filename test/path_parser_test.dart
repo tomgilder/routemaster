@@ -4,7 +4,10 @@ import 'package:routemaster/src/path_parser.dart';
 void main() {
   test('Returns absolute path for absolute paths', () {
     expect(
-      PathParser.getAbsolutePath(basePath: '/old', path: '/new').toString(),
+      PathParser.getAbsolutePath(
+        basePath: '/old',
+        path: '/new',
+      ).toString(),
       '/new',
     );
 
@@ -36,7 +39,10 @@ void main() {
 
   test('Returns absolute path for relative paths', () {
     expect(
-      PathParser.getAbsolutePath(basePath: '/one', path: 'two').toString(),
+      PathParser.getAbsolutePath(
+        basePath: '/one',
+        path: 'two',
+      ).toString(),
       '/one/two',
     );
 

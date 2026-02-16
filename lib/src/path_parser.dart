@@ -28,7 +28,10 @@ class PathParser {
   }) {
     final absolutePath = pathContext.isAbsolute(path)
         ? path
-        : pathContext.join(stripQueryString(basePath), path);
+        : pathContext.join(
+            stripQueryString(basePath),
+            path,
+          );
 
     final uri = Uri.parse(absolutePath);
 

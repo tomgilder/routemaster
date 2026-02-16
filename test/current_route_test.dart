@@ -7,30 +7,22 @@ void main() {
     RouteData? routeOneCurrentRoute;
     RouteData? routeTwoCurrentRoute;
 
-    final delegate = RoutemasterDelegate(
-      routesBuilder: (context) {
-        return RouteMap(
-          routes: {
-            '/': (_) => MaterialPage<void>(
-              child: Builder(
-                builder: (context) {
-                  routeOneCurrentRoute = Routemaster.of(context).currentRoute;
-                  return Container();
-                },
-              ),
+    final delegate = RoutemasterDelegate(routesBuilder: (context) {
+      return RouteMap(routes: {
+        '/': (_) => MaterialPage<void>(
+              child: Builder(builder: (context) {
+                routeOneCurrentRoute = Routemaster.of(context).currentRoute;
+                return Container();
+              }),
             ),
-            '/two/:id': (_) => MaterialPage<void>(
-              child: Builder(
-                builder: (context) {
-                  routeTwoCurrentRoute = Routemaster.of(context).currentRoute;
-                  return Container();
-                },
-              ),
+        '/two/:id': (_) => MaterialPage<void>(
+              child: Builder(builder: (context) {
+                routeTwoCurrentRoute = Routemaster.of(context).currentRoute;
+                return Container();
+              }),
             ),
-          },
-        );
-      },
-    );
+      });
+    });
 
     await tester.pumpWidget(
       MaterialApp.router(

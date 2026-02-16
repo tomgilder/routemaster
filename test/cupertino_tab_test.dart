@@ -16,10 +16,11 @@ void main() {
     expect(find.byType(PageTwo), findsOneWidget);
   });
 
-  testWidgets('No history entries created with TabBackBehavior.none', (
-    tester,
-  ) async {
-    var app = CupertinoApp(tabBackBehavior: .none);
+  testWidgets('No history entries created with TabBackBehavior.none',
+      (tester) async {
+    var app = CupertinoApp(
+      tabBackBehavior: .none,
+    );
     await tester.pumpWidget(app);
     expect(find.byType(FeedPage), findsOneWidget);
 
@@ -30,10 +31,11 @@ void main() {
     expect(app.delegate.history.canGoBack, isFalse);
   });
 
-  testWidgets('Can use TabBackBehavior.history with Cupertino tabs', (
-    tester,
-  ) async {
-    final app = CupertinoApp(tabBackBehavior: .history);
+  testWidgets('Can use TabBackBehavior.history with Cupertino tabs',
+      (tester) async {
+    final app = CupertinoApp(
+      tabBackBehavior: .history,
+    );
     await tester.pumpWidget(app);
 
     expect(find.byType(FeedPage), findsOneWidget);
@@ -100,20 +102,16 @@ void main() {
 
   testWidgets('CupertinoTabController syncs with page state', (tester) async {
     final pageKey = GlobalKey();
-    final delegate = RoutemasterDelegate(
-      routesBuilder: (context) {
-        return RouteMap(
-          routes: {
-            '/': (_) => CupertinoTabPage(
+    final delegate = RoutemasterDelegate(routesBuilder: (context) {
+      return RouteMap(routes: {
+        '/': (_) => CupertinoTabPage(
               paths: const ['one', 'two'],
               child: TabbedPage(key: pageKey),
             ),
-            '/one': (_) => const MaterialPageOne(),
-            '/two': (_) => const MaterialPageTwo(),
-          },
-        );
-      },
-    );
+        '/one': (_) => const MaterialPageOne(),
+        '/two': (_) => const MaterialPageTwo(),
+      });
+    });
 
     await tester.pumpWidget(
       MaterialApp.router(
@@ -143,12 +141,12 @@ void main() {
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (_) => CupertinoTabPage(
-            paths: const ['/one', '/two'],
-            child: const TabbedPage(),
-            pageBuilder: (child) => CupertinoPage<void>(
-              child: Container(key: key, child: child),
-            ),
-          ),
+                paths: const ['/one', '/two'],
+                child: const TabbedPage(),
+                pageBuilder: (child) => CupertinoPage<void>(
+                  child: Container(key: key, child: child),
+                ),
+              ),
           '/one': (_) => const MaterialPage<void>(child: PageOne()),
           '/two': (_) => const MaterialPage<void>(child: PageTwo()),
         },
@@ -169,17 +167,19 @@ void main() {
 class CupertinoApp extends StatelessWidget {
   final TabBackBehavior tabBackBehavior;
 
-  CupertinoApp({Key? key, this.tabBackBehavior = TabBackBehavior.none})
-    : super(key: key);
+  CupertinoApp({
+    Key? key,
+    this.tabBackBehavior = TabBackBehavior.none,
+  }) : super(key: key);
 
   late final delegate = RoutemasterDelegate(
     routesBuilder: (_) => RouteMap(
       routes: {
         '/': (_) => CupertinoTabPage(
-          child: HomePage(),
-          paths: const ['feed', 'two', 'three'],
-          backBehavior: tabBackBehavior,
-        ),
+              child: HomePage(),
+              paths: const ['feed', 'two', 'three'],
+              backBehavior: tabBackBehavior,
+            ),
         '/feed': (_) => MaterialPage<void>(child: FeedPage()),
         '/feed/profile/:id': (_) => MaterialPage<void>(child: ProfilePage()),
         '/two': (_) => const MaterialPageTwo(),

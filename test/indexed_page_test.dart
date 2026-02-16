@@ -7,20 +7,16 @@ import 'helpers.dart';
 void main() {
   testWidgets('Can switch indexed tab index', (tester) async {
     final pageKey = GlobalKey();
-    final delegate = RoutemasterDelegate(
-      routesBuilder: (context) {
-        return RouteMap(
-          routes: {
-            '/': (_) => IndexedPage(
+    final delegate = RoutemasterDelegate(routesBuilder: (context) {
+      return RouteMap(routes: {
+        '/': (_) => IndexedPage(
               paths: const ['one', 'two'],
               child: TabPage(key: pageKey),
             ),
-            '/one': (_) => const MaterialPageOne(),
-            '/two': (_) => const MaterialPageTwo(),
-          },
-        );
-      },
-    );
+        '/one': (_) => const MaterialPageOne(),
+        '/two': (_) => const MaterialPageTwo(),
+      });
+    });
 
     await tester.pumpWidget(
       MaterialApp.router(
@@ -36,24 +32,19 @@ void main() {
     expect(find.text('Index 1'), findsOneWidget);
   });
 
-  testWidgets('Switches to correct index when building child route', (
-    tester,
-  ) async {
+  testWidgets('Switches to correct index when building child route',
+      (tester) async {
     final pageKey = GlobalKey();
-    final delegate = RoutemasterDelegate(
-      routesBuilder: (context) {
-        return RouteMap(
-          routes: {
-            '/': (_) => IndexedPage(
+    final delegate = RoutemasterDelegate(routesBuilder: (context) {
+      return RouteMap(routes: {
+        '/': (_) => IndexedPage(
               paths: const ['one', 'two'],
               child: TabPage(key: pageKey),
             ),
-            '/one': (_) => const MaterialPageOne(),
-            '/two': (_) => const MaterialPageTwo(),
-          },
-        );
-      },
-    );
+        '/one': (_) => const MaterialPageOne(),
+        '/two': (_) => const MaterialPageTwo(),
+      });
+    });
 
     await tester.pumpWidget(
       MaterialApp.router(
@@ -70,18 +61,14 @@ void main() {
   });
 
   testWidgets('Shows not found page within tab', (tester) async {
-    final delegate = RoutemasterDelegate(
-      routesBuilder: (context) {
-        return RouteMap(
-          routes: {
-            '/': (_) => const IndexedPage(
+    final delegate = RoutemasterDelegate(routesBuilder: (context) {
+      return RouteMap(routes: {
+        '/': (_) => const IndexedPage(
               paths: ['not-found', 'two'],
               child: BasicTabPage(),
             ),
-          },
-        );
-      },
-    );
+      });
+    });
 
     await tester.pumpWidget(
       MaterialApp.router(
@@ -94,19 +81,17 @@ void main() {
   });
 
   testWidgets('Can redirect within tab', (tester) async {
-    final delegate = RoutemasterDelegate(
-      routesBuilder: (context) {
-        return RouteMap(
-          routes: {
-            '/': (_) =>
-                const IndexedPage(paths: ['one', 'two'], child: BasicTabPage()),
-            '/one': (_) => const Redirect('/three'),
-            '/two': (_) => const MaterialPageTwo(),
-            '/three': (_) => const MaterialPageThree(),
-          },
-        );
-      },
-    );
+    final delegate = RoutemasterDelegate(routesBuilder: (context) {
+      return RouteMap(routes: {
+        '/': (_) => const IndexedPage(
+              paths: ['one', 'two'],
+              child: BasicTabPage(),
+            ),
+        '/one': (_) => const Redirect('/three'),
+        '/two': (_) => const MaterialPageTwo(),
+        '/three': (_) => const MaterialPageThree(),
+      });
+    });
 
     await tester.pumpWidget(
       MaterialApp.router(
@@ -124,12 +109,12 @@ void main() {
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (_) => IndexedPage(
-            paths: const ['/one', '/two'],
-            child: const BasicTabPage(),
-            pageBuilder: (child) => CupertinoPage<void>(
-              child: Container(key: key, child: child),
-            ),
-          ),
+                paths: const ['/one', '/two'],
+                child: const BasicTabPage(),
+                pageBuilder: (child) => CupertinoPage<void>(
+                  child: Container(key: key, child: child),
+                ),
+              ),
           '/one': (_) => const MaterialPageOne(),
           '/two': (_) => const MaterialPageTwo(),
         },
@@ -146,24 +131,19 @@ void main() {
     expect(find.byKey(key), findsOneWidget);
   });
 
-  testWidgets('No history entries created with TabBackBehavior.none', (
-    tester,
-  ) async {
+  testWidgets('No history entries created with TabBackBehavior.none',
+      (tester) async {
     final pageKey = GlobalKey();
-    final delegate = RoutemasterDelegate(
-      routesBuilder: (context) {
-        return RouteMap(
-          routes: {
-            '/': (_) => IndexedPage(
+    final delegate = RoutemasterDelegate(routesBuilder: (context) {
+      return RouteMap(routes: {
+        '/': (_) => IndexedPage(
               paths: const ['one', 'two'],
               child: TabPage(key: pageKey),
               backBehavior: .none,
             ),
-            '/one': (_) => const MaterialPageOne(),
-          },
-        );
-      },
-    );
+        '/one': (_) => const MaterialPageOne(),
+      });
+    });
 
     await tester.pumpWidget(
       MaterialApp.router(
@@ -181,26 +161,21 @@ void main() {
     expect(delegate.history.canGoForward, isFalse);
   });
 
-  testWidgets('Creates history entries with TabBackBehavior.history', (
-    tester,
-  ) async {
+  testWidgets('Creates history entries with TabBackBehavior.history',
+      (tester) async {
     final pageKey = GlobalKey();
-    final delegate = RoutemasterDelegate(
-      routesBuilder: (context) {
-        return RouteMap(
-          routes: {
-            '/': (_) => IndexedPage(
+    final delegate = RoutemasterDelegate(routesBuilder: (context) {
+      return RouteMap(routes: {
+        '/': (_) => IndexedPage(
               paths: const ['one', 'two', 'three'],
               child: BasicTabPage(key: pageKey),
               backBehavior: .history,
             ),
-            '/one': (_) => const MaterialPageOne(),
-            '/two': (_) => const MaterialPageTwo(),
-            '/three': (_) => const MaterialPageThree(),
-          },
-        );
-      },
-    );
+        '/one': (_) => const MaterialPageOne(),
+        '/two': (_) => const MaterialPageTwo(),
+        '/three': (_) => const MaterialPageThree(),
+      });
+    });
 
     await tester.pumpWidget(
       MaterialApp.router(
@@ -260,7 +235,9 @@ class TabPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final indexedPage = IndexedPage.of(context);
 
-    return Scaffold(body: Text('Index ${indexedPage.index}'));
+    return Scaffold(
+      body: Text('Index ${indexedPage.index}'),
+    );
   }
 }
 
@@ -271,6 +248,8 @@ class BasicTabPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final stack = IndexedPage.of(context).currentStack;
 
-    return Scaffold(body: PageStackNavigator(stack: stack));
+    return Scaffold(
+      body: PageStackNavigator(stack: stack),
+    );
   }
 }

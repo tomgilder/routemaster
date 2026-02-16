@@ -41,10 +41,9 @@ class TrieRouter {
           current.containsWhere((k) => k!.startsWith(':')) &&
           !current.containsWhere((k) => k == pathSegment)) {
         throw ConflictingPathError(
-          list,
-          List<String?>.from(list).sublist(0, i)
-            ..add(current.getWhere((k) => k!.startsWith(':'))!.key),
-        );
+            list,
+            List<String?>.from(list).sublist(0, i)
+              ..add(current.getWhere((k) => k!.startsWith(':'))!.key));
       }
 
       final isLastSegment = i == list.length - 1;
@@ -144,9 +143,8 @@ class TrieRouter {
           addToResult(i, current);
         }
       } else if (current.containsWhere((k) => k!.startsWith(':'))) {
-        final nextSegment = i < pathSegments.length - 1
-            ? pathSegments[i]
-            : null;
+        final nextSegment =
+            i < pathSegments.length - 1 ? pathSegments[i] : null;
         final nextSegmentIsParam = nextSegment?.startsWith(':') ?? false;
 
         // If there is a segment that starts with `:`, we should match any

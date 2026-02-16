@@ -162,9 +162,9 @@ void main() {
       // Scenario #4: Nested Routing (with Tabs)
 
       final routeInfoProvider = BrowserEmulatorRouteInfoProvider();
-      await tester.pumpWidget(
-        BookStoreApp(routeInformationProvider: routeInfoProvider),
-      );
+      await tester.pumpWidget(BookStoreApp(
+        routeInformationProvider: routeInfoProvider,
+      ));
       await tester.pump();
 
       // Go to audiobooks page

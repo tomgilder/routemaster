@@ -16,10 +16,19 @@ class TabBarPage extends StatelessWidget {
         bottom: TabBar(
           controller: tabPage.controller,
           tabs: [
-            Tab(icon: Icon(Icons.directions_car), text: 'Home'),
+            Tab(
+              icon: Icon(Icons.directions_car),
+              text: 'Home',
+            ),
             if (appState.showBonusTab)
-              Tab(icon: Icon(Icons.directions_transit), text: 'Bonus'),
-            Tab(icon: Icon(Icons.directions_car), text: 'Settings'),
+              Tab(
+                icon: Icon(Icons.directions_transit),
+                text: 'Bonus',
+              ),
+            Tab(
+              icon: Icon(Icons.directions_car),
+              text: 'Settings',
+            ),
           ],
         ),
       ),

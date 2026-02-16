@@ -18,12 +18,18 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
 
       expect(systemUrl.current, '/feed/profile');
-      expect(find.byType(ProfilePage), findsOneWidget);
+      expect(
+        find.byType(ProfilePage),
+        findsOneWidget,
+      );
 
       unawaited(tester.binding.reassembleApplication());
       await tester.pump();
 
-      expect(find.byType(ProfilePage), findsOneWidget);
+      expect(
+        find.byType(ProfilePage),
+        findsOneWidget,
+      );
     });
   });
 
@@ -62,18 +68,18 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       routeInformationParser: const RoutemasterParser(),
-      routerDelegate: RoutemasterDelegate(routesBuilder: (context) => routeMap),
+      routerDelegate: RoutemasterDelegate(
+        routesBuilder: (context) => routeMap,
+      ),
     );
   }
 }
 
-final routeMap = RouteMap(
-  routes: {
-    '/': (_) => CupertinoTabPage(child: HomePage(), paths: const ['feed']),
-    '/feed': (_) => MaterialPage<void>(child: FeedPage()),
-    '/feed/profile': (info) => MaterialPage<void>(child: ProfilePage()),
-  },
-);
+final routeMap = RouteMap(routes: {
+  '/': (_) => CupertinoTabPage(child: HomePage(), paths: const ['feed']),
+  '/feed': (_) => MaterialPage<void>(child: FeedPage()),
+  '/feed/profile': (info) => MaterialPage<void>(child: ProfilePage())
+});
 
 class FeedPage extends StatelessWidget {
   @override
