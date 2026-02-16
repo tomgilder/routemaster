@@ -27,7 +27,7 @@ RouteData getRouteData(RouterResult routerResult) {
     pathTemplate: routerResult.pathTemplate,
     pathParameters: routerResult.pathParameters,
     isReplacement: false,
-    requestSource: RequestSource.system,
+    requestSource: .system,
   );
 }
 
@@ -353,10 +353,14 @@ void main() {
       () {
         router.add('/test/:id2', (info) => const MaterialPageOne());
       },
-      throwsA(predicate((e) =>
-          e is ConflictingPathError &&
-          e.toString() ==
-              "Attempt to add '/test/:id2' but a path containing '/test/:id1' has already been added. Adding two paths prefixed with ':' at the same index is not allowed.")),
+      throwsA(
+        predicate(
+          (e) =>
+              e is ConflictingPathError &&
+              e.toString() ==
+                  "Attempt to add '/test/:id2' but a path containing '/test/:id1' has already been added. Adding two paths prefixed with ':' at the same index is not allowed.",
+        ),
+      ),
     );
   });
 

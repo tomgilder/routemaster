@@ -9,10 +9,10 @@ class CustomCard extends StatelessWidget {
   final void Function() onTap;
 
   const CustomCard({
-    Key? key,
+    super.key,
     required this.onTap,
     required this.child,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -43,11 +43,11 @@ class BookCard extends StatelessWidget {
   final String Function(String id)? pathBuilder;
 
   const BookCard({
-    Key? key,
+    super.key,
     required this.book,
     this.showReleaseDate = false,
     this.pathBuilder,
-  }) : super(key: key);
+  });
 
   static final _formatter = DateFormat('yyyy-MM-dd');
 
@@ -56,7 +56,8 @@ class BookCard extends StatelessWidget {
     return CustomCard(
       onTap: () {
         Routemaster.of(context).push(
-            pathBuilder != null ? pathBuilder!(book.id) : '/book/${book.id}');
+          pathBuilder != null ? pathBuilder!(book.id) : '/book/${book.id}',
+        );
       },
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

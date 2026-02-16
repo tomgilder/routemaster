@@ -12,10 +12,7 @@ void main() {
         routerDelegate: RoutemasterDelegate(
           routesBuilder: (_) => RouteMap(
             routes: {
-              '/': (_) => StackPage(
-                    child: MyStackPage(),
-                    defaultPath: 'one',
-                  ),
+              '/': (_) => StackPage(child: MyStackPage(), defaultPath: 'one'),
               '/one': (_) => const MaterialPageOne(),
               '/one/two': (_) => const MaterialPageTwo(),
               '/three': (_) => const MaterialPageThree(),
@@ -26,11 +23,11 @@ void main() {
     );
 
     await setSystemUrl('/one/two');
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageTwo), findsOneWidget);
 
     await tester.tap(find.text('Push three'));
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageThree), findsOneWidget);
   });
 
@@ -41,10 +38,7 @@ void main() {
         routerDelegate: RoutemasterDelegate(
           routesBuilder: (_) => RouteMap(
             routes: {
-              '/': (_) => StackPage(
-                    child: MyStackPage(),
-                    defaultPath: 'one',
-                  ),
+              '/': (_) => StackPage(child: MyStackPage(), defaultPath: 'one'),
               '/one': (_) => const MaterialPageOne(),
               '/one/two': (_) => const MaterialPageTwo(),
               '/three': (_) => const MaterialPageThree(),
@@ -55,11 +49,11 @@ void main() {
     );
 
     await setSystemUrl('/one/two');
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageTwo), findsOneWidget);
 
     await tester.tap(find.text('Replace three'));
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageThree), findsOneWidget);
   });
 }

@@ -4,7 +4,7 @@ import 'package:mobile_app/app_state/app_state.dart';
 import 'package:provider/provider.dart';
 
 class SettingsPage extends StatelessWidget {
-  const SettingsPage({Key? key}) : super(key: key);
+  const SettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -32,8 +32,9 @@ class SettingsPage extends StatelessWidget {
             ),
             SizedBox(height: 50),
             ElevatedButton(
-              onPressed: () => Provider.of<AppState>(context, listen: false)
-                  .isLoggedIn = false,
+              onPressed: () =>
+                  Provider.of<AppState>(context, listen: false).isLoggedIn =
+                      false,
               child: Text('Log out'),
             ),
           ],

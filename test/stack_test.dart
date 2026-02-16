@@ -5,12 +5,16 @@ import 'helpers.dart';
 
 void main() {
   testWidgets('Can push and pop a page via delegate pop()', (tester) async {
-    final delegate = RoutemasterDelegate(routesBuilder: (context) {
-      return RouteMap(routes: {
-        '/': (_) => const MaterialPageOne(),
-        '/two': (_) => const MaterialPageTwo(),
-      });
-    });
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (context) {
+        return RouteMap(
+          routes: {
+            '/': (_) => const MaterialPageOne(),
+            '/two': (_) => const MaterialPageTwo(),
+          },
+        );
+      },
+    );
 
     await tester.pumpWidget(
       MaterialApp.router(
@@ -24,17 +28,17 @@ void main() {
     expect(find.byType(PageTwo), findsNothing);
 
     delegate.push('two');
-    await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(
-        delegate.currentConfiguration, RouteData('/two', pathTemplate: '/two'));
+      delegate.currentConfiguration,
+      RouteData('/two', pathTemplate: '/two'),
+    );
     expect(find.byType(PageOne), findsNothing);
     expect(find.byType(PageTwo), findsOneWidget);
 
     await delegate.popRoute();
-    await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(delegate.currentConfiguration, RouteData('/', pathTemplate: '/'));
     expect(find.byType(PageOne), findsOneWidget);
@@ -43,12 +47,16 @@ void main() {
 
   testWidgets('Can push and pop a page via Navigator', (tester) async {
     final page2Key = GlobalKey();
-    final delegate = RoutemasterDelegate(routesBuilder: (context) {
-      return RouteMap(routes: {
-        '/': (_) => const MaterialPageOne(),
-        '/two': (_) => MaterialPage<void>(child: PageTwo(key: page2Key)),
-      });
-    });
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (context) {
+        return RouteMap(
+          routes: {
+            '/': (_) => const MaterialPageOne(),
+            '/two': (_) => MaterialPage<void>(child: PageTwo(key: page2Key)),
+          },
+        );
+      },
+    );
 
     await tester.pumpWidget(
       MaterialApp.router(
@@ -62,17 +70,17 @@ void main() {
     expect(find.byType(PageTwo), findsNothing);
 
     delegate.push('two');
-    await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(
-        delegate.currentConfiguration, RouteData('/two', pathTemplate: '/two'));
+      delegate.currentConfiguration,
+      RouteData('/two', pathTemplate: '/two'),
+    );
     expect(find.byType(PageOne), findsNothing);
     expect(find.byType(PageTwo), findsOneWidget);
 
     Navigator.of(page2Key.currentContext!).pop();
-    await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(delegate.currentConfiguration, RouteData('/', pathTemplate: '/'));
     expect(find.byType(PageOne), findsOneWidget);
@@ -82,12 +90,16 @@ void main() {
   testWidgets('Can push and pop a page via delegate', (tester) async {
     final page1Key = GlobalKey();
     final page2Key = GlobalKey();
-    final delegate = RoutemasterDelegate(routesBuilder: (context) {
-      return RouteMap(routes: {
-        '/': (_) => MaterialPage<void>(child: PageOne(key: page1Key)),
-        '/two': (_) => MaterialPage<void>(child: PageTwo(key: page2Key)),
-      });
-    });
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (context) {
+        return RouteMap(
+          routes: {
+            '/': (_) => MaterialPage<void>(child: PageOne(key: page1Key)),
+            '/two': (_) => MaterialPage<void>(child: PageTwo(key: page2Key)),
+          },
+        );
+      },
+    );
 
     await tester.pumpWidget(
       MaterialApp.router(
@@ -101,18 +113,17 @@ void main() {
     expect(find.byType(PageTwo), findsNothing);
 
     Routemaster.of(page1Key.currentContext!).push('two');
-    await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(
-        delegate.currentConfiguration, RouteData('/two', pathTemplate: '/two'));
+      delegate.currentConfiguration,
+      RouteData('/two', pathTemplate: '/two'),
+    );
     expect(find.byType(PageOne), findsNothing);
     expect(find.byType(PageTwo), findsOneWidget);
 
     await Routemaster.of(page2Key.currentContext!).pop();
-    await tester.pump();
-
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(delegate.currentConfiguration, RouteData('/', pathTemplate: '/'));
     expect(find.byType(PageOne), findsOneWidget);
@@ -122,12 +133,16 @@ void main() {
   testWidgets('Can push and pop a page via system back button', (tester) async {
     final page1Key = GlobalKey();
     final page2Key = GlobalKey();
-    final delegate = RoutemasterDelegate(routesBuilder: (context) {
-      return RouteMap(routes: {
-        '/': (_) => MaterialPage<void>(child: PageOne(key: page1Key)),
-        '/two': (_) => MaterialPage<void>(child: PageTwo(key: page2Key)),
-      });
-    });
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (context) {
+        return RouteMap(
+          routes: {
+            '/': (_) => MaterialPage<void>(child: PageOne(key: page1Key)),
+            '/two': (_) => MaterialPage<void>(child: PageTwo(key: page2Key)),
+          },
+        );
+      },
+    );
 
     await tester.pumpWidget(
       MaterialApp.router(
@@ -141,17 +156,17 @@ void main() {
     expect(find.byType(PageTwo), findsNothing);
 
     delegate.push('two');
-    await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(
-        delegate.currentConfiguration, RouteData('/two', pathTemplate: '/two'));
+      delegate.currentConfiguration,
+      RouteData('/two', pathTemplate: '/two'),
+    );
     expect(find.byType(PageOne), findsNothing);
     expect(find.byType(PageTwo), findsOneWidget);
 
     await invokeSystemBack();
-    await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(delegate.currentConfiguration, RouteData('/', pathTemplate: '/'));
     expect(find.byType(PageOne), findsOneWidget);
@@ -159,12 +174,16 @@ void main() {
   });
 
   testWidgets('Can push and pop a page with query string', (tester) async {
-    final delegate = RoutemasterDelegate(routesBuilder: (context) {
-      return RouteMap(routes: {
-        '/': (_) => const MaterialPageOne(),
-        '/two': (_) => const MaterialPageTwo(),
-      });
-    });
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (context) {
+        return RouteMap(
+          routes: {
+            '/': (_) => const MaterialPageOne(),
+            '/two': (_) => const MaterialPageTwo(),
+          },
+        );
+      },
+    );
 
     await tester.pumpWidget(
       MaterialApp.router(
@@ -178,8 +197,7 @@ void main() {
     expect(find.byType(PageTwo), findsNothing);
 
     delegate.push('two?query=string');
-    await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(
       delegate.currentConfiguration,
@@ -191,15 +209,19 @@ void main() {
 
   testWidgets('Can push a page with query string', (tester) async {
     late RouteData routeData;
-    final delegate = RoutemasterDelegate(routesBuilder: (context) {
-      return RouteMap(routes: {
-        '/': (_) => const MaterialPageOne(),
-        '/two': (info) {
-          routeData = info;
-          return const MaterialPageTwo();
-        },
-      });
-    });
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (context) {
+        return RouteMap(
+          routes: {
+            '/': (_) => const MaterialPageOne(),
+            '/two': (info) {
+              routeData = info;
+              return const MaterialPageTwo();
+            },
+          },
+        );
+      },
+    );
 
     await tester.pumpWidget(
       MaterialApp.router(
@@ -244,10 +266,7 @@ void main() {
           page: const MaterialPageOne(),
           routeData: RouteData('/', pathTemplate: '/'),
         ),
-        StatelessPage(
-          page: const MaterialPageTwo(),
-          routeData: lastRouteData,
-        ),
+        StatelessPage(page: const MaterialPageTwo(), routeData: lastRouteData),
       ],
     );
 
@@ -285,8 +304,8 @@ void main() {
       MaterialApp.router(
         routeInformationParser: const RoutemasterParser(),
         routeInformationProvider: PlatformRouteInformationProvider(
-          initialRouteInformation: const RouteInformation(
-            location: '/tabs/one',
+          initialRouteInformation: RouteInformation(
+            uri: Uri.parse('/tabs/one'),
           ),
         ),
         routerDelegate: delegate,
@@ -294,38 +313,45 @@ void main() {
     );
 
     delegate.push('subpage');
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
 
     expect(find.byType(PageThree), findsOneWidget);
     await invokeSystemBack();
-    await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
     expect(find.byType(PageThree), findsNothing);
   });
 
   testWidgets('Asserts if unable to find StackNavigationState', (tester) async {
     late BuildContext context;
     await tester.pumpWidget(
-      Builder(builder: (c) {
-        context = c;
-        return const SizedBox();
-      }),
+      Builder(
+        builder: (c) {
+          context = c;
+          return const SizedBox();
+        },
+      ),
     );
 
     expect(
       () => PageStackNavigator.of(context),
-      throwsA(predicate((e) =>
-          e is AssertionError &&
-          e.message == "Couldn't find a StackNavigatorState")),
+      throwsA(
+        predicate(
+          (e) =>
+              e is AssertionError &&
+              e.message == "Couldn't find a StackNavigatorState",
+        ),
+      ),
     );
   });
 
   testWidgets('Can update StackNavigator with a new stack', (tester) async {
-    final delegate = RoutemasterDelegate(routesBuilder: (context) {
-      return RouteMap(routes: {
-        '/': (_) => MaterialPage<void>(child: StackSwapPage()),
-      });
-    });
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (context) {
+        return RouteMap(
+          routes: {'/': (_) => MaterialPage<void>(child: StackSwapPage())},
+        );
+      },
+    );
 
     await tester.pumpWidget(
       MaterialApp.router(
@@ -344,15 +370,18 @@ void main() {
 
   testWidgets('Can popUntil root', (tester) async {
     final pageKey = GlobalKey();
-    final delegate = RoutemasterDelegate(routesBuilder: (context) {
-      return RouteMap(routes: {
-        '/': (_) => const MaterialPageOne(),
-        '/two': (info) => const MaterialPageTwo(),
-        '/two/three': (info) => MaterialPage<void>(
-              child: PageThree(key: pageKey),
-            ),
-      });
-    });
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (context) {
+        return RouteMap(
+          routes: {
+            '/': (_) => const MaterialPageOne(),
+            '/two': (info) => const MaterialPageTwo(),
+            '/two/three': (info) =>
+                MaterialPage<void>(child: PageThree(key: pageKey)),
+          },
+        );
+      },
+    );
 
     await tester.pumpWidget(
       MaterialApp.router(
@@ -362,7 +391,7 @@ void main() {
     );
 
     delegate.push('/two/three');
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
 
     expect(find.byType(PageThree), findsOneWidget);
 
@@ -371,7 +400,7 @@ void main() {
       popUntilRoutes.add(routeData);
       return routeData.path == '/';
     });
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
 
     expect(find.byType(PageOne), findsOneWidget);
     expect(find.byType(PageThree), findsNothing);
@@ -383,13 +412,17 @@ void main() {
   });
 
   testWidgets('popUntil stops at root', (tester) async {
-    final delegate = RoutemasterDelegate(routesBuilder: (context) {
-      return RouteMap(routes: {
-        '/': (_) => const MaterialPageOne(),
-        '/two': (info) => const MaterialPageTwo(),
-        '/two/three': (info) => const MaterialPageThree(),
-      });
-    });
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (context) {
+        return RouteMap(
+          routes: {
+            '/': (_) => const MaterialPageOne(),
+            '/two': (info) => const MaterialPageTwo(),
+            '/two/three': (info) => const MaterialPageThree(),
+          },
+        );
+      },
+    );
 
     await tester.pumpWidget(
       MaterialApp.router(
@@ -399,25 +432,29 @@ void main() {
     );
 
     delegate.push('/two/three');
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
 
     expect(find.byType(PageThree), findsOneWidget);
 
     await delegate.popUntil((routeData) => false);
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
 
     expect(find.byType(PageOne), findsOneWidget);
     expect(find.byType(PageThree), findsNothing);
   });
 
   testWidgets('popUntil that returns true does not pop', (tester) async {
-    final delegate = RoutemasterDelegate(routesBuilder: (context) {
-      return RouteMap(routes: {
-        '/': (_) => const MaterialPageOne(),
-        '/two': (info) => const MaterialPageTwo(),
-        '/two/three': (info) => const MaterialPageThree(),
-      });
-    });
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (context) {
+        return RouteMap(
+          routes: {
+            '/': (_) => const MaterialPageOne(),
+            '/two': (info) => const MaterialPageTwo(),
+            '/two/three': (info) => const MaterialPageThree(),
+          },
+        );
+      },
+    );
 
     await tester.pumpWidget(
       MaterialApp.router(
@@ -427,15 +464,105 @@ void main() {
     );
 
     delegate.push('/two/three');
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
 
     expect(find.byType(PageThree), findsOneWidget);
 
     await delegate.popUntil((routeData) => true);
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
 
     expect(find.byType(PageThree), findsOneWidget);
   });
+
+  testWidgets('popUntil to intermediate route not in history', (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (context) {
+        return RouteMap(
+          routes: {
+            '/': (_) => const MaterialPageOne(),
+            '/two': (info) => const MaterialPageTwo(),
+            '/two/three': (info) => const MaterialPageThree(),
+          },
+        );
+      },
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    // Push directly to /two/three. History will be [/, /two/three].
+    // The intermediate route /two is in the page stack but not in history.
+    delegate.push('/two/three');
+    await tester.pumpAndSettle();
+    expect(find.byType(PageThree), findsOneWidget);
+
+    // popUntil /two - route is not in history
+    await delegate.popUntil((routeData) => routeData.path == '/two');
+    await tester.pumpAndSettle();
+
+    expect(find.byType(PageTwo), findsOneWidget);
+    expect(find.byType(PageThree), findsNothing);
+  });
+
+  testWidgets('popUntil pops through tab page', (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (context) {
+        return RouteMap(
+          routes: {
+            '/': (_) => const MaterialPageOne(),
+            '/tabs': (_) =>
+                TabPage(child: BasicTabPage(), paths: const ['one', 'two']),
+            '/tabs/one': (_) => const MaterialPageTwo(),
+            '/tabs/two': (_) => const MaterialPageThree(),
+            '/tabs/one/details': (_) =>
+                MaterialPage<void>(child: const _DetailsPage()),
+          },
+        );
+      },
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    // Navigate to a deep route inside a tab
+    delegate.push('/tabs/one/details');
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.byType(_DetailsPage), findsOneWidget);
+
+    // popUntil the tab's base route - this exercises maybePop on the tab page
+    await delegate.popUntil((routeData) => routeData.path == '/tabs/one');
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(find.byType(_DetailsPage), findsNothing);
+    expect(find.byType(PageTwo), findsOneWidget);
+  });
+}
+
+class _DetailsPage extends StatelessWidget {
+  const _DetailsPage();
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox();
+  }
+}
+
+class BasicTabPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final stack = TabPage.of(context).currentStack;
+    return Scaffold(body: PageStackNavigator(stack: stack));
+  }
 }
 
 class StackSwapPage extends StatefulWidget {
@@ -451,19 +578,23 @@ class StackSwapPageState extends State<StackSwapPage> {
     });
   }
 
-  final _stack1 = PageStack(routes: [
-    StatelessPage(
-      page: const MaterialPage<void>(child: Text('Stack 1')),
-      routeData: RouteData('/', pathTemplate: '/'),
-    )
-  ]);
+  final _stack1 = PageStack(
+    routes: [
+      StatelessPage(
+        page: const MaterialPage<void>(child: Text('Stack 1')),
+        routeData: RouteData('/', pathTemplate: '/'),
+      ),
+    ],
+  );
 
-  final _stack2 = PageStack(routes: [
-    StatelessPage(
-      page: const MaterialPage<void>(child: Text('Stack 2')),
-      routeData: RouteData('/', pathTemplate: '/'),
-    )
-  ]);
+  final _stack2 = PageStack(
+    routes: [
+      StatelessPage(
+        page: const MaterialPage<void>(child: Text('Stack 2')),
+        routeData: RouteData('/', pathTemplate: '/'),
+      ),
+    ],
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -481,9 +612,6 @@ class MyTabPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final stack = TabPage.of(context).stacks[0];
 
-    return SizedBox(
-      height: 300,
-      child: PageStackNavigator(stack: stack),
-    );
+    return SizedBox(height: 300, child: PageStackNavigator(stack: stack));
   }
 }

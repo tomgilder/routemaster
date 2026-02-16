@@ -11,27 +11,25 @@ class SystemUrlTracker {
 
 /// Records changes in URL
 Future<void> recordUrlChanges(
-    Future<dynamic> Function(SystemUrlTracker url) callback) async {
+  Future<dynamic> Function(SystemUrlTracker url) callback,
+) async {
   try {
     final tracker = SystemUrlTracker();
     final stackTraces = <StackTrace>[];
 
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-      SystemChannels.navigation,
-      (call) async {
-        if (call.method == 'routeInformationUpdated') {
-          final args = call.arguments as Map;
-          final location = args.containsKey('uri')
-              ? args['uri'] as String
-              : args['location'] as String;
+        .setMockMethodCallHandler(SystemChannels.navigation, (call) async {
+          if (call.method == 'routeInformationUpdated') {
+            final args = call.arguments as Map;
+            final location = args.containsKey('uri')
+                ? args['uri'] as String
+                : args['location'] as String;
 
-          tracker.current = location;
-          stackTraces.add(StackTrace.current);
-        }
-        return null;
-      },
-    );
+            tracker.current = location;
+            stackTraces.add(StackTrace.current);
+          }
+          return null;
+        });
 
     await callback(tracker);
   } finally {
@@ -43,29 +41,24 @@ Future<void> recordUrlChanges(
 /// Simulates pressing the system back button
 Future<void> invokeSystemBack() {
   // ignore: invalid_use_of_protected_member
-  return _ambiguate(WidgetsBinding.instance)!.handlePopRoute();
+  return WidgetsBinding.instance.handlePopRoute();
 }
 
 Future<void> setSystemUrl(String url) {
   // ignore: invalid_use_of_protected_member
-  return _ambiguate(WidgetsBinding.instance)!.handlePushRoute(url);
+  return WidgetsBinding.instance.handlePushRoute(url);
 }
-
-T? _ambiguate<T>(T? value) => value;
 
 /// Allows us to emulate the behavior of a web browser by storing a simple
 /// stack of routes and popping them, reproducing the same behavior as a user
 /// clicking a browser back button.
 class BrowserEmulatorRouteInfoProvider
     extends PlatformRouteInformationProvider {
-  BrowserEmulatorRouteInfoProvider({
-    RouteInformation? initialRouteInformation,
-  }) : super(
-          initialRouteInformation: initialRouteInformation ??
-              RouteInformation(
-                location: '/',
-              ),
-        );
+  BrowserEmulatorRouteInfoProvider({RouteInformation? initialRouteInformation})
+    : super(
+        initialRouteInformation:
+            initialRouteInformation ?? RouteInformation(uri: Uri.parse('/')),
+      );
 
   final _urlStack = Queue<RouteInformation>();
 
@@ -79,12 +72,13 @@ class BrowserEmulatorRouteInfoProvider
   }
 
   @override
-  Future<bool> didPushRoute(String route) async {
-    final result = await super.didPushRoute(route);
+  Future<bool> didPushRouteInformation(
+    RouteInformation routeInformation,
+  ) async {
+    final result = await super.didPushRouteInformation(routeInformation);
     if (result) {
-      _urlStack.addLast(RouteInformation(location: route));
+      _urlStack.addLast(routeInformation);
     }
-
     return result;
   }
 

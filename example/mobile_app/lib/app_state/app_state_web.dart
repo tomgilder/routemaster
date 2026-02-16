@@ -1,11 +1,11 @@
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html';
+import 'package:web/web.dart' as web;
 import 'package:flutter/foundation.dart';
 
 class AppState extends ChangeNotifier {
-  bool get isLoggedIn => window.sessionStorage['isLoggedIn'] == 'true';
+  bool get isLoggedIn =>
+      web.window.sessionStorage.getItem('isLoggedIn') == 'true';
   set isLoggedIn(bool value) {
-    window.sessionStorage['isLoggedIn'] = value.toString();
+    web.window.sessionStorage.setItem('isLoggedIn', value.toString());
     notifyListeners();
   }
 

@@ -7,9 +7,9 @@ void main() => runApp(MyApp());
 final routes = RouteMap(
   routes: {
     '/': (_) => CupertinoTabPage(
-          child: HomePage(),
-          paths: ['feed', 'settings'],
-        ),
+      child: HomePage(),
+      paths: ['feed', 'settings'],
+    ),
     '/feed': (_) => MaterialPage(child: FeedPage()),
     '/feed/profile/:id': (_) => MaterialPage(child: ProfilePage()),
     '/settings': (_) => MaterialPage(child: SettingsPage()),
@@ -17,7 +17,7 @@ final routes = RouteMap(
 );
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
 }
 
 class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +55,7 @@ class HomePage extends StatelessWidget {
 }
 
 class FeedPage extends StatelessWidget {
-  const FeedPage({Key? key}) : super(key: key);
+  const FeedPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +71,7 @@ class FeedPage extends StatelessWidget {
 }
 
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  const ProfilePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +83,7 @@ class ProfilePage extends StatelessWidget {
 }
 
 class SettingsPage extends StatelessWidget {
-  const SettingsPage({Key? key}) : super(key: key);
+  const SettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {

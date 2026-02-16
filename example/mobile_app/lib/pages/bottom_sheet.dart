@@ -4,9 +4,7 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:routemaster/routemaster.dart';
 
 class MaterialWithModalsPage extends MaterialPage<void> {
-  const MaterialWithModalsPage({
-    required Widget child,
-  }) : super(child: child);
+  const MaterialWithModalsPage({required super.child});
 
   @override
   Route<void> createRoute(BuildContext context) {
@@ -16,9 +14,7 @@ class MaterialWithModalsPage extends MaterialPage<void> {
 
 class PageBasedMaterialWithModalsPageRoute<T>
     extends _PageBasedMaterialPageRoute<T> {
-  PageBasedMaterialWithModalsPageRoute({
-    required MaterialPage<T> page,
-  }) : super(page: page);
+  PageBasedMaterialWithModalsPageRoute({required super.page});
 
   ModalSheetRoute<dynamic>? _nextModalRoute;
 
@@ -48,27 +44,46 @@ class PageBasedMaterialWithModalsPageRoute<T>
   }
 
   @override
-  Widget buildTransitions(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation, Widget child) {
+  Widget buildTransitions(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
     final theme = Theme.of(context).pageTransitionsTheme;
     final nextRoute = _nextModalRoute;
     if (nextRoute != null) {
       if (!secondaryAnimation.isDismissed) {
         // Avoid default transition theme to animate when a new modal view is pushed
-        final fakeSecondaryAnimation =
-            Tween<double>(begin: 0, end: 0).animate(secondaryAnimation);
+        final fakeSecondaryAnimation = Tween<double>(
+          begin: 0,
+          end: 0,
+        ).animate(secondaryAnimation);
 
         final defaultTransition = theme.buildTransitions<T>(
-            this, context, animation, fakeSecondaryAnimation, child);
+          this,
+          context,
+          animation,
+          fakeSecondaryAnimation,
+          child,
+        );
         return nextRoute.getPreviousRouteTransition(
-            context, secondaryAnimation, defaultTransition);
+          context,
+          secondaryAnimation,
+          defaultTransition,
+        );
       } else {
         _nextModalRoute = null;
       }
     }
 
     return theme.buildTransitions<T>(
-        this, context, animation, secondaryAnimation, child);
+      this,
+      context,
+      animation,
+      secondaryAnimation,
+      child,
+    );
   }
 }
 
@@ -99,7 +114,7 @@ class BottomSheetPage extends Page<void> {
 }
 
 class StackBottomSheetContents extends StatelessWidget {
-  const StackBottomSheetContents({Key? key}) : super(key: key);
+  const StackBottomSheetContents({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +123,7 @@ class StackBottomSheetContents extends StatelessWidget {
 }
 
 class StackPageOne extends StatelessWidget {
-  const StackPageOne({Key? key}) : super(key: key);
+  const StackPageOne({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -128,10 +143,7 @@ class StackPageOne extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(20),
               child: Center(
-                child: Text(
-                  'Page One',
-                  style: TextStyle(fontSize: 30),
-                ),
+                child: Text('Page One', style: TextStyle(fontSize: 30)),
               ),
             ),
             CupertinoButton(
@@ -146,7 +158,7 @@ class StackPageOne extends StatelessWidget {
 }
 
 class StackPageTwo extends StatelessWidget {
-  const StackPageTwo({Key? key}) : super(key: key);
+  const StackPageTwo({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -158,10 +170,7 @@ class StackPageTwo extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(20),
               child: Center(
-                child: Text(
-                  'Page Two',
-                  style: TextStyle(fontSize: 30),
-                ),
+                child: Text('Page Two', style: TextStyle(fontSize: 30)),
               ),
             ),
             CupertinoButton(
@@ -176,8 +185,11 @@ class StackPageTwo extends StatelessWidget {
 }
 
 const double _kPreviousPageVisibleOffset = 10;
-const BoxShadow _kDefaultBoxShadow =
-    BoxShadow(blurRadius: 10, color: Colors.black12, spreadRadius: 5);
+const BoxShadow _kDefaultBoxShadow = BoxShadow(
+  blurRadius: 10,
+  color: Colors.black12,
+  spreadRadius: 5,
+);
 
 class CupertinoBottomSheetContainer extends StatelessWidget {
   final Widget child;
@@ -186,29 +198,30 @@ class CupertinoBottomSheetContainer extends StatelessWidget {
   final BoxShadow? shadow;
 
   const CupertinoBottomSheetContainer({
-    Key? key,
+    super.key,
     required this.child,
     this.backgroundColor,
     required this.topRadius,
     this.shadow,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     final topSafeAreaPadding = MediaQuery.of(context).padding.top;
     final topPadding = _kPreviousPageVisibleOffset + topSafeAreaPadding;
 
-    final _shadow = shadow ?? _kDefaultBoxShadow;
-    BoxShadow(blurRadius: 10, color: Colors.black12, spreadRadius: 5);
-    final _backgroundColor =
+    final effectiveShadow = shadow ?? _kDefaultBoxShadow;
+    final effectiveBackgroundColor =
         backgroundColor ?? CupertinoTheme.of(context).scaffoldBackgroundColor;
     return Padding(
       padding: EdgeInsets.only(top: topPadding),
       child: ClipRRect(
         borderRadius: BorderRadius.vertical(top: topRadius),
         child: Container(
-          decoration:
-              BoxDecoration(color: _backgroundColor, boxShadow: [_shadow]),
+          decoration: BoxDecoration(
+            color: effectiveBackgroundColor,
+            boxShadow: [effectiveShadow],
+          ),
           width: double.infinity,
           child: MediaQuery.removePadding(
             context: context,
@@ -223,9 +236,8 @@ class CupertinoBottomSheetContainer extends StatelessWidget {
 
 class _PageBasedMaterialPageRoute<T> extends PageRoute<T>
     with MaterialRouteTransitionMixin<T> {
-  _PageBasedMaterialPageRoute({
-    required MaterialPage<T> page,
-  }) : super(settings: page) {
+  _PageBasedMaterialPageRoute({required MaterialPage<T> page})
+    : super(settings: page) {
     assert(opaque);
   }
 

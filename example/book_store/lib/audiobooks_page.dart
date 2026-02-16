@@ -5,7 +5,7 @@ import 'book_card.dart';
 import 'models.dart';
 
 class AudiobookPage extends StatelessWidget {
-  const AudiobookPage({Key? key}) : super(key: key);
+  const AudiobookPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -47,9 +47,9 @@ class AudiobookListPage extends StatelessWidget {
   final String mode;
 
   const AudiobookListPage({
-    Key? key,
+    super.key,
     required this.mode,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -58,8 +58,9 @@ class AudiobookListPage extends StatelessWidget {
         Wrap(
           children: [
             if (mode == 'picks')
-              for (final book
-                  in BooksDatabase().books.where((book) => book.isStaffPick))
+              for (final book in BooksDatabase().books.where(
+                (book) => book.isStaffPick,
+              ))
                 BookCard(
                   book: book,
                   pathBuilder: (id) => '/audiobooks/book/$id',

@@ -1,29 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:routemaster/routemaster.dart';
-import 'helpers.dart';
 
 void main() {
   testWidgets('Can get current route', (tester) async {
     RouteData? routeOneCurrentRoute;
     RouteData? routeTwoCurrentRoute;
 
-    final delegate = RoutemasterDelegate(routesBuilder: (context) {
-      return RouteMap(routes: {
-        '/': (_) => MaterialPage<void>(
-              child: Builder(builder: (context) {
-                routeOneCurrentRoute = Routemaster.of(context).currentRoute;
-                return Container();
-              }),
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (context) {
+        return RouteMap(
+          routes: {
+            '/': (_) => MaterialPage<void>(
+              child: Builder(
+                builder: (context) {
+                  routeOneCurrentRoute = Routemaster.of(context).currentRoute;
+                  return Container();
+                },
+              ),
             ),
-        '/two/:id': (_) => MaterialPage<void>(
-              child: Builder(builder: (context) {
-                routeTwoCurrentRoute = Routemaster.of(context).currentRoute;
-                return Container();
-              }),
+            '/two/:id': (_) => MaterialPage<void>(
+              child: Builder(
+                builder: (context) {
+                  routeTwoCurrentRoute = Routemaster.of(context).currentRoute;
+                  return Container();
+                },
+              ),
             ),
-      });
-    });
+          },
+        );
+      },
+    );
 
     await tester.pumpWidget(
       MaterialApp.router(
@@ -37,7 +44,7 @@ void main() {
 
     delegate.push('/two/myId?query=param');
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(routeOneCurrentRoute!.path, '/two/myId');
     expect(routeOneCurrentRoute!.fullPath, '/two/myId?query=param');

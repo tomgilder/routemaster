@@ -1,11 +1,11 @@
 import 'dart:async';
+import 'package:app_links/app_links.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
-import 'package:uni_links/uni_links.dart';
 
 class LinkHandler {
   final void Function(String link) onLink;
-  StreamSubscription<String?>? _subscription;
+  StreamSubscription<Uri>? _subscription;
+  final _appLinks = AppLinks();
 
   LinkHandler({required this.onLink});
 
@@ -14,29 +14,29 @@ class LinkHandler {
       return;
     }
 
-    _subscription = linkStream.listen(_onLink);
+    _subscription = _appLinks.uriLinkStream.listen(_onUri);
 
     try {
-      final initialLink = await getInitialLink();
-      if (initialLink != null) {
-        _onLink(initialLink);
+      final initialUri = await _appLinks.getInitialLink();
+      if (initialUri != null) {
+        _onUri(initialUri);
       }
-    } on PlatformException {
+    } on Exception {
       if (kDebugMode) {
         print('Failed to get initial link.');
       }
     }
   }
 
-  void _onLink(String? link) {
+  void _onUri(Uri uri) {
     if (kDebugMode) {
-      print(link);
+      print(uri);
     }
 
-    onLink(link!.replaceFirst('routemaster:/', ''));
+    onLink(uri.path);
   }
 
   void dispose() {
-    _subscription!.cancel();
+    _subscription?.cancel();
   }
 }

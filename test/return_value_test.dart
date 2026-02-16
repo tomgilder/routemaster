@@ -24,7 +24,7 @@ void main() {
 
     final result = delegate.push<String>('/two');
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
     Navigator.of(key.currentContext!).pop('result');
     expect(await result.result, 'result');
   });
@@ -49,7 +49,7 @@ void main() {
 
     final result = delegate.push<String>('/two');
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
     Navigator.of(key.currentContext!).pop(null);
     expect(await result.result, isNull);
   });
@@ -74,13 +74,14 @@ void main() {
 
     final result = delegate.push<String>('/two');
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
     await Routemaster.of(key.currentContext!).pop('result');
     expect(await result.result, 'result');
   });
 
-  testWidgets('Can get null return value via Routemaster.pop()',
-      (tester) async {
+  testWidgets('Can get null return value via Routemaster.pop()', (
+    tester,
+  ) async {
     final key = GlobalKey();
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
@@ -100,7 +101,7 @@ void main() {
 
     final result = delegate.push<String>('/two');
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
     await Routemaster.of(key.currentContext!).pop(null);
     expect(await result.result, isNull);
   });

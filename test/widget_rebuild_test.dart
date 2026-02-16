@@ -5,8 +5,9 @@ import 'package:routemaster/routemaster.dart';
 import 'helpers.dart';
 
 void main() {
-  testWidgets("Doesn't rebuild CupertinoTabPage when inner stack changes",
-      (tester) async {
+  testWidgets("Doesn't rebuild CupertinoTabPage when inner stack changes", (
+    tester,
+  ) async {
     var buildCount = 0;
 
     final delegate = RoutemasterDelegate(
@@ -14,11 +15,13 @@ void main() {
         return RouteMap(
           routes: {
             '/': (_) => CupertinoTabPage(
-                  child: HomePage(onBuild: () {
-                    buildCount++;
-                  }),
-                  paths: const ['one', 'three'],
-                ),
+              child: HomePage(
+                onBuild: () {
+                  buildCount++;
+                },
+              ),
+              paths: const ['one', 'three'],
+            ),
             '/one': (_) => const MaterialPageOne(),
             '/one/two': (_) => const MaterialPageTwo(),
             '/three': (_) => const MaterialPageThree(),
@@ -26,15 +29,17 @@ void main() {
         );
       },
     );
-    await tester.pumpWidget(MaterialApp.router(
-      routeInformationParser: const RoutemasterParser(),
-      routerDelegate: delegate,
-    ));
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
 
     expect(buildCount, 1);
     delegate.push('/one/two');
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
     expect(buildCount, 1);
   });
 }

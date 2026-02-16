@@ -8,13 +8,17 @@ void main() {
   testWidgets("Doesn't rebuild routes by default", (tester) async {
     var routeBuildCount = 0;
 
-    final delegate = RoutemasterDelegate(routesBuilder: (context) {
-      routeBuildCount++;
-      return RouteMap(routes: {
-        '/': (_) => const MaterialPageOne(),
-        '/two': (_) => const MaterialPageTwo(),
-      });
-    });
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (context) {
+        routeBuildCount++;
+        return RouteMap(
+          routes: {
+            '/': (_) => const MaterialPageOne(),
+            '/two': (_) => const MaterialPageTwo(),
+          },
+        );
+      },
+    );
 
     await tester.pumpWidget(
       MaterialApp.router(
@@ -27,7 +31,7 @@ void main() {
 
     delegate.push('two');
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(routeBuildCount, 1);
   });
@@ -35,15 +39,19 @@ void main() {
   testWidgets('Rebuilds route map when dependencies change', (tester) async {
     var routeBuildCount = 0;
 
-    final delegate = RoutemasterDelegate(routesBuilder: (context) {
-      routeBuildCount++;
-      final state = StateProvider.of(context).state;
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (context) {
+        routeBuildCount++;
+        final state = StateProvider.of(context).state;
 
-      return RouteMap(routes: {
-        '/': (_) => const MaterialPageOne(),
-        '/two': (_) => MaterialPage<void>(child: Text(state.someValue)),
-      });
-    });
+        return RouteMap(
+          routes: {
+            '/': (_) => const MaterialPageOne(),
+            '/two': (_) => MaterialPage<void>(child: Text(state.someValue)),
+          },
+        );
+      },
+    );
     final state = AppState();
 
     await tester.pumpWidget(
@@ -61,7 +69,7 @@ void main() {
 
     delegate.push('two');
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(routeBuildCount, 2);
   });
@@ -69,19 +77,23 @@ void main() {
   testWidgets('Rebuilds route map when widget changes', (tester) async {
     var routeBuildCount = 0;
 
-    final delegate1 = RoutemasterDelegate(routesBuilder: (context) {
-      routeBuildCount++;
-      return RouteMap(routes: {
-        '/': (_) => const MaterialPage<void>(child: PageOne()),
-      });
-    });
+    final delegate1 = RoutemasterDelegate(
+      routesBuilder: (context) {
+        routeBuildCount++;
+        return RouteMap(
+          routes: {'/': (_) => const MaterialPage<void>(child: PageOne())},
+        );
+      },
+    );
 
-    final delegate2 = RoutemasterDelegate(routesBuilder: (context) {
-      routeBuildCount++;
-      return RouteMap(routes: {
-        '/': (_) => const MaterialPage<void>(child: PageTwo()),
-      });
-    });
+    final delegate2 = RoutemasterDelegate(
+      routesBuilder: (context) {
+        routeBuildCount++;
+        return RouteMap(
+          routes: {'/': (_) => const MaterialPage<void>(child: PageTwo())},
+        );
+      },
+    );
 
     await tester.pumpWidget(
       MaterialApp.router(
@@ -128,10 +140,12 @@ void main() {
       },
     );
 
-    final delegate = RoutemasterDelegate(routesBuilder: (context) {
-      final state = StateProvider.of(context).state;
-      return state.someValue == '1' ? routeMap1 : routeMap2;
-    });
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (context) {
+        final state = StateProvider.of(context).state;
+        return state.someValue == '1' ? routeMap1 : routeMap2;
+      },
+    );
     final state = AppState()..someValue = '1';
 
     await tester.pumpWidget(
@@ -140,7 +154,7 @@ void main() {
         child: MaterialApp.router(
           routeInformationParser: const RoutemasterParser(),
           routeInformationProvider: PlatformRouteInformationProvider(
-            initialRouteInformation: const RouteInformation(location: '/two'),
+            initialRouteInformation: RouteInformation(uri: Uri.parse('/two')),
           ),
           routerDelegate: delegate,
         ),
@@ -156,7 +170,7 @@ void main() {
 
     await tester.pump();
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
     expect(find.byType(PageThree), findsOneWidget);
 
     // Assert that onUnknownRoute has never been called
@@ -164,15 +178,18 @@ void main() {
     expect(routeMap2UnknownRoutes.isEmpty, isTrue);
   });
 
-  testWidgets('Can swap route maps and navigate to the same path',
-      (tester) async {
+  testWidgets('Can swap route maps and navigate to the same path', (
+    tester,
+  ) async {
     final routeMap1 = RouteMap(routes: {'/': (_) => const MaterialPageOne()});
     final routeMap2 = RouteMap(routes: {'/': (_) => const MaterialPageTwo()});
 
-    final delegate = RoutemasterDelegate(routesBuilder: (context) {
-      final state = StateProvider.of(context).state;
-      return state.someValue == '1' ? routeMap1 : routeMap2;
-    });
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (context) {
+        final state = StateProvider.of(context).state;
+        return state.someValue == '1' ? routeMap1 : routeMap2;
+      },
+    );
     final state = AppState()..someValue = '1';
 
     await tester.pumpWidget(
@@ -209,13 +226,8 @@ class AppState extends ChangeNotifier {
 class StateProvider extends InheritedNotifier {
   final AppState state;
 
-  const StateProvider({
-    required Widget child,
-    required this.state,
-  }) : super(
-          child: child,
-          notifier: state,
-        );
+  const StateProvider({required Widget child, required this.state})
+    : super(child: child, notifier: state);
 
   static StateProvider of(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<StateProvider>()!;

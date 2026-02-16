@@ -7,9 +7,9 @@ class CategoryPage extends StatelessWidget {
   final BookCategory category;
 
   const CategoryPage({
-    Key? key,
+    super.key,
     required this.category,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -29,9 +29,9 @@ class CategoryPage extends StatelessWidget {
           ),
           Wrap(
             children: [
-              for (final book in BooksDatabase()
-                  .books
-                  .where((book) => book.categories.contains(category)))
+              for (final book in BooksDatabase().books.where(
+                (book) => book.categories.contains(category),
+              ))
                 BookCard(book: book),
             ],
           ),

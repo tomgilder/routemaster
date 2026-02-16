@@ -11,12 +11,12 @@ void main() {
     expect(find.byKey(hero1Key), findsOneWidget);
     await tester.tap(find.text('Push page 2'));
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
     expect(find.byKey(hero2Key), findsOneWidget);
 
     await tester.tap(find.byType(BackButton));
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(find.byKey(hero1Key), findsOneWidget);
   });
@@ -27,12 +27,12 @@ void main() {
     expect(find.byKey(hero1Key), findsOneWidget);
     await tester.tap(find.text('Push page 2'));
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
     expect(find.byKey(hero2Key), findsOneWidget);
 
     await invokeSystemBack();
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(find.byKey(hero1Key), findsOneWidget);
   });
@@ -51,9 +51,9 @@ class HeroApp extends StatelessWidget {
           return RouteMap(
             routes: {
               '/': (_) => CupertinoTabPage(
-                    child: HomePage(),
-                    paths: const ['hero1', 'other'],
-                  ),
+                child: HomePage(),
+                paths: const ['hero1', 'other'],
+              ),
               '/hero1': (_) => MaterialPage<void>(child: HeroPage1()),
               '/hero1/hero2': (_) => MaterialPage<void>(child: HeroPage2()),
               '/other': (_) => const MaterialPageOne(),

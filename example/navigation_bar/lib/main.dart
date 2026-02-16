@@ -6,7 +6,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,14 +15,14 @@ class MyApp extends StatelessWidget {
         routesBuilder: (context) => RouteMap(
           routes: {
             '/': (_) => const IndexedPage(
-                  child: NavigationBarPage(),
-                  paths: ['/feed', '/settings'],
-                ),
+              child: NavigationBarPage(),
+              paths: ['/feed', '/settings'],
+            ),
             '/feed': (_) => const MaterialPage(child: FeedPage()),
             '/settings': (_) => const MaterialPage(child: SettingsPage()),
             '/feed/profile/:id': (info) => MaterialPage(
-                  child: ProfilePage(title: info.pathParameters['id']!),
-                ),
+              child: ProfilePage(title: info.pathParameters['id']!),
+            ),
           },
         ),
       ),
@@ -63,7 +63,7 @@ class NavigationBarPage extends StatelessWidget {
 }
 
 class FeedPage extends StatelessWidget {
-  const FeedPage({Key? key}) : super(key: key);
+  const FeedPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +94,7 @@ class ProfilePage extends StatelessWidget {
 }
 
 class SettingsPage extends StatelessWidget {
-  const SettingsPage({Key? key}) : super(key: key);
+  const SettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {

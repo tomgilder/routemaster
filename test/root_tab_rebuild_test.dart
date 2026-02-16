@@ -5,8 +5,9 @@ import 'package:routemaster/routemaster.dart';
 import 'helpers.dart';
 
 void main() {
-  testWidgets("Doesn't rebuild root tab page when page pushed on top",
-      (tester) async {
+  testWidgets("Doesn't rebuild root tab page when page pushed on top", (
+    tester,
+  ) async {
     await recordUrlChanges((systemUrl) async {
       final delegate = RoutemasterDelegate(
         routesBuilder: (BuildContext context) {
@@ -14,10 +15,7 @@ void main() {
             routes: {
               '/': (_) => const Redirect('/home/1'),
               '/home/:homeId': (_) {
-                return TabPage(
-                  child: HomePage(),
-                  paths: const ['one', 'two'],
-                );
+                return TabPage(child: HomePage(), paths: const ['one', 'two']);
               },
               '/home/:homeId/one': (_) => const MaterialPageOne(),
               '/home/:homeId/two': (_) => const MaterialPageTwo(),
@@ -33,10 +31,12 @@ void main() {
         },
       );
 
-      await tester.pumpWidget(MaterialApp.router(
-        routeInformationParser: const RoutemasterParser(),
-        routerDelegate: delegate,
-      ));
+      await tester.pumpWidget(
+        MaterialApp.router(
+          routeInformationParser: const RoutemasterParser(),
+          routerDelegate: delegate,
+        ),
+      );
 
       expect(find.byType(PageOne), findsOneWidget);
       expect(find.byType(PageTwo), findsNothing);
@@ -44,7 +44,7 @@ void main() {
       // Switch to second tab
 
       delegate.push('/home/1/two');
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
 
       expect(find.byType(PageOne), findsNothing);
       expect(find.byType(PageTwo), findsOneWidget);
@@ -54,7 +54,7 @@ void main() {
       // Push within tab view
 
       delegate.push('/home/1/two/edit');
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(find.byType(PageThree), findsOneWidget);
 
       expect(systemUrl.current, '/home/1/two/edit');
@@ -62,7 +62,7 @@ void main() {
       // Push over tab view
 
       delegate.push('/home/1/eq/1');
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(find.byType(EchoPage), findsOneWidget);
       expect(find.text('1'), findsOneWidget);
 
@@ -71,19 +71,19 @@ void main() {
       // Replace pushed page with another
 
       delegate.push('/home/1/eq/2');
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(find.byType(EchoPage), findsOneWidget);
       expect(find.text('2'), findsOneWidget);
 
       expect(systemUrl.current, '/home/1/eq/2');
 
       await delegate.pop();
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
 
       expect(systemUrl.current, '/home/1/two/edit');
 
       await delegate.pop();
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(find.byType(HomePage), findsOneWidget);
 
       expect(systemUrl.current, '/home/1/two');
@@ -103,17 +103,14 @@ class HomePage extends StatelessWidget {
       body: TabBarView(
         controller: tabState.controller,
         children: [
-          for (final stack in tabState.stacks) PageStackNavigator(stack: stack)
+          for (final stack in tabState.stacks) PageStackNavigator(stack: stack),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: tabState.index,
         onTap: (index) => tabState.controller.animateTo(index),
         items: const [
-          BottomNavigationBarItem(
-            label: 'one',
-            icon: Icon(CupertinoIcons.add),
-          ),
+          BottomNavigationBarItem(label: 'one', icon: Icon(CupertinoIcons.add)),
           BottomNavigationBarItem(
             label: 'two',
             icon: Icon(CupertinoIcons.building_2_fill),
@@ -129,8 +126,6 @@ class EchoPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Text(RouteData.of(context).pathParameters['eqId']!),
-    );
+    return Scaffold(body: Text(RouteData.of(context).pathParameters['eqId']!));
   }
 }

@@ -8,8 +8,9 @@ class Notifications {
 
   Notifications({required this.onNotificationSelected});
 
-  final FlutterLocalNotificationsPlugin? notifications =
-      kIsWeb ? null : FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin? notifications = kIsWeb
+      ? null
+      : FlutterLocalNotificationsPlugin();
 
   /// Sets up notifications. Returns a payload if the app was launched via a
   /// notification.
@@ -19,12 +20,13 @@ class Notifications {
     }
 
     await notifications!.initialize(
-      InitializationSettings(
+      const InitializationSettings(
         android: AndroidInitializationSettings('app_icon'),
-        iOS: IOSInitializationSettings(),
-        macOS: MacOSInitializationSettings(),
+        iOS: DarwinInitializationSettings(),
+        macOS: DarwinInitializationSettings(),
       ),
-      onSelectNotification: (payload) async {
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        final payload = response.payload;
         if (payload != null) {
           onNotificationSelected(payload);
         }
@@ -32,7 +34,7 @@ class Notifications {
     );
 
     final details = await notifications!.getNotificationAppLaunchDetails();
-    return details?.payload;
+    return details?.notificationResponse?.payload;
   }
 
   void showNotification() async {
@@ -44,7 +46,7 @@ class Notifications {
       0,
       'Hello world',
       'Wanna read a great article? Click here!',
-      NotificationDetails(
+      const NotificationDetails(
         android: AndroidNotificationDetails(
           'channelId',
           'channelName',
@@ -73,9 +75,10 @@ class Notifications {
           channelDescription: 'your channel description',
         ),
       ),
-      androidAllowWhileIdle: true,
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.time,
       payload: '/article/1',
     );
   }

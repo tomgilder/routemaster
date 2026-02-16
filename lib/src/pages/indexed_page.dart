@@ -48,7 +48,7 @@ class IndexedPage extends StatefulPage<void> with IndexedRouteMixIn {
     required this.child,
     required this.paths,
     this.pageBuilder = _defaultPageBuilder,
-    this.backBehavior = TabBackBehavior.none,
+    this.backBehavior = .none,
   });
 
   @override
@@ -58,8 +58,8 @@ class IndexedPage extends StatefulPage<void> with IndexedRouteMixIn {
 
   /// Retrieves the [IndexedPageState] from the closest [IndexPage] ancestor.
   static IndexedPageState of(BuildContext context) {
-    final provider =
-        context.dependOnInheritedWidgetOfExactType<_IndexedPageStateProvider>();
+    final provider = context
+        .dependOnInheritedWidgetOfExactType<_IndexedPageStateProvider>();
 
     assert(
       provider != null,
@@ -78,8 +78,8 @@ class _IndexedPageStateProvider extends InheritedNotifier {
     required super.child,
     required this.pageState,
   }) : super(
-          notifier: pageState,
-        );
+         notifier: pageState,
+       );
 }
 
 /// The current state of an [IndexedPage]. Created when an instance of the page
@@ -134,8 +134,9 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
 
   /// A list of [PageStack] objects, for each child path specified in the page.
   List<PageStack> get stacks {
-    return _stacks ??=
-        page.paths.map((e) => _createInitialStackState(e)).toList();
+    return _stacks ??= page.paths
+        .map((e) => _createInitialStackState(e))
+        .toList();
   }
 
   /// The currently active stack of pages.
@@ -148,7 +149,7 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
   int _index = 0;
 
   /// How the back button should be handled.
-  final TabBackBehavior backBehavior = TabBackBehavior.none;
+  final TabBackBehavior backBehavior = .none;
 
   /// The currently active index.
   set index(int value) {
@@ -157,7 +158,7 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
 
       notifyListeners();
       _routemasterState!.delegate._updateCurrentConfiguration(
-        isReplacement: backBehavior == TabBackBehavior.none,
+        isReplacement: backBehavior == .none,
       );
     }
   }
@@ -278,13 +279,13 @@ mixin IndexedPageStateMixIn<T extends IndexedRouteMixIn<dynamic>>
 
 class _TabNotFoundPage extends StatelessPage {
   _TabNotFoundPage(_RouteRequest request)
-      : super(
-          routeData: RouteData(
-            request.uri.toString(),
-            pathTemplate: request.uri.toString(),
-          ),
-          page: MaterialPage<void>(
-            child: DefaultNotFoundPage(path: request.uri.toString()),
-          ),
-        );
+    : super(
+        routeData: RouteData(
+          request.uri.toString(),
+          pathTemplate: request.uri.toString(),
+        ),
+        page: MaterialPage<void>(
+          child: DefaultNotFoundPage(path: request.uri.toString()),
+        ),
+      );
 }

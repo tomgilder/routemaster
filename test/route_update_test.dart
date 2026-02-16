@@ -19,7 +19,7 @@ void main() {
       expect(tracker.buildFullPath, '/');
 
       delegate.push('/two');
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(tracker.buildCount, 2);
       expect(tracker.systemUrl, '/two');
       expect(tracker.buildFullPath, '/two');
@@ -45,7 +45,7 @@ void main() {
       expect(tracker.buildFullPath, '/');
 
       delegate.push('/two');
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(tracker.buildCount, 2);
       expect(tracker.systemUrl, '/two');
       expect(tracker.buildFullPath, '/two');
@@ -71,7 +71,7 @@ void main() {
       expect(tracker.buildFullPath, '/');
 
       delegate.push('/two');
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(tracker.buildCount, 2);
       expect(tracker.systemUrl, '/two');
       expect(tracker.buildFullPath, '/two');
@@ -97,7 +97,7 @@ void main() {
       expect(tracker.buildFullPath, '/');
 
       delegate.push('/two');
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(tracker.buildCount, 2);
       expect(tracker.systemUrl, '/two');
       expect(tracker.buildFullPath, '/two');
@@ -123,14 +123,14 @@ void main() {
       expect(tracker.buildFullPath, '/');
 
       delegate.push('/stack');
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(tracker.outerBuildCount, 1);
       expect(tracker.buildCount, 2);
       expect(tracker.systemUrl, '/stack/one');
       expect(tracker.buildFullPath, '/stack/one');
 
       delegate.push('/stack/one/two');
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(tracker.outerBuildCount, 1);
       expect(tracker.buildCount, 3);
       expect(tracker.systemUrl, '/stack/one/two');
@@ -165,8 +165,8 @@ class RouteTracker {
 final globalKey = GlobalKey();
 
 Future<void> trackRoute(
-    Future Function(RoutemasterDelegate delegate, RouteTracker tracker)
-        callback) async {
+  Future Function(RoutemasterDelegate delegate, RouteTracker tracker) callback,
+) async {
   try {
     final tracker = RouteTracker();
 
@@ -179,8 +179,9 @@ Future<void> trackRoute(
         return Builder(
           builder: (context) {
             tracker.buildCount++;
-            tracker.buildFullPath =
-                Routemaster.of(context).currentRoute.fullPath;
+            tracker.buildFullPath = Routemaster.of(
+              context,
+            ).currentRoute.fullPath;
             return const SizedBox();
           },
         );
@@ -193,9 +194,9 @@ Future<void> trackRoute(
           '/': (_) => const MaterialPageOne(),
           '/two': (_) => const MaterialPageTwo(),
           '/stack': (_) => const StackPage(
-                child: StackPageHost(),
-                defaultPath: '/stack/one',
-              ),
+            child: StackPageHost(),
+            defaultPath: '/stack/one',
+          ),
           '/stack/one': (_) => const MaterialPageOne(),
           '/stack/one/two': (_) => const MaterialPageTwo(),
         },
@@ -220,20 +221,17 @@ Future<void> trackRoute(
     });
 
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-      SystemChannels.navigation,
-      (call) async {
-        if (call.method == 'routeInformationUpdated') {
-          final args = call.arguments as Map;
-          final location = args.containsKey('uri')
-              ? args['uri'] as String
-              : args['location'] as String;
+        .setMockMethodCallHandler(SystemChannels.navigation, (call) async {
+          if (call.method == 'routeInformationUpdated') {
+            final args = call.arguments as Map;
+            final location = args.containsKey('uri')
+                ? args['uri'] as String
+                : args['location'] as String;
 
-          tracker.systemUrl = location;
-        }
-        return null;
-      },
-    );
+            tracker.systemUrl = location;
+          }
+          return null;
+        });
 
     await callback(delegate, tracker);
   } finally {

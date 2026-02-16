@@ -60,12 +60,12 @@ void main() {
 
     // Push: / -> /two
     delegate.push('/two');
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageTwo), findsOneWidget);
 
     // Push: /two -> /two/three
     delegate.push('/two/three');
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageThree), findsOneWidget);
 
     // Current page is three
@@ -73,7 +73,7 @@ void main() {
     // History index should be 2
     // Pop: /two/three -> /two
     navigator.pop();
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(history.canGoBack, isTrue);
     expect(history.canGoForward, isTrue);
     expect(find.byType(PageTwo), findsOneWidget);
@@ -83,7 +83,7 @@ void main() {
     // History index should be 1
     // Pop: two -> one
     navigator.pop();
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
 
     // Current page is one
     // History stack should be: ['/', '/two', '/two/three']
@@ -96,7 +96,7 @@ void main() {
     // History index should be 0
     // Forward: one -> two
     final forwardResult1 = history.forward();
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(forwardResult1, isTrue);
     expect(find.byType(PageTwo), findsOneWidget);
     expect(history.canGoBack, isTrue);
@@ -104,7 +104,7 @@ void main() {
 
     // Forward: two -> three
     final forwardResult2 = history.forward();
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(forwardResult2, isTrue);
     expect(find.byType(PageThree), findsOneWidget);
     expect(history.canGoBack, isTrue);
@@ -112,14 +112,14 @@ void main() {
 
     // Back: three -> two
     history.back();
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageTwo), findsOneWidget);
     expect(history.canGoBack, isTrue);
     expect(history.canGoForward, isTrue);
 
     // Back: two -> one
     history.back();
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageOne), findsOneWidget);
     expect(history.canGoBack, isFalse);
     expect(history.canGoForward, isTrue);
@@ -143,14 +143,14 @@ void main() {
     expect(history.forward(), isFalse);
 
     delegate.push('/two');
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageTwo), findsOneWidget);
     expect(history.canGoBack, isTrue);
     expect(history.canGoForward, isFalse);
     expect(history.forward(), isFalse);
 
     delegate.push('/three');
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageThree), findsOneWidget);
     expect(history.canGoBack, isTrue);
     expect(history.canGoForward, isFalse);
@@ -159,7 +159,7 @@ void main() {
     // Go back: three -> two
     await recordUrlChanges((systemUrl) async {
       final backResult1 = delegate.history.back();
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(systemUrl.current, '/two');
       expect(find.byType(PageTwo), findsOneWidget);
       expect(backResult1, isTrue);
@@ -168,7 +168,7 @@ void main() {
 
       // Go back: two -> one
       final backResult2 = history.back();
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(systemUrl.current, '/');
       expect(find.byType(PageOne), findsOneWidget);
       expect(backResult2, backResult2);
@@ -178,7 +178,7 @@ void main() {
 
       // Go forward: one -> two
       final forwardResult1 = history.forward();
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(systemUrl.current, '/two');
       expect(find.byType(PageTwo), findsOneWidget);
       expect(forwardResult1, isTrue);
@@ -187,7 +187,7 @@ void main() {
 
       // Go forward: two -> three
       final forwardResult2 = history.forward();
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(systemUrl.current, '/three');
       expect(find.byType(PageThree), findsOneWidget);
       expect(forwardResult2, isTrue);
@@ -216,14 +216,14 @@ void main() {
     expect(history.forward(), isFalse);
 
     routemaster.push('/two');
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageTwo), findsOneWidget);
     expect(history.canGoBack, isTrue);
     expect(history.canGoForward, isFalse);
     expect(history.forward(), isFalse);
 
     routemaster.push('/three');
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageThree), findsOneWidget);
     expect(history.canGoBack, isTrue);
     expect(history.canGoForward, isFalse);
@@ -232,7 +232,7 @@ void main() {
     // Go back: three -> two
     await recordUrlChanges((systemUrl) async {
       final backResult1 = history.back();
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(systemUrl.current, '/two');
       expect(find.byType(PageTwo), findsOneWidget);
       expect(backResult1, isTrue);
@@ -241,7 +241,7 @@ void main() {
 
       // Go back: two -> one
       final backResult2 = history.back();
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(systemUrl.current, '/');
       expect(find.byType(PageOne), findsOneWidget);
       expect(backResult2, backResult2);
@@ -251,7 +251,7 @@ void main() {
 
       // Go forward: one -> two
       final forwardResult1 = history.forward();
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(systemUrl.current, '/two');
       expect(find.byType(PageTwo), findsOneWidget);
       expect(forwardResult1, isTrue);
@@ -260,7 +260,7 @@ void main() {
 
       // Go forward: two -> three
       final forwardResult2 = history.forward();
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(systemUrl.current, '/three');
       expect(find.byType(PageThree), findsOneWidget);
       expect(forwardResult2, isTrue);
@@ -283,7 +283,7 @@ void main() {
     final routemaster = Routemaster.of(pageOneKey.currentContext!);
     final history = routemaster.history;
     routemaster.replace('/two');
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
 
     expect(history.canGoBack, isFalse);
     expect(history.canGoForward, isFalse);
@@ -303,19 +303,19 @@ void main() {
     final history = routemaster.history;
 
     routemaster.push('/two');
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(history.canGoBack, isTrue);
     expect(history.canGoForward, isFalse);
 
     routemaster.replace('/three');
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(history.canGoBack, isTrue);
     expect(history.canGoForward, isFalse);
 
     await recordUrlChanges((systemUrl) async {
       // Back: three -> one
       final backResult = history.back();
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(backResult, isTrue);
       expect(systemUrl.current, '/');
       expect(history.canGoBack, isFalse);
@@ -323,7 +323,7 @@ void main() {
 
       // Forward: one -> three
       final forwardResult = history.forward();
-      await tester.pumpPageTransition();
+      await tester.pumpAndSettle();
       expect(forwardResult, isTrue);
       expect(systemUrl.current, '/three');
       expect(history.canGoBack, isTrue);
@@ -345,16 +345,16 @@ void main() {
     final history = routemaster.history;
 
     routemaster.push('/two');
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
 
     routemaster.push('/three');
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
 
     // Back to page one
     history.back();
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     history.back();
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
 
     // Go to page three
     routemaster.push('/three');
@@ -376,16 +376,16 @@ void main() {
     final history = routemaster.history;
 
     routemaster.push('/two');
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
 
     routemaster.push('/three');
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
 
     // Back to page one
     history.back();
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     history.back();
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
 
     // Go to page three
     routemaster.replace('/three');
@@ -408,27 +408,27 @@ void main() {
 
     // Go to /two
     routemaster.push('/two');
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageTwo), findsOneWidget);
 
     // Go back to /
     history.back();
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageOne), findsOneWidget);
 
     // Go to /three
     routemaster.push('/three');
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageThree), findsOneWidget);
 
     // Go back to /
     history.back();
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageOne), findsOneWidget);
 
     // Go forward to /three
     history.forward();
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageThree), findsOneWidget);
   });
 
@@ -455,17 +455,17 @@ void main() {
 
     // Push: / -> /two
     delegate.push('/two');
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageTwo), findsOneWidget);
 
     // Push: /two -> /two/three
     delegate.push('/two/three');
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
     expect(find.byType(PageThree), findsOneWidget);
 
     // Back to page /two
     history.back();
-    await tester.pumpPageTransition();
+    await tester.pumpAndSettle();
 
     // Can go back -> /
     expect(history.canGoBack, isTrue);
@@ -479,5 +479,30 @@ void main() {
     expect(history.canGoBack, isFalse);
     // Cannot go forward
     expect(history.canGoForward, isFalse);
+  });
+
+  testWidgets('toString() returns readable representation', (tester) async {
+    final delegate = RoutemasterDelegate(routesBuilder: (_) => routeMap);
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    final history = delegate.history;
+    delegate.push('/two');
+    await tester.pumpAndSettle();
+
+    expect(
+      history.toString(),
+      'RouteHistory('
+      'index: 1, '
+      'canGoBack: true, '
+      'canGoForward: false, '
+      'history: [/, /two]'
+      ')',
+    );
   });
 }

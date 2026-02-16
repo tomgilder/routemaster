@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
 
 class FeedPage extends StatelessWidget {
-  const FeedPage({Key? key}) : super(key: key);
+  const FeedPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,9 +19,9 @@ class FeedPage extends StatelessWidget {
               children: [
                 ElevatedButton(
                   onPressed: () async {
-                    final result = await Routemaster.of(context)
-                        .push<String?>('profile/1')
-                        .result;
+                    final result = await Routemaster.of(
+                      context,
+                    ).push<String?>('profile/1').result;
 
                     if (kDebugMode) {
                       print("Profile result: '$result'");
@@ -53,8 +53,9 @@ class FeedPage extends StatelessWidget {
                   child: Text('Bottom Navigation Bar page'),
                 ),
                 ElevatedButton(
-                  onPressed: () => Routemaster.of(context)
-                      .replace('/bottom-navigation-bar-replace'),
+                  onPressed: () => Routemaster.of(
+                    context,
+                  ).replace('/bottom-navigation-bar-replace'),
                   child: Text('Replace test'),
                 ),
                 ElevatedButton(
@@ -72,12 +73,14 @@ class FeedPage extends StatelessWidget {
                 ),
                 ElevatedButton(
                   onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) {
-                      return Scaffold(
-                        appBar: AppBar(),
-                        body: Center(child: Text('Non-Page route')),
-                      );
-                    }),
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return Scaffold(
+                          appBar: AppBar(),
+                          body: Center(child: Text('Non-Page route')),
+                        );
+                      },
+                    ),
                   ),
                   child: Text('Push non-Page route'),
                 ),
@@ -95,7 +98,7 @@ class FeedPage extends StatelessWidget {
                   child: Text('/stack/one/two'),
                 ),
               ],
-            )
+            ),
           ],
         ),
       ),
@@ -108,10 +111,10 @@ class ProfilePage extends StatelessWidget {
   final String? message;
 
   const ProfilePage({
-    Key? key,
+    super.key,
     required this.id,
     required this.message,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -124,8 +127,9 @@ class ProfilePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text('Profile page, ID = $id, message = $message'),
-            Text('Profile page - ' +
-                RouteData.of(context).pathParameters['id']!),
+            Text(
+              'Profile page - ${RouteData.of(context).pathParameters['id']!}',
+            ),
             ElevatedButton(
               onPressed: () => Routemaster.of(context).push('photo'),
               child: Text('Photo page (custom animation)'),
@@ -169,9 +173,9 @@ class PhotoPage extends StatelessWidget {
   final String? id;
 
   const PhotoPage({
-    Key? key,
+    super.key,
     required this.id,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

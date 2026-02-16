@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class NotificationsPage extends StatefulWidget {
-  const NotificationsPage({Key? key}) : super(key: key);
+  const NotificationsPage({super.key});
 
   @override
   State<StatefulWidget> createState() => _NotificationsPageState();
@@ -73,17 +73,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
 class NotificationsContentPage extends StatelessWidget {
   final String message;
 
-  const NotificationsContentPage({
-    Key? key,
-    required this.message,
-  }) : super(key: key);
+  const NotificationsContentPage({super.key, required this.message});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Feed'),
-      ),
+      appBar: AppBar(title: Text('Feed')),
       body: ListView(
         padding: EdgeInsets.all(16),
         children: [
@@ -96,7 +91,7 @@ class NotificationsContentPage extends StatelessWidget {
                 child: Text('Push on top of tab stack'),
               ),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -106,10 +101,7 @@ class NotificationsContentPage extends StatelessWidget {
 class MessagePage extends StatelessWidget {
   final String message;
 
-  const MessagePage({
-    Key? key,
-    required this.message,
-  }) : super(key: key);
+  const MessagePage({super.key, required this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -118,9 +110,7 @@ class MessagePage extends StatelessWidget {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(message),
-          ],
+          children: [Text(message)],
         ),
       ),
     );
@@ -128,7 +118,7 @@ class MessagePage extends StatelessWidget {
 }
 
 class DoubleBackPage extends StatelessWidget {
-  const DoubleBackPage({Key? key}) : super(key: key);
+  const DoubleBackPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -140,18 +130,20 @@ class DoubleBackPage extends StatelessWidget {
           children: [
             ElevatedButton(
               onPressed: () async {
-                await Routemaster.of(context).pop();
-                await Routemaster.of(context).pop();
+                final routemaster = Routemaster.of(context);
+                await routemaster.pop();
+                await routemaster.pop();
               },
               child: Text('Go back twice'),
             ),
             ElevatedButton(
               onPressed: () {
-                Routemaster.of(context)
-                    .replace('/bottom-navigation-bar/replaced');
+                Routemaster.of(
+                  context,
+                ).replace('/bottom-navigation-bar/replaced');
               },
               child: Text('Push replacement'),
-            )
+            ),
           ],
         ),
       ),

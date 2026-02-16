@@ -42,7 +42,7 @@ class CupertinoTabPage extends StatefulPage<void> with IndexedRouteMixIn {
     required this.child,
     required this.paths,
     this.pageBuilder = _defaultPageBuilder,
-    this.backBehavior = TabBackBehavior.none,
+    this.backBehavior = .none,
   });
 
   @override
@@ -71,8 +71,8 @@ class _CupertinoTabPageStateProvider extends InheritedNotifier {
     required super.child,
     required this.pageState,
   }) : super(
-          notifier: pageState,
-        );
+         notifier: pageState,
+       );
 }
 
 /// The state for a [CupertinoTabPage]. Creates and manages a

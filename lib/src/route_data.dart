@@ -27,7 +27,7 @@ class RouteData {
         _publicPath = path;
       } else {
         _publicPath = pathContext.joinAll(
-          pathContext.split(path).take(_privateSegmentIndex!),
+          pathContext.split(path).take(_privateSegmentIndex),
         );
       }
     }
@@ -78,11 +78,11 @@ class RouteData {
     required this.pathTemplate,
     this.pathParameters = const {},
     this.isReplacement = false,
-    this.requestSource = RequestSource.system,
+    this.requestSource = .system,
     int? historyIndex,
-  })  : _uri = Uri.parse(fullPath),
-        _privateSegmentIndex = _getPrivateSegmentIndex(pathTemplate),
-        _historyIndex = historyIndex;
+  }) : _uri = Uri.parse(fullPath),
+       _privateSegmentIndex = _getPrivateSegmentIndex(pathTemplate),
+       _historyIndex = historyIndex;
 
   /// Initializes routing data from a [Uri].
   RouteData._fromUri(
@@ -90,11 +90,11 @@ class RouteData {
     required this.pathTemplate,
     this.pathParameters = const {},
     this.isReplacement = false,
-    this.requestSource = RequestSource.system,
+    this.requestSource = .system,
     int? historyIndex,
-  })  : _uri = uri,
-        _privateSegmentIndex = _getPrivateSegmentIndex(pathTemplate),
-        _historyIndex = historyIndex;
+  }) : _uri = uri,
+       _privateSegmentIndex = _getPrivateSegmentIndex(pathTemplate),
+       _historyIndex = historyIndex;
 
   /// Initializes routing data from the provided router result.
   RouteData._fromRouterResult(
@@ -102,10 +102,10 @@ class RouteData {
     Uri uri, {
     required this.requestSource,
     required this.isReplacement,
-  })  : _uri = uri,
-        pathParameters = result.pathParameters,
-        pathTemplate = result.pathTemplate,
-        _privateSegmentIndex = _getPrivateSegmentIndex(result.pathTemplate);
+  }) : _uri = uri,
+       pathParameters = result.pathParameters,
+       pathTemplate = result.pathTemplate,
+       _privateSegmentIndex = _getPrivateSegmentIndex(result.pathTemplate);
 
   final int? _privateSegmentIndex;
   static int? _getPrivateSegmentIndex(String? pathTemplate) {
@@ -137,7 +137,7 @@ class RouteData {
   /// Creates a [RouteInformation] object with data from this route.
   RouteInformation toRouteInformation() {
     return RouteInformation(
-      location: publicPath,
+      uri: Uri.parse(publicPath),
       state: {
         'isReplacement': isReplacement,
         'internalPath': fullPath,
@@ -173,9 +173,9 @@ class RouteData {
     // No state: we only got a URL from the system, so probably a
     // manually-entered URL from the user.
     return RouteData(
-      routeInfo.location!,
-      pathTemplate: routeInfo.location!,
-      requestSource: RequestSource.system,
+      routeInfo.uri.toString(),
+      pathTemplate: routeInfo.uri.toString(),
+      requestSource: .system,
     );
   }
 

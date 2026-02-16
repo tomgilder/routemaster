@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import '../routemaster.dart';
 import 'system_nav.dart';
 // ignore_for_file: public_member_api_docs
 
@@ -18,10 +17,6 @@ class SystemNav {
     throw UnsupportedError('Only supported on web');
   }
 
-  static String makePublicUrl(RouteData routeData) {
-    throw UnsupportedError('Only supported on web');
-  }
-
   static String back() {
     throw UnsupportedError('Only supported on web');
   }
@@ -29,4 +24,11 @@ class SystemNav {
   static String forward() {
     throw UnsupportedError('Only supported on web');
   }
+
+  // coverage:ignore-start
+  static void go(int delta) {
+    throw UnsupportedError('Only supported on web');
+  }
+
+  // coverage:ignore-end
 }

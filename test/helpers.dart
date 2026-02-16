@@ -4,24 +4,15 @@ import 'package:routemaster/routemaster.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:routemaster/src/system_nav.dart';
 
-const kTransitionDuration = Duration(milliseconds: 350);
-
-extension PumpExtension on WidgetTester {
-  Future<void> pumpPageTransition() async {
-    await pump();
-    await pump(kTransitionDuration);
-  }
-}
-
 class MockHistoryProvider implements HistoryProvider {
-  @override
-  String hash = '#';
-
   @override
   void back() {}
 
   @override
   void forward() {}
+
+  @override
+  void go(int delta) {}
 }
 
 class SystemUrlTracker {
@@ -30,25 +21,23 @@ class SystemUrlTracker {
 
 /// Records changes in URL
 Future<void> recordUrlChanges(
-    Future Function(SystemUrlTracker url) callback) async {
+  Future Function(SystemUrlTracker url) callback,
+) async {
   try {
     final tracker = SystemUrlTracker();
 
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-      SystemChannels.navigation,
-      (call) async {
-        if (call.method == 'routeInformationUpdated') {
-          final args = call.arguments as Map;
-          final location = args.containsKey('uri')
-              ? args['uri'] as String
-              : args['location'] as String;
+        .setMockMethodCallHandler(SystemChannels.navigation, (call) async {
+          if (call.method == 'routeInformationUpdated') {
+            final args = call.arguments as Map;
+            final location = args.containsKey('uri')
+                ? args['uri'] as String
+                : args['location'] as String;
 
-          tracker.current = location;
-        }
-        return null;
-      },
-    );
+            tracker.current = location;
+          }
+          return null;
+        });
 
     await callback(tracker);
   } finally {
@@ -61,15 +50,13 @@ Future<void> recordUrlChanges(
 /// Simulates pressing the system back button
 Future<void> invokeSystemBack() {
   // ignore: invalid_use_of_protected_member
-  return _ambiguate(WidgetsBinding.instance)!.handlePopRoute();
+  return WidgetsBinding.instance.handlePopRoute();
 }
 
 Future<void> setSystemUrl(String url) {
   // ignore: invalid_use_of_protected_member
-  return _ambiguate(WidgetsBinding.instance)!.handlePushRoute(url);
+  return WidgetsBinding.instance.handlePushRoute(url);
 }
-
-T? _ambiguate<T>(T? value) => value;
 
 class MaterialPageOne extends MaterialPage<void> {
   const MaterialPageOne() : super(child: const PageOne());
@@ -112,9 +99,7 @@ class PageThree extends StatelessWidget {
 
 class EchoPage extends MaterialPage<void> {
   EchoPage({required String? text})
-      : super(
-          child: Scaffold(body: Text(text ?? '')),
-        );
+    : super(child: Scaffold(body: Text(text ?? '')));
 }
 
 class PopPage extends StatelessWidget {
@@ -138,8 +123,9 @@ class NotFoundPage extends StatelessWidget {
 
 class FakeBuildContext implements BuildContext {
   @override
-  T? dependOnInheritedWidgetOfExactType<T extends InheritedWidget>(
-      {Object? aspect}) {
+  T? dependOnInheritedWidgetOfExactType<T extends InheritedWidget>({
+    Object? aspect,
+  }) {
     return null;
   }
 

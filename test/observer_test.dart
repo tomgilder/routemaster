@@ -1,58 +1,62 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
-import 'helpers.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_test/flutter_test.dart' as test;
 
 void main() {
-  testWidgets('Can get observer updates from both RouterDelegate and Navigator',
-      (tester) async {
-    final delegateObserver = LoggingObserver();
-    final navigatorObserver = LoggingObserver();
+  testWidgets(
+    'Can get observer updates from both RouterDelegate and Navigator',
+    (tester) async {
+      final delegateObserver = LoggingObserver();
+      final navigatorObserver = LoggingObserver();
 
-    await tester.pumpWidget(
-      ObserverApp(
-        delegateObservers: [delegateObserver],
-        navigatorObservers: [navigatorObserver],
-      ),
-    );
+      await tester.pumpWidget(
+        ObserverApp(
+          delegateObservers: [delegateObserver],
+          navigatorObservers: [navigatorObserver],
+        ),
+      );
 
-    // Verify initial routes updates
-    expect(navigatorObserver.log.length, 1);
-    expect(navigatorObserver.log[0], isPush(name: 'FeedPage'));
+      // Verify initial routes updates
+      expect(navigatorObserver.log.length, 1);
+      expect(navigatorObserver.log[0], isPush(name: 'FeedPage'));
 
-    expect(delegateObserver.log.length, 3);
-    expect(delegateObserver.log[0], isDidChangeRoute(path: '/feed'));
-    expect(delegateObserver.log[1], isPush(name: null));
-    expect(delegateObserver.log[2], isPush(name: 'FeedPage'));
+      expect(delegateObserver.log.length, 3);
+      expect(delegateObserver.log[0], isDidChangeRoute(path: '/feed'));
+      expect(delegateObserver.log[1], isPush(name: null));
+      expect(delegateObserver.log[2], isPush(name: 'FeedPage'));
 
-    // Push page
-    await tester.tap(find.text('Profile page'));
-    await tester.pump();
-    await tester.pump(kTransitionDuration);
+      // Push page
+      await tester.tap(find.text('Profile page'));
+      await tester.pump();
+      await tester.pumpAndSettle();
 
-    // Verify push updates
-    expect(navigatorObserver.log.length, 2);
-    expect(navigatorObserver.log[1], isPush(name: 'ProfilePage'));
+      // Verify push updates
+      expect(navigatorObserver.log.length, 2);
+      expect(navigatorObserver.log[1], isPush(name: 'ProfilePage'));
 
-    expect(delegateObserver.log.length, 5);
-    expect(delegateObserver.log[3], isDidChangeRoute(path: '/feed/profile/1'));
-    expect(delegateObserver.log[4], isPush(name: 'ProfilePage'));
+      expect(delegateObserver.log.length, 5);
+      expect(
+        delegateObserver.log[3],
+        isDidChangeRoute(path: '/feed/profile/1'),
+      );
+      expect(delegateObserver.log[4], isPush(name: 'ProfilePage'));
 
-    // Pop page
-    await tester.tap(find.text('Pop'));
-    await tester.pump();
-    await tester.pump(kTransitionDuration);
+      // Pop page
+      await tester.tap(find.text('Pop'));
+      await tester.pump();
+      await tester.pumpAndSettle();
 
-    // Verify pop updates
-    expect(navigatorObserver.log.length, 3);
-    expect(navigatorObserver.log[2], isPop(name: 'ProfilePage'));
+      // Verify pop updates
+      expect(navigatorObserver.log.length, 3);
+      expect(navigatorObserver.log[2], isPop(name: 'ProfilePage'));
 
-    expect(delegateObserver.log.length, 7);
-    expect(delegateObserver.log[5], isDidChangeRoute(path: '/feed'));
-    expect(delegateObserver.log[6], isPop(name: 'ProfilePage'));
-  });
+      expect(delegateObserver.log.length, 7);
+      expect(delegateObserver.log[5], isPop(name: 'ProfilePage'));
+      expect(delegateObserver.log[6], isDidChangeRoute(path: '/feed'));
+    },
+  );
 
   testWidgets('Can switch RouterDelegate observers', (tester) async {
     final delegateObserver1 = LoggingObserver();
@@ -73,7 +77,7 @@ void main() {
 
     await tester.tap(find.text('Profile page'));
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(delegateObserver1.log.length, 3);
     expect(delegateObserver2.log.length, 2);
@@ -90,7 +94,7 @@ void main() {
     // Push page
     await tester.tap(find.text('Profile page'));
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(navigatorObserver1.log.length, 2);
 
@@ -105,7 +109,7 @@ void main() {
     // Pop page
     await tester.tap(find.text('Pop'));
     await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
 
     expect(navigatorObserver1.log.length, 2);
     expect(navigatorObserver2.log.length, 1);
@@ -115,9 +119,13 @@ void main() {
     final loggingObserver = LoggingObserver();
     await tester.pumpWidget(ObserverApp(delegateObservers: [loggingObserver]));
 
-    final state = tester
-        .stateList(find.byWidgetPredicate((widget) => widget is Navigator))
-        .last as NavigatorState;
+    final state =
+        tester
+                .stateList(
+                  find.byWidgetPredicate((widget) => widget is Navigator),
+                )
+                .last
+            as NavigatorState;
     final observer = state.widget.observers[0];
 
     observer.didPush(MockRoute(), MockRoute());
@@ -158,21 +166,15 @@ class ObserverApp extends StatelessWidget {
         routesBuilder: (_) => RouteMap(
           routes: {
             '/': (_) => CupertinoTabPage(
-                  child: HomePage(navigatorObservers: navigatorObservers),
-                  paths: const ['feed', 'settings'],
-                ),
-            '/feed': (_) => MaterialPage<void>(
-                  child: FeedPage(),
-                  name: 'FeedPage',
-                ),
-            '/feed/profile/:id': (_) => MaterialPage<void>(
-                  child: ProfilePage(),
-                  name: 'ProfilePage',
-                ),
-            '/settings': (_) => MaterialPage<void>(
-                  child: SettingsPage(),
-                  name: 'SettingsPage',
-                ),
+              child: HomePage(navigatorObservers: navigatorObservers),
+              paths: const ['feed', 'settings'],
+            ),
+            '/feed': (_) =>
+                MaterialPage<void>(child: FeedPage(), name: 'FeedPage'),
+            '/feed/profile/:id': (_) =>
+                MaterialPage<void>(child: ProfilePage(), name: 'ProfilePage'),
+            '/settings': (_) =>
+                MaterialPage<void>(child: SettingsPage(), name: 'SettingsPage'),
           },
         ),
         observers: delegateObservers,
@@ -298,7 +300,9 @@ class LoggingObserver extends RoutemasterObserver {
 
   @override
   void didStartUserGesture(
-      Route<dynamic> route, Route<dynamic>? previousRoute) {
+    Route<dynamic> route,
+    Route<dynamic>? previousRoute,
+  ) {
     log.add(DidStartUserGesture(route: route, previousRoute: previousRoute));
   }
 
@@ -308,10 +312,7 @@ class LoggingObserver extends RoutemasterObserver {
   }
 
   void expect(List<Type> expected) {
-    test.expect(
-      log.map((e) => e.runtimeType).toList(),
-      expected,
-    );
+    test.expect(log.map((e) => e.runtimeType).toList(), expected);
   }
 
   @override
@@ -346,7 +347,9 @@ class LoggingNavigatorObserver extends NavigatorObserver {
 
   @override
   void didStartUserGesture(
-      Route<dynamic> route, Route<dynamic>? previousRoute) {
+    Route<dynamic> route,
+    Route<dynamic>? previousRoute,
+  ) {
     log.add(DidStartUserGesture(route: route, previousRoute: previousRoute));
   }
 
@@ -356,10 +359,7 @@ class LoggingNavigatorObserver extends NavigatorObserver {
   }
 
   void expect(List<Type> expected) {
-    test.expect(
-      log.map((e) => e.runtimeType).toList(),
-      expected,
-    );
+    test.expect(log.map((e) => e.runtimeType).toList(), expected);
   }
 }
 

@@ -36,7 +36,7 @@ class TitleObserver extends RoutemasterObserver {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -80,21 +80,21 @@ RouteMap _buildRouteMap(AppState appState) {
   return RouteMap(
     routes: {
       '/': (_) => CupertinoTabPage(
-            pageBuilder: (child) => MaterialWithModalsPage(child: child),
-            child: HomePage(),
-            paths: [
-              '/feed',
-              '/search',
-              if (appState.showBonusTab) '/bonus',
-              '/notifications',
-              '/settings',
-            ],
-            backBehavior: TabBackBehavior.none,
-          ),
+        pageBuilder: (child) => MaterialWithModalsPage(child: child),
+        child: HomePage(),
+        paths: [
+          '/feed',
+          '/search',
+          if (appState.showBonusTab) '/bonus',
+          '/notifications',
+          '/settings',
+        ],
+        backBehavior: TabBackBehavior.none,
+      ),
       '/feed': (_) => MaterialPage(
-            name: 'Feed',
-            child: FeedPage(),
-          ),
+        name: 'Feed',
+        child: FeedPage(),
+      ),
       '/feed/profile/:id': (info) {
         if (info.pathParameters['id'] == '1' ||
             info.pathParameters['id'] == '2') {
@@ -110,17 +110,17 @@ RouteMap _buildRouteMap(AppState appState) {
         return Redirect('/feed');
       },
       '/feed/profile/:id/photo': (info) => FancyAnimationPage(
-            child: PhotoPage(id: info.pathParameters['id']),
-          ),
+        child: PhotoPage(id: info.pathParameters['id']),
+      ),
 
       '/search': (_) => MaterialPage(
-            name: 'Search',
-            child: SearchPage(),
-          ),
+        name: 'Search',
+        child: SearchPage(),
+      ),
       '/settings': (_) => MaterialPage(
-            name: 'Settings',
-            child: SettingsPage(),
-          ),
+        name: 'Settings',
+        child: SettingsPage(),
+      ),
 
       // Most pages tend to appear only in one place in the app
       // However sometimes you can push them into multiple places.
@@ -129,73 +129,73 @@ RouteMap _buildRouteMap(AppState appState) {
 
       // This gets really complicated to test out tested scenarios!
       '/notifications': (_) => IndexedPage(
-            child: NotificationsPage(),
-            paths: ['one', 'two'],
-          ),
+        child: NotificationsPage(),
+        paths: ['one', 'two'],
+      ),
       '/notifications/one': (_) => MaterialPage(
-            name: 'Notifications - One',
-            child: NotificationsContentPage(
-              message: 'Page one',
-            ),
-          ),
+        name: 'Notifications - One',
+        child: NotificationsContentPage(
+          message: 'Page one',
+        ),
+      ),
       '/notifications/two': (_) => MaterialPage(
-            name: 'Notifications - Two',
-            child: NotificationsContentPage(message: 'Page two'),
-          ),
+        name: 'Notifications - Two',
+        child: NotificationsContentPage(message: 'Page two'),
+      ),
       '/notifications/pushed': (_) => MaterialPage(
-            child: MessagePage(message: 'Pushed notifications'),
-          ),
+        child: MessagePage(message: 'Pushed notifications'),
+      ),
       '/tab-bar': (_) => TabPage(
-            child: TabBarPage(),
-            paths: [
-              'one',
-              if (appState.showBonusTab) 'bonus',
-              'settings',
-            ],
-          ),
+        child: TabBarPage(),
+        paths: [
+          'one',
+          if (appState.showBonusTab) 'bonus',
+          'settings',
+        ],
+      ),
       '/tab-bar/one': (_) => MaterialPage(child: MessagePage(message: 'One')),
       '/tab-bar/bonus': (_) => MaterialPage(
-            child: MessagePage(message: 'BONUS!!'),
-          ),
+        child: MessagePage(message: 'BONUS!!'),
+      ),
       '/tab-bar/settings': (_) => MaterialPage(child: SettingsPage()),
       '/bottom-navigation-bar-replace': (_) => MaterialPage(
-            child: BottomNavigationBarReplacementPage(),
-          ),
+        child: BottomNavigationBarReplacementPage(),
+      ),
       '/bottom-navigation-bar': (_) => IndexedPage(
-            child: BottomNavigationBarPage(),
-            paths: ['one', 'two', 'three'],
-          ),
+        child: BottomNavigationBarPage(),
+        paths: ['one', 'two', 'three'],
+      ),
       '/bottom-navigation-bar/one': (_) => MaterialPage(
-            child: BottomContentPage(),
-          ),
+        child: BottomContentPage(),
+      ),
       '/bottom-navigation-bar/two': (_) => MaterialPage(
-            child: BottomContentPage2(),
-          ),
+        child: BottomContentPage2(),
+      ),
       '/bottom-navigation-bar/three': (_) => MaterialPage(
-            child: MessagePage(message: 'Page three'),
-          ),
+        child: MessagePage(message: 'Page three'),
+      ),
       '/bottom-navigation-bar/threepage': (_) => MaterialPage(
-            child: DoubleBackPage(),
-          ),
+        child: DoubleBackPage(),
+      ),
       '/bottom-navigation-bar/replaced': (_) => MaterialPage(
-            child: MessagePage(message: 'Replaced'),
-          ),
+        child: MessagePage(message: 'Replaced'),
+      ),
       '/bonus': (_) => MaterialPage(
-            child: MessagePage(message: 'You found the bonus page!!!'),
-          ),
+        child: MessagePage(message: 'You found the bonus page!!!'),
+      ),
 
       '/stack': (_) => StackPage(
-            pageBuilder: (child) => BottomSheetPage(child: child),
-            child: StackBottomSheetContents(),
-            defaultPath: 'one',
-          ),
+        pageBuilder: (child) => BottomSheetPage(child: child),
+        child: StackBottomSheetContents(),
+        defaultPath: 'one',
+      ),
 
       '/stack/one': (_) => MaterialPage(child: StackPageOne()),
       '/stack/one/two': (_) => MaterialPage(child: StackPageTwo()),
 
       '/custom-transitions': (_) => CustomPage(
-            child: MessagePage(message: 'Custom transitions'),
-          ),
+        child: MessagePage(message: 'Custom transitions'),
+      ),
     },
   );
 }

@@ -32,20 +32,18 @@ class PageStack extends ChangeNotifier {
     assert(_pageContainers.isNotEmpty, "Can't generate pages with no routes");
 
     final newRouteMap = <Page<dynamic>, RouteData>{};
-    final pages = _pageContainers.map(
-      (pageState) {
-        final page = pageState._getOrCreatePage();
+    final pages = _pageContainers.map((pageState) {
+      final page = pageState._getOrCreatePage();
 
-        // We need to keep any removed pages in the route map as they may still
-        // rebuild whilst being removed - so for this build, the route map
-        // contains both new and removed pages
-        newRouteMap[page] = pageState.routeData;
-        _routeMap[page] = pageState.routeData;
-        return page;
-      },
-    ).toList();
+      // We need to keep any removed pages in the route map as they may still
+      // rebuild whilst being removed - so for this build, the route map
+      // contains both new and removed pages
+      newRouteMap[page] = pageState.routeData;
+      _routeMap[page] = pageState.routeData;
+      return page;
+    }).toList();
 
-    _ambiguate(WidgetsBinding.instance)!.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       // Flushes out any removed pages
       _routeMap = newRouteMap;
     });
@@ -82,8 +80,8 @@ class PageStack extends ChangeNotifier {
     } else {
       // It's more likely the route data will be in the currently active page
       // so go through pages in reverse order
-      final multiChildChildren =
-          _pageContainers.reversed.whereType<MultiChildPageContainer>();
+      final multiChildChildren = _pageContainers.reversed
+          .whereType<MultiChildPageContainer>();
 
       for (final container in multiChildChildren) {
         route = container._getRouteData(page);
@@ -94,25 +92,6 @@ class PageStack extends ChangeNotifier {
     }
 
     return null;
-  }
-
-  /// Passed to [Navigator] widgets for the Navigator to inform this stack when
-  /// a page is popped.
-  bool onPopPage(
-      Route<dynamic> route, dynamic result, Routemaster routemaster) {
-    if (route.didPop(result)) {
-      _pageContainers.removeLast();
-
-      routemaster.history._onPopPage(
-        newRoute: _pageContainers.last.routeData,
-      );
-
-      // We don't need to call notifyListeners() listeners, the Navigator will
-      // rebuild its page list automatically.
-      return true;
-    }
-
-    return false;
   }
 
   /// Attempts to pops this page stack. Returns `true` if a route was

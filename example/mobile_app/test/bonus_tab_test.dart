@@ -8,10 +8,12 @@ Finder findTab({
   required bool selected,
 }) {
   return find.descendant(
-    of: find.byWidgetPredicate((widget) =>
-        widget is Semantics &&
-        widget.properties.hint == hint &&
-        widget.properties.selected == selected),
+    of: find.byWidgetPredicate(
+      (widget) =>
+          widget is Semantics &&
+          widget.properties.hint == hint &&
+          widget.properties.selected == selected,
+    ),
     matching: find.text(title),
   );
 }

@@ -31,31 +31,26 @@ final initializingRoutes = RouteMap(
 // Log in page route
 final loggedOutRoutes = RouteMap(
   routes: {
-    '/': (route) => MaterialPage<void>(
-          key: const ValueKey('login'),
-          child: LoginPage(),
-        ),
+    '/': (route) =>
+        MaterialPage<void>(key: const ValueKey('login'), child: LoginPage()),
   },
 );
 
 // Normal after-login routes
 final loggedInRoutes = RouteMap(
   routes: {
-    '/': (route) => MaterialPage<void>(
-          key: const ValueKey('home'),
-          child: HomePage(),
-        ),
-    '/article/:id': (route) => MaterialPage<void>(
-          child: ArticlePage(id: route.pathParameters['id']!),
-        ),
+    '/': (route) =>
+        MaterialPage<void>(key: const ValueKey('home'), child: HomePage()),
+    '/article/:id': (route) =>
+        MaterialPage<void>(child: ArticlePage(id: route.pathParameters['id']!)),
   },
 );
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
-  _MyAppState createState() => _MyAppState();
+  State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
@@ -80,8 +75,9 @@ class _MyAppState extends State<MyApp> {
     onNotificationSelected: (payload) => _routemaster.push(payload),
   );
 
-  late final _linkHandler =
-      LinkHandler(onLink: (link) => _routemaster.push(link))..init();
+  late final _linkHandler = LinkHandler(
+    onLink: (link) => _routemaster.push(link),
+  )..init();
 
   @override
   void initState() {
@@ -118,7 +114,7 @@ class _MyAppState extends State<MyApp> {
               _routemaster.replace('/');
             },
           ),
-        )
+        ),
       ],
       child: MaterialApp.router(
         routeInformationParser: const RoutemasterParser(),
@@ -129,7 +125,7 @@ class _MyAppState extends State<MyApp> {
 }
 
 class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -140,10 +136,7 @@ class HomePage extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          Text(
-            'Home page',
-            style: Theme.of(context).textTheme.displaySmall,
-          ),
+          Text('Home page', style: Theme.of(context).textTheme.displaySmall),
           SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {

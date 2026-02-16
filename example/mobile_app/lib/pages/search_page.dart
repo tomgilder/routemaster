@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
 
 class SearchPage extends StatelessWidget {
-  const SearchPage({Key? key}) : super(key: key);
+  const SearchPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +35,7 @@ class SearchPage extends StatelessWidget {
 }
 
 class HeroPage extends StatelessWidget {
-  const HeroPage({Key? key}) : super(key: key);
+  const HeroPage({super.key});
 
   @override
   Widget build(BuildContext context) {

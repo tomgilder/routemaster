@@ -25,13 +25,11 @@ void main() {
     );
 
     delegate.push('/two');
-    await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
     expect(find.byType(PageTwo), findsOneWidget);
 
     navigatorKey.currentState!.pop();
-    await tester.pump();
-    await tester.pump(kTransitionDuration);
+    await tester.pumpAndSettle();
     expect(find.byType(PageTwo), findsNothing);
   });
 
