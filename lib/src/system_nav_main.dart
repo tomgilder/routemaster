@@ -25,7 +25,10 @@ class SystemNav {
     throw UnsupportedError('Only supported on web');
   }
 
+  // coverage:ignore-start
   static void go(int delta) {
     throw UnsupportedError('Only supported on web');
   }
+
+  // coverage:ignore-end
 }

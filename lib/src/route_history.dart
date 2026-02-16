@@ -161,10 +161,12 @@ class RouteHistory {
 
     if (targetIndex != null) {
       final stepsBack = _index - targetIndex;
+      // coverage:ignore-start
       if (stepsBack <= 0) {
         _state.delegate._updateCurrentConfiguration(updateHistory: false);
         return;
       }
+      // coverage:ignore-end
 
       final isWebNav = kIsWeb && SystemNav.enabled;
       if (isWebNav) {

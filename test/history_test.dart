@@ -480,4 +480,29 @@ void main() {
     // Cannot go forward
     expect(history.canGoForward, isFalse);
   });
+
+  testWidgets('toString() returns readable representation', (tester) async {
+    final delegate = RoutemasterDelegate(routesBuilder: (_) => routeMap);
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    final history = delegate.history;
+    delegate.push('/two');
+    await tester.pumpAndSettle();
+
+    expect(
+      history.toString(),
+      'RouteHistory('
+      'index: 1, '
+      'canGoBack: true, '
+      'canGoForward: false, '
+      'history: [/, /two]'
+      ')',
+    );
+  });
 }

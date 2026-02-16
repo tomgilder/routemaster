@@ -473,6 +473,96 @@ void main() {
 
     expect(find.byType(PageThree), findsOneWidget);
   });
+
+  testWidgets('popUntil to intermediate route not in history', (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (context) {
+        return RouteMap(
+          routes: {
+            '/': (_) => const MaterialPageOne(),
+            '/two': (info) => const MaterialPageTwo(),
+            '/two/three': (info) => const MaterialPageThree(),
+          },
+        );
+      },
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    // Push directly to /two/three. History will be [/, /two/three].
+    // The intermediate route /two is in the page stack but not in history.
+    delegate.push('/two/three');
+    await tester.pumpAndSettle();
+    expect(find.byType(PageThree), findsOneWidget);
+
+    // popUntil /two - route is not in history
+    await delegate.popUntil((routeData) => routeData.path == '/two');
+    await tester.pumpAndSettle();
+
+    expect(find.byType(PageTwo), findsOneWidget);
+    expect(find.byType(PageThree), findsNothing);
+  });
+
+  testWidgets('popUntil pops through tab page', (tester) async {
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (context) {
+        return RouteMap(
+          routes: {
+            '/': (_) => const MaterialPageOne(),
+            '/tabs': (_) =>
+                TabPage(child: BasicTabPage(), paths: const ['one', 'two']),
+            '/tabs/one': (_) => const MaterialPageTwo(),
+            '/tabs/two': (_) => const MaterialPageThree(),
+            '/tabs/one/details': (_) =>
+                MaterialPage<void>(child: const _DetailsPage()),
+          },
+        );
+      },
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
+
+    // Navigate to a deep route inside a tab
+    delegate.push('/tabs/one/details');
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.byType(_DetailsPage), findsOneWidget);
+
+    // popUntil the tab's base route - this exercises maybePop on the tab page
+    await delegate.popUntil((routeData) => routeData.path == '/tabs/one');
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(find.byType(_DetailsPage), findsNothing);
+    expect(find.byType(PageTwo), findsOneWidget);
+  });
+}
+
+class _DetailsPage extends StatelessWidget {
+  const _DetailsPage();
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox();
+  }
+}
+
+class BasicTabPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final stack = TabPage.of(context).currentStack;
+    return Scaffold(body: PageStackNavigator(stack: stack));
+  }
 }
 
 class StackSwapPage extends StatefulWidget {
