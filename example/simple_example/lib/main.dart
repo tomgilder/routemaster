@@ -7,9 +7,9 @@ void main() => runApp(MyApp());
 final routes = RouteMap(
   routes: {
     '/': (_) => CupertinoTabPage(
-          child: HomePage(),
-          paths: ['feed', 'settings'],
-        ),
+      child: HomePage(),
+      paths: ['feed', 'settings'],
+    ),
     '/feed': (_) => MaterialPage(child: FeedPage()),
     '/feed/profile/:id': (_) => MaterialPage(child: ProfilePage()),
     '/settings': (_) => MaterialPage(child: SettingsPage()),

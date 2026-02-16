@@ -4,23 +4,22 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:routemaster/routemaster.dart';
 
 void main() {
-  testWidgets('Stateful widgets are not recreated when delegate changes',
-      (tester) async {
+  testWidgets('Stateful widgets are not recreated when delegate changes', (
+    tester,
+  ) async {
     final tracker1 = Tracker();
     final tracker2 = Tracker();
     final tracker3 = Tracker();
 
     final routes = <String, PageBuilder>{
       '/': (_) => CupertinoTabPage(
-            child: HomePage(tracker: tracker1),
-            paths: const ['feed', 'settings'],
-          ),
-      '/feed': (_) => MaterialPage<void>(
-            child: InitStateTracker(tracker: tracker2),
-          ),
-      '/settings': (_) => MaterialPage<void>(
-            child: InitStateTracker(tracker: tracker3),
-          ),
+        child: HomePage(tracker: tracker1),
+        paths: const ['feed', 'settings'],
+      ),
+      '/feed': (_) =>
+          MaterialPage<void>(child: InitStateTracker(tracker: tracker2)),
+      '/settings': (_) =>
+          MaterialPage<void>(child: InitStateTracker(tracker: tracker3)),
     };
 
     await tester.pumpWidget(
@@ -51,49 +50,50 @@ void main() {
   });
 
   testWidgets(
-      'Stateful widgets are not recreated when same delegate is rebuilt',
-      (tester) async {
-    final tracker1 = Tracker();
-    final tracker2 = Tracker();
-    final tracker3 = Tracker();
+    'Stateful widgets are not recreated when same delegate is rebuilt',
+    (tester) async {
+      final tracker1 = Tracker();
+      final tracker2 = Tracker();
+      final tracker3 = Tracker();
 
-    final delegate = RoutemasterDelegate(
-      routesBuilder: (_) => RouteMap(routes: {
-        '/': (_) => CupertinoTabPage(
+      final delegate = RoutemasterDelegate(
+        routesBuilder: (_) => RouteMap(
+          routes: {
+            '/': (_) => CupertinoTabPage(
               child: HomePage(tracker: tracker1),
               paths: const ['feed', 'settings'],
             ),
-        '/feed': (_) => MaterialPage<void>(
-              child: InitStateTracker(tracker: tracker2),
-            ),
-        '/settings': (_) => MaterialPage<void>(
-              child: InitStateTracker(tracker: tracker3),
-            ),
-      }),
-    );
+            '/feed': (_) =>
+                MaterialPage<void>(child: InitStateTracker(tracker: tracker2)),
+            '/settings': (_) =>
+                MaterialPage<void>(child: InitStateTracker(tracker: tracker3)),
+          },
+        ),
+      );
 
-    await tester.pumpWidget(
-      MaterialApp.router(
-        routeInformationParser: const RoutemasterParser(),
-        routerDelegate: delegate,
-      ),
-    );
+      await tester.pumpWidget(
+        MaterialApp.router(
+          routeInformationParser: const RoutemasterParser(),
+          routerDelegate: delegate,
+        ),
+      );
 
-    expect(tracker1.initStateCount, 1);
-    expect(tracker2.initStateCount, 1);
-    expect(tracker3.initStateCount, 0);
+      expect(tracker1.initStateCount, 1);
+      expect(tracker2.initStateCount, 1);
+      expect(tracker3.initStateCount, 0);
 
-    await tester.pumpWidget(
-      MaterialApp.router(
-        routeInformationParser: const RoutemasterParser(),
-        routerDelegate: delegate,
-      ),
-    );
+      await tester.pumpWidget(
+        MaterialApp.router(
+          routeInformationParser: const RoutemasterParser(),
+          routerDelegate: delegate,
+        ),
+      );
 
-    expect(tracker1.initStateCount, 1);
-    expect(tracker2.initStateCount, 1);
-    expect(tracker3.initStateCount, 0);
-  });
+      expect(tracker1.initStateCount, 1);
+      expect(tracker2.initStateCount, 1);
+      expect(tracker3.initStateCount, 0);
+    },
+  );
 }
 
 class Tracker {
@@ -180,13 +180,7 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: Center(
-        child: Column(
-          children: const [
-            Text('Profile page'),
-          ],
-        ),
-      ),
+      body: Center(child: Column(children: const [Text('Profile page')])),
     );
   }
 }

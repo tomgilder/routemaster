@@ -71,8 +71,8 @@ class _CupertinoTabPageStateProvider extends InheritedNotifier {
     required super.child,
     required this.pageState,
   }) : super(
-          notifier: pageState,
-        );
+         notifier: pageState,
+       );
 }
 
 /// The state for a [CupertinoTabPage]. Creates and manages a

@@ -29,9 +29,9 @@ class CategoryPage extends StatelessWidget {
           ),
           Wrap(
             children: [
-              for (final book in BooksDatabase()
-                  .books
-                  .where((book) => book.categories.contains(category)))
+              for (final book in BooksDatabase().books.where(
+                (book) => book.categories.contains(category),
+              ))
                 BookCard(book: book),
             ],
           ),

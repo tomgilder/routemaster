@@ -45,10 +45,7 @@ void main() {
             },
           ),
           navigatorBuilder: (BuildContext context, PageStack stack) {
-            return PageStackNavigator(
-              stack: stack,
-              observers: [observer],
-            );
+            return PageStackNavigator(stack: stack, observers: [observer]);
           },
         ),
       ),
@@ -64,8 +61,9 @@ void main() {
     expect(observer.log[1], isPush());
   });
 
-  testWidgets('Can filter pages using PageStackNavigator.builder',
-      (tester) async {
+  testWidgets('Can filter pages using PageStackNavigator.builder', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       MaterialApp.router(
         routeInformationParser: const RoutemasterParser(),
@@ -73,9 +71,9 @@ void main() {
           routesBuilder: (_) => RouteMap(
             routes: {
               '/': (_) => StackPage(
-                    child: SimpleStackPage(builder: (pages) => pages.take(1)),
-                    defaultPath: '/one/two',
-                  ),
+                child: SimpleStackPage(builder: (pages) => pages.take(1)),
+                defaultPath: '/one/two',
+              ),
               '/one': (_) => const MaterialPageOne(),
               '/one/two': (_) => const MaterialPageTwo(),
             },
@@ -88,15 +86,16 @@ void main() {
     expect(find.byType(PageTwo), findsNothing);
   });
 
-  testWidgets('PageStackNavigator.builder with no filter shows all pages',
-      (tester) async {
+  testWidgets('PageStackNavigator.builder with no filter shows all pages', (
+    tester,
+  ) async {
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (_) => StackPage(
-                child: SimpleStackPage(builder: (pages) => pages),
-                defaultPath: '/one',
-              ),
+            child: SimpleStackPage(builder: (pages) => pages),
+            defaultPath: '/one',
+          ),
           '/one': (_) => const MaterialPageOne(),
           '/one/two': (_) => const MaterialPageTwo(),
         },

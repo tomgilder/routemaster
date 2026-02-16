@@ -18,7 +18,7 @@ class AppState extends ChangeNotifier {
       username: 'dash',
       id: '123',
       title: "Dash's birthday wishlist",
-    )
+    ),
   ];
   Iterable<Wishlist> get wishlists => List.unmodifiable(_wishlists);
 

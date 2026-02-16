@@ -45,53 +45,54 @@ RouteMap _buildRouteMap(BuildContext context) {
     routes: {
       '/': (route) => NoAnimationPage(child: ShopHome()),
       '/login': (route) => NoAnimationPage(
-            child: LoginPage(
-              redirectTo: route.queryParameters['redirectTo'],
-            ),
-          ),
+        child: LoginPage(
+          redirectTo: route.queryParameters['redirectTo'],
+        ),
+      ),
       '/book/:id': (route) => _isValidBookId(route.pathParameters['id'])
           ? NoAnimationPage(child: BookPage(id: route.pathParameters['id']!))
           : NotFound(),
       '/category/:category': (route) =>
           _isValidCategory(route.pathParameters['category'])
-              ? NoAnimationPage(
-                  child: CategoryPage(
-                    category: BookCategory.values.firstWhere(
-                      (e) => e.queryParam == route.pathParameters['category'],
-                    ),
-                  ),
-                )
-              : NotFound(),
-      '/category/:category/book/:id': (route) => _isValidCategory(
-                  route.pathParameters['category']) &&
+          ? NoAnimationPage(
+              child: CategoryPage(
+                category: BookCategory.values.firstWhere(
+                  (e) => e.queryParam == route.pathParameters['category'],
+                ),
+              ),
+            )
+          : NotFound(),
+      '/category/:category/book/:id': (route) =>
+          _isValidCategory(route.pathParameters['category']) &&
               _isValidBookId(route.pathParameters['id'])
           ? NoAnimationPage(child: BookPage(id: route.pathParameters['id']!))
           : NotFound(),
       '/audiobooks': (route) => TabPage(
-            child: AudiobookPage(),
-            paths: ['all', 'picks'],
-            pageBuilder: (child) => NoAnimationPage(child: child),
-          ),
+        child: AudiobookPage(),
+        paths: ['all', 'picks'],
+        pageBuilder: (child) => NoAnimationPage(child: child),
+      ),
       '/audiobooks/all': (route) => NoAnimationPage(
-            child: AudiobookListPage(mode: 'all'),
-          ),
+        child: AudiobookListPage(mode: 'all'),
+      ),
       '/audiobooks/picks': (route) => NoAnimationPage(
-            child: AudiobookListPage(mode: 'picks'),
-          ),
+        child: AudiobookListPage(mode: 'picks'),
+      ),
       '/audiobooks/book/:id': (route) =>
           _isValidBookId(route.pathParameters['id'])
-              ? NoAnimationPage(
-                  child: BookPage(id: route.pathParameters['id']!),
-                )
-              : NotFound(),
+          ? NoAnimationPage(
+              child: BookPage(id: route.pathParameters['id']!),
+            )
+          : NotFound(),
       '/search': (route) => NoAnimationPage(
-              child: SearchPage(
-            query: route.queryParameters['query'] ?? '',
-            sortOrder: SortOrder.values.firstWhere(
-              (e) => e.queryParam == route.queryParameters['sort'],
-              orElse: () => SortOrder.name,
-            ),
-          )),
+        child: SearchPage(
+          query: route.queryParameters['query'] ?? '',
+          sortOrder: SortOrder.values.firstWhere(
+            (e) => e.queryParam == route.queryParameters['sort'],
+            orElse: () => SortOrder.name,
+          ),
+        ),
+      ),
       '/wishlist': (route) => NoAnimationPage(child: WishlistHomePage()),
       '/wishlist/add': (route) => AddWishlistPage(),
       '/wishlist/shared/:id': (route) {
@@ -117,10 +118,10 @@ final loggedOutRouteMap = RouteMap(
 
 class NoAnimationPage<T> extends TransitionPage<T> {
   NoAnimationPage({required super.child})
-      : super(
-          pushTransition: PageTransition.none,
-          popTransition: PageTransition.none,
-        );
+    : super(
+        pushTransition: PageTransition.none,
+        popTransition: PageTransition.none,
+      );
 }
 
 class BookStoreApp extends StatelessWidget {
@@ -145,7 +146,8 @@ class BookStoreApp extends StatelessWidget {
           primaryColor: Color(0xFF131921),
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
-              foregroundColor: Color(0xff333333), backgroundColor: Color(0xfffebd68),
+              foregroundColor: Color(0xff333333),
+              backgroundColor: Color(0xfffebd68),
             ),
           ),
           platform: TargetPlatform.macOS,

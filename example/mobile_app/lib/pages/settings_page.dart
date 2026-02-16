@@ -32,8 +32,9 @@ class SettingsPage extends StatelessWidget {
             ),
             SizedBox(height: 50),
             ElevatedButton(
-              onPressed: () => Provider.of<AppState>(context, listen: false)
-                  .isLoggedIn = false,
+              onPressed: () =>
+                  Provider.of<AppState>(context, listen: false).isLoggedIn =
+                      false,
               child: Text('Log out'),
             ),
           ],

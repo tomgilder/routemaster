@@ -10,12 +10,12 @@ void main() {
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (info) => Guard(
-                canNavigate: (info, context) => false,
-                onNavigationFailed: (info, context) {
-                  return MaterialPage<void>(child: NotFoundPage());
-                },
-                builder: () => const MaterialPage<void>(child: PageOne()),
-              ),
+            canNavigate: (info, context) => false,
+            onNavigationFailed: (info, context) {
+              return MaterialPage<void>(child: NotFoundPage());
+            },
+            builder: () => const MaterialPage<void>(child: PageOne()),
+          ),
         },
       ),
     );
@@ -36,11 +36,10 @@ void main() {
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (info) => Guard(
-                canNavigate: (info, context) => false,
-                onNavigationFailed: (info, context) =>
-                    const Redirect('/page-two'),
-                builder: () => const MaterialPage<void>(child: PageOne()),
-              ),
+            canNavigate: (info, context) => false,
+            onNavigationFailed: (info, context) => const Redirect('/page-two'),
+            builder: () => const MaterialPage<void>(child: PageOne()),
+          ),
           '/page-two': (info) => const MaterialPage<void>(child: PageTwo()),
         },
       ),
@@ -57,16 +56,17 @@ void main() {
     expect(find.byType(PageTwo), findsOneWidget);
   });
 
-  testWidgets('Guard can fall back to onUnknownRoute with new page',
-      (tester) async {
+  testWidgets('Guard can fall back to onUnknownRoute with new page', (
+    tester,
+  ) async {
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         onUnknownRoute: (route) => MaterialPage<void>(child: NotFoundPage()),
         routes: {
           '/': (info) => Guard(
-                canNavigate: (info, context) => false,
-                builder: () => const MaterialPage<void>(child: PageOne()),
-              ),
+            canNavigate: (info, context) => false,
+            builder: () => const MaterialPage<void>(child: PageOne()),
+          ),
         },
       ),
     );
@@ -82,16 +82,17 @@ void main() {
     expect(find.byType(NotFoundPage), findsOneWidget);
   });
 
-  testWidgets('Guard can fall back to onUnknownRoute with redirect',
-      (tester) async {
+  testWidgets('Guard can fall back to onUnknownRoute with redirect', (
+    tester,
+  ) async {
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         onUnknownRoute: (route) => const Redirect('/page-two'),
         routes: {
           '/': (info) => Guard(
-                canNavigate: (info, context) => false,
-                builder: () => const MaterialPage<void>(child: PageOne()),
-              ),
+            canNavigate: (info, context) => false,
+            builder: () => const MaterialPage<void>(child: PageOne()),
+          ),
           '/page-two': (info) => const MaterialPage<void>(child: PageTwo()),
         },
       ),
@@ -113,9 +114,9 @@ void main() {
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (info) => Guard(
-                canNavigate: (info, context) => true,
-                builder: () => const MaterialPage<void>(child: PageOne()),
-              ),
+            canNavigate: (info, context) => true,
+            builder: () => const MaterialPage<void>(child: PageOne()),
+          ),
         },
       ),
     );
@@ -140,24 +141,24 @@ void main() {
         routes: {
           '/': (_) => const MaterialPage<void>(child: PageOne()),
           '/:id': (_) => Guard(
-                canNavigate: (info, context) {
-                  expect(info.path, '/123');
-                  expect(info.fullPath, '/123?query=string');
-                  expect(info.pathParameters, {'id': '123'});
-                  expect(info.queryParameters, {'query': 'string'});
-                  validateWasCalled = true;
-                  return false;
-                },
-                onNavigationFailed: (info, context) {
-                  expect(info.path, '/123');
-                  expect(info.fullPath, '/123?query=string');
-                  expect(info.pathParameters, {'id': '123'});
-                  expect(info.queryParameters, {'query': 'string'});
-                  onValidationFailedWasCalled = true;
-                  return const Redirect('/');
-                },
-                builder: () => const MaterialPage<void>(child: PageOne()),
-              ),
+            canNavigate: (info, context) {
+              expect(info.path, '/123');
+              expect(info.fullPath, '/123?query=string');
+              expect(info.pathParameters, {'id': '123'});
+              expect(info.queryParameters, {'query': 'string'});
+              validateWasCalled = true;
+              return false;
+            },
+            onNavigationFailed: (info, context) {
+              expect(info.path, '/123');
+              expect(info.fullPath, '/123?query=string');
+              expect(info.pathParameters, {'id': '123'});
+              expect(info.queryParameters, {'query': 'string'});
+              onValidationFailedWasCalled = true;
+              return const Redirect('/');
+            },
+            builder: () => const MaterialPage<void>(child: PageOne()),
+          ),
         },
       ),
     );
@@ -166,8 +167,9 @@ void main() {
       MaterialApp.router(
         routeInformationParser: const RoutemasterParser(),
         routeInformationProvider: PlatformRouteInformationProvider(
-          initialRouteInformation:
-              RouteInformation(uri: Uri.parse('/123?query=string')),
+          initialRouteInformation: RouteInformation(
+            uri: Uri.parse('/123?query=string'),
+          ),
         ),
         routerDelegate: delegate,
       ),
@@ -183,12 +185,12 @@ void main() {
       routesBuilder: (_) => RouteMap(
         routes: {
           '/': (info) => Guard(
-                canNavigate: (_, __) => true,
-                builder: () => Guard(
-                  canNavigate: (_, __) => true,
-                  builder: () => const MaterialPage<void>(child: PageOne()),
-                ),
-              ),
+            canNavigate: (_, __) => true,
+            builder: () => Guard(
+              canNavigate: (_, __) => true,
+              builder: () => const MaterialPage<void>(child: PageOne()),
+            ),
+          ),
         },
       ),
     );
@@ -224,11 +226,7 @@ void main() {
 
   testWidgets('NotFound defaults to DefaultNotFoundPage', (tester) async {
     final delegate = RoutemasterDelegate(
-      routesBuilder: (_) => RouteMap(
-        routes: {
-          '/': (info) => const NotFound(),
-        },
-      ),
+      routesBuilder: (_) => RouteMap(routes: {'/': (info) => const NotFound()}),
     );
 
     await tester.pumpWidget(
@@ -245,9 +243,7 @@ void main() {
     final delegate = RoutemasterDelegate(
       routesBuilder: (_) => RouteMap(
         onUnknownRoute: (route) => MaterialPage<void>(child: NotFoundPage()),
-        routes: {
-          '/': (info) => const NotFound(),
-        },
+        routes: {'/': (info) => const NotFound()},
       ),
     );
 

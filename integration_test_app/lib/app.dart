@@ -12,16 +12,16 @@ class MyApp extends StatelessWidget {
           '/two': (_) => const MaterialPage<void>(child: PageTwo()),
           '/one/two': (_) => const MaterialPage<void>(child: PageTwo()),
           '/tabs': (_) => const CupertinoTabPage(
-                paths: const ['/tabs/one', '/tabs/two'],
-                child: TabbedPage(),
-              ),
+            paths: const ['/tabs/one', '/tabs/two'],
+            child: TabbedPage(),
+          ),
           '/tabs/one': (_) => const MaterialPage<void>(child: PageOne()),
           '/tabs/two': (_) => const MaterialPage<void>(child: PageTwo()),
           '/_private': (route) => MaterialPage<void>(
-                child: PrivatePage(
-                  message: route.queryParameters['message'],
-                ),
-              ),
+            child: PrivatePage(
+              message: route.queryParameters['message'],
+            ),
+          ),
         },
       );
     },

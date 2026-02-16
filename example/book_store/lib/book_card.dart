@@ -56,7 +56,8 @@ class BookCard extends StatelessWidget {
     return CustomCard(
       onTap: () {
         Routemaster.of(context).push(
-            pathBuilder != null ? pathBuilder!(book.id) : '/book/${book.id}');
+          pathBuilder != null ? pathBuilder!(book.id) : '/book/${book.id}',
+        );
       },
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

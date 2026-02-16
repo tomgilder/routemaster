@@ -7,11 +7,8 @@ import 'helpers.dart';
 void main() {
   testWidgets('By default unknown route shows simple 404 page', (tester) async {
     final delegate = RoutemasterDelegate(
-      routesBuilder: (_) => RouteMap(
-        routes: {
-          '/': (_) => const MaterialPageOne(),
-        },
-      ),
+      routesBuilder: (_) =>
+          RouteMap(routes: {'/': (_) => const MaterialPageOne()}),
     );
 
     await tester.pumpWidget(
@@ -37,9 +34,7 @@ void main() {
           onUnknownRoute: (_) {
             return MaterialPage<void>(child: NotFoundPage());
           },
-          routes: {
-            '/': (_) => const MaterialPageOne(),
-          },
+          routes: {'/': (_) => const MaterialPageOne()},
         ),
       );
 

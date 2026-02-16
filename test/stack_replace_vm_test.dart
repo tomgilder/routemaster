@@ -9,12 +9,16 @@ import 'helpers.dart';
 
 void main() {
   testWidgets('Can push a page via replace()', (tester) async {
-    final delegate = RoutemasterDelegate(routesBuilder: (context) {
-      return RouteMap(routes: {
-        '/': (_) => const MaterialPageOne(),
-        '/two': (_) => const MaterialPageTwo(),
-      });
-    });
+    final delegate = RoutemasterDelegate(
+      routesBuilder: (context) {
+        return RouteMap(
+          routes: {
+            '/': (_) => const MaterialPageOne(),
+            '/two': (_) => const MaterialPageTwo(),
+          },
+        );
+      },
+    );
 
     await tester.pumpWidget(
       MaterialApp.router(
@@ -31,7 +35,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(
-        delegate.currentConfiguration, RouteData('/two', pathTemplate: '/two'));
+      delegate.currentConfiguration,
+      RouteData('/two', pathTemplate: '/two'),
+    );
     expect(find.byType(PageOne), findsNothing);
     expect(find.byType(PageTwo), findsOneWidget);
   });
@@ -42,12 +48,16 @@ void main() {
     await tester.pumpWidget(
       MaterialApp.router(
         routeInformationParser: const RoutemasterParser(),
-        routerDelegate: RoutemasterDelegate(routesBuilder: (context) {
-          return RouteMap(routes: {
-            '/': (_) => MaterialPage<void>(child: PageOne(key: page1Key)),
-            '/two': (_) => const MaterialPageTwo(),
-          });
-        }),
+        routerDelegate: RoutemasterDelegate(
+          routesBuilder: (context) {
+            return RouteMap(
+              routes: {
+                '/': (_) => MaterialPage<void>(child: PageOne(key: page1Key)),
+                '/two': (_) => const MaterialPageTwo(),
+              },
+            );
+          },
+        ),
       ),
     );
 

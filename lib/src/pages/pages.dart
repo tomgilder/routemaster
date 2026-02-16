@@ -34,8 +34,8 @@ class StatelessPage<T extends Page<dynamic>> with PageContainer {
   StatelessPage({
     required T page,
     required RouteData routeData,
-  })  : _page = page,
-        _routeData = routeData;
+  }) : _page = page,
+       _routeData = routeData;
 
   @override
   Page<dynamic> _getOrCreatePage() => _page;

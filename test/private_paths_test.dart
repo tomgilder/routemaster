@@ -25,13 +25,15 @@ const urls = {
 void main() {
   for (final mapEntry in urls.entries) {
     testWidgets(
-        'Pushed private URL reported to system correctly: ${mapEntry.key}',
-        (tester) async {
-      await _expectPushedPrivateUrl(tester, mapEntry.key, mapEntry.value);
-    });
+      'Pushed private URL reported to system correctly: ${mapEntry.key}',
+      (tester) async {
+        await _expectPushedPrivateUrl(tester, mapEntry.key, mapEntry.value);
+      },
+    );
 
-    testWidgets('Trying to load private URL shows 404: ${mapEntry.key}',
-        (tester) async {
+    testWidgets('Trying to load private URL shows 404: ${mapEntry.key}', (
+      tester,
+    ) async {
       await _expectPrivateUrlNotFound(tester, mapEntry.key);
     });
   }
@@ -49,10 +51,12 @@ void main() {
         ),
       );
 
-      await tester.pumpWidget(MaterialApp.router(
-        routeInformationParser: const RoutemasterParser(),
-        routerDelegate: delegate,
-      ));
+      await tester.pumpWidget(
+        MaterialApp.router(
+          routeInformationParser: const RoutemasterParser(),
+          routerDelegate: delegate,
+        ),
+      );
 
       delegate.push('/test/_private', queryParameters: {'message': 'hello'});
       await tester.pump();
@@ -77,10 +81,12 @@ void main() {
         ),
       );
 
-      await tester.pumpWidget(MaterialApp.router(
-        routeInformationParser: const RoutemasterParser(),
-        routerDelegate: delegate,
-      ));
+      await tester.pumpWidget(
+        MaterialApp.router(
+          routeInformationParser: const RoutemasterParser(),
+          routerDelegate: delegate,
+        ),
+      );
 
       delegate.push('/product/_myId');
       await tester.pump();
@@ -104,10 +110,12 @@ void main() {
         ),
       );
 
-      await tester.pumpWidget(MaterialApp.router(
-        routeInformationParser: const RoutemasterParser(),
-        routerDelegate: delegate,
-      ));
+      await tester.pumpWidget(
+        MaterialApp.router(
+          routeInformationParser: const RoutemasterParser(),
+          routerDelegate: delegate,
+        ),
+      );
 
       delegate.push('/_two');
       await tester.pumpAndSettle();
@@ -134,10 +142,12 @@ void main() {
         ),
       );
 
-      await tester.pumpWidget(MaterialApp.router(
-        routeInformationParser: const RoutemasterParser(),
-        routerDelegate: delegate,
-      ));
+      await tester.pumpWidget(
+        MaterialApp.router(
+          routeInformationParser: const RoutemasterParser(),
+          routerDelegate: delegate,
+        ),
+      );
 
       delegate.push('/product/myId');
       await tester.pump();
@@ -160,10 +170,12 @@ void main() {
         ),
       );
 
-      await tester.pumpWidget(MaterialApp.router(
-        routeInformationParser: const RoutemasterParser(),
-        routerDelegate: delegate,
-      ));
+      await tester.pumpWidget(
+        MaterialApp.router(
+          routeInformationParser: const RoutemasterParser(),
+          routerDelegate: delegate,
+        ),
+      );
 
       await setSystemUrl('/test_ing');
       await tester.pump();
@@ -189,9 +201,8 @@ void main() {
   testWidgets('Shows 404 page with unknown private url', (tester) async {
     await recordUrlChanges((systemUrl) async {
       final delegate = RoutemasterDelegate(
-        routesBuilder: (_) => RouteMap(
-          routes: {'/': (_) => const MaterialPageOne()},
-        ),
+        routesBuilder: (_) =>
+            RouteMap(routes: {'/': (_) => const MaterialPageOne()}),
       );
 
       await tester.pumpWidget(
@@ -207,10 +218,7 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
 
       expect(find.byType(DefaultNotFoundPage), findsOneWidget);
-      expect(
-        find.text("Page '/test/_private' wasn't found."),
-        findsOneWidget,
-      );
+      expect(find.text("Page '/test/_private' wasn't found."), findsOneWidget);
 
       expect(systemUrl.current, '/test/_private');
     });
@@ -235,7 +243,10 @@ void main() {
 }
 
 Future<void> _expectPushedPrivateUrl(
-    WidgetTester tester, String actual, String expected) async {
+  WidgetTester tester,
+  String actual,
+  String expected,
+) async {
   await recordUrlChanges((systemUrl) async {
     final delegate = RoutemasterDelegate(
       routesBuilder: (BuildContext context) => RouteMap(
@@ -246,10 +257,12 @@ Future<void> _expectPushedPrivateUrl(
       ),
     );
 
-    await tester.pumpWidget(MaterialApp.router(
-      routeInformationParser: const RoutemasterParser(),
-      routerDelegate: delegate,
-    ));
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: const RoutemasterParser(),
+        routerDelegate: delegate,
+      ),
+    );
 
     delegate.push(actual);
     await tester.pump();
@@ -268,10 +281,12 @@ Future<void> _expectPrivateUrlNotFound(WidgetTester tester, String url) async {
     ),
   );
 
-  await tester.pumpWidget(MaterialApp.router(
-    routeInformationParser: const RoutemasterParser(),
-    routerDelegate: delegate,
-  ));
+  await tester.pumpWidget(
+    MaterialApp.router(
+      routeInformationParser: const RoutemasterParser(),
+      routerDelegate: delegate,
+    ),
+  );
 
   await setSystemUrl(url);
   await tester.pump();

@@ -58,8 +58,9 @@ class AudiobookListPage extends StatelessWidget {
         Wrap(
           children: [
             if (mode == 'picks')
-              for (final book
-                  in BooksDatabase().books.where((book) => book.isStaffPick))
+              for (final book in BooksDatabase().books.where(
+                (book) => book.isStaffPick,
+              ))
                 BookCard(
                   book: book,
                   pathBuilder: (id) => '/audiobooks/book/$id',

@@ -274,8 +274,12 @@ class TransitionBuilderPageRoute<T> extends PageRoute<T> {
   }
 
   @override
-  Widget buildTransitions(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation, Widget child) {
+  Widget buildTransitions(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
     final isPopping = controller!.status == .reverse;
 
     // If the push is complete we build the pop transition.
@@ -285,11 +289,16 @@ class TransitionBuilderPageRoute<T> extends PageRoute<T> {
 
     final transition =
         (isPopping || pushIsComplete || navigator!.userGestureInProgress)
-            ? _page.buildPopTransition(navigator!.context)
-            : _page.buildPushTransition(navigator!.context);
+        ? _page.buildPopTransition(navigator!.context)
+        : _page.buildPushTransition(navigator!.context);
 
-    return transition.transitionsBuilder
-        .buildTransitions(this, context, animation, secondaryAnimation, child);
+    return transition.transitionsBuilder.buildTransitions(
+      this,
+      context,
+      animation,
+      secondaryAnimation,
+      child,
+    );
   }
 
   @override

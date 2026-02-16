@@ -13,8 +13,9 @@ Future<void> pumpFeedPage(WidgetTester tester) async {
 }
 
 void main() {
-  testWidgets('Shows profile page 1, photo page, and back to feed home',
-      (tester) async {
+  testWidgets('Shows profile page 1, photo page, and back to feed home', (
+    tester,
+  ) async {
     await recordUrlChanges((systemUrl) async {
       await pumpFeedPage(tester);
 

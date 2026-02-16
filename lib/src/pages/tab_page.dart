@@ -31,8 +31,8 @@ class TabPage extends StatefulPage<void> with IndexedRouteMixIn {
 
   /// Retrieves the nearest [TabPageState] ancestor.
   static TabPageState of(BuildContext context) {
-    final provider =
-        context.dependOnInheritedWidgetOfExactType<_TabPageStateProvider>();
+    final provider = context
+        .dependOnInheritedWidgetOfExactType<_TabPageStateProvider>();
 
     assert(
       provider != null,
@@ -50,8 +50,8 @@ class _TabPageStateProvider extends InheritedNotifier {
     required super.child,
     required this.pageState,
   }) : super(
-          notifier: pageState,
-        );
+         notifier: pageState,
+       );
 }
 
 /// The state for a [TabPage]. Creates and manages a [TabController] that can be
@@ -136,13 +136,14 @@ class _TabControllerProviderState extends State<_TabControllerProvider>
 
   void _updateController() {
     _controller?.dispose();
-    _controller = TabController(
-      length: widget.pageState._routes.length,
-      initialIndex: widget.pageState.index,
-      vsync: this,
-    )..addListener(() {
-        widget.pageState.index = _controller!.index;
-      });
+    _controller =
+        TabController(
+          length: widget.pageState._routes.length,
+          initialIndex: widget.pageState.index,
+          vsync: this,
+        )..addListener(() {
+          widget.pageState.index = _controller!.index;
+        });
   }
 
   @override
