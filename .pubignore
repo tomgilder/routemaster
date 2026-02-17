@@ -1,0 +1,7 @@
+integration_test_app/
+example/deep_linking/
+example/mobile_app/
+example/navigation_bar/
+example/simple_example/
+build/
+**/build/

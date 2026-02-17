@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Routemaster is a Flutter Navigator 2.0 routing package. It provides declarative URL-based routing with support for tabs, nested routes, guards, redirects, and web/mobile/desktop platforms.
+Routemaster is a Flutter routing package. It provides declarative URL-based routing with support for tabs, nested routes, guards, redirects, and web/mobile/desktop platforms.
 
 ## Common Commands
 
@@ -38,7 +38,7 @@ The main library is exported from `lib/routemaster.dart` (~1500 lines), which is
 ### Key Components
 
 - **RouteMap**: Maps URL paths to page builders. Paths support `:param` parameters and `_`-prefixed private segments (hidden from URL bar).
-- **RoutemasterDelegate**: The `RouterDelegate` implementation that manages navigation state and integrates with Flutter's Navigator 2.0.
+- **RoutemasterDelegate**: The `RouterDelegate` implementation that manages navigation state and integrates with Flutter's Router API.
 - **TrieRouter** (`lib/src/trie_router/`): Trie-based data structure for efficient route matching.
 - **Page types** (`lib/src/pages/`): `TabPage`, `CupertinoTabPage`, `IndexedPage`, `StackPage`, `TransitionPage`, `Guard`, `Redirect`.
 - **Platform abstraction**: `system_nav.dart` / `system_nav_main.dart` / `system_nav_web.dart` handle web vs native navigation differences. `fake_html.dart` stubs web APIs for non-web platforms.
