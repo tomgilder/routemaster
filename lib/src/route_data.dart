@@ -163,7 +163,7 @@ class RouteData {
         requestSource: RequestSource.values.firstWhere(
           (source) => source.toString() == requestSource,
         ),
-        pathTemplate: state['pathTemplate'] as String,
+        pathTemplate: state['pathTemplate'] as String?,
         pathParameters: (state['pathParameters'] as Map<String, dynamic>)
             .cast<String, String>(),
         historyIndex: state['historyIndex'] as int?,
